@@ -453,8 +453,9 @@ else{
 
     // Paso 2: Solo si hay IDs, obtener los datos completos (RÁPIDO)
     if (count($report_ids) > 0) {
-        $sql = "SELECT 
+        $sql = "SELECT
         RL.id_lpp AS id,
+        RL.fecha_reporte,
         RL.pabellon,
         RL.poblacion_total      AS asistencia_total,
         RL.prisioneros_invitados AS asistencia_hom,
@@ -740,7 +741,8 @@ else{
         <div class="table-responsive">
             <table class="table table-striped table-bordered table-hover table-resultados" style="font-size:12px">
                 <thead>
-                    <tr> 
+                    <tr>
+                        <th>Fecha del reporte</th>
                         <th>Regional</th>
                         <th>Prisión</th>
                         <th>Usuario</th>
@@ -760,6 +762,7 @@ else{
                         while($PSN1->next_record())
                         {
                             $id = $PSN1->f('id');
+                            $fecha_reporte = $PSN1->f("fecha_reporte");
                             $regional = $PSN1->f("regional");
                             $prision = $PSN1->f("reub_nom");
                             $nombreUsuario = $PSN1->f("nombreUsuario");
@@ -771,6 +774,7 @@ else{
                             $asistencia_total = $PSN1->f("asistencia_total");
                             
                             ?><tr class='clickable-row' data-href='index.php?doc=gestionar-sub-programa-lpp&id=<?=$id; ?>'>
+                                <td><?=$fecha_reporte; ?></td>
                                 <td><?=$regional; ?></td>
                                 <td><?=$prision; ?></td>
                                 <td><?=$nombreUsuario; ?></td>
