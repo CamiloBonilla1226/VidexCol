@@ -123,9 +123,9 @@ $escala_actual = array(
                             WHERE
                                 r.creacionUsuario = " . $_SESSION["id"] . "
                                 AND r.id_actividad = 1
+                                AND r.id_grupo <> 0
                                 AND r.fechaReporte BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
                                 AND r.generacionNumero BETWEEN 1 AND 5
-                                AND r.mapeo_oracion IS NOT NULL
                             ORDER BY
                                 r.fechaReporte DESC";
                     
