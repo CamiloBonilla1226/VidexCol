@@ -145,11 +145,21 @@ if(isset($_POST["funcion"])){
         }
         $rep_entr = eliminarInvalidos($_REQUEST["rep_entr"]);
 
+        $advertenciaArchivos = array();
+
         $nombre_archivo = $_FILES['archivo1']['name'];
         $archivo1 = extension_archivo($nombre_archivo);
-        
+        if($nombre_archivo != "" && strpos($nombre_archivo, ".") === false){
+            $advertenciaArchivos[] = "la foto";
+            $archivo1 = "";
+        }
+
         $nombre_archivo = $_FILES['archivo2']['name'];
-        $archivo2 = extension_archivo($nombre_archivo);        
+        $archivo2 = extension_archivo($nombre_archivo);
+        if($nombre_archivo != "" && strpos($nombre_archivo, ".") === false){
+            $advertenciaArchivos[] = "el testimonio";
+            $archivo2 = "";
+        }
 
         if($error_datos == 0){
             
@@ -280,15 +290,24 @@ if(isset($_POST["funcion"])){
         }
         $rep_entr = eliminarInvalidos($_REQUEST["rep_entr"]);
 
+        $advertenciaArchivos = array();
+
         $nombre_archivo = $_FILES['archivo1']['name'];
         $archivo1 = extension_archivo($nombre_archivo);
-        
+        if($nombre_archivo != "" && strpos($nombre_archivo, ".") === false){
+            $advertenciaArchivos[] = "la foto";
+            $archivo1 = "";
+        }
+
         $nombre_archivo = $_FILES['archivo2']['name'];
         $archivo2 = extension_archivo($nombre_archivo);
-        
-        
+        if($nombre_archivo != "" && strpos($nombre_archivo, ".") === false){
+            $advertenciaArchivos[] = "el testimonio";
+            $archivo2 = "";
+        }
+
         //
-        $sql = 'UPDATE reporte_lpp SET 
+        $sql = 'UPDATE reporte_lpp SET
                     carcel_id = '.$sitioReunion.', 
                     fecha_reporte = "'.$fechaReporte.'",
                     periodo_trimestre = '.$mapeo_cuarto.',
@@ -3353,6 +3372,11 @@ if($idReporteActual > 0){
             }
             ?> correctamente el registro, para ver el reporte de clic aquí</a>.</h2>
         </div>
+        <?php if(!empty($advertenciaArchivos)){ ?>
+        <div class="row">
+            <h5 class="alert alert-warning text-center">Atención: <?=implode(' y ', $advertenciaArchivos); ?> no se guardó porque el archivo no tiene una extensión válida (revise el nombre del archivo, por ejemplo "documento.pdf"). Vuelva a adjuntarlo desde la edición del reporte.</h5>
+        </div>
+        <?php } ?>
     </div>
     <script type="text/javascript">
     /* El reporte fue guardado exitosamente — limpiar el borrador local */
@@ -3388,6 +3412,11 @@ if($idReporteActual > 0){
         ?><div class="row">
             <h5 class="alert alert-warning text-center">Se ha actualizado correctamente el registro.</h5>
         </div><?php
+        if(!empty($advertenciaArchivos)){
+            ?><div class="row">
+            <h5 class="alert alert-warning text-center">Atención: <?=implode(' y ', $advertenciaArchivos); ?> no se guardó porque el archivo no tiene una extensión válida (revise el nombre del archivo, por ejemplo "documento.pdf"). Vuelva a adjuntarlo.</h5>
+        </div><?php
+        }
     }
     //
     if($texto_error != ""){

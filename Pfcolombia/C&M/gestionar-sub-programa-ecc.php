@@ -122,10 +122,6 @@ if(isset($_REQUEST["generacion"]) && $_REQUEST["generacion"] != ""){
 */
 if(isset($_REQUEST["id"]) && $_REQUEST["id"] != ""){
     $idReporteActual = soloNumeros($_REQUEST["id"]);
-    if ($_SESSION["perfil"] == 162 || $_SESSION["perfil"] == 163) {
-        $sql = "UPDATE reporte_cm SET mapeo_fecha = '".date('Y-m-d')."' WHERE id_cm = '".$idReporteActual."'";
-        $PSN1->query($sql);
-    }  
 }else{
     $idReporteActual = 0;
 }
@@ -162,8 +158,9 @@ if(isset($_POST["funcion"])){
         $comentario = eliminarInvalidos($_REQUEST["final_comentarios"]);
         $entrenador = eliminarInvalidos($_REQUEST["entrenador"]);
         $plantador = eliminarInvalidos($_REQUEST["plantador"]);
-        $fechaReporte = eliminarInvalidos($_REQUEST["fechaReporte"]);
-        $fechaInicio = eliminarInvalidos($_REQUEST["fechaInicio"]);        
+        /* La fecha del reporte es automática al crear: nunca se toma del formulario */
+        $fechaReporte = date('Y-m-d');
+        $fechaInicio = eliminarInvalidos($_REQUEST["fechaInicio"]);
         if (isset($_REQUEST['sitioReunion'])) {
             $sitioReunion = soloNumeros($_REQUEST["sitioReunion"]);
         }else{
@@ -2261,12 +2258,8 @@ if($idReporteActual > 0){
 else if(!isset($_REQUEST["id"])){
     $temp_accionForm = "insertar";
     $idGrupoMadre = soloNumeros($_REQUEST["idGrupoMadre"]);
-    //
-    if(!isset($_REQUEST["fechaReporte"])){
-        $fechaReporte = date("Y-m-d");        
-    }else{
-        $fechaReporte = eliminarInvalidos($_REQUEST["fechaReporte"]);
-    }
+    /* La fecha del reporte es automática al crear: siempre la de hoy, nunca la del request */
+    $fechaReporte = date("Y-m-d");
     //
     //
     $sql = "SELECT sat_grupos.nombre ";
@@ -2324,11 +2317,21 @@ else if($varExitoREP == 1){
             ?> correctamente el registro, para ver el reporte de clic aquí</a>.</h2>
         </div>
     </div>
-        
+
     <script LANGUAGE="JavaScript">
         //alert("Se ha creado correctamente el registro.");
         //window.location.href= "index.php?doc=reportar&opc=2&id=<?=$ultimoId; ?>";
     </script>
+    <?php if($idReporteActual == 0){ ?>
+    <script type="text/javascript">
+    /* El reporte fue creado exitosamente — limpiar el borrador local de graduados */
+    (function(){
+        try {
+            sessionStorage.removeItem('ecc_graduados_nuevo');
+        } catch(e) {}
+    })();
+    </script>
+    <?php } ?>
     <?php
 }
 else if($idReporteActual == 0){

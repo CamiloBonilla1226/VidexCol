@@ -471,20 +471,6 @@ if (isset($_REQUEST["id"]) && $_REQUEST["id"] != "") {
 
     $idReporteActual = soloNumeros($_REQUEST["id"]);
 
-    if ($_SESSION["perfil"] == 162 || $_SESSION["perfil"] == 163) {
-
-        $sql = "UPDATE  sat_reportes SET 
-
-                    mapeo_fecha = '" . date('Y-m-d') . "'";
-
-
-
-        $sql .= "WHERE id = '" . $idReporteActual . "'";
-
-        $PSN1->query($sql);
-
-    }
-
 } else {
 
     $idReporteActual = 0;
@@ -499,7 +485,8 @@ if (isset($_POST["funcion"])) {
 
     if ($_POST["funcion"] == "insertar") {
 
-        $fechaReporte = requestText("fechaReporte");
+        /* La fecha del reporte es automática al crear: nunca se toma del formulario */
+        $fechaReporte = date('Y-m-d');
 
         $fechaInicio = requestText("fechaInicio");
 
@@ -4514,17 +4501,8 @@ LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk";
 
     $idGrupoMadre = soloNumeros($_REQUEST["idGrupoMadre"]);
 
-    //
-
-    if (!isset($_REQUEST["fechaReporte"])) {
-
-        $fechaReporte = date("Y-m-d");
-
-    } else {
-
-        $fechaReporte = eliminarInvalidos($_REQUEST["fechaReporte"]);
-
-    }
+    /* La fecha del reporte es automática al crear: siempre la de hoy, nunca la del request */
+    $fechaReporte = date("Y-m-d");
 
     //
 
