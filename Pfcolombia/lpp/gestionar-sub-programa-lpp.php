@@ -97,13 +97,6 @@ if(isset($_REQUEST["generacion"]) && $_REQUEST["generacion"] != ""){
 */
 if(isset($_REQUEST["id"]) && $_REQUEST["id"] != ""){
     $idReporteActual = soloNumeros($_REQUEST["id"]);
-    if ($_SESSION["perfil"] == 162 || $_SESSION["perfil"] == 163) {
-        $sql = "UPDATE reporte_lpp SET 
-                    fecha_reporte = '".date('Y-m-d')."'";
-    
-        $sql .= "WHERE id_lpp = '".$idReporteActual."'";
-        $PSN1->query($sql);
-    }  
 }else{
     $idReporteActual = 0;
 }
@@ -3368,6 +3361,9 @@ if($idReporteActual > 0){
             var STORAGE_KEY = 'lpp_autosave_' + (window.location.search || 'nuevo');
             localStorage.removeItem(STORAGE_KEY);
         } catch(e) {}
+        try {
+            sessionStorage.removeItem('lpp_graduados_nuevo');
+        } catch(e) {}
     })();
     </script>
 <?php }else if($idReporteActual == 0){?>
@@ -4797,6 +4793,8 @@ else{
             var el = elementos[i];
             /* Saltar archivos, botones y campos de tablas dinámicas (se guardan aparte) */
             if (!el.name || el.type === 'file' || el.type === 'submit' || el.type === 'button') continue;
+            /* La fecha del registro es automática (no editable): nunca se guarda en el borrador */
+            if (el.name === 'fechaReporte') continue;
             if (el.classList.contains('act_grad_nom') || el.classList.contains('act_grad_tar') ||
                 el.classList.contains('act_vin_nom')  || el.classList.contains('act_vin_tar')  ||
                 el.classList.contains('act_vex_nom')  || el.classList.contains('act_vex_tar')) continue;
@@ -4838,6 +4836,8 @@ else{
         for (var i = 0; i < elementos.length; i++) {
             var el = elementos[i];
             if (!el.name || el.type === 'file' || el.type === 'submit' || el.type === 'button') continue;
+            /* La fecha del registro nunca se restaura desde el borrador: siempre debe quedar la actual (creación) u original (edición) */
+            if (el.name === 'fechaReporte') continue;
             if (datos.hasOwnProperty(el.name)) {
                 if (el.type === 'checkbox' || el.type === 'radio') {
                     el.checked = (el.value === datos[el.name]);
