@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\Videx\\\\Videx\\\\graphs_dashboard3.php\")"
+    ]
+  }
+}
