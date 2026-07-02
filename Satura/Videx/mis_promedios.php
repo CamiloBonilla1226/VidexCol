@@ -16,9 +16,9 @@ if($_SESSION["perfil"] != 163) {
     return;
 }
 
-// Configurar fechas por defecto (mes actual)
-$fecha_inicio_default = date('Y-m-01'); // Primer día del mes actual
-$fecha_fin_default = date('Y-m-t'); // Último día del mes actual
+// Configurar fechas por defecto (1 de febrero del año actual hasta hoy)
+$fecha_inicio_default = date('Y-02-01'); // 1 de febrero del año actual
+$fecha_fin_default = date('Y-m-d'); // Fecha actual
 
 // Obtener fechas del formulario o usar valores por defecto
 $fecha_inicio = isset($_POST['fecha_inicio']) ? $_POST['fecha_inicio'] : $fecha_inicio_default;
