@@ -1933,7 +1933,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         const etiquetasActividad = {
             1: 'Coach',
             2: 'Ninguna',
-            5: 'Otra',
+            5: 'Otra actividad',
             8: 'Gran Celebracion',
             10: 'Siembra abundante',
             11: 'Caminata de oracion',
@@ -1941,7 +1941,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             13: 'Oracion Exp y Ferviente',
             14: 'Taller',
             77: 'Evangelismo',
-            99: 'Bautizo'
+            99: 'Bautizo',
+            100: 'Capacitacion'
         };
 
         if (etiquetasActividad[idActividad]) {
@@ -2451,7 +2452,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                             const tiposIdActividad = {
                                 '1': 'Coach',
                                 '2': 'Ninguna',
-                                '5': 'Otra',
+                                '5': 'Otra actividad',
                                 '8': 'Gran Celebracion',
                                 '10': 'Siembra abundante',
                                 '11': 'Caminata de oracion',
@@ -2459,7 +2460,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                                 '13': 'Oracion Exp y Ferviente',
                                 '14': 'Taller',
                                 '77': 'Evangelismo',
-                                '99': 'Bautizo'
+                                '99': 'Bautizo',
+                                '100': 'Capacitacion'
                             };
                             const idActividad = parseInt(reporte.id_actividad || 0, 10);
                             const tipo = tiposIdActividad[idActividad] || tiposActividad[reporte.generacionNumero] || 'Desconocido';

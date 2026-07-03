@@ -38,7 +38,7 @@ Los reportes pueden tener las siguientes actividades. Son **independientes al gr
 |---|---|
 | `1` | Coach |
 | `2` | Ninguna |
-| `5` | Otra |
+| `5` | Otra actividad |
 | `8` | Gran Celebración |
 | `10` | Siembra abundante |
 | `11` | Caminata de oración |
@@ -47,6 +47,7 @@ Los reportes pueden tener las siguientes actividades. Son **independientes al gr
 | `14` | Taller |
 | `77` | Evangelismo |
 | `99` | Bautizo |
+| `100` | Capacitación |
 
 ---
 
