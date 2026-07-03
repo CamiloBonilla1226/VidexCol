@@ -1931,10 +1931,17 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
     function obtenerEtiquetaActividad(reporte) {
         const idActividad = parseInt(reporte.id_actividad || 0, 10);
         const etiquetasActividad = {
-            77: 'Evangelismo',
-            99: 'Bautizo',
+            1: 'Coach',
+            2: 'Ninguna',
+            5: 'Otra',
             8: 'Gran Celebracion',
-            1: 'Coach'
+            10: 'Siembra abundante',
+            11: 'Caminata de oracion',
+            12: 'Identificar al hijo de paz',
+            13: 'Oracion Exp y Ferviente',
+            14: 'Taller',
+            77: 'Evangelismo',
+            99: 'Bautizo'
         };
 
         if (etiquetasActividad[idActividad]) {
@@ -2442,10 +2449,17 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                                 '5': '🤝 Coach (5)'
                             };
                             const tiposIdActividad = {
-                                '77': 'Evangelismo',
+                                '1': 'Coach',
+                                '2': 'Ninguna',
+                                '5': 'Otra',
                                 '8': 'Gran Celebracion',
-                                '99': 'Bautizo',
-                                '1': 'Coach'
+                                '10': 'Siembra abundante',
+                                '11': 'Caminata de oracion',
+                                '12': 'Identificar al hijo de paz',
+                                '13': 'Oracion Exp y Ferviente',
+                                '14': 'Taller',
+                                '77': 'Evangelismo',
+                                '99': 'Bautizo'
                             };
                             const idActividad = parseInt(reporte.id_actividad || 0, 10);
                             const tipo = tiposIdActividad[idActividad] || tiposActividad[reporte.generacionNumero] || 'Desconocido';
