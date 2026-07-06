@@ -107,6 +107,84 @@ comentario          TEXT
 
 ---
 
+### Tabla: `usuario`
+
+Almacena los usuarios del sistema (personas y/o clientes con acceso a la plataforma).
+
+```
+id                     INT PK AUTO_INCREMENT
+tipo                   INT(1)
+tipo_user_cli          INT
+nombre                 VARCHAR(255)
+identificacion         VARCHAR(50)
+tipoIdentificacion     INT(4)
+direccion              VARCHAR(255)
+telefono1              VARCHAR(50)
+telefono2              VARCHAR(50)
+celular                VARCHAR(50)
+celular2               VARCHAR(50)
+email                  VARCHAR(255)
+url                    VARCHAR(255)
+url2                   TEXT
+observaciones          TEXT
+login                  VARCHAR(50)
+password               VARCHAR(255)
+superusuario           TINYINT
+acceso                 TINYINT(1)
+acceso_graphs          TINYINT
+creacionUsuario        INT
+creacionFecha          DATE
+modUsuario             INT
+modFecha               DATE
+usua_muni              INT           → FK/índice (MUL)
+lat                    VARCHAR(10)
+lon                    VARCHAR(12)
+aviso                  VARCHAR(255)
+excluido_reportes      TINYINT(1)    → default 0
+```
+
+- `id` referencia a `idUsuario` en `sat_reportes` (creador/dueño del registro) y es la PK que enlaza con `usuario_empresa.idUsuario`.
+- `superusuario` y `acceso` controlan permisos/nivel de acceso a la plataforma.
+- `excluido_reportes = 1` indica que el usuario debe excluirse de los cálculos/listados de reportes.
+
+---
+
+### Tabla: `usuario_empresa`
+
+Datos de la empresa/organización asociada a un usuario. Relación **1 a 1** con `usuario` (la PK es `idUsuario`, sin autoincremento propio).
+
+```
+idUsuario                 INT PK        → FK a usuario.id
+empresa_tipo              INT
+empresa_nombre             VARCHAR(255)
+empresa_nit               VARCHAR(50)
+empresa_representante     VARCHAR(255)
+empresa_contacto          VARCHAR(255)
+empresa_direccion         VARCHAR(255)
+empresa_url               VARCHAR(255)
+empresa_telefono1         VARCHAR(50)
+empresa_telefono2         VARCHAR(50)
+empresa_celular1          VARCHAR(50)
+empresa_celular2          VARCHAR(50)
+empresa_email1            VARCHAR(255)
+empresa_email2            VARCHAR(255)
+empresa_cargo             VARCHAR(255)
+empresa_aprobacion        DECIMAL(12,0)
+empresa_paisid            INT
+empresa_pais              VARCHAR(255)
+empresa_socio             VARCHAR(255)
+empresa_proceso           VARCHAR(255)
+empresa_pd                VARCHAR(255)
+empresa_sitio_cor         VARCHAR(255)
+empresa_sitio             VARCHAR(255)
+empresa_rm                VARCHAR(255)
+empresa_circuito          INT
+```
+
+- Para obtener los datos de empresa de un usuario: `JOIN usuario_empresa ue ON ue.idUsuario = u.id`.
+- `empresa_aprobacion` indica el estado/nivel de aprobación de la empresa.
+---
+
 ## Tipos de reporte y sus campos
 
 ### Reporte de Evangelismo (`id_actividad = 77`)
