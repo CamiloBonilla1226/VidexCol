@@ -340,6 +340,60 @@ if ($estadoSegmentoDiscipular !== 'active') {
 }
 
 $estadoAccionEstablecer = ($estadoSegmentoEstablecer === 'partial') ? 'warning' : $estadoSegmentoEstablecer;
+
+function ciclo_estado_texto($estado)
+{
+    switch ($estado) {
+        case 'active':
+            return array('etiqueta' => 'Completo', 'clase' => 'is-ok');
+        case 'partial':
+            return array('etiqueta' => 'En progreso', 'clase' => 'is-warning');
+        default:
+            return array('etiqueta' => 'Pendiente', 'clase' => 'is-off');
+    }
+}
+
+$cicloPasos = array(
+    array(
+        'id' => 'multiplicar',
+        'titulo' => '1. Multiplicar',
+        'requisito' => 'El grupo debe tener reportes de Taller o de Capacitación.',
+        'estado' => $estadoSegmentoMultiplicar,
+    ),
+    array(
+        'id' => 'encontrar',
+        'titulo' => '2. Encontrar',
+        'requisito' => 'El grupo debe tener reportes de Oración Exp. y Ferviente (Prepárese y ore) y de Identificar al hijo de paz (Encuentre personas de paz). Solo se activa si "Multiplicar" ya está completo.',
+        'estado' => $estadoSegmentoEncontrar,
+    ),
+    array(
+        'id' => 'discipular',
+        'titulo' => '3. Discipular',
+        'requisito' => 'El promedio de mapeo de los reportes de Coach del grupo debe ser Excelente (3.0 o más). Solo se activa si "Encontrar" ya está completo.',
+        'estado' => $estadoSegmentoDiscipular,
+    ),
+    array(
+        'id' => 'establecer',
+        'titulo' => '4. Establecer',
+        'requisito' => 'El grupo debe ser grupo madre de al menos otro grupo. Solo se activa si "Discipular" ya está completo.',
+        'estado' => $estadoSegmentoEstablecer,
+    ),
+);
+
+$cicloNotas = array();
+
+if (!$estadoMultiplicar && ($estadoPrepararseOrar || $estadoEncontrarPersonasPaz)) {
+    $cicloNotas[] = 'Ya hay reportes de Oración Exp. y Ferviente o de Identificar al hijo de paz en este grupo, pero "Encontrar" no se iluminará hasta completar "Multiplicar" (Taller o Capacitación).';
+}
+
+if ($estadoSegmentoEncontrar !== 'active' && $promedioMapeoDiscipular >= $escalaDiscipularRegularMin) {
+    $nivelAlcanzado = ($promedioMapeoDiscipular >= $escalaDiscipularExcelenteMin) ? 'Excelente' : 'Bueno/Regular';
+    $cicloNotas[] = 'Los reportes de Coach de este grupo ya alcanzan un nivel "' . $nivelAlcanzado . '", pero "Discipular" seguirá en gris hasta que "Encontrar" quede completamente en azul.';
+}
+
+if ($estadoSegmentoDiscipular !== 'active' && $estadoGrupoEsMadre) {
+    $cicloNotas[] = 'Este grupo ya es grupo madre de otro grupo, pero "Establecer" seguirá en gris hasta que "Discipular" esté en azul.';
+}
 ?>
 
 
@@ -810,6 +864,168 @@ $estadoAccionEstablecer = ($estadoSegmentoEstablecer === 'partial') ? 'warning' 
         line-height: 1.5;
     }
 
+    .ciclo-guide__intro {
+        margin: 0 0 18px;
+        color: #445064;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .ciclo-legend {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+    }
+
+    .ciclo-legend__item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .ciclo-legend__item strong {
+        display: block;
+        color: #1f2d3d;
+        font-size: 13px;
+    }
+
+    .ciclo-legend__item p {
+        margin: 2px 0 0;
+        color: #5f7086;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .ciclo-legend__dot {
+        flex: 0 0 16px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin-top: 2px;
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.7);
+    }
+
+    .ciclo-legend__dot--active {
+        background: #2f4ea2;
+    }
+
+    .ciclo-legend__dot--partial {
+        background: #f39b2f;
+    }
+
+    .ciclo-legend__dot--off {
+        background: #b8bfcb;
+    }
+
+    .ciclo-notas {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .ciclo-nota {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        background: #fff8ec;
+        border: 1px solid #f3d9a6;
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+
+    .ciclo-nota__icono {
+        flex: 0 0 20px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #f39b2f;
+        color: #fff;
+        font-weight: 800;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .ciclo-nota p {
+        margin: 0;
+        color: #7a5a1e;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .ciclo-steps {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+    }
+
+    .ciclo-step {
+        border-radius: 12px;
+        border: 1px solid #e3e8ef;
+        background: #f8fafc;
+        padding: 14px 16px;
+        border-left: 4px solid #b8bfcb;
+    }
+
+    .ciclo-step__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+
+    .ciclo-step__head h4 {
+        margin: 0;
+        color: #1f2d3d;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .ciclo-step p {
+        margin: 0;
+        color: #5f7086;
+        font-size: 12.5px;
+        line-height: 1.5;
+    }
+
+    .ciclo-step__badge {
+        flex: 0 0 auto;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        padding: 3px 9px;
+        border-radius: 999px;
+        white-space: nowrap;
+    }
+
+    .ciclo-step.is-ok {
+        border-left-color: #2f4ea2;
+    }
+
+    .ciclo-step.is-ok .ciclo-step__badge {
+        background: #e3e9fb;
+        color: #2f4ea2;
+    }
+
+    .ciclo-step.is-warning {
+        border-left-color: #f39b2f;
+    }
+
+    .ciclo-step.is-warning .ciclo-step__badge {
+        background: #fdecd6;
+        color: #a3630f;
+    }
+
+    .ciclo-step.is-off .ciclo-step__badge {
+        background: #eceff3;
+        color: #6b7686;
+    }
+
     @media (max-width: 767px) {
         .ciclo-card__body {
             padding: 16px;
@@ -1146,6 +1362,43 @@ $estadoAccionEstablecer = ($estadoSegmentoEstablecer === 'partial') ? 'warning' 
 
     
 
+    <div class="ciclo-card ciclo-guide">
+        <div class="ciclo-card__head">
+            <h3>¿Cómo funciona el Ciclo Generacional?</h3>
+        </div>
+        <div class="ciclo-card__body">
+            <p class="ciclo-guide__intro">
+                El ciclo avanza en orden: <strong>Multiplicar → Encontrar → Discipular → Establecer</strong>.
+                Cada etapa debe quedar completamente en azul para que la siguiente pueda encenderse.
+                Si una etapa no está completa, todas las que vienen después se muestran en gris, aunque
+                ya tengan datos propios registrados.
+            </p>
+            <div class="ciclo-legend">
+                <div class="ciclo-legend__item">
+                    <span class="ciclo-legend__dot ciclo-legend__dot--active"></span>
+                    <div>
+                        <strong>Azul — Completo</strong>
+                        <p>La etapa cumple todos sus requisitos y habilita la siguiente.</p>
+                    </div>
+                </div>
+                <div class="ciclo-legend__item">
+                    <span class="ciclo-legend__dot ciclo-legend__dot--partial"></span>
+                    <div>
+                        <strong>Naranja — En progreso</strong>
+                        <p>Cumple parte de sus requisitos, pero aún le falta para quedar completa.</p>
+                    </div>
+                </div>
+                <div class="ciclo-legend__item">
+                    <span class="ciclo-legend__dot ciclo-legend__dot--off"></span>
+                    <div>
+                        <strong>Gris — Pendiente o bloqueada</strong>
+                        <p>No tiene datos suficientes, o la etapa anterior todavía no está completa.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="ciclo-card ciclo-card--interactive">
         <div class="ciclo-card__head">
             <h3>Ciclo Generacional</h3>
@@ -1183,6 +1436,40 @@ $estadoAccionEstablecer = ($estadoSegmentoEstablecer === 'partial') ? 'warning' 
                     Pasa el cursor o haz clic sobre cada porción para resaltar la etapa y sus acciones.
                 </div>
             </div>
+
+            <?php if ($grupoSeleccionado && count($cicloNotas) > 0) { ?>
+                <div class="ciclo-notas">
+                    <?php foreach ($cicloNotas as $nota) { ?>
+                        <div class="ciclo-nota">
+                            <span class="ciclo-nota__icono">!</span>
+                            <p><?=htmlspecialchars($nota, ENT_QUOTES, 'UTF-8'); ?></p>
+                        </div>
+                    <?php } ?>
+                </div>
+            <?php } ?>
+
+            <div class="ciclo-steps">
+                <?php foreach ($cicloPasos as $paso) {
+                    $estadoTexto = ciclo_estado_texto($paso['estado']);
+                ?>
+                    <div class="ciclo-step ciclo-step--<?=$paso['id']; ?> <?=$estadoTexto['clase']; ?>">
+                        <div class="ciclo-step__head">
+                            <h4><?=$paso['titulo']; ?></h4>
+                            <span class="ciclo-step__badge"><?=$estadoTexto['etiqueta']; ?></span>
+                        </div>
+                        <p><?=$paso['requisito']; ?></p>
+                    </div>
+                <?php } ?>
+            </div>
+
+            <?php if (!$grupoSeleccionado) { ?>
+                <div class="ciclo-notas">
+                    <div class="ciclo-nota">
+                        <span class="ciclo-nota__icono">i</span>
+                        <p>Selecciona un facilitador y un grupo IPG en el filtro de arriba para ver el avance del ciclo.</p>
+                    </div>
+                </div>
+            <?php } ?>
         </div>
     </div>
 </div>
