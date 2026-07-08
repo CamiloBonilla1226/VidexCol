@@ -178,9 +178,8 @@ $grupoSeleccionado = ($buscar_nombreGrupo !== '');
 $estadoMultiplicar = false;
 $estadoEncontrarPersonasPaz = false;
 $estadoPrepararseOrar = false;
-$estadoDiscipularComparta = false;
-$estadoDiscipularObedecer = false;
-$estadoDiscipularBautice = false;
+$promedioMapeoDiscipular = 0;
+$estadoGrupoEsMadre = false;
 $imgMultiplicarAzul = 'img/multiplicar_azul.png';
 $imgMultiplicarGris = 'img/multiplicar_gris.png';
 $imgEncontrarAzul = 'img/encontrar_a.png';
@@ -198,6 +197,9 @@ $imgObedecerGris = 'obedecer_g.png';
 $imgBauticeAzul = 'bautice_a.png';
 $imgBauticeNaranja = 'bautice_n.png';
 $imgBauticeGris = 'bautice_g.png';
+$imgEstablecerAzul = 'img/establecer_a.png';
+$imgEstablecerNaranja = 'img/establecer_n.png';
+$imgEstablecerGris = 'img/establecer_g.png';
 
 $totalReportes = 0;
 $primerReporte = '';
@@ -216,65 +218,51 @@ if (!$requiereSeleccionFacilitador && $grupoSeleccionado) {
     }
 
     $sql = "SELECT
-                sat_reportes.plantador,
-                usuario.nombre AS nombreUsuario,
-                sat_reportes.generacionNumero,
-                sat_reportes.fechaInicio
-            FROM sat_reportes
-            LEFT JOIN usuario ON usuario.id = sat_reportes.idUsuario
-            WHERE 1 ".$sqlFiltroUsuario.$sqlFiltroGrupo;
-
-    $PSN4->query($sql);
-    if ($PSN4->num_rows() > 0) {
-        while ($PSN4->next_record()) {
-            $plantadorReporte = trim($PSN4->f('plantador'));
-            $nombreUsuarioReporte = trim($PSN4->f('nombreUsuario'));
-            $fechaInicioReporte = trim($PSN4->f('fechaInicio'));
-
-            if ((int)$PSN4->f('generacionNumero') === 0
-                && $fechaInicioReporte !== ''
-                && $fechaInicioReporte !== '0000-00-00') {
-                $estadoPrepararseOrar = true;
-            }
-
-            if ($plantadorReporte !== ''
-                && !ciclo_es_misma_persona_por_nombre($plantadorReporte, $nombreUsuarioReporte)) {
-                $estadoEncontrarPersonasPaz = true;
-            }
-        }
-    }
-
-    $sql = "SELECT
-                SUM(CASE
-                        WHEN sat_reportes.generacionNumero = 77
-                        THEN 1 ELSE 0
-                    END) AS conteoComparta,
-                SUM(CASE
-                        WHEN sat_reportes.mapeo_comprometido IN (3, 4)
-                         AND sat_reportes.mapeo_oracion IN (3, 4)
-                         AND sat_reportes.mapeo_companerismo IN (3, 4)
-                         AND sat_reportes.mapeo_adoracion IN (3, 4)
-                         AND sat_reportes.mapeo_biblia IN (3, 4)
-                         AND sat_reportes.mapeo_evangelizar IN (3, 4)
-                         AND sat_reportes.mapeo_cena IN (3, 4)
-                         AND sat_reportes.mapeo_dar IN (3, 4)
-                         AND sat_reportes.mapeo_bautizar IN (3, 4)
-                         AND sat_reportes.mapeo_trabajadores IN (3, 4)
-                        THEN 1 ELSE 0
-                    END) AS conteoObedecer,
-                SUM(CASE
-                        WHEN sat_reportes.generacionNumero IN (1, 2, 3, 4, 5)
-                         AND sat_reportes.bautizadosPeriodo <> 0
-                        THEN 1 ELSE 0
-                    END) AS conteoBautice
+                SUM(CASE WHEN sat_reportes.id_actividad = 13 THEN 1 ELSE 0 END) AS conteoOracion,
+                SUM(CASE WHEN sat_reportes.id_actividad = 12 THEN 1 ELSE 0 END) AS conteoPersonasPaz
             FROM sat_reportes
             WHERE 1 ".$sqlFiltroUsuario.$sqlFiltroGrupo;
 
     $PSN4->query($sql);
     if ($PSN4->next_record()) {
-        $estadoDiscipularComparta = ((int)$PSN4->f('conteoComparta') > 0);
-        $estadoDiscipularObedecer = ((int)$PSN4->f('conteoObedecer') > 0);
-        $estadoDiscipularBautice = ((int)$PSN4->f('conteoBautice') > 0);
+        $estadoPrepararseOrar = ((int)$PSN4->f('conteoOracion') > 0);
+        $estadoEncontrarPersonasPaz = ((int)$PSN4->f('conteoPersonasPaz') > 0);
+    }
+
+    $sql = "SELECT
+                AVG(
+                    (sat_reportes.mapeo_oracion + sat_reportes.mapeo_companerismo + sat_reportes.mapeo_adoracion +
+                     sat_reportes.mapeo_biblia + sat_reportes.mapeo_evangelizar + sat_reportes.mapeo_cena +
+                     sat_reportes.mapeo_dar + sat_reportes.mapeo_bautizar + sat_reportes.mapeo_trabajadores) / 9
+                ) AS promedioMapeo
+            FROM sat_reportes
+            WHERE 1 ".$sqlFiltroUsuario.$sqlFiltroGrupo."
+              AND sat_reportes.id_actividad = 1";
+
+    $PSN4->query($sql);
+    if ($PSN4->next_record()) {
+        $promedioMapeoDiscipular = (float)$PSN4->f('promedioMapeo');
+    }
+
+    $sql = "SELECT sat_reportes.id
+            FROM sat_reportes
+            WHERE 1 ".$sqlFiltroUsuario.$sqlFiltroGrupo."
+              AND sat_reportes.id_grupo = 0
+            LIMIT 1";
+
+    $PSN4->query($sql);
+    if ($PSN4->next_record()) {
+        $idGrupoSeleccionado = (int)$PSN4->f('id');
+
+        $sql = "SELECT COUNT(sat_reportes.id) AS conteo
+                FROM sat_reportes
+                WHERE sat_reportes.id_grupo = 0
+                  AND sat_reportes.idGrupoMadre = '" . $idGrupoSeleccionado . "'";
+
+        $PSN4->query($sql);
+        if ($PSN4->next_record()) {
+            $estadoGrupoEsMadre = ((int)$PSN4->f('conteo') > 0);
+        }
     }
 }
 
@@ -299,19 +287,51 @@ if (!$requiereSeleccionFacilitador) {
 $estadoSegmentoMultiplicar = $estadoMultiplicar ? 'active' : 'disabled';
 $estadoAccionMultiplicar = $estadoMultiplicar ? 'active' : 'disabled';
 
-// TODO: pendiente de redefinir la logica de ENCONTRAR. Por ahora se deja siempre en gris.
 $estadoSegmentoEncontrar = 'disabled';
 $estadoAccionPrepararse = 'disabled';
 $estadoAccionPersonasPaz = 'disabled';
 
-// TODO: pendiente de redefinir la logica de DISCIPULAR. Por ahora se deja siempre en gris.
-$estadoSegmentoDiscipular = 'disabled';
-$estadoAccionDiscipularComparta = 'disabled';
-$estadoAccionDiscipularObedecer = 'disabled';
-$estadoAccionDiscipularBautice = 'disabled';
+if ($estadoPrepararseOrar && $estadoEncontrarPersonasPaz) {
+    $estadoSegmentoEncontrar = 'active';
+    $estadoAccionPrepararse = 'active';
+    $estadoAccionPersonasPaz = 'active';
+} elseif ($estadoPrepararseOrar) {
+    $estadoSegmentoEncontrar = 'partial';
+    $estadoAccionPrepararse = 'active';
+    $estadoAccionPersonasPaz = 'disabled';
+} elseif ($estadoEncontrarPersonasPaz) {
+    $estadoSegmentoEncontrar = 'partial';
+    $estadoAccionPrepararse = 'disabled';
+    $estadoAccionPersonasPaz = 'warning';
+}
 
-// TODO: pendiente de redefinir la logica de ESTABLECER. Por ahora se deja siempre en gris.
-$estadoSegmentoEstablecer = 'disabled';
+$escalaDiscipularExcelenteMin = 3.0;
+$escalaDiscipularRegularMin = 2.0;
+
+if ($promedioMapeoDiscipular >= $escalaDiscipularExcelenteMin) {
+    $estadoSegmentoDiscipular = 'active';
+    $estadoAccionDiscipular = 'active';
+} elseif ($promedioMapeoDiscipular >= $escalaDiscipularRegularMin) {
+    $estadoSegmentoDiscipular = 'partial';
+    $estadoAccionDiscipular = 'warning';
+} else {
+    $estadoSegmentoDiscipular = 'disabled';
+    $estadoAccionDiscipular = 'disabled';
+}
+
+$estadoAccionDiscipularComparta = $estadoAccionDiscipular;
+$estadoAccionDiscipularObedecer = $estadoAccionDiscipular;
+$estadoAccionDiscipularBautice = $estadoAccionDiscipular;
+
+if ($estadoSegmentoDiscipular !== 'active') {
+    $estadoSegmentoEstablecer = 'disabled';
+} elseif ($estadoGrupoEsMadre) {
+    $estadoSegmentoEstablecer = 'active';
+} else {
+    $estadoSegmentoEstablecer = 'partial';
+}
+
+$estadoAccionEstablecer = ($estadoSegmentoEstablecer === 'partial') ? 'warning' : $estadoSegmentoEstablecer;
 ?>
 
 
@@ -1143,6 +1163,9 @@ $estadoSegmentoEstablecer = 'disabled';
                     <img src="<?=$imgBauticeAzul; ?>" alt="" loading="eager" decoding="sync" fetchpriority="high" />
                     <img src="<?=$imgBauticeNaranja; ?>" alt="" loading="eager" decoding="sync" fetchpriority="high" />
                     <img src="<?=$imgBauticeGris; ?>" alt="" loading="eager" decoding="sync" fetchpriority="high" />
+                    <img src="<?=$imgEstablecerAzul; ?>" alt="" loading="eager" decoding="sync" fetchpriority="high" />
+                    <img src="<?=$imgEstablecerNaranja; ?>" alt="" loading="eager" decoding="sync" fetchpriority="high" />
+                    <img src="<?=$imgEstablecerGris; ?>" alt="" loading="eager" decoding="sync" fetchpriority="high" />
                 </div>
                 <div class="ciclo-chart-stage" id="cicloChartStage">
                     <svg id="cicloChartSvg" viewBox="0 0 760 760" aria-label="Ciclo de multiplicacion"></svg>
@@ -1174,6 +1197,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'discipular_share' => $estadoAccionDiscipularComparta,
         'discipular_obey' => $estadoAccionDiscipularObedecer,
         'discipular_baptize' => $estadoAccionDiscipularBautice,
+        'establecer_church' => $estadoAccionEstablecer,
     ));?>;
     var actionImages = {
         multiplicar_training: {
@@ -1204,6 +1228,11 @@ document.addEventListener('DOMContentLoaded', function () {
             active: <?=json_encode($imgBauticeAzul); ?>,
             disabled: <?=json_encode($imgBauticeGris); ?>,
             warning: <?=json_encode($imgBauticeNaranja); ?>
+        },
+        establecer_church: {
+            active: <?=json_encode($imgEstablecerAzul); ?>,
+            disabled: <?=json_encode($imgEstablecerGris); ?>,
+            warning: <?=json_encode($imgEstablecerNaranja); ?>
         }
     };
 
@@ -1617,6 +1646,7 @@ document.addEventListener('DOMContentLoaded', function () {
             share: 1,
             actions: [
                 {
+                    actionId: 'establecer_church',
                     icon: 'church',
                     lines: ['Establezca', 'la iglesia'],
                     card: {
