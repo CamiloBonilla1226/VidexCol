@@ -299,41 +299,19 @@ if (!$requiereSeleccionFacilitador) {
 $estadoSegmentoMultiplicar = $estadoMultiplicar ? 'active' : 'disabled';
 $estadoAccionMultiplicar = $estadoMultiplicar ? 'active' : 'disabled';
 
+// TODO: pendiente de redefinir la logica de ENCONTRAR. Por ahora se deja siempre en gris.
 $estadoSegmentoEncontrar = 'disabled';
 $estadoAccionPrepararse = 'disabled';
 $estadoAccionPersonasPaz = 'disabled';
 
-if ($estadoPrepararseOrar && $estadoEncontrarPersonasPaz) {
-    $estadoSegmentoEncontrar = 'active';
-    $estadoAccionPrepararse = 'active';
-    $estadoAccionPersonasPaz = 'active';
-} elseif ($estadoPrepararseOrar || $estadoEncontrarPersonasPaz) {
-    $estadoSegmentoEncontrar = 'partial';
-    $estadoAccionPrepararse = $estadoPrepararseOrar ? 'active' : 'warning';
-    $estadoAccionPersonasPaz = $estadoEncontrarPersonasPaz ? 'active' : 'warning';
-}
-
-$totalActividadesDiscipular = 0;
-$totalActividadesDiscipular += $estadoDiscipularComparta ? 1 : 0;
-$totalActividadesDiscipular += $estadoDiscipularObedecer ? 1 : 0;
-$totalActividadesDiscipular += $estadoDiscipularBautice ? 1 : 0;
-
+// TODO: pendiente de redefinir la logica de DISCIPULAR. Por ahora se deja siempre en gris.
 $estadoSegmentoDiscipular = 'disabled';
 $estadoAccionDiscipularComparta = 'disabled';
 $estadoAccionDiscipularObedecer = 'disabled';
 $estadoAccionDiscipularBautice = 'disabled';
 
-if ($totalActividadesDiscipular === 3) {
-    $estadoSegmentoDiscipular = 'active';
-    $estadoAccionDiscipularComparta = 'active';
-    $estadoAccionDiscipularObedecer = 'active';
-    $estadoAccionDiscipularBautice = 'active';
-} elseif ($totalActividadesDiscipular > 0) {
-    $estadoSegmentoDiscipular = 'partial';
-    $estadoAccionDiscipularComparta = $estadoDiscipularComparta ? 'active' : 'warning';
-    $estadoAccionDiscipularObedecer = $estadoDiscipularObedecer ? 'active' : 'warning';
-    $estadoAccionDiscipularBautice = $estadoDiscipularBautice ? 'active' : 'warning';
-}
+// TODO: pendiente de redefinir la logica de ESTABLECER. Por ahora se deja siempre en gris.
+$estadoSegmentoEstablecer = 'disabled';
 ?>
 
 
@@ -1187,6 +1165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'multiplicar' => $estadoSegmentoMultiplicar,
         'encontrar' => $estadoSegmentoEncontrar,
         'discipular' => $estadoSegmentoDiscipular,
+        'establecer' => $estadoSegmentoEstablecer,
     ));?>;
     var actionStatus = <?=json_encode(array(
         'multiplicar_training' => $estadoAccionMultiplicar,
@@ -1817,7 +1796,8 @@ document.addEventListener('DOMContentLoaded', function () {
             var action = currentSegment.actions[n];
             var position = action.card ? null : pointAt(action.angle, action.radius);
             var hasStateImage = !!actionImages[action.actionId];
-            var currentActionStatus = actionStatus[action.actionId] || 'active';
+            var currentActionStatus = actionStatus[action.actionId]
+                || (!action.actionId ? (segmentStatus[currentSegment.id] || 'active') : 'active');
             if (action.isArrow) {
                 if (segmentStatus[currentSegment.id] === 'disabled') {
                     currentActionStatus = 'disabled';

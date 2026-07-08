@@ -99,7 +99,7 @@ $escala_actual = array(
                     $PSN = new DBbase_Sql;
                     
                     // Consulta SQL para obtener promedios del facilitador autenticado
-                    // Solo incluir reportes con mapeo (generaciones 1-5)
+                    // Solo incluir reportes de Coach (id_actividad = 1), que son los que tienen mapeo
                     $sql = "SELECT
                                 r.id,
                                 r.fechaReporte,
@@ -125,7 +125,6 @@ $escala_actual = array(
                                 AND r.id_actividad = 1
                                 AND r.id_grupo <> 0
                                 AND r.fechaReporte BETWEEN '".$fecha_inicio."' AND '".$fecha_fin."'
-                                AND r.generacionNumero BETWEEN 1 AND 5
                             ORDER BY
                                 r.fechaReporte DESC";
                     
@@ -264,8 +263,7 @@ $escala_actual = array(
                                             <td class="text-center"><?php echo $reporte['id']; ?></td>
                                             <td><?php echo date('d/m/Y', strtotime($reporte['fecha'])); ?></td>
                                             <td>
-                                                <strong><?php echo htmlspecialchars($reporte['grupo_madre']); ?></strong><br>
-                                                <small><?php echo htmlspecialchars($reporte['nombre_grupo']); ?></small>
+                                                <?php echo htmlspecialchars($reporte['nombre_grupo']); ?>
                                             </td>
                                             <td class="text-center"><?php echo $reporte['oracion']; ?></td>
                                             <td class="text-center"><?php echo $reporte['companerismo']; ?></td>
