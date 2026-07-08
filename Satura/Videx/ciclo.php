@@ -284,45 +284,53 @@ if (!$requiereSeleccionFacilitador) {
     }
 }
 
+// MULTIPLICAR: primer eslabon de la cadena, no depende de ninguna otra seccion.
 $estadoSegmentoMultiplicar = $estadoMultiplicar ? 'active' : 'disabled';
 $estadoAccionMultiplicar = $estadoMultiplicar ? 'active' : 'disabled';
 
+// ENCONTRAR: solo se calcula si MULTIPLICAR quedo en azul; si no, queda gris por completo.
 $estadoSegmentoEncontrar = 'disabled';
 $estadoAccionPrepararse = 'disabled';
 $estadoAccionPersonasPaz = 'disabled';
 
-if ($estadoPrepararseOrar && $estadoEncontrarPersonasPaz) {
-    $estadoSegmentoEncontrar = 'active';
-    $estadoAccionPrepararse = 'active';
-    $estadoAccionPersonasPaz = 'active';
-} elseif ($estadoPrepararseOrar) {
-    $estadoSegmentoEncontrar = 'partial';
-    $estadoAccionPrepararse = 'active';
-    $estadoAccionPersonasPaz = 'disabled';
-} elseif ($estadoEncontrarPersonasPaz) {
-    $estadoSegmentoEncontrar = 'partial';
-    $estadoAccionPrepararse = 'disabled';
-    $estadoAccionPersonasPaz = 'warning';
+if ($estadoSegmentoMultiplicar === 'active') {
+    if ($estadoPrepararseOrar && $estadoEncontrarPersonasPaz) {
+        $estadoSegmentoEncontrar = 'active';
+        $estadoAccionPrepararse = 'active';
+        $estadoAccionPersonasPaz = 'active';
+    } elseif ($estadoPrepararseOrar) {
+        $estadoSegmentoEncontrar = 'partial';
+        $estadoAccionPrepararse = 'active';
+        $estadoAccionPersonasPaz = 'disabled';
+    } elseif ($estadoEncontrarPersonasPaz) {
+        $estadoSegmentoEncontrar = 'partial';
+        $estadoAccionPrepararse = 'disabled';
+        $estadoAccionPersonasPaz = 'warning';
+    }
 }
 
+// DISCIPULAR: solo se calcula si ENCONTRAR quedo totalmente en azul; si no, queda gris.
 $escalaDiscipularExcelenteMin = 3.0;
 $escalaDiscipularRegularMin = 2.0;
 
-if ($promedioMapeoDiscipular >= $escalaDiscipularExcelenteMin) {
-    $estadoSegmentoDiscipular = 'active';
-    $estadoAccionDiscipular = 'active';
-} elseif ($promedioMapeoDiscipular >= $escalaDiscipularRegularMin) {
-    $estadoSegmentoDiscipular = 'partial';
-    $estadoAccionDiscipular = 'warning';
-} else {
-    $estadoSegmentoDiscipular = 'disabled';
-    $estadoAccionDiscipular = 'disabled';
+$estadoSegmentoDiscipular = 'disabled';
+$estadoAccionDiscipular = 'disabled';
+
+if ($estadoSegmentoEncontrar === 'active') {
+    if ($promedioMapeoDiscipular >= $escalaDiscipularExcelenteMin) {
+        $estadoSegmentoDiscipular = 'active';
+        $estadoAccionDiscipular = 'active';
+    } elseif ($promedioMapeoDiscipular >= $escalaDiscipularRegularMin) {
+        $estadoSegmentoDiscipular = 'partial';
+        $estadoAccionDiscipular = 'warning';
+    }
 }
 
 $estadoAccionDiscipularComparta = $estadoAccionDiscipular;
 $estadoAccionDiscipularObedecer = $estadoAccionDiscipular;
 $estadoAccionDiscipularBautice = $estadoAccionDiscipular;
 
+// ESTABLECER: solo se calcula si DISCIPULAR quedo en azul; si no, queda gris.
 if ($estadoSegmentoDiscipular !== 'active') {
     $estadoSegmentoEstablecer = 'disabled';
 } elseif ($estadoGrupoEsMadre) {
@@ -1140,7 +1148,7 @@ $estadoAccionEstablecer = ($estadoSegmentoEstablecer === 'partial') ? 'warning' 
 
     <div class="ciclo-card ciclo-card--interactive">
         <div class="ciclo-card__head">
-            <h3>Ciclo Interactivo</h3>
+            <h3>Ciclo Generacional</h3>
         </div>
 
         <div class="ciclo-card__body">
