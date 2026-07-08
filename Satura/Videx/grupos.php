@@ -2198,7 +2198,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 
     function updateInfoTab(grupoData, tabInfo, imagenesPrecargadas = null, cargandoReportes = false) {
         let generacionText = 'No especificada';
-        if (grupoData.generacion) {
+        if (grupoData.generacion !== null && grupoData.generacion !== undefined && grupoData.generacion !== '') {
             generacionText = grupoData.generacion;
         }
         const reportesIds = normalizarReportesIds(grupoData.reportes_mostrados_ids || grupoData.reportes_ids || []);
