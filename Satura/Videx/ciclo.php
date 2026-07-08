@@ -208,9 +208,7 @@ if (!$requiereSeleccionFacilitador && $grupoSeleccionado) {
     $sql = "SELECT COUNT(sat_reportes.id) AS conteo
             FROM sat_reportes
             WHERE 1 ".$sqlFiltroUsuario.$sqlFiltroGrupo."
-              AND sat_reportes.generacionNumero IN (1, 2, 3, 4, 5)
-              AND sat_reportes.plantador IS NOT NULL
-              AND TRIM(sat_reportes.plantador) <> ''";
+              AND sat_reportes.id_actividad IN (14, 100)";
 
     $PSN4->query($sql);
     if ($PSN4->next_record()) {
