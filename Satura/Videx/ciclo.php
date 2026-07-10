@@ -251,18 +251,19 @@ if (!$requiereSeleccionFacilitador && $grupoSeleccionado) {
             LIMIT 1";
 
     $PSN4->query($sql);
+    $idGrupoSeleccionado = $PSN4->next_record() ? (int)$PSN4->f('id') : 0;
+
+    $sql = "SELECT COUNT(sat_reportes.id) AS conteo
+            FROM sat_reportes
+            WHERE sat_reportes.id_grupo = 0
+              AND (
+                    sat_reportes.idGrupoMadre = '" . $idGrupoSeleccionado . "'
+                    OR TRIM(sat_reportes.grupoMadre_txt) = '" . $buscar_nombreGrupo . "'
+                  )";
+
+    $PSN4->query($sql);
     if ($PSN4->next_record()) {
-        $idGrupoSeleccionado = (int)$PSN4->f('id');
-
-        $sql = "SELECT COUNT(sat_reportes.id) AS conteo
-                FROM sat_reportes
-                WHERE sat_reportes.id_grupo = 0
-                  AND sat_reportes.idGrupoMadre = '" . $idGrupoSeleccionado . "'";
-
-        $PSN4->query($sql);
-        if ($PSN4->next_record()) {
-            $estadoGrupoEsMadre = ((int)$PSN4->f('conteo') > 0);
-        }
+        $estadoGrupoEsMadre = ((int)$PSN4->f('conteo') > 0);
     }
 }
 
