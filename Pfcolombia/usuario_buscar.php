@@ -522,111 +522,124 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
             </div>
             <div class="hr"><hr></div>
         </div>
-        <div class="form-group">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-2">
-                <strong>Zona:</strong>
-                <select name="empresa_sitio_cor" id="zona" class="form-control" onchange="this.form.submit()">
-                    <option value="" <?php if($empresa_pd == ""){?>
-                                selected="selected" <?php
-                            } ?>>Todas la zonas</option>
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Zona:</label>
+                    <select name="empresa_sitio_cor" id="zona" class="form-control" onchange="this.form.submit()">
+                        <option value="" <?php if($empresa_pd == ""){?>
+                                    selected="selected" <?php
+                                } ?>>Todas la zonas</option>
+                        <?php
+                        /*
+                        *   TRAEMOS LOS TIPOS DE CLIENTE/EMPRESA (15)
+                        */
+                        $sql = "SELECT * ";
+                        $sql.=" FROM categorias ";
+                        $sql.=" WHERE idSec = 85 ORDER BY descripcion asc";
+
+
+                        $PSN3->query($sql);
+                        $numero=$PSN3->num_rows();
+                        if($numero > 0){
+                            while($PSN3->next_record()){
+                                ?><option value="<?=$PSN3->f('id'); ?>" <?php
+                                if($buscar_zona == $PSN3->f('id')){?>
+                                    selected="selected" <?php
+                                }
+                                ?>><?=$PSN3->f('descripcion'); ?></option><?php
+                            }
+                        }?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Regional:</label>
+                    <select  name="empresa_pd" id="regional" class="form-control" onchange="this.form.submit()">
+                        <?php echo($zona == "")?'<option value="" selected >Todas la regionales</option>':"";
+                        $sql = "SELECT C.id, C.descripcion AS regional, CA.descripcion AS zona FROM categorias AS C";
+                        $sql.=" LEFT JOIN categorias AS CA ON CA.id = C.idSec
+                        WHERE CA.idSec = 85 ";
+                        if (!empty($buscar_zona)) {
+                            $sql.=" AND CA.id = ".$buscar_zona;
+                        }
+                        if ($_SESSION["empresa_pd"]!="" && $_SESSION["empresa_pd"]!=0) {
+                            $sql.=" AND CA.id = ".$_SESSION["empresa_pd"];
+                        }
+                        $PSN2->query($sql);
+                        $numero=$PSN2->num_rows();
+                        if($numero > 0){
+                            while($PSN2->next_record()){?>
+                                <option value="<?=$PSN2->f('id'); ?>" <?php
+                                if($buscar_regional == $PSN2->f('id')){
+                                    ?>selected="selected"<?php
+                                }
+                                ?> ><?=$PSN2->f('regional'); ?></option><?php
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Tipo de usuario:</label>
                     <?php
+                    ?><select name="tipo" onchange="this.form.submit()" class="form-control">
+                    <?php
+                    if($ctrl != 3 && $ctrl != 4 && $ctrl != 2){
+                        ?><option value="">Ver todos</option><?php
+                    }
+
                     /*
-                    *   TRAEMOS LOS TIPOS DE CLIENTE/EMPRESA (15)
+                    *	TRAEMOS LOS TIPOS DE USUARIO
                     */
                     $sql = "SELECT * ";
                     $sql.=" FROM categorias ";
-                    $sql.=" WHERE idSec = 85 ORDER BY descripcion asc";
+                    $sql.=" WHERE idSec = 1 AND id IN (".$temp_tiposUsuario.") ORDER BY descripcion asc";
 
-
-                    $PSN3->query($sql);
-                    $numero=$PSN3->num_rows();
-                    if($numero > 0){
-                        while($PSN3->next_record()){
-                            ?><option value="<?=$PSN3->f('id'); ?>" <?php
-                            if($buscar_zona == $PSN3->f('id')){?>
-                                selected="selected" <?php
-                            }
-                            ?>><?=$PSN3->f('descripcion'); ?></option><?php
-                        }
-                    }?>
-                </select>
-            </div>
-            <div class="col-sm-2">
-                <strong>Regional:</strong>
-                <select  name="empresa_pd" id="regional" class="form-control" onchange="this.form.submit()">
-                    <?php echo($zona == "")?'<option value="" selected >Todas la regionales</option>':"";
-                    $sql = "SELECT C.id, C.descripcion AS regional, CA.descripcion AS zona FROM categorias AS C";
-                    $sql.=" LEFT JOIN categorias AS CA ON CA.id = C.idSec
-                    WHERE CA.idSec = 85 ";
-                    if (!empty($buscar_zona)) {
-                        $sql.=" AND CA.id = ".$buscar_zona;
-                    }
-                    if ($_SESSION["empresa_pd"]!="" && $_SESSION["empresa_pd"]!=0) {
-                        $sql.=" AND CA.id = ".$_SESSION["empresa_pd"];
-                    }
-                    $PSN2->query($sql); 
-                    echo $sql;
+                    $PSN2->query($sql);
                     $numero=$PSN2->num_rows();
-                    if($numero > 0){
-                        while($PSN2->next_record()){?>
-                            <option value="<?=$PSN2->f('id'); ?>" <?php
-                            if($buscar_regional == $PSN2->f('id')){
+                    if($numero > 0)
+                    {
+                        while($PSN2->next_record())
+                        {
+                            ?><option value="<?=$PSN2->f('id'); ?>" <?php
+                            if($buscar_tipo == $PSN2->f('id'))
+                            {
                                 ?>selected="selected"<?php
                             }
-                            ?> ><?=$PSN2->f('regional'); ?></option><?php
+                            ?>><?=$PSN2->f('descripcion'); ?></option><?php
                         }
                     }
-                    ?>
-                </select>                    
+                    ?></select>
+                </div>
             </div>
-            <div class="col-sm-2">
-                <strong>Tipo de usuario:</strong>
-            <?php
-            ?><select name="tipo" onchange="this.form.submit()" class="form-control">
-            <?php
-            if($ctrl != 3 && $ctrl != 4 && $ctrl != 2){
-                ?><option value="">Ver todos</option><?php
-            }
-    
-            /*
-            *	TRAEMOS LOS TIPOS DE USUARIO
-            */
-            $sql = "SELECT * ";
-            $sql.=" FROM categorias ";
-            $sql.=" WHERE idSec = 1 AND id IN (".$temp_tiposUsuario.") ORDER BY descripcion asc";
-
-            $PSN2->query($sql);
-            $numero=$PSN2->num_rows();
-            if($numero > 0)
-            {
-                while($PSN2->next_record())
-                {
-                    ?><option value="<?=$PSN2->f('id'); ?>" <?php
-                    if($buscar_tipo == $PSN2->f('id'))
-                    {
-                        ?>selected="selected"<?php
-                    }
-                    ?>><?=$PSN2->f('descripcion'); ?></option><?php
-                }
-            }
-            ?></select>
+            <div class="col-sm-3">
+                <div class="form-group">
+                    <label>Estado:</label>
+                    <select name="estado" onchange="this.form.submit()" class="form-control">
+                        <option value="activos" <?php if($buscar_estado == "activos"){ ?>selected="selected"<?php } ?>>Activos</option>
+                        <option value="inactivos" <?php if($buscar_estado == "inactivos"){ ?>selected="selected"<?php } ?>>Inactivos</option>
+                        <option value="todos" <?php if($buscar_estado == "todos"){ ?>selected="selected"<?php } ?>>Todos</option>
+                    </select>
+                </div>
             </div>
-            <div class="col-sm-2">
-                <strong>Estado:</strong>
-                <select name="estado" onchange="this.form.submit()" class="form-control">
-                    <option value="activos" <?php if($buscar_estado == "activos"){ ?>selected="selected"<?php } ?>>Activos</option>
-                    <option value="inactivos" <?php if($buscar_estado == "inactivos"){ ?>selected="selected"<?php } ?>>Inactivos</option>
-                    <option value="todos" <?php if($buscar_estado == "todos"){ ?>selected="selected"<?php } ?>>Todos</option>
-                </select>
-            </div>
-        <div class="col-sm-2">
-            <strong>Nombre:</strong></label>
-            <input type="text" name="nombre" id="nombre" value="<?=$buscar_nombre; ?>" class="form-control" />
         </div>
-        <div class="col-sm-1">
-            <br>
-            <input type="submit" value="Buscar" class="btn btn-success" />
+        <div class="row">
+            <div class="col-sm-10">
+                <div class="form-group">
+                    <label>Nombre:</label>
+                    <input type="text" name="nombre" id="nombre" value="<?=$buscar_nombre; ?>" class="form-control" />
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-success btn-block">Buscar</button>
+                </div>
+            </div>
         </div>
     </form>
     </div>
@@ -660,9 +673,6 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
     .table td, .table th{
         text-align: center;
     }
-    .table td.text-left, .table th.text-left{
-        text-align: left;
-    }
     .cont-img img{
         max-width: 40px;
         max-height: 40px;
@@ -683,12 +693,12 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
             <div class="hr"><hr></div>
         </div>
     <div class="table-responsive">
-    <table cellpadding="4" align="center" class="table table-striped">
+    <table cellpadding="4" align="center" class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th>Foto</th>
                 <th>Id</th>
-                <th class="text-left">Nombre</th>
+                <th>Nombre</th>
                 <th>Identificación</th>
                 <th>Tipo de usuario</th>
                 <th>Regional</th>
@@ -699,7 +709,7 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
                 ?>
                 <th>Teléfono</th>
                 <th>Celular</th>
-                <th class="text-left">E-Mail</th>
+                <th>E-Mail</th>
                 <th>Activo</th>
                 <th>Opciones</th>
             </tr>
@@ -735,7 +745,7 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
                         }
                         ?></td>
                         <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=str_pad($id, 6, "0", STR_PAD_LEFT); ?></a></td>
-                        <td class="text-left"><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$nombre; ?></a></td>
+                        <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$nombre; ?></a></td>
                         <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$identificacion; ?></a></td>
                         <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$tipodesc; ?></a></td>
                         <td><?=$regional; ?></td>
@@ -746,7 +756,7 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
                         ?>
                         <td><a href="tel:031<?=$telefono1; ?>"><?=$telefono1; ?></a></td>
                         <td><a href="tel:<?=$celular; ?>"><?=$celular; ?></a></td>
-                        <td class="text-left"><?=$email; ?></td>
+                        <td><?=$email; ?></td>
                         <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?php if($temp_acceso == 1){
                             echo "Si";
                         }else{
