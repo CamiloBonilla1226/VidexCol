@@ -15,7 +15,7 @@ Este archivo es la base de conocimiento del proyecto **PFCOLOMBIA** para Claude 
 - **Base de datos:** MySQL, acceso mediante la clase propia `DBbase_Sql`
 - **Autenticación:** basada en sesión (session-based auth)
 - **Enrutamiento:** `index.php?doc=` (routing por parámetro `doc`)
-- **Configuración para Claude Code:** `.claude/settings.local.json`, con skills organizadas en el directorio `skills/` del proyecto (ver sección 10)
+- **Configuración para Claude Code:** `.claude/settings.local.json`, con skills organizadas en el directorio `skills/` del proyecto (ver sección 11)
 
 ---
 
@@ -289,7 +289,41 @@ Cada reporte de `sat_reportes` puede tener cero, uno o varios archivos asociados
 
 ---
 
-## 6. Diagrama general de relaciones
+## 6. Tabla `usuario`
+
+Almacena los usuarios del sistema (administradores, encargados de programas, plantadores, etc.). Es la tabla referenciada por los campos `usuario_id` / `idUsuario` / `creacionUsuario` / `modUsuario` de las tablas de reportes.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | int(11) PK AUTO_INCREMENT | Identificador único del usuario |
+| `tipo` | int(11) | Tipo de usuario |
+| `tipo_user_cli` | int(11) | Tipo de usuario cliente |
+| `nombre` | varchar(255) | Nombre del usuario |
+| `identificacion` | varchar(50) | Número de identificación |
+| `tipoIdentificacion` | int(11) | Tipo de documento de identificación |
+| `direccion` | varchar(255) | Dirección |
+| `telefono1` | varchar(50) | Teléfono fijo |
+| `celular` | varchar(50) | Celular |
+| `email` | varchar(255) | Correo electrónico |
+| `url` | varchar(255) | URL asociada |
+| `url2` | text | URL adicional |
+| `observaciones` | text | Observaciones |
+| `login` | varchar(50) | Usuario de acceso (login) |
+| `password` | varchar(255) | Contraseña (hash) |
+| `superusuario` | tinyint(4) | Indica si el usuario es superusuario |
+| `acceso` | tinyint(1) | Indica si el usuario tiene acceso habilitado |
+| `acceso_graphs` | tinyint(4) | Indica acceso a gráficas/reportes analíticos |
+| `creacionUsuario` | int(11) | Usuario que creó el registro |
+| `creacionFecha` | varchar(25) | Fecha de creación |
+| `modUsuario` | int(11) | Usuario que hizo la última modificación |
+| `modFecha` | date | Fecha de la última modificación |
+| `usua_muni` | int(11) | Municipio asociado al usuario |
+| `usua_pais` | varchar(50) | País asociado al usuario |
+| `excluido_reportes` | tinyint(1) | Indica si el usuario está excluido de los reportes |
+
+---
+
+## 7. Diagrama general de relaciones
 
 ```
 categorias (idSec = 305)
@@ -305,7 +339,7 @@ categorias (idSec = 305)
 
 ---
 
-## 7. Reglas de negocio clave
+## 8. Reglas de negocio clave
 
 - El programa de un formulario **nunca lo elige el usuario libremente**: cada formulario está atado a un `programa_id` / `rep_tip` fijo (307, 308, 317, 318, 319 o 347).
 - **LPP (307):** el reporte se organiza por trimestre (`periodo_trimestre`) y cárcel/pabellón. Los voluntarios internos, externos y graduados se registran en tablas hijas independientes; no hay límite ni relación obligatoria entre ellas.
@@ -314,7 +348,7 @@ categorias (idSec = 305)
 
 ---
 
-## 8. Convenciones de trabajo con Claude Code
+## 9. Convenciones de trabajo con Claude Code
 
 - No modificar estilos/CSS existentes salvo que se solicite explícitamente (regla de la skill de frontend).
 - Al trabajar sobre LPP o CM, las consultas deben apuntar a `reporte_lpp`/`reporte_cm` (y sus tablas hijas), no a `sat_reportes`.
@@ -324,14 +358,14 @@ categorias (idSec = 305)
 
 ---
 
-## 9. Pendientes / información a completar
+## 10. Pendientes / información a completar
 
 - Documentar endpoints/archivos PHP concretos de cada formulario (ej. `gestionar-sub-programa-lpp.php`, `crear-reporte-lpp.php`, `gestionar-sub-programa-ecc.php`) si se desea que este archivo también sirva como mapa de archivos del proyecto.
 - Confirmar el significado exacto de campos sin descripción detallada en `sat_reportes` (`rep_ndis`, `rep_nuevo`, `rep_entr`, `rep_text2/3/4`, `sitioReunion`, `unidad_2` a `unidad_6`) para documentarlos con precisión.
 
 ---
 
-## 10. Skills del proyecto
+## 11. Skills del proyecto
 
 El proyecto cuenta con skills propias ubicadas en `skills/` dentro de la raíz del repositorio, con la siguiente estructura:
 

@@ -74,7 +74,8 @@ if(isset($_REQUEST["excelX"])){
     $buscar_identificacion = "";
     $buscar_tipo = "";
     $buscar_cliente = "";
-    
+    $buscar_estado = "activos";
+
     if(isset($_REQUEST["tipo"]) && soloNumeros($_REQUEST["tipo"]) != "" && soloNumeros($_REQUEST["tipo"]) != "0"){
         $buscar_tipo = soloNumeros($_REQUEST["tipo"]);
         $sqlFiltro .= " AND usuario.tipo = '".$buscar_tipo."'";
@@ -88,13 +89,22 @@ if(isset($_REQUEST["excelX"])){
     if(isset($_REQUEST["identificacion"]) && eliminarInvalidos($_REQUEST["identificacion"]) != ""){
         $buscar_identificacion = eliminarInvalidos($_REQUEST["identificacion"]);
         $sqlFiltro .= " AND usuario.identificacion LIKE '%".$buscar_identificacion."%'";
-    } 
+    }
 
     if(isset($_REQUEST["cliente"]) && eliminarInvalidos($_REQUEST["cliente"]) != ""){
         $buscar_cliente = eliminarInvalidos($_REQUEST["cliente"]);
         $sqlFiltro .= " AND cliente.id = '".$buscar_cliente."'";
-    } 
-    
+    }
+
+    if(isset($_REQUEST["estado"]) && in_array($_REQUEST["estado"], array("activos", "inactivos", "todos"))){
+        $buscar_estado = $_REQUEST["estado"];
+    }
+    if($buscar_estado == "activos"){
+        $sqlFiltro .= " AND usuario.acceso = 1";
+    }elseif($buscar_estado == "inactivos"){
+        $sqlFiltro .= " AND usuario.acceso = 0";
+    }
+
     //
     $sqlFiltro .= " AND usuario.tipo IN (".$temp_tiposUsuario.")";
     //
@@ -399,6 +409,10 @@ else{
     $buscar_cliente = "";
     $buscar_zona = "";
     $buscar_regional = "";
+    $buscar_estado = "activos";
+    if(isset($_REQUEST["estado"]) && in_array($_REQUEST["estado"], array("activos", "inactivos", "todos"))){
+        $buscar_estado = $_REQUEST["estado"];
+    }
 
     /*
     *	TRAEMOS LOS colegioS.
@@ -441,7 +455,12 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
         $buscar_regional = soloNumeros($_REQUEST["empresa_pd"]);
         $sqlFiltro .= " AND UE.empresa_pd = '".$buscar_regional."'";
     }
-    //    
+    if($buscar_estado == "activos"){
+        $sqlFiltro .= " AND usuario.acceso = 1";
+    }elseif($buscar_estado == "inactivos"){
+        $sqlFiltro .= " AND usuario.acceso = 0";
+    }
+    //
     $sql .= $sqlFiltro." ORDER BY usuario.tipo ASC, usuario.nombre ASC";
 
 
@@ -593,7 +612,15 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
             }
             ?></select>
             </div>
-        <div class="col-sm-3">
+            <div class="col-sm-2">
+                <strong>Estado:</strong>
+                <select name="estado" onchange="this.form.submit()" class="form-control">
+                    <option value="activos" <?php if($buscar_estado == "activos"){ ?>selected="selected"<?php } ?>>Activos</option>
+                    <option value="inactivos" <?php if($buscar_estado == "inactivos"){ ?>selected="selected"<?php } ?>>Inactivos</option>
+                    <option value="todos" <?php if($buscar_estado == "todos"){ ?>selected="selected"<?php } ?>>Todos</option>
+                </select>
+            </div>
+        <div class="col-sm-2">
             <strong>Nombre:</strong></label>
             <input type="text" name="nombre" id="nombre" value="<?=$buscar_nombre; ?>" class="form-control" />
         </div>
@@ -630,6 +657,18 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
         color: #fff;
     }
 
+    .table td, .table th{
+        text-align: center;
+    }
+    .table td.text-left, .table th.text-left{
+        text-align: left;
+    }
+    .cont-img img{
+        max-width: 40px;
+        max-height: 40px;
+        border-radius: 3px;
+    }
+
     </style>
 
 
@@ -643,24 +682,25 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
             </div>
             <div class="hr"><hr></div>
         </div>
-    <table border="0" cellspacing="0" cellpadding="2"  align="center" class="table table-striped">
+    <div class="table-responsive">
+    <table cellpadding="4" align="center" class="table table-striped">
         <thead>
-            <tr> 
+            <tr>
                 <th>Foto</th>
                 <th>Id</th>
+                <th class="text-left">Nombre</th>
+                <th>Identificación</th>
                 <th>Tipo de usuario</th>
                 <th>Regional</th>
-                <th>Activo</th>
                 <?php
                 if($ctrl == "" || $ctrl == 4){
                     ?><th>Autorizado del cliente:</th><?php
                 }
                 ?>
-                <th>Nombre</th>
-                <th>Identificación</th>
                 <th>Teléfono</th>
                 <th>Celular</th>
-                <th>E-Mail</th>
+                <th class="text-left">E-Mail</th>
+                <th>Activo</th>
                 <th>Opciones</th>
             </tr>
         </thead>
@@ -683,10 +723,7 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
                     $email = $PSN1->f('email');
                     $temp_acceso = $PSN1->f('acceso');
 
-                    ?><tr <?php if($temp_acceso == 0){
-                        echo " class='danger' ";
-                    } ?> class='clickable-row' data-href='index.php?doc=usuario&id=<?=$id; ?>'>
-                       
+                    ?><tr class='clickable-row<?php if($temp_acceso == 0){ echo " danger"; } ?>' data-href='index.php?doc=usuario&id=<?=$id; ?>'>
                         <td><?php
                         if(file_exists("images/usuarios/".$id.".jpg"))
                         {
@@ -695,26 +732,26 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
                         else
                         {
                             ?><div class="cont-img"><img src="images/consultores/desconocido.jpg" align="middle"></div><?php
-                        }	
+                        }
                         ?></td>
-                         <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=str_pad($id, 6, "0", STR_PAD_LEFT); ?></a></td>
-                         <td><?=$regional; ?></td>
-                        <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$tipodesc; ?></td>
+                        <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=str_pad($id, 6, "0", STR_PAD_LEFT); ?></a></td>
+                        <td class="text-left"><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$nombre; ?></a></td>
+                        <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$identificacion; ?></a></td>
+                        <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$tipodesc; ?></a></td>
+                        <td><?=$regional; ?></td>
+                        <?php
+                        if($ctrl == "" || $ctrl == 4){
+                            ?><td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$nomcliente; ?></a></td><?php
+                        }
+                        ?>
+                        <td><a href="tel:031<?=$telefono1; ?>"><?=$telefono1; ?></a></td>
+                        <td><a href="tel:<?=$celular; ?>"><?=$celular; ?></a></td>
+                        <td class="text-left"><?=$email; ?></td>
                         <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?php if($temp_acceso == 1){
                             echo "Si";
                         }else{
                             echo "No";
                         } ?></a></td>
-                        <?php
-                        if($ctrl == "" || $ctrl == 4){
-                            ?><th><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$nomcliente; ?></a></th><?php
-                        }
-                        ?>
-                        <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$nombre; ?></a></td>
-                        <td><a href="index.php?doc=usuario&id=<?=$id; ?>"><?=$identificacion; ?></a></td>
-                        <td><a href="tel:031<?=$telefono1; ?>"><?=$telefono1; ?></a></td>
-                        <td><a href="tel:<?=$celular; ?>"><?=$celular; ?></a></td>
-                        <td><?=$email; ?></td>
                         <td>
                             <a class="btn btn-danger" href="javascript:borrarRegistro('<?=$id; ?>');void(0);"><i class="far fa-trash-alt"></i> Eliminar</a>
                         </td>
@@ -726,6 +763,7 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
             ?>
         </tbody>
         </table>
+    </div>
     </div>
 
 
@@ -765,7 +803,7 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
 
     <br />
     <center>
-    <a href="index.php?excelX=&doc=usuario_buscar&nombre=<?=$buscar_nombre; ?>&identificacion=<?=$buscar_identificacion; ?>&tipo=<?=$buscar_tipo; ?>&ctrl=<?=$ctrl; ?>" class="btn btn-info"><span class="glyphicon glyphicon-cloud-download"></span> DESCARGAR PARA EXCEL</a></center>
+    <a href="index.php?excelX=&doc=usuario_buscar&nombre=<?=$buscar_nombre; ?>&identificacion=<?=$buscar_identificacion; ?>&tipo=<?=$buscar_tipo; ?>&estado=<?=$buscar_estado; ?>&ctrl=<?=$ctrl; ?>" class="btn btn-info"><span class="glyphicon glyphicon-cloud-download"></span> DESCARGAR PARA EXCEL</a></center>
 
 <?php /* $sql = "SELECT id ";
     $sql.=" FROM usuario ";
