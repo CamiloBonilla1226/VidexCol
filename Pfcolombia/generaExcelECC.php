@@ -34,12 +34,6 @@ $usuario = $data['usuario'];
 $numero = $data['total_registros'];
 $registros = $data['data'];
 
-// Determinar tipo de reporte
-$tipo = 0;
-if(isset($_REQUEST["rep_inex"]) && eliminarInvalidos($_REQUEST["rep_inex"]) != ""){
-    $tipo = eliminarInvalidos($_REQUEST["rep_inex"]);
-}
-
 // Crear Excel con la estructura original
 $ubi_regist = $numero + 10;
 $spreadsheet = new SpreadSheet();
@@ -187,8 +181,8 @@ if($numero > 0){
         
         $hojaActiva->setCellValue('D'.$fila, $registro['generacionNumero']);
         
-        // Ubicación (igual que en el Excel original)
-        if($tipo == 2){
+        // Ubicación: se determina por el tipo real de cada reporte (reporte_cm.tipo), no por el filtro global
+        if($registro['tipo'] == 'INTRA'){
             $ubicacion = $registro['prision'] . " / " . $registro['dpto_prision'] . " / " . $registro['mnpo_prision'] . " / " . $registro['dire_prision'];
         } else {
             $ubicacion = $registro['dpto_prision_extra'] . " / " . $registro['mnpo_prision_extra'] . " / " . $registro['direccion'];
@@ -256,8 +250,8 @@ if($numero > 0){
             $spreadsheet->getActiveSheet()->getStyle('AH'.$fila)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_DATE_DDMMYYYY);
         }
         
-        // Nombre del socio
-        if($tipo == 2){
+        // Nombre del socio: también según el tipo real de cada reporte
+        if($registro['tipo'] == 'INTRA'){
             $socio = $registro['rgal_prision'];
         } else {
             $socio = $registro['rgal_usuario'];
