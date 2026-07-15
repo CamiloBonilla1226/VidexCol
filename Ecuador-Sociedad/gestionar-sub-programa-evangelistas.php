@@ -947,7 +947,7 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec";
         <div class="form-group">
             <div class="col-sm-2"></div>           
             <div class="col-sm-4">
-                <strong>Total de creyentes que asistieron a los grupos en el mes:</strong>
+                <strong>Decisiones de fe este mes:</strong>
                 <input name="asistencia_jov" type="number" id="asistencia_jov" value="<?=$asistencia_jov; ?>" required class="form-control" onChange="sumar()"  />
             </div>
             <div class="col-sm-4">
