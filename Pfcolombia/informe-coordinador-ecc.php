@@ -1,8 +1,7 @@
 <?php
 
 /*
-*	CONSOLIDADO CON SUMATORIA DE CAMPOS - CAPACITAR Y MULTIPLICAR (C&M) - programa 308
-*	Fuente de datos: reporte_cm (NO sat_reportes)
+*	CONSOLIDADO CON SUMATORIA DE CAMPOS
 */
 // Objeto de Base de Datos
 $PSN1 = new DBbase_Sql;
@@ -11,171 +10,339 @@ $PSN3 = new DBbase_Sql;
 
 
 if(!isset($_REQUEST["fechaInicial"]) || eliminarInvalidos($_REQUEST["fechaInicial"]) == ""){
-    $three_months_ago = '2000-01-01';
+    //$three_months_ago = date("Y-m-d", strtotime("-3 months"));
+        $three_months_ago = '2000-01-01';
     $_REQUEST["fechaInicial"] = $three_months_ago;
 }
 if(!isset($_REQUEST["fechaFinal"]) || eliminarInvalidos($_REQUEST["fechaFinal"]) == ""){
+    $siguiente_anho = date("Y", strtotime("+1 year"));
+    //$_REQUEST["fechaFinal"] = $siguiente_anho."-01-31";
     $_REQUEST["fechaFinal"] = date("Y-m-d");
 }
 
-//
-$registros = 50;
-$pagina = soloNumeros($_GET["pagina"]);
-
-if (!$pagina) {
-    $inicio = 0;
-    $pagina = 1;
-}
-else
-{
-    $inicio = ($pagina - 1) * $registros;
-}
-
-$sqlFiltro = "";
-
-if(isset($_REQUEST["fechaInicial"]) && soloNumeros($_REQUEST["fechaInicial"]) != ""){
-    $busquedaFechaIni = eliminarInvalidos($_REQUEST["fechaInicial"]);
-}
-//
-if(isset($_REQUEST["fechaFinal"]) && soloNumeros($_REQUEST["fechaFinal"]) != ""){
-    $busquedaFechaFin = eliminarInvalidos($_REQUEST["fechaFinal"]);
-}
-
-if(isset($_REQUEST["idUsuario"]) && trim($_REQUEST["idUsuario"]) != "" && soloNumeros($_REQUEST["idUsuario"]) != ""){
-    $buscar_idUsuario = soloNumeros($_REQUEST["idUsuario"]);
-    $sqlFiltro .= " AND RC.usuario_id = '".$buscar_idUsuario."'";
-}
-if ($_SESSION["id_zona"]!="" && $_SESSION["id_zona"]!=0) {
-    $sqlFiltro .= " AND CA.id = '".$_SESSION["id_zona"]."'";
-    $_REQUEST["empresa_sitio_cor"] = $_SESSION["id_zona"];
-    $buscar_zona = $_SESSION["id_zona"];
-}
-
-if(isset($_REQUEST["empresa_pd"]) && trim($_REQUEST["empresa_pd"]) != "" && soloNumeros($_REQUEST["empresa_pd"]) != ""){
-    $buscar_regional = soloNumeros($_REQUEST["empresa_pd"]);
-    $sqlFiltro .= " AND UE.empresa_pd = '".$buscar_regional."'";
-}else  if ($_SESSION["empresa_pd"]!="" && $_SESSION["empresa_pd"]!=0) {
-    $buscar_regional = soloNumeros($_SESSION["empresa_pd"]);
-    $sqlFiltro .= " AND UE.empresa_pd = '".$_SESSION["empresa_pd"]."'";
-    $_REQUEST["empresa_pd"] = $_SESSION["empresa_pd"];
-}
-
-if(isset($_REQUEST["sitioReunion"]) && trim($_REQUEST["sitioReunion"]) != "" && soloNumeros($_REQUEST["sitioReunion"]) != ""){
-    $buscar_prision = soloNumeros($_REQUEST["sitioReunion"]);
-    $sqlFiltro .= " AND RC.carcel_id = ".$buscar_prision."";
-}
-if(isset($_REQUEST["empresa_sitio_cor"]) && trim($_REQUEST["empresa_sitio_cor"]) != "" && soloNumeros($_REQUEST["empresa_sitio_cor"]) != ""){
-    $buscar_zona = soloNumeros($_REQUEST["empresa_sitio_cor"]);
-    $sqlFiltro .= " AND CA.id = '".$buscar_zona."'";
-}
-if(isset($_REQUEST["rep_qua"]) && trim($_REQUEST["rep_qua"]) != "" && soloNumeros($_REQUEST["rep_qua"]) != ""){
-    $buscar_periodo = soloNumeros($_REQUEST["rep_qua"]);
-    $sqlFiltro .= " AND RC.mapeo_cuarto = '".$buscar_periodo."'";
-}
-
-//
-if(isset($_REQUEST["rep_inex"]) && eliminarInvalidos($_REQUEST["rep_inex"]) != ""){
-    $tipo = eliminarInvalidos($_REQUEST["rep_inex"]);
-    if ($tipo == "INTRA" || $tipo == "EXTRA") {
-        $sqlFiltro .= " AND RC.tipo = '".$tipo."'";
-    }
+if (!empty($_REQUEST['rep_ani'])) {
+    $anio = $_REQUEST['rep_ani'];
 }else{
-    $_REQUEST["rep_inex"] = "";
+    $anio = date('Y');
 }
-//
-if(isset($_REQUEST["fechaInicial"]) && eliminarInvalidos($_REQUEST["fechaInicial"]) != ""){
-    $fechaInicial = eliminarInvalidos($_REQUEST["fechaInicial"]);
-    $sqlFiltro .= " AND RC.fecha_reporte >= '".$fechaInicial."'";
-}
-//
-if(isset($_REQUEST["fechaFinal"]) && eliminarInvalidos($_REQUEST["fechaFinal"]) != ""){
-    $fechaFinal = eliminarInvalidos($_REQUEST["fechaFinal"]);
-    $sqlFiltro .= " AND RC.fecha_reporte <= '".$fechaFinal."'";
-}
-
-/*
-*	TRAEMOS EL CONTEO DE LOS REGISTROS POR USUARIO QUE ES EL AGRUPADOR.
-*/
-$sql = "SELECT count(DISTINCT RC.usuario_id) as conteo ";
-$sql .= " FROM reporte_cm AS RC ";
-$sql .= " LEFT JOIN usuario AS U ON U.id = RC.usuario_id
-LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = RC.usuario_id
-LEFT JOIN categorias AS C ON C.id = UE.empresa_pd
-LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
-$sql .= " WHERE 1 ".$sqlFiltro;
-//
-$PSN1->query($sql);
-if($PSN1->num_rows() > 0)
-{
-    if($PSN1->next_record())
-    {
-        $total_registros = $PSN1->f('conteo');
+if (!empty($_REQUEST['rep_qua'])) {
+    $q = $_REQUEST['rep_qua'];
+    $iniQ = $anio.'-'.$q.'-01';
+    $iniQ = date("Y-m-d", strtotime($iniQ));
+    if ($_REQUEST['rep_qua']==1) {
+        $finQ = $anio.'-'.($q+2).'-31';
+    }else if ($_REQUEST['rep_qua']==10) {
+        $finQ = $anio.'-'.($q+2).'-31';
+    }else{
+        $finQ = $anio.'-'.($q+2).'-30';
     }
+    $finQ = date("Y-m-d", strtotime($finQ));
+}else{
+   $iniQ = $_REQUEST["fechaInicial"];
+   $finQ = $_REQUEST["fechaFinal"];
 }
-$total_paginas = ceil($total_registros / $registros);
+//echo $iniQ.' - '.$finQ;
+/*
+*   GENERAR EXCEL
+*/
+if(isset($_REQUEST["excelXML"])){
 
-// Paso 1: Obtener solo los IDs de usuarios que cumplen con los filtros
+    //  YA GENERACION 0 NO CUENTA
+    //$sqlFiltro .= " AND sat_reportes.generacionNumero != 0";
+    //$sqlFiltro .= " AND sat_reportes.generacionNumero != 77";
+    //$sqlFiltro .= " AND sat_reportes.generacionNumero != 8";
 
-$only_basic_filters = (
-    strpos($sqlFiltro, 'UE.empresa_pd') === false &&
-    strpos($sqlFiltro, 'CA.id') === false
-);
-
-if ($only_basic_filters) {
-    // Consulta súper rápida sin JOINs para casos básicos
-    $sql_user_ids = "SELECT DISTINCT RC.usuario_id FROM reporte_cm AS RC
-    WHERE 1 ".$sqlFiltro."
-    ORDER BY RC.usuario_id LIMIT ".$inicio.", ".$registros;
-} else {
-    // Consulta con JOINs solo cuando sea necesario
-    $sql_user_ids = "SELECT DISTINCT RC.usuario_id FROM reporte_cm AS RC";
-    $sql_user_ids .= " LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = RC.usuario_id";
-    $sql_user_ids .= " LEFT JOIN categorias AS C ON C.id = UE.empresa_pd";
-    $sql_user_ids .= " LEFT JOIN categorias AS CA ON CA.id = C.idSec";
-    $sql_user_ids .= " WHERE 1 ".$sqlFiltro."
-    ORDER BY RC.usuario_id LIMIT ".$inicio.", ".$registros;
-}
-
-$PSN_user_ids = new DBbase_Sql;
-$PSN_user_ids->query($sql_user_ids);
-$user_ids = [];
-while($PSN_user_ids->next_record()){
-    $user_ids[] = $PSN_user_ids->f('usuario_id');
-}
-
-// Paso 2: Solo si hay IDs de usuarios, obtener los datos completos agrupados
-if (count($user_ids) > 0) {
+    // Comentado: Filtro automático por perfil puede limitar resultados innecesariamente
+    // if($_SESSION["perfil"] == 163){
+    //     $_REQUEST["idUsuario"] = $_SESSION["id"];
+    // } 
+    $empresa_paisid_txt = "Confraternidad carcelaria";
+    if(isset($_REQUEST["empresa_paisid"]) && soloNumeros($_REQUEST["empresa_paisid"]) != ""){
+        $empresa_paisid = soloNumeros($_REQUEST["empresa_paisid"]);
+        $sqlFiltro .= " AND usuario_empresa.empresa_paisid = '".$empresa_paisid."'";
+        
+        /*
+        *	TRAEMOS LOS TIPOS DE CLIENTE/EMPRESA (15)
+        */
+        $sql = "SELECT * ";
+        $sql.=" FROM categorias ";
+        $sql.=" WHERE idSec = 37 ORDER BY descripcion asc";
+        $PSN2->query($sql);
+        $numero=$PSN2->num_rows();
+        if($numero > 0)
+        {
+            while($PSN2->next_record())
+            {
+                $empresa_paisid_txt = "Satura ".$PSN2->f('descripcion');
+            }
+        }        
+        
+    }
+    
+    
+    if(isset($_REQUEST["idUsuario"]) && trim($_REQUEST["idUsuario"]) != "" && soloNumeros($_REQUEST["idUsuario"]) != ""){
+        $buscar_idUsuario = soloNumeros($_REQUEST["idUsuario"]);
+        $sqlFiltro .= " AND sat_reportes.idUsuario = '".$buscar_idUsuario."'";
+    }
+    //
+    if(isset($_REQUEST["idGrupoMadre"]) && soloNumeros($_REQUEST["idGrupoMadre"]) != ""){
+        $buscar_idGrupoMadre = soloNumeros($_REQUEST["idGrupoMadre"]);
+        $sqlFiltro .= " AND sat_reportes.idGrupoMadre = '".$buscar_idGrupoMadre."'";
+    }
+    
+    //
+    if(isset($_REQUEST["nombre"]) && eliminarInvalidos($_REQUEST["nombre"]) != ""){
+        $buscar_nombre = eliminarInvalidos($_REQUEST["nombre"]);
+        $sqlFiltro .= " AND sat_reportes.plantador LIKE '%".$buscar_nombre."%'";
+    }
+    
+    //
+    if(isset($_REQUEST["fechaInicial"]) && eliminarInvalidos($_REQUEST["fechaInicial"]) != ""){
+        $fechaInicial = eliminarInvalidos($_REQUEST["fechaInicial"]);
+        $sqlFiltro .= " AND sat_reportes.fechaReporte >= '".$fechaInicial."'";
+    }
+    
+    //
+    if(isset($_REQUEST["fechaFinal"]) && eliminarInvalidos($_REQUEST["fechaFinal"]) != ""){
+        $fechaFinal = eliminarInvalidos($_REQUEST["fechaFinal"]);
+        $sqlFiltro .= " AND sat_reportes.fechaReporte <= '".$fechaFinal."'";
+    }
+                    
     $sql = "SELECT
-                RC.usuario_id,
-                COUNT(RC.id_cm) AS gruposConteo,
-
-                SUM(RC.asistencia_total) as asistencia_total,
-                SUM(RC.asistencia_hombres) as asistencia_hom,
-                SUM(RC.asistencia_mujeres) as asistencia_muj,
-                SUM(RC.asistencia_jovenes) as asistencia_jov,
-                SUM(RC.asistencia_ninos) as asistencia_nin,
-
-                SUM(RC.miembros_bautizados) as bautizados,
-                SUM(RC.bautizados_periodo) as bautizadosPeriodo,
-                SUM(RC.en_discipulado) as discipulado,
-                SUM(RC.decisiones_cristo) as desiciones,
-                SUM(RC.preparandose_bautismo) as preparandose,
-                SUM(RC.graduados_periodo) as graduadosPeriodo,
-                U.nombre as nombreUsuario,
-                UE.empresa_sitio,
-                UE.empresa_rm,
-                UE.empresa_proceso ";
-    $sql.=" FROM reporte_cm AS RC ";
-    $sql .= " LEFT JOIN usuario AS U ON U.id = RC.usuario_id
-    LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = RC.usuario_id
-    LEFT JOIN categorias AS C ON C.id = UE.empresa_pd
+                sat_reportes.*,
+                usuario.nombre as nombreUsuario,
+                usuario.direccion as direccionUsuario,
+                usuario.identificacion as identificacionUsuario,
+                usuario_empresa.empresa_sitio,
+                usuario_empresa.empresa_socio,
+                usuario_empresa.empresa_rm,
+                usuario_empresa.empresa_proceso,
+                usuario_empresa.empresa_paisid 
+                ";
+    $sql.=" FROM sat_reportes ";
+    $sql .= " LEFT JOIN usuario AS U ON U.id = sat_reportes.idUsuario 
+    LEFT JOIN tbl_regional_ubicacion AS RU ON RU.reub_id = sat_reportes.sitioReunion 
+    LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk 
+    LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = sat_reportes.idUsuario 
     LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
     //
-    $sql.=" WHERE RC.usuario_id IN (" . implode(',', $user_ids) . ") ".$sqlFiltro." GROUP BY RC.usuario_id ORDER BY U.nombre ASC";
-    //
+    $sql.=" WHERE 1 ".$sqlFiltro." ORDER BY usuario_empresa.empresa_paisid ASC, usuario.nombre ASC";
     $PSN1->query($sql);
+    $numero=$PSN1->num_rows();
+    //
+    //
+    $sql = "SELECT usuario.*, usuario_empresa.* FROM usuario LEFT JOIN usuario_empresa ON usuario_empresa.idUsuario = usuario.id WHERE usuario.id = '".$_SESSION["id"]."'";
+    $PSN2->query($sql);
+    if($PSN2->num_rows() > 0)
+    {
+        if($PSN2->next_record())
+        {
+            $empresa_pais = $PSN2->f('empresa_pais');
+            $empresa_sitio_cor = $PSN2->f('empresa_sitio_cor');
+            $empresa_socio = $PSN2->f('empresa_socio');   
+            $empresa_rm = $PSN2->f('empresa_rm');
+        }
+    }
+
+   
 }
-$numero=$PSN1->num_rows();
+else{
+    //
+    $registros = 50;
+    $pagina = soloNumeros($_GET["pagina"]);
+
+    if (!$pagina) { 
+        $inicio = 0; 
+        $pagina = 1; 
+    } 
+    else
+    { 
+        $inicio = ($pagina - 1) * $registros; 
+    }
+
+
+    //  YA GENERACION 0 NO CUENTA
+    $sqlFiltro .= " AND sat_reportes.generacionNumero != 0";
+    $sqlFiltro .= " AND sat_reportes.generacionNumero != 77";
+
+    //
+    // Comentado: Filtro automático por perfil puede limitar resultados innecesariamente
+    // if($_SESSION["perfil"] == 163){
+    //     $_REQUEST["idUsuario"] = $_SESSION["id"];
+    // }
+    
+
+    if(isset($_REQUEST["fechaInicial"]) && soloNumeros($_REQUEST["fechaInicial"]) != ""){
+        $busquedaFechaIni = eliminarInvalidos($_REQUEST["fechaInicial"]);
+    }
+    //
+    if(isset($_REQUEST["fechaFinal"]) && soloNumeros($_REQUEST["fechaFinal"]) != ""){
+        $busquedaFechaFin = eliminarInvalidos($_REQUEST["fechaFinal"]);
+    }
+
+    if(isset($_REQUEST["idUsuario"]) && trim($_REQUEST["idUsuario"]) != "" && soloNumeros($_REQUEST["idUsuario"]) != ""){
+        $buscar_idUsuario = soloNumeros($_REQUEST["idUsuario"]);
+        $sqlFiltro .= " AND sat_reportes.idUsuario = '".$buscar_idUsuario."'";
+    }
+    if ($_SESSION["id_zona"]!="" && $_SESSION["id_zona"]!=0) {
+        $sqlFiltro .= " AND C.idSec = '".$_SESSION["id_zona"]."'";
+        $_REQUEST["empresa_sitio_cor"] = $_SESSION["id_zona"];
+        $buscar_zona = $_SESSION["id_zona"];
+    }
+
+    if(isset($_REQUEST["empresa_pd"]) && trim($_REQUEST["empresa_pd"]) != "" && soloNumeros($_REQUEST["empresa_pd"]) != ""){
+        $buscar_regional = soloNumeros($_REQUEST["empresa_pd"]);
+        $sqlFiltro .= " AND RU.reub_reg_fk = '".$buscar_regional."'";
+    }else  if ($_SESSION["empresa_pd"]!="" && $_SESSION["empresa_pd"]!=0) {
+        $buscar_regional = soloNumeros($_SESSION["empresa_pd"]);
+        $sqlFiltro .= " AND RU.reub_reg_fk = '".$_SESSION["empresa_pd"]."'";
+        $_REQUEST["empresa_pd"] = $_SESSION["empresa_pd"];
+    }
+
+    if(isset($_REQUEST["sitioReunion"]) && trim($_REQUEST["sitioReunion"]) != "" && soloNumeros($_REQUEST["sitioReunion"]) != ""){
+        $buscar_prision = soloNumeros($_REQUEST["sitioReunion"]);
+        $sqlFiltro .= " AND sat_reportes.sitioReunion = ".$buscar_prision."";
+    }
+    if(isset($_REQUEST["empresa_sitio_cor"]) && trim($_REQUEST["empresa_sitio_cor"]) != "" && soloNumeros($_REQUEST["empresa_sitio_cor"]) != ""){
+        $buscar_zona = soloNumeros($_REQUEST["empresa_sitio_cor"]);
+        $sqlFiltro .= " AND C.idSec = '".$buscar_zona."'";
+    }
+    if(isset($_REQUEST["rep_qua"]) && trim($_REQUEST["rep_qua"]) != "" && soloNumeros($_REQUEST["rep_qua"]) != ""){
+        $buscar_periodo = soloNumeros($_REQUEST["rep_qua"]);
+        $sqlFiltro .= " AND sat_reportes.mapeo_cuarto = '".$buscar_periodo."'";
+    }
+
+    //
+    if(isset($_REQUEST["rep_inex"]) && eliminarInvalidos($_REQUEST["rep_inex"]) != ""){
+        $tipo = eliminarInvalidos($_REQUEST["rep_inex"]);
+        if ($tipo == 2) {
+            $sqlFiltro .= " AND sat_reportes.sitioReunion = 0 ";
+        }else{
+            $sqlFiltro .= " AND sat_reportes.sitioReunion <> 0 ";
+        }    
+    }else{
+        $_REQUEST["rep_inex"] = "";
+    }
+    //
+    if(isset($_REQUEST["fechaInicial"]) && eliminarInvalidos($_REQUEST["fechaInicial"]) != ""){
+        $fechaInicial = eliminarInvalidos($_REQUEST["fechaInicial"]);
+        $sqlFiltro .= " AND sat_reportes.fechaReporte >= '".$fechaInicial."'";
+    }
+    //
+    if(isset($_REQUEST["fechaFinal"]) && eliminarInvalidos($_REQUEST["fechaFinal"]) != ""){
+        $fechaFinal = eliminarInvalidos($_REQUEST["fechaFinal"]);
+        $sqlFiltro .= " AND sat_reportes.fechaReporte <= '".$fechaFinal."'";
+    }
+
+    if(isset($_REQUEST["empresa_paisid"]) && soloNumeros($_REQUEST["empresa_paisid"]) != ""){
+        $empresa_paisid = soloNumeros($_REQUEST["empresa_paisid"]);
+        $sqlFiltro .= " AND usuario_empresa.empresa_paisid = '".$empresa_paisid."'";
+    }
+
+    /*
+    *	TRAEMOS EL CONTEO DE LOS REGISTROS POR USUARIO QUE ES EL AGRUPADOR.
+    */
+    $sql = "SELECT count(DISTINCT sat_reportes.idUsuario) as conteo ";
+    $sql .= " FROM sat_reportes ";
+    $sql .= " LEFT JOIN usuario AS U ON U.id = sat_reportes.idUsuario
+    LEFT JOIN tbl_regional_ubicacion AS RU ON RU.reub_id = sat_reportes.sitioReunion
+    LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk
+    LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = sat_reportes.idUsuario
+    LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
+    $sql .= " WHERE 1 AND sat_reportes.rep_tip = 308";
+    //
+    $sql .= $sqlFiltro." ORDER BY sat_reportes.id DESC";
+    //
+
+    $PSN1->query($sql);
+    if($PSN1->num_rows() > 0)
+    {
+        if($PSN1->next_record())
+        {
+            $total_registros = $PSN1->f('conteo');
+        }
+    }
+    $total_paginas = ceil($total_registros / $registros); 
+
+    // Paso 1: Obtener solo los IDs de usuarios que cumplen con los filtros (ULTRA OPTIMIZADO)
+
+    // Para casos sin filtros o solo filtros básicos, usar consulta súper simple
+    $only_basic_filters = (
+        strpos($sqlFiltro, 'RU.reub_reg_fk') === false &&
+        strpos($sqlFiltro, 'C.idSec') === false &&
+        strpos($sqlFiltro, 'usuario_empresa.empresa_paisid') === false
+    );
+
+    if ($only_basic_filters) {
+        // Consulta súper rápida sin JOINs para casos básicos
+        $sql_user_ids = "SELECT DISTINCT sat_reportes.idUsuario FROM sat_reportes
+        WHERE 1 ".$sqlFiltro." AND sat_reportes.rep_tip = 308
+        ORDER BY sat_reportes.idUsuario LIMIT ".$inicio.", ".$registros;
+    } else {
+        // Consulta con JOINs solo cuando sea necesario
+        $sql_user_ids = "SELECT DISTINCT sat_reportes.idUsuario FROM sat_reportes";
+
+        $needs_regional_join = (strpos($sqlFiltro, 'RU.reub_reg_fk') !== false);
+        $needs_categoria_join = (strpos($sqlFiltro, 'C.idSec') !== false);
+        $needs_empresa_join = (strpos($sqlFiltro, 'usuario_empresa.empresa_paisid') !== false);
+
+        if ($needs_regional_join || $needs_categoria_join) {
+            $sql_user_ids .= " LEFT JOIN tbl_regional_ubicacion AS RU ON RU.reub_id = sat_reportes.sitioReunion";
+        }
+        if ($needs_categoria_join) {
+            $sql_user_ids .= " LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk";
+        }
+        if ($needs_empresa_join) {
+            $sql_user_ids .= " LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = sat_reportes.idUsuario";
+        }
+
+        $sql_user_ids .= " WHERE 1 ".$sqlFiltro." AND sat_reportes.rep_tip = 308
+        ORDER BY sat_reportes.idUsuario LIMIT ".$inicio.", ".$registros;
+    }
+
+    $PSN_user_ids = new DBbase_Sql;
+    $PSN_user_ids->query($sql_user_ids);
+    $user_ids = [];
+    while($PSN_user_ids->next_record()){
+        $user_ids[] = $PSN_user_ids->f('idUsuario');
+    }
+
+    // Paso 2: Solo si hay IDs de usuarios, obtener los datos completos agrupados (RÁPIDO)
+    if (count($user_ids) > 0) {
+        $sql = "SELECT
+                    sat_reportes.idUsuario,
+                    COUNT(sat_reportes.generacionNumero) AS gruposConteo,
+
+                    SUM(sat_reportes.asistencia_total) as asistencia_total,
+                    SUM(sat_reportes.asistencia_hom) as asistencia_hom,
+                    SUM(sat_reportes.asistencia_muj) as asistencia_muj,
+                    SUM(sat_reportes.asistencia_jov) as asistencia_jov,
+                    SUM(sat_reportes.asistencia_nin) as asistencia_nin,
+
+                    SUM(sat_reportes.bautizados) as bautizados,
+                    SUM(sat_reportes.bautizadosPeriodo) as bautizadosPeriodo,
+                    SUM(sat_reportes.discipulado) as discipulado,
+                    SUM(sat_reportes.desiciones) as desiciones,
+                    SUM(sat_reportes.preparandose) as preparandose,
+                    SUM(sat_reportes.iglesias_reconocidas) as iglesias_reconocidas,
+                    SUM(sat_reportes.graduados) as graduados,
+                    SUM(sat_reportes.graduadosPeriodo) as graduadosPeriodo,
+                    U.nombre as nombreUsuario,
+                    UE.empresa_sitio,
+                    UE.empresa_rm,
+                    UE.empresa_proceso ";
+        $sql.=" FROM sat_reportes ";
+        $sql .= " LEFT JOIN usuario AS U ON U.id = sat_reportes.idUsuario
+        LEFT JOIN tbl_regional_ubicacion AS RU ON RU.reub_id = sat_reportes.sitioReunion
+        LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk
+        LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = sat_reportes.idUsuario
+        LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
+        //
+        $sql.=" WHERE sat_reportes.idUsuario IN (" . implode(',', $user_ids) . ") AND sat_reportes.rep_tip = 308 ".$sqlFiltro." GROUP BY sat_reportes.idUsuario ORDER BY U.nombre ASC";
+        //
+        $PSN1->query($sql);
+    }
+    $numero=$PSN1->num_rows();
 ?>
 <div class="container">
     <form name="form" id="form" method="get" class="form-horizontal">
@@ -238,8 +405,9 @@ $numero=$PSN1->num_rows();
                             $sql.=" AND C.id = ".$_SESSION["empresa_pd"];
                         }
                     }
-
-                    $PSN2->query($sql);
+                    
+                    $PSN2->query($sql); 
+                    echo $sql;
                     $numero=$PSN2->num_rows();
                     if($numero > 0){
                         while($PSN2->next_record()){?>
@@ -251,7 +419,7 @@ $numero=$PSN1->num_rows();
                         }
                     }
                     ?>
-                </select>
+                </select>                    
             </div>
             <div class="col-sm-2">
                     <strong>Miembro de la regional:</strong><?php
@@ -260,7 +428,7 @@ $numero=$PSN1->num_rows();
                 if($_SESSION["perfil"] != 163){
                     ?><option value="">Ver todos</option><?php
                 }
-
+        
                 /*
                 *   TRAEMOS LOS USUARIOS
                 */
@@ -330,10 +498,10 @@ $numero=$PSN1->num_rows();
                     <strong>Tipo:</strong>
                     <select name="rep_inex" class="form-control" onchange="this.form.submit()">
                         <option value="">Intramuros / Extramuros</option>
-                        <option value="INTRA" <?php echo($_REQUEST["rep_inex"] == "INTRA")?'selected="selected"':""; ?>>Intramuros</option>
-                        <option value="EXTRA" <?php echo($_REQUEST["rep_inex"] == "EXTRA")?'selected="selected"':""; ?>>Extramuros</option>
+                        <option value="1" <?php echo($_REQUEST["rep_inex"] == 1)?'selected="selected"':""; ?>>Intramuros</option>
+                        <option value="2" <?php echo($_REQUEST["rep_inex"] == 2)?'selected="selected"':""; ?>>Extramuros</option>
                     </select>
-                </div>
+                </div>  
                 <div class="col-sm-2">
                     <strong>Fecha Inicial:</strong>
                     <input type="date" name="fechaInicial" id="fechaInicial" value="<?=$fechaInicial; ?>" class="form-control" />
@@ -352,6 +520,18 @@ $numero=$PSN1->num_rows();
                     <option value="10" <?php echo($_REQUEST['rep_qua']==10)?'selected':''; ?>>Q4 (Oct - Dic)</option>
                 </select>
             </div>
+            <!--
+            <div class="col-sm-1">
+                <strong>Año:</strong>
+                <select name="rep_ani" onchange="this.form.submit()" class="form-control">
+                    <option value="">Sin especificar</option>
+                    <?php for ($i=2021; $i <= date('Y'); $i++) { 
+                        echo '<option value="'.$i.'"';
+                        echo ($i == $_REQUEST['rep_ani'])?'selected':'';
+                        echo ' >'.$i.'</option>';
+                    } ?>
+                </select>
+            </div>-->
             <div class="col-sm-1">
                 <br>
                 <input type="submit" value="Buscar" class="btn btn-success" />
@@ -392,20 +572,25 @@ $numero=$PSN1->num_rows();
         </div>
     <table border="0" cellspacing="0" cellpadding="2"  align="center" class="table table-bordered" style="font-size:12px">
         <thead>
-            <tr>
+            <tr> 
                 <th>Id</th>
                 <th>Facilitador</th>
                     <th>RM</th>
                     <th>Proceso</th>
                     <th>Sitio</th>
                 <th>Grupos</th>
+                <th>Grupos Nuevos</th>
                 <th>Bautizados</th>
                     <th>Asistencia</th>
                 <th>Decisiones</th>
                 <th>Preparandose</th>
                     <th>Bautizados este período</th>
                 <th>En Discipulado</th>
+                    <th>Lideres capacitandose</th>
+                <th>Graduados</th>
                 <th>Graduados período</th>
+                <th>Cursos de graduación</th>
+                <th>Iglesias Reconocidas</th>
             </tr>
         </thead>
         <tbody>
@@ -415,9 +600,44 @@ $numero=$PSN1->num_rows();
                 $contador = 1;
                 while($PSN1->next_record())
                 {
-                    $idUsuario = $PSN1->f('usuario_id');
-                    $gruposConteo = $PSN1->f("gruposConteo");
+                    //Solo si no se ha modificado ya el formulario.
+                    $idUsuario = $PSN1->f('idUsuario');
+                    $plantador = $PSN1->f("plantador");
+                    $fechaReporte = $PSN1->f("fechaReporte");
+                    $fechaInicio = $PSN1->f("fechaInicio");        
+                    $sitioReunion = $PSN1->f("sitioReunion");
+                    $grupoMadre_txt = $PSN1->f("grupoMadre_txt");
+                        
+                    $idGrupoMadre = $PSN1->f("idGrupoMadre");
+                    $generacionNumero = intval($PSN1->f("generacionNumero"));
 
+                    $gruposConteo = $PSN1->f("gruposConteo");
+                    
+                    $sql = "SELECT COUNT(DISTINCT sat_reportes.idGrupoMadre) as conteo ";
+                    $sql.=" FROM sat_reportes ";
+                    //
+                    //
+                    $sqlFiltro = "";
+                    if(isset($_REQUEST["fechaInicial"]) && eliminarInvalidos($_REQUEST["fechaInicial"]) != ""){
+                        $sqlFiltro .= " AND sat_reportes.fechaInicio >= '".$fechaInicial."'";
+                    }
+                    //
+                    if(isset($_REQUEST["fechaFinal"]) && eliminarInvalidos($_REQUEST["fechaFinal"]) != ""){
+                        $sqlFiltro .= " AND sat_reportes.fechaInicio <= '".$fechaFinal."'";
+                    }
+
+                    $sql.=" WHERE idUsuario = '".$idUsuario."' ".$sqlFiltro;
+                    $PSN2->query($sql);
+                    if($PSN2->num_rows() > 0)
+                    {
+                        if($PSN2->next_record())
+                        {
+                            $gruposNuevos = $PSN2->f('conteo');
+                        }
+                    }
+                    
+                    
+                    
                     $nombreUsuario = $PSN1->f("nombreUsuario");
                         $empresa_sitio = $PSN1->f("empresa_sitio");
                         $empresa_rm = $PSN1->f("empresa_rm");
@@ -431,11 +651,66 @@ $numero=$PSN1->num_rows();
                     $bautizados = $PSN1->f("bautizados");
                     $bautizadosPeriodo = $PSN1->f("bautizadosPeriodo");
 
+                    //Calculados:
                     $asistencia_total  = $PSN1->f("asistencia_total");
                     $discipulado  = $PSN1->f("discipulado");
                     $desiciones  = $PSN1->f("desiciones");
                     $preparandose  = $PSN1->f("preparandose");
+                    $graduados  = $PSN1->f("graduados");
                     $graduadosPeriodo  = $PSN1->f("graduadosPeriodo");
+                    $iglesias_reconocidas = $PSN1->f("iglesias_reconocidas");
+                    
+                    // Obtener cursos de graduación para este facilitador
+                    $cursosGraduacion = "";
+                    $sql_cursos = "SELECT DISTINCT C.descripcion 
+                                  FROM tbl_adjuntos AS A 
+                                  LEFT JOIN categorias AS C ON C.id = A.adj_curso 
+                                  LEFT JOIN sat_reportes AS S ON S.id = A.adj_rep_fk 
+                                  WHERE S.idUsuario = '".$idUsuario."'";
+                    if(isset($_REQUEST["fechaInicial"]) && eliminarInvalidos($_REQUEST["fechaInicial"]) != ""){
+                        $sql_cursos .= " AND A.adj_fec >= '".$fechaInicial."'";
+                    }
+                    if(isset($_REQUEST["fechaFinal"]) && eliminarInvalidos($_REQUEST["fechaFinal"]) != ""){
+                        $sql_cursos .= " AND A.adj_fec <= '".$fechaFinal."'";
+                    }
+                    $sql_cursos .= " ORDER BY C.descripcion ASC";
+                    
+                    $PSN3->query($sql_cursos);
+                    $cursos_array = array();
+                    if($PSN3->num_rows() > 0){
+                        while($PSN3->next_record()){
+                            $curso_desc = $PSN3->f('descripcion');
+                            if($curso_desc != "" && $curso_desc != null){
+                                $cursos_array[] = $curso_desc;
+                            } else {
+                                $cursos_array[] = "No especificado";
+                            }
+                        }
+                    }
+                    if(empty($cursos_array) && ($graduados > 0 || $graduadosPeriodo > 0)){
+                        $cursosGraduacion = "No especificado";
+                    } else if(!empty($cursos_array)) {
+                        $cursosGraduacion = implode(", ", array_unique($cursos_array));
+                    } else {
+                        $cursosGraduacion = "-";
+                    }  
+                    
+                    $lideresCapacitandose = 0;                        
+                    
+                    $sql = "SELECT SUM(asistencia_total) as total, COUNT(sat_reportes.id) as conteo ";
+                    $sql.=" FROM sat_reportes ";
+                    $sql .= " LEFT JOIN usuario ON usuario.id = sat_reportes.idUsuario";
+                    $sql .= " LEFT JOIN usuario_empresa ON usuario_empresa.idUsuario = sat_reportes.idUsuario";
+                    //
+                    $sql.=" WHERE 1 ".$sqlFiltro." AND  sat_reportes.idUsuario = '".$idUsuario."' AND sat_reportes.generacionNumero = 0 GROUP BY sat_reportes.idUsuario";
+                    $PSN2->query($sql);
+                    if($PSN2->num_rows() > 0)
+                    {
+                        if($PSN2->next_record())
+                        {
+                            $lideresCapacitandose = ($PSN2->f('total')-$PSN2->f('conteo'));
+                        }
+                    }
                     //
                     ?><tr>
                         <td><?=$contador; ?></td>
@@ -444,13 +719,18 @@ $numero=$PSN1->num_rows();
                             <td><?=$empresa_proceso; ?></td>
                             <td><?=$empresa_sitio; ?></td>
                         <td align="center"><?=$gruposConteo; ?></td>
+                        <td align="center"><?=$gruposNuevos; ?></td>
                         <td align="center"><?=$bautizados; ?></td>
                             <td align="center"><?=$asistencia_total; ?></td>
                         <td align="center"><?=$desiciones; ?></td>
                         <td align="center"><?=$preparandose; ?></td>
                             <td align="center"><?=$bautizadosPeriodo; ?></td>
                         <td align="center"><?=$discipulado; ?></td>
+                            <td align="center"><?=$lideresCapacitandose; ?></td>
+                        <td align="center"><?=$graduados; ?></td>
                         <td align="center"><?=$graduadosPeriodo; ?></td>
+                        <td><?=$cursosGraduacion; ?></td>
+                        <td align="center"><?=$iglesias_reconocidas; ?></td>
                     </tr>
                     <?php
                     $contador++;
@@ -472,24 +752,24 @@ $numero=$PSN1->num_rows();
             //
             if(($pagina - 1) > 0)
             {
-                echo "<li><a href='".$_SERVER['REQUEST_URI']."&pagina=".($pagina-1)."'>&laquo;</a></li>";
+                echo "<li><a href='".$_SERVER['REQUEST_URI']."&pagina=".($pagina-1)."'>&laquo;</a></li>"; 
             }
 
             for ($i=1; $i<=$total_paginas; $i++)
-            {
+            { 
                 if ($pagina == $i)
                 {
-                    echo "<li class='active'><a href='".$_SERVER['REQUEST_URI']."&pagina=$i'>$i</a>";
+                    echo "<li class='active'><a href='".$_SERVER['REQUEST_URI']."&pagina=$i'>$i</a>"; 
                 }
-                else
-                {
+                else 
+                { 
                     echo "<li><a href='".$_SERVER['REQUEST_URI']."&pagina=$i'>$i</a></li>";
-                }
+                } 
             }
 
             if(($pagina + 1)<=$total_paginas)
-            {
-                echo "<li><a href='".$_SERVER['REQUEST_URI']."&pagina=".($pagina+1)."'>&raquo;</a></li>";
+            { 
+                echo "<li><a href='".$_SERVER['REQUEST_URI']."&pagina=".($pagina+1)."'>&raquo;</a></li>"; 
             }
             ?>
         </ul>
@@ -516,4 +796,6 @@ $numero=$PSN1->num_rows();
             window.location = $(this).data("href");
         });
     });
-    </script>
+    </script><?php
+}
+?>
