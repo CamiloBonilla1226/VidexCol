@@ -1209,10 +1209,14 @@ if($idReporteActual > 0){
             <div class="col-sm-4"><input name="sitioReunion" type="text" id="sitioReunion" maxlength="250" value="<?=$sitioReunion; ?>" class="form-control" required  />
             </div>//-->
 
+            <?php if($idReporteActual == 0){ ?>
             <div class="col-sm-2">
                 <strong>Fecha de inicio:</strong>
                 <input name="fechaInicio" type="date" id="fechaInicio" maxlength="250" value="<?=$fechaInicio; ?>" max='<?=date("Y-m-d"); ?>' class="form-control" required  />
             </div>
+            <?php } else { ?>
+            <input type="hidden" name="fechaInicio" id="fechaInicio" value="<?=$fechaInicio; ?>" />
+            <?php } ?>
             <div class="col-sm-2">
                 <strong>Barrio (Evento):</strong>
                 <input name="pabellon" type="text" id="pabellon" maxlength="250" value="<?=$pabellon; ?>" class="form-control" required  placeholder = "Barrio" />
