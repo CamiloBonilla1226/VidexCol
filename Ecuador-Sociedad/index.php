@@ -448,26 +448,18 @@ if(isset($_GET["doc"]) && !empty( $_GET["doc"]) && is_logged_in())
                 if($PSNMenu->num_rows() > 0)
                 {
                     $principal_old = 0;
-                    $es_directo = false;
                     while($PSNMenu->next_record())
-                    {
+                    { 
                         if($principal_old != $PSNMenu->f("principal"))
                         {
-                            if($principal_old != 0 && !$es_directo){
+                            if($principal_old != 0){
                                 ?></ul>
                                 </li><?php
                             }
                             $principal_old = $PSNMenu->f("principal");
-                            $es_directo = ($principal_old == 100);
-
-
+                            
+               
                             //
-                            if($es_directo){
-                                ?><li>
-                                    <a href="usuario_buscar.php"><i class='fas fa-user'></i> Buscar persona</a>
-                                </li><?php
-                            }
-                            else{
                             ?><li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><?php
                                 switch($PSNMenu->f("principal")){
@@ -501,30 +493,24 @@ if(isset($_GET["doc"]) && !empty( $_GET["doc"]) && is_logged_in())
                                     case 99:
                                         echo "<i class='fas fa-user'></i> Mi cuenta";
                                         break;
-                                        case 999:
-                                        echo "<i class='fas fa-user'></i> Mprueba";
-                                        break;
                                     default:
                                         echo "Otras opciones";
                                         break;
                                 }
                                 ?><span class="caret"></span></a>
-                            <ul class="dropdown-menu"><?php
-                            }
+                            <ul class="dropdown-menu"><?php					
                         }
 
-                        if($es_directo){
-                            continue;
-                        }
-
-                        ?><li><?php
+                        
+                        
+                        ?><li><?php			
                         ?><a href="<?php
                              if($PSNMenu->f("directo") == 1){
                                 echo $PSNMenu->f("php");
                              }
                              else{
                                 ?>index.php?doc=<?=$PSNMenu->f("php"); ?><?php
-                            }
+                            }    
                              if($PSNMenu->f("opc") > 0){
                                  ?>&opc=<?php
                                  echo $PSNMenu->f("opc");
@@ -544,8 +530,8 @@ if(isset($_GET["doc"]) && !empty( $_GET["doc"]) && is_logged_in())
 
                         ?></li><?php
                     }
-
-                    if($principal_old != 0 && !$es_directo){
+                    
+                    if($principal_old != 0){
                         ?></ul>
                         </li><?php
                     }

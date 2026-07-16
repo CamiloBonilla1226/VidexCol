@@ -120,17 +120,83 @@ con `sat_reportes` a través de `adj_rep_fk`.
   preparadas (prepared statements / PDO / mysqli con bind_param).
 
 ============================================================
+## TABLA: usuario
+============================================================
+
+Tabla de usuarios del sistema. Se conecta con `sat_reportes` a través de los
+campos `idUsuario`, `creacionUsuario` y `modificacionUsuario`, que hacen
+referencia al `id` del usuario que generó, creó o modificó un reporte.
+
+| Campo                 | Tipo         | Null | Key | Default | Extra          |
+|-----------------------|--------------|------|-----|---------|----------------|
+| `id`                  | int(11)      | NO   | PRI | NULL    | auto_increment |
+| `tipo`                | int(11)      | NO   |     | NULL    |                |
+| `tipo_user_cli`       | int(11)      | NO   |     | 0       |                |
+| `nombre`              | varchar(255) | NO   |     | NULL    |                |
+| `identificacion`      | varchar(50)  | NO   |     | NULL    |                |
+| `tipoIdentificacion`  | int(11)      | NO   |     | NULL    |                |
+| `direccion`           | varchar(255) | NO   |     | NULL    |                |
+| `telefono1`           | varchar(50)  | NO   |     | NULL    |                |
+| `celular`             | varchar(50)  | NO   |     | NULL    |                |
+| `email`               | varchar(255) | NO   |     | NULL    |                |
+| `url`                 | varchar(255) | NO   |     | NULL    |                |
+| `url2`                | text         | NO   |     | NULL    |                |
+| `observaciones`       | text         | NO   |     | NULL    |                |
+| `login`               | varchar(50)  | YES  |     | NULL    |                |
+| `password`            | varchar(255) | NO   |     | NULL    |                |
+| `superusuario`        | tinyint(4)   | YES  |     | NULL    |                |
+| `acceso`              | tinyint(1)   | NO   |     | 1       |                |
+| `acceso_graphs`       | tinyint(4)   | NO   |     | NULL    |                |
+| `creacionUsuario`     | int(11)      | NO   |     | NULL    |                |
+| `creacionFecha`       | varchar(25)  | NO   |     | NULL    |                |
+| `modUsuario`          | int(11)      | YES  |     | NULL    |                |
+| `modFecha`            | date         | YES  |     | NULL    |                |
+| `usua_muni`           | int(11)      | YES  | MUL | NULL    |                |
+| `usua_pais`           | varchar(50)  | YES  |     | NULL    |                |
+| `excluido_reportes`   | tinyint(1)   | YES  |     | 0       |                |
+
+### Relación con sat_reportes
+
+- `usuario.id` es referenciado por:
+  - `sat_reportes.idUsuario` — usuario que generó/reportó el registro.
+  - `sat_reportes.creacionUsuario` — usuario que creó el reporte.
+  - `sat_reportes.modificacionUsuario` — usuario que modificó el reporte
+    por última vez.
+
+### Campos relevantes
+
+- `tipo` / `tipo_user_cli` — clasifican el tipo de usuario (interno,
+  cliente, etc.).
+- `acceso` — indica si el usuario tiene acceso activo al sistema (1 = sí).
+- `superusuario` — bandera de privilegios elevados.
+- `acceso_graphs` — controla si el usuario puede ver gráficos/reportes
+  estadísticos.
+- `usua_muni` — municipio asociado al usuario (índice `MUL`, probable FK a
+  tabla de municipios).
+- `usua_pais` — país del usuario.
+- `excluido_reportes` — indica si el usuario debe excluirse de ciertos
+  reportes/estadísticas (1 = excluido).
+- `creacionFecha` — fecha de creación del usuario (nota: almacenada como
+  `varchar(25)` en lugar de `datetime`/`date`).
+
+============================================================
 ## Relación entre las tablas (resumen)
 
 ```
 categorias (id) ──────< sat_reportes (rep_tip)
-                              │
-                              │ id
-                              ▼
-                      tbl_adjuntos (adj_rep_fk)
+                              │      ▲
+                              │ id   │ idUsuario / creacionUsuario /
+                              ▼      │ modificacionUsuario
+                      tbl_adjuntos   │
+                      (adj_rep_fk)   │
+                                     │
+                              usuario (id)
 ```
 
 - `categorias.id` identifica el **programa**.
 - `sat_reportes.rep_tip` indica a qué programa pertenece cada reporte.
 - `sat_reportes.id` es referenciado por `tbl_adjuntos.adj_rep_fk` para
   asociar adjuntos (por ejemplo, graduados) a un reporte específico.
+- `usuario.id` es referenciado por `sat_reportes.idUsuario`,
+  `sat_reportes.creacionUsuario` y `sat_reportes.modificacionUsuario` para
+  identificar al usuario que reportó, creó o modificó cada registro.
