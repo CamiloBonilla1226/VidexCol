@@ -493,6 +493,9 @@ if(isset($_GET["doc"]) && !empty( $_GET["doc"]) && is_logged_in())
                                     case 99:
                                         echo "<i class='fas fa-user'></i> Mi cuenta";
                                         break;
+                                    case 100:
+                                        echo "<i class='fas fa-user'></i> Buscar persona";
+                                        break;
                                     default:
                                         echo "Otras opciones";
                                         break;
