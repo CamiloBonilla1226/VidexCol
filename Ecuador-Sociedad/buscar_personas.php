@@ -100,14 +100,12 @@ $numero = $PSN1->num_rows();
                     <option value="">Todos los programas</option>
                     <?php
                     /*
-                    *   PROGRAMAS QUE TIENEN GRADUADOS REGISTRADOS
+                    *   TRAEMOS LOS PROGRAMAS DEL CATALOGO (categorias)
                     */
-                    $sql = "SELECT DISTINCT C.id, C.descripcion
-                        FROM categorias AS C
-                        INNER JOIN sat_reportes ON sat_reportes.rep_tip = C.id
-                        INNER JOIN tbl_adjuntos AS ADJ ON ADJ.adj_rep_fk = sat_reportes.id
-                        WHERE ADJ.adj_tip = 1
-                        ORDER BY C.descripcion ASC";
+                    $sql = "SELECT id, descripcion
+                        FROM categorias
+                        WHERE id IN (308, 317, 318, 327)
+                        ORDER BY descripcion ASC";
                     $PSN2->query($sql);
                     if ($PSN2->num_rows() > 0) {
                         while ($PSN2->next_record()) {
@@ -127,13 +125,13 @@ $numero = $PSN1->num_rows();
                     <option value="">Todos los facilitadores</option>
                     <?php
                     /*
-                    *   FACILITADORES QUE HAN REGISTRADO GRADUADOS
+                    *   TRAEMOS LOS USUARIOS FACILITADORES (mismo criterio que
+                    *   consultar-sub-programa-evangelistas.php)
                     */
-                    $sql = "SELECT DISTINCT U.id, U.nombre
+                    $sql = "SELECT U.id, U.nombre
                         FROM usuario AS U
-                        INNER JOIN sat_reportes ON (U.id = sat_reportes.idUsuario OR FIND_IN_SET(U.id, sat_reportes.idUsuario))
-                        INNER JOIN tbl_adjuntos AS ADJ ON ADJ.adj_rep_fk = sat_reportes.id
-                        WHERE ADJ.adj_tip = 1
+                        LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = U.id
+                        WHERE U.tipo IN (162, 163, 167, 168)
                         ORDER BY U.nombre ASC";
                     $PSN2->query($sql);
                     if ($PSN2->num_rows() > 0) {
