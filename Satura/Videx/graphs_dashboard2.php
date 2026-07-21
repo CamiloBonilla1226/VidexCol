@@ -192,7 +192,7 @@ $sql = "SELECT
         LEFT JOIN usuario_empresa ON usuario_empresa.idUsuario = sat_reportes.idUsuario
         INNER JOIN actividad ON actividad.id_actividad = sat_reportes.id_actividad
         WHERE sat_reportes.id_grupo > 0
-          AND sat_reportes.id_actividad IN (99, 1, 77, 8)
+          AND sat_reportes.id_actividad <> 2
           ".$sqlFiltroBase."
         GROUP BY sat_reportes.id_actividad, actividad.nombre_actividad
         ORDER BY asistencia DESC";

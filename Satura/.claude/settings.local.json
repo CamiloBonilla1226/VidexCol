@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php -l \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\Videx\\\\Videx\\\\graphs_dashboard3.php\")"
+      "Bash(php -l \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\Videx\\\\Videx\\\\graphs_dashboard3.php\")",
+      "Bash(where mysql *)",
+      "Read(//c/Users/LENOVO/Desktop/VidexCol/**)"
     ]
   }
 }
