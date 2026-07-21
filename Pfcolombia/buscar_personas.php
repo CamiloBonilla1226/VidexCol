@@ -140,7 +140,7 @@ if($total_registros > 0){
         <input type="hidden" name="doc" value="buscar_personas" />
         <div class="panel-filtro">
             <div class="row">
-                <div class="col-sm-6 col-md-3 form-group">
+                <div class="col-sm-6 col-md-3 filtro-col">
                     <label>Facilitador</label>
                     <select name="idUsuario" class="form-control">
                         <?php if($_SESSION["perfil"] != 163){ ?>
@@ -159,15 +159,15 @@ if($total_registros > 0){
                         ?>
                     </select>
                 </div>
-                <div class="col-sm-6 col-md-3 form-group">
+                <div class="col-sm-6 col-md-3 filtro-col">
                     <label>Nombre del graduado</label>
                     <input type="text" name="nombre" value="<?= htmlspecialchars($buscar_nombre) ?>" class="form-control" placeholder="Buscar por nombre..." />
                 </div>
-                <div class="col-sm-6 col-md-3 form-group">
+                <div class="col-sm-6 col-md-3 filtro-col">
                     <label>Tarjeta de identificación</label>
                     <input type="text" name="identificacion" value="<?= htmlspecialchars($buscar_identificacion) ?>" class="form-control" placeholder="Buscar por identificación..." />
                 </div>
-                <div class="col-sm-6 col-md-3 form-group">
+                <div class="col-sm-6 col-md-3 filtro-col">
                     <label>Programa</label>
                     <select name="programa_id" class="form-control">
                         <option value="">Todos los programas</option>
@@ -177,15 +177,15 @@ if($total_registros > 0){
                 </div>
             </div>
             <div class="row">
-                <div class="col-sm-6 col-md-3 form-group">
+                <div class="col-sm-6 col-md-3 filtro-col">
                     <label>Fecha inicial</label>
                     <input type="date" name="fechaInicial" value="<?= htmlspecialchars($fechaInicial) ?>" class="form-control" />
                 </div>
-                <div class="col-sm-6 col-md-3 form-group">
+                <div class="col-sm-6 col-md-3 filtro-col">
                     <label>Fecha final</label>
                     <input type="date" name="fechaFinal" value="<?= htmlspecialchars($fechaFinal) ?>" class="form-control" />
                 </div>
-                <div class="col-sm-12 col-md-6 form-group filtro-botones">
+                <div class="col-sm-12 col-md-6 filtro-botones">
                     <label class="filtro-botones-spacer">&nbsp;</label>
                     <div class="filtro-botones-fila">
                         <input type="submit" value="Filtrar" class="btn btn-success" />
@@ -225,8 +225,25 @@ if($total_registros > 0){
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 6px rgba(47,111,159,.4);
 }
 
-.filtro-personas .form-group {
+.filtro-personas .filtro-col,
+.filtro-personas .filtro-botones {
     margin-bottom: 16px;
+}
+
+.filtro-personas .row {
+    margin-left: -12px;
+    margin-right: -12px;
+}
+
+.filtro-personas .filtro-col {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+@media (min-width: 992px) {
+    .filtro-personas .filtro-col + .filtro-col {
+        border-left: 1px solid #eef0f2;
+    }
 }
 
 .filtro-botones-spacer {
