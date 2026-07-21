@@ -186,8 +186,11 @@ if($total_registros > 0){
                     <input type="date" name="fechaFinal" value="<?= htmlspecialchars($fechaFinal) ?>" class="form-control" />
                 </div>
                 <div class="col-sm-12 col-md-6 form-group filtro-botones">
-                    <input type="submit" value="Filtrar" class="btn btn-success" />
-                    <a href="?doc=buscar_personas" class="btn btn-default">Limpiar</a>
+                    <label class="filtro-botones-spacer">&nbsp;</label>
+                    <div class="filtro-botones-fila">
+                        <input type="submit" value="Filtrar" class="btn btn-success" />
+                        <a href="?doc=buscar_personas" class="btn btn-default">Limpiar</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -200,7 +203,7 @@ if($total_registros > 0){
     border-radius: 4px;
     padding: 20px 20px 6px 20px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .filtro-personas label {
@@ -209,7 +212,7 @@ if($total_registros > 0){
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: .3px;
-    color: #5a7a9e;
+    color: #2f6f9f;
     margin-bottom: 6px;
 }
 
@@ -217,20 +220,38 @@ if($total_registros > 0){
     height: 38px;
 }
 
+.filtro-personas .form-control:focus {
+    border-color: #2f6f9f;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 6px rgba(47,111,159,.4);
+}
+
 .filtro-personas .form-group {
     margin-bottom: 16px;
 }
 
-.filtro-botones {
-    display: flex;
-    align-items: flex-end;
-    gap: 10px;
-    padding-bottom: 16px;
+.filtro-botones-spacer {
+    visibility: hidden;
 }
 
-.filtro-botones .btn {
+.filtro-botones-fila {
+    display: flex;
+    gap: 10px;
+}
+
+.filtro-botones-fila .btn {
     height: 38px;
-    padding: 8px 20px;
+    padding: 8px 24px;
+    line-height: 1.2;
+}
+
+.filtro-personas .btn-success {
+    background-color: #2f6f9f;
+    border-color: #2f6f9f;
+}
+
+.filtro-personas .btn-success:hover {
+    background-color: #255a80;
+    border-color: #255a80;
 }
 
 .table tbody tr:hover td, .table tbody tr:hover th {
@@ -250,6 +271,44 @@ if($total_registros > 0){
 .table a{
     color:#000;
 }
+
+.table-resultados {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.table-resultados thead th {
+    background-color: #2f6f9f;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 8px;
+    border: 1px solid #2f6f9f;
+}
+
+.table-resultados tbody td {
+    padding: 8px 10px;
+    border: 1px solid #e3e3e3;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.table-resultados tbody tr:nth-child(even) {
+    background-color: #f8f9fb;
+}
+
+.table-resultados tbody tr:hover {
+    background-color: #eef6ff;
+}
+
+.table-resultados td:first-child,
+.table-resultados th:first-child {
+    text-align: left;
+}
 </style>
 
 <div class="container">
@@ -261,9 +320,9 @@ if($total_registros > 0){
         </div>
         <div class="hr"><hr></div>
     </div>
-    <div style="overflow-x: auto;">
-        <table border="0" cellspacing="0" cellpadding="4" align="center" class="table table-striped table-bordered table-hover" style="font-size:13px">
-            <thead style="background-color:#5a7a9e;color:#fff;">
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover table-resultados" style="font-size:13px">
+            <thead>
                 <tr>
                     <th style="text-align:center">Facilitador</th>
                     <th style="text-align:center">Nombre del graduado</th>
