@@ -8,7 +8,7 @@ $PSN2 = new DBbase_Sql;
 
 
 if(!isset($_REQUEST["fechaInicial"]) || eliminarInvalidos($_REQUEST["fechaInicial"]) == ""){
-    $_REQUEST["fechaInicial"] = '2000-01-01';
+    $_REQUEST["fechaInicial"] = '2026-02-01';
 }
 if(!isset($_REQUEST["fechaFinal"]) || eliminarInvalidos($_REQUEST["fechaFinal"]) == ""){
     $_REQUEST["fechaFinal"] = date("Y-m-d");
