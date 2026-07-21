@@ -518,6 +518,7 @@ if($PSN->num_rows() > 0){
     </div>
   </div>
 
+  <!-- Comentado: no debe aparecer por ahora - CRECIMIENTO ACUMULADO DE PERSONAS ALCANZADAS
   <div class="col-lg-4 col-md-6 col-sm-12">
     <div class="db-card">
       <div class="db-card__head">
@@ -540,6 +541,7 @@ if($PSN->num_rows() > 0){
       </div>
     </div>
   </div>
+  -->
 </div>
 
 </div><!-- /container -->
@@ -585,7 +587,7 @@ google.charts.setOnLoadCallback(drawAllCharts);
 function drawAllCharts(){
   drawEspeciales();
   drawMadurez();
-  drawCrecimiento();
+  // drawCrecimiento(); // Comentado: no debe aparecer por ahora
 }
 
 /* ===== #1 Madurez Espiritual (ColumnChart escala 1-4) ===== */
