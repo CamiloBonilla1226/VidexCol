@@ -1019,7 +1019,7 @@ function drawMulti(){
     'actividad': {
       title: '⚡ Impacto por Actividad',
       html: '<ul>'
-          + '<li><strong>🙌 Actividades:</strong> Compara la asistencia total generada por cada tipo de actividad (Evangelismo, Bautizo, Coach, Gran Celebración, Capacitación, Taller, Siembra abundante, Caminata de oración, Identificar al hijo de paz, Oración Exp y Ferviente, Otra actividad), excluyendo la actividad "Ninguna".</li>'
+          + '<li><strong>🙌 Actividades:</strong> Compara la asistencia total generada por cada tipo de actividad (Evangelismo, Bautizo, Coach, Gran Celebración, Capacitación, Taller, Siembra abundante, Caminata de oración, Identificar al hijo de paz, Oración Exp y Ferviente, Otra actividad)".</li>'
           + '<li><strong>📊 Inversión:</strong> Las barras más altas indican las actividades que más personas están movilizando. Úsala para invertir tiempo y recursos donde más impacto se genera.</li>'
           + '</ul>'
     },
