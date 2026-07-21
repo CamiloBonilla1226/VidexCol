@@ -79,7 +79,8 @@ $sqlUnion = "
         CONVERT(G.identificacion USING utf8mb4) AS identificacion_graduado,
         RL.usuario_id    AS usuario_id,
         RL.fecha_reporte AS fecha_reporte,
-        RL.programa_id   AS programa_id
+        RL.programa_id   AS programa_id,
+        RL.id_lpp        AS report_id
     FROM reporte_graduado_lpp AS G
     INNER JOIN reporte_lpp AS RL ON RL.id_lpp = G.id_reporte_lpp
 
@@ -90,7 +91,8 @@ $sqlUnion = "
         CONVERT(G.identificacion USING utf8mb4) AS identificacion_graduado,
         RC.usuario_id    AS usuario_id,
         RC.fecha_reporte AS fecha_reporte,
-        RC.programa_id   AS programa_id
+        RC.programa_id   AS programa_id,
+        RC.id_cm         AS report_id
     FROM reporte_graduado_cm AS G
     INNER JOIN reporte_cm AS RC ON RC.id_cm = G.id_cm
 ";
@@ -341,6 +343,7 @@ if($total_registros > 0){
         <table class="table table-striped table-bordered table-hover table-resultados" style="font-size:13px">
             <thead>
                 <tr>
+                    <th style="text-align:center;white-space:nowrap"># Reporte</th>
                     <th style="text-align:center">Facilitador</th>
                     <th style="text-align:center">Nombre del graduado</th>
                     <th style="text-align:center">Tarjeta de identificación</th>
@@ -357,8 +360,14 @@ if($total_registros > 0){
                         $identificacion_graduado = $PSN1->f("identificacion_graduado");
                         $programa              = $PSN1->f("programa");
                         $fecha_reporte         = $PSN1->f("fecha_reporte");
+                        $programa_id           = $PSN1->f("programa_id");
+                        $report_id             = $PSN1->f("report_id");
+
+                        $docReporte = ($programa_id == 308) ? 'gestionar-sub-programa-ecc' : 'gestionar-sub-programa-lpp';
+                        $hrefReporte = 'index.php?doc='.$docReporte.'&id='.$report_id;
                         ?>
-                        <tr>
+                        <tr class="clickable-row" data-href="<?= $hrefReporte ?>" style="cursor:pointer">
+                            <td style="text-align:center;font-weight:bold"><?= str_pad($report_id, 6, "0", STR_PAD_LEFT) ?></td>
                             <td><?= htmlspecialchars($facilitador) ?></td>
                             <td><?= htmlspecialchars($nombre_graduado) ?></td>
                             <td style="text-align:center"><?= htmlspecialchars($identificacion_graduado) ?></td>
@@ -368,7 +377,7 @@ if($total_registros > 0){
                         <?php
                     }
                 } else { ?>
-                    <tr><td colspan="5" class="text-center" style="padding:20px;color:#888">No se encontraron registros</td></tr>
+                    <tr><td colspan="6" class="text-center" style="padding:20px;color:#888">No se encontraron registros</td></tr>
                 <?php } ?>
             </tbody>
         </table>
@@ -408,3 +417,10 @@ if($total_registros > 0){
     </ul>
 </div>
 </center>
+<script>
+jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+</script>
