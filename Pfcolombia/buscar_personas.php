@@ -124,8 +124,6 @@ if($total_registros > 0){
 }
 ?><div class="container">
 
-<form name="form" id="form" method="get" class="form-horizontal">
-    <input type="hidden" name="doc" value="buscar_personas" />
     <div>
         <h3 class="alert alert-info text-center">BUSCAR PERSONAS - GRADUADOS</h3>
     </div>
@@ -137,60 +135,104 @@ if($total_registros > 0){
         </div>
         <div class="hr"><hr></div>
     </div>
-    <div class="form-group">
-        <div class="col-sm-2">
-            <strong>Facilitador:</strong>
-            <select name="idUsuario" class="form-control">
-                <?php if($_SESSION["perfil"] != 163){ ?>
-                    <option value="">— Ver todos —</option>
-                <?php }
-                $sql = "SELECT U.id, U.nombre FROM usuario AS U WHERE U.tipo IN (162, 163, 167) ";
-                if($_SESSION["perfil"] == 163){
-                    $sql .= " AND U.id = '".soloNumeros($_SESSION["id"])."'";
-                }
-                $sql .= " ORDER BY U.nombre ASC";
-                $PSN2->query($sql);
-                while($PSN2->next_record()){
-                    $sel = ($buscar_idUsuario == $PSN2->f('id')) ? 'selected' : '';
-                    echo '<option value="'.$PSN2->f('id').'" '.$sel.'>'.htmlspecialchars($PSN2->f('nombre')).'</option>';
-                }
-                ?>
-            </select>
+
+    <form name="form" id="form" method="get" class="form-horizontal filtro-personas">
+        <input type="hidden" name="doc" value="buscar_personas" />
+        <div class="panel-filtro">
+            <div class="row">
+                <div class="col-sm-6 col-md-3 form-group">
+                    <label>Facilitador</label>
+                    <select name="idUsuario" class="form-control">
+                        <?php if($_SESSION["perfil"] != 163){ ?>
+                            <option value="">— Ver todos —</option>
+                        <?php }
+                        $sql = "SELECT U.id, U.nombre FROM usuario AS U WHERE U.tipo IN (162, 163, 167) ";
+                        if($_SESSION["perfil"] == 163){
+                            $sql .= " AND U.id = '".soloNumeros($_SESSION["id"])."'";
+                        }
+                        $sql .= " ORDER BY U.nombre ASC";
+                        $PSN2->query($sql);
+                        while($PSN2->next_record()){
+                            $sel = ($buscar_idUsuario == $PSN2->f('id')) ? 'selected' : '';
+                            echo '<option value="'.$PSN2->f('id').'" '.$sel.'>'.htmlspecialchars($PSN2->f('nombre')).'</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <div class="col-sm-6 col-md-3 form-group">
+                    <label>Nombre del graduado</label>
+                    <input type="text" name="nombre" value="<?= htmlspecialchars($buscar_nombre) ?>" class="form-control" placeholder="Buscar por nombre..." />
+                </div>
+                <div class="col-sm-6 col-md-3 form-group">
+                    <label>Tarjeta de identificación</label>
+                    <input type="text" name="identificacion" value="<?= htmlspecialchars($buscar_identificacion) ?>" class="form-control" placeholder="Buscar por identificación..." />
+                </div>
+                <div class="col-sm-6 col-md-3 form-group">
+                    <label>Programa</label>
+                    <select name="programa_id" class="form-control">
+                        <option value="">Todos los programas</option>
+                        <option value="307" <?= $buscar_programa=="307" ? 'selected' : '' ?>>La Peregrinación del Prisionero (LPP)</option>
+                        <option value="308" <?= $buscar_programa=="308" ? 'selected' : '' ?>>Cada Comunidad para Cristo (C&M)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6 col-md-3 form-group">
+                    <label>Fecha inicial</label>
+                    <input type="date" name="fechaInicial" value="<?= htmlspecialchars($fechaInicial) ?>" class="form-control" />
+                </div>
+                <div class="col-sm-6 col-md-3 form-group">
+                    <label>Fecha final</label>
+                    <input type="date" name="fechaFinal" value="<?= htmlspecialchars($fechaFinal) ?>" class="form-control" />
+                </div>
+                <div class="col-sm-12 col-md-6 form-group filtro-botones">
+                    <input type="submit" value="Filtrar" class="btn btn-success" />
+                    <a href="?doc=buscar_personas" class="btn btn-default">Limpiar</a>
+                </div>
+            </div>
         </div>
-        <div class="col-sm-2">
-            <strong>Nombre del graduado:</strong>
-            <input type="text" name="nombre" value="<?= htmlspecialchars($buscar_nombre) ?>" class="form-control" placeholder="Nombre" />
-        </div>
-        <div class="col-sm-2">
-            <strong>Tarjeta de identificación:</strong>
-            <input type="text" name="identificacion" value="<?= htmlspecialchars($buscar_identificacion) ?>" class="form-control" placeholder="Identificación" />
-        </div>
-        <div class="col-sm-2">
-            <strong>Programa:</strong>
-            <select name="programa_id" class="form-control">
-                <option value="">Todos los programas</option>
-                <option value="307" <?= $buscar_programa=="307" ? 'selected' : '' ?>>La Peregrinación del Prisionero (LPP)</option>
-                <option value="308" <?= $buscar_programa=="308" ? 'selected' : '' ?>>Cada Comunidad para Cristo (C&M)</option>
-            </select>
-        </div>
-        <div class="col-sm-2">
-            <strong>Fecha inicial:</strong>
-            <input type="date" name="fechaInicial" value="<?= htmlspecialchars($fechaInicial) ?>" class="form-control" />
-        </div>
-        <div class="col-sm-2">
-            <strong>Fecha final:</strong>
-            <input type="date" name="fechaFinal" value="<?= htmlspecialchars($fechaFinal) ?>" class="form-control" />
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-sm-2" style="padding-top:4px">
-            <input type="submit" value="Filtrar" class="btn btn-success" />
-            <a href="?doc=buscar_personas" class="btn btn-default">Limpiar</a>
-        </div>
-    </div>
     </form>
 </div>
 <style>
+.filtro-personas .panel-filtro {
+    background-color: #fff;
+    border: 1px solid #e3e3e3;
+    border-radius: 4px;
+    padding: 20px 20px 6px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.filtro-personas label {
+    display: block;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    color: #5a7a9e;
+    margin-bottom: 6px;
+}
+
+.filtro-personas .form-control {
+    height: 38px;
+}
+
+.filtro-personas .form-group {
+    margin-bottom: 16px;
+}
+
+.filtro-botones {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding-bottom: 16px;
+}
+
+.filtro-botones .btn {
+    height: 38px;
+    padding: 8px 20px;
+}
+
 .table tbody tr:hover td, .table tbody tr:hover th {
     background-color: #E0EEEE;
     cursor:pointer;
