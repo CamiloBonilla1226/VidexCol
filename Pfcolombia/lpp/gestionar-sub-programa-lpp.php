@@ -551,22 +551,17 @@ if($idReporteActual > 0){
         </div> 
               
         <div class="form-group">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-2">
-                <strong>Regional:</strong>
-                <input name="regional" type="text" id="regional" maxlength="250" value="<?=$regional; ?>" class="form-control" required readonly />
-            </div>
-            <div class="col-sm-2">
+            <div class="col-sm-4">
                 <strong>Coordinador de prisión:</strong>
                 <select required readonly name="usua_id" id="usua_id" class="form-control">
                     <option value="<?=$id_coordinador; ?>"><?=$coordinador; ?></option>
                 </select>
             </div>
-            <div class="col-sm-2">
+            <div class="col-sm-4">
                 <strong>Fecha del registro:</strong>
                 <input name="fechaReporte" type="date" id="fechaReporte" maxlength="250" value="<?=$fechaReporte; ?>" class="form-control" required readonly  />
             </div>
-            <div class="col-sm-2">
+            <div class="col-sm-4">
                 <strong>Período:</strong>
                 <select name="mapeo_cuarto" readonly class="form-control">
                     <?php echo($mapeo_cuarto== "1")?'<option value="1" selected >Q1 (Ene - Mar)':''; ?>
@@ -575,9 +570,19 @@ if($idReporteActual > 0){
                     <?php echo($mapeo_cuarto== "10")?'<option value="10" selected >Q4 (Oct - Dic)':''; ?></option>
                 </select>
             </div>
-            <div class="col-sm-2">
+        </div>
+        <div class="form-group">
+            <div class="col-sm-4">
+                <strong>Regional:</strong>
+                <input name="regional" type="text" id="regional" maxlength="250" value="<?=$regional; ?>" class="form-control" required readonly />
+            </div>
+            <div class="col-sm-4">
+                <strong>N° de patios y/o pabellón:</strong>
+                <input name="pabellon" type="number" id="pabellon" maxlength="250" value="<?=$pabellon; ?>" class="form-control" required />
+            </div>
+            <div class="col-sm-4">
                 <strong>Cárcel ubicación: </strong>
-                <select required name="sitioReunion" id="rep_carcel" class="form-control">        
+                <select required name="sitioReunion" id="rep_carcel" class="form-control">
                     <?php
                     /*
                     *   TRAEMOS LOS TIPOS DE SERVICIOS QUE PRESTA (25)
@@ -608,16 +613,8 @@ if($idReporteActual > 0){
                     }
                     ?>
                 </select>
-            </div>     
-        </div>
-        <div class="form-group">
-            <div class="col-sm-1"></div> 
-              
+            </div>
             <div id="ubicacion"></div>
-            <div class="col-sm-2">
-                <strong>N° de patios y/o pabellón:</strong>
-                <input name="pabellon" type="number" id="pabellon" maxlength="250" value="<?=$pabellon; ?>" class="form-control" required />
-            </div> 
         </div>
         <div class="cont-tit">
             <div class="hr"><hr></div>
@@ -627,19 +624,21 @@ if($idReporteActual > 0){
             <div class="hr"><hr></div>
         </div>
         <div class="form-group">
-            <div class="col-sm-3">
+            <div class="col-sm-6">
                 <strong>Total población que hay en la prisión:</strong>
                 <input name="asistencia_total" type="number" id="asistencia_total" value="<?=$asistencia_total; ?>" class="form-control" required />
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-6">
                 <strong>Número de prisioneros invitados:</strong>
                 <input name="asistencia_hom" type="number" id="asistencia_hom" value="<?=$asistencia_hom; ?>" class="form-control" required  />
             </div>
-            <div class="col-sm-3">
+        </div>
+        <div class="form-group">
+            <div class="col-sm-6">
                 <strong>Número de prisioneros que iniciaron el curso:</strong>
                 <input name="asistencia_muj" type="number" id="asistencia_muj" value="<?=$asistencia_muj; ?>" class="form-control" required />
             </div>
-            <div class="col-sm-3">
+            <div class="col-sm-6">
                 <strong>Numero de cursos activos de LPP:</strong>
                 <input name="asistencia_jov" type="number" id="asistencia_jov" value="<?=$asistencia_jov; ?>" class="form-control" readonly />
             </div>
@@ -865,6 +864,13 @@ if($idReporteActual > 0){
                 }
                 ?>
                 <table id="tablaAdd" class="table table-bordered registro-table">
+                    <thead>
+                        <tr>
+                            <th class="registro-col registro-col--nombre">Nombre completo del graduado</th>
+                            <th class="registro-col registro-col--identificacion">Tarjeta dactilar / N° identificación</th>
+                            <th class="registro-col registro-col--action"></th>
+                        </tr>
+                    </thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -907,37 +913,71 @@ if($idReporteActual > 0){
             </div>
         </div>
         <style>
-            #tablaAdd {
+            .registro-table {
                 width: 100%;
                 max-width: 100%;
+                border: 1px solid #e5e5e5;
             }
 
-            #tablaAdd td {
-                vertical-align: top;
-                padding: 14px;
+            .registro-table td,
+            .registro-table th {
+                vertical-align: middle;
+                padding: 10px 12px;
+                border: 1px solid #e5e5e5;
             }
 
-            #tablaAdd input {
+            .registro-table thead th {
+                font-weight: bold;
+                background-color: #f7f7f7;
+            }
+
+            @media (min-width: 768px) {
+                .registro-table tbody strong {
+                    display: none;
+                }
+            }
+
+            .registro-table input {
                 margin-top: 8px;
             }
 
-            #tablaAdd .campo-identificacion-graduado {
+            @media (min-width: 768px) {
+                .registro-table .registro-col--nombre {
+                    width: 55%;
+                }
+
+                .registro-table .registro-col--identificacion {
+                    width: 45%;
+                }
+
+                .registro-table .registro-col--action {
+                    width: 56px;
+                    white-space: nowrap;
+                    text-align: center;
+                    padding-left: 6px;
+                    padding-right: 6px;
+                }
+            }
+
+            .registro-table .campo-identificacion-graduado {
                 display: flex !important;
                 align-items: center;
                 gap: 12px;
                 margin-top: 8px;
             }
 
-            #tablaAdd .campo-identificacion-graduado .contenedor-input {
+            .registro-table .campo-identificacion-graduado .contenedor-input {
                 flex: 1 1 auto;
                 min-width: 0;
             }
 
-            #tablaAdd .btn-eliminar-fila {
+            .registro-table .btn-eliminar-fila,
+            .registro-table .btn-cir-uno {
                 width: 36px;
                 height: 34px;
                 min-width: 36px;
                 padding: 0;
+                margin: 0 auto;
                 border-radius: 4px;
                 display: flex !important;
                 align-items: center;
@@ -945,13 +985,12 @@ if($idReporteActual > 0){
                 background-color: #d9534f !important;
                 border: 1px solid #d43f3a;
                 color: #fff !important;
-                font-size: 22px;
+                font-size: 18px;
                 font-weight: bold;
                 line-height: 1;
                 text-align: center;
                 text-decoration: none !important;
                 cursor: pointer;
-                flex: 0 0 36px;
                 opacity: 1 !important;
                 visibility: visible !important;
             }
@@ -966,16 +1005,6 @@ if($idReporteActual > 0){
             #adicionarAdd,
             #borrarTodoAdd {
                 white-space: nowrap;
-            }
-
-            @media (min-width: 992px) {
-                #tablaAdd td:first-child {
-                    width: 58% !important;
-                }
-
-                #tablaAdd td:nth-child(2) {
-                    width: 42% !important;
-                }
             }
         </style>
         <script>
@@ -1355,6 +1384,13 @@ if($idReporteActual > 0){
                 }
                 ?>
                 <table id="tablaAdd2" class="table table-bordered registro-table">
+                    <thead>
+                        <tr>
+                            <th class="registro-col registro-col--nombre">Nombre completo del siervo facilitador</th>
+                            <th class="registro-col registro-col--identificacion">Tarjeta dactilar / N° identificación</th>
+                            <th class="registro-col registro-col--action"></th>
+                        </tr>
+                    </thead>
                     <tbody>
                     <?php
                     if($numero > 0){
@@ -1504,6 +1540,13 @@ if($idReporteActual > 0){
                 }
                 ?>
                 <table id="tablaAdd3" class="table table-bordered registro-table">
+                    <thead>
+                        <tr>
+                            <th class="registro-col registro-col--nombre">Nombre completo del entrenador</th>
+                            <th class="registro-col registro-col--identificacion">N° identificación</th>
+                            <th class="registro-col registro-col--action"></th>
+                        </tr>
+                    </thead>
                     <tbody>
                     <?php
                     if($numero > 0){
@@ -1839,15 +1882,15 @@ if($idReporteActual > 0){
                     </div>
                     <div class="hr"><hr></div>
                 </div> 
-                <!-- Fila 1: Coordinador | Fecha | Período | Pabellón -->
+                <!-- Fila 1: Coordinador | Fecha | Período -->
                 <div class="form-group lpp-info-general-row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <strong>Coordinador de prisión:</strong>
                         <select required name="usua_id" id="usua_id" class="form-control">
                             <option value="<?=$_SESSION["id"]; ?>"><?=$_SESSION["nombre"]; ?></option>
                         </select>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <strong>Fecha del registro:</strong>
                         <input name="fechaReporte" type="date" id="fechaReporte" maxlength="250" value="<?=date("Y-m-d"); ?>" max='<?=date("Y-m-d"); ?>' class="form-control" required readonly autocomplete="off" />
                         <script>
@@ -1866,7 +1909,7 @@ if($idReporteActual > 0){
                             })();
                         </script>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <?php $mes = date("m"); ?>
                         <strong>Período:</strong>
                         <select name="mapeo_cuarto" class="form-control">
@@ -1876,14 +1919,14 @@ if($idReporteActual > 0){
                             <?php echo($mes>=10 && $mes<=12)?'<option value="10" selected>Q4 (Oct - Dic)</option>':''; ?>
                         </select>
                     </div>
-                    <div class="col-sm-3">
+                </div>
+                <!-- Fila 2: N° de patios/pabellón | Cárcel/Ubicación (AJAX) -->
+                <div class="form-group lpp-info-general-row lpp-fila-ubicacion">
+                    <div class="col-sm-4">
                         <strong>N° de patios / pabellón:</strong>
                         <input name="pabellon" type="number" id="pabellon" maxlength="250" value="<?=$pabellon; ?>" min="1" class="form-control" required />
                     </div>
-                </div>
-                <!-- Fila 2: Cárcel/Ubicación | Departamento | Municipio | Dirección (AJAX) -->
-                <div class="form-group lpp-info-general-row lpp-fila-ubicacion">
-                    <div class="col-sm-3 lpp-carcel-col">
+                    <div class="col-sm-4 lpp-carcel-col">
                         <strong>Cárcel / Ubicación:</strong>
                         <select required name="sitioReunion" id="rep_carcel" class="form-control">
                             <?php
@@ -1908,7 +1951,7 @@ if($idReporteActual > 0){
                             ?>
                         </select>
                     </div>
-                    <div id="ubicacion" class="lpp-ubicacion-ajax"></div>
+                    <div id="ubicacion" class="col-sm-4 lpp-ubicacion-ajax"></div>
                 </div>
                 <!--<div class="cont-btn cont-flex fl-sbet">
                     <div class="item-btn"></div>
@@ -1929,19 +1972,21 @@ if($idReporteActual > 0){
                     <div class="hr"><hr></div>
                 </div>
                 <div class="form-group">
-                    <div class="col-sm-3">
+                    <div class="col-sm-6">
                         <strong>Total población en la prisión:</strong>
                         <input name="asistencia_total" type="number" id="asistencia_total" min="0" value="" class="form-control" />
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-6">
                         <strong>Prisioneros invitados:</strong>
                         <input name="asistencia_hom" type="number" id="asistencia_hom" min="0" value="" class="form-control" />
                     </div>
-                    <div class="col-sm-3">
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-6">
                         <strong>Prisioneros que iniciaron el curso:</strong>
                         <input name="asistencia_muj" type="number" id="asistencia_muj" min="0" value="" class="form-control" />
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-6">
                         <strong>Cursos activos de LPP:</strong>
                         <input name="asistencia_jov" type="number" id="asistencia_jov" min="0" value="" readonly class="form-control" />
                     </div>
@@ -2142,6 +2187,13 @@ if($idReporteActual > 0){
             <div class="form-group">
                 <div class="col-sm-12 registro-table-wrap">
                     <table id="tablaAdd" class="table table-bordered registro-table">
+                        <thead>
+                            <tr>
+                                <th class="registro-col registro-col--nombre">Nombre completo del graduado</th>
+                                <th class="registro-col registro-col--identificacion">Tarjeta dactilar / N° identificación</th>
+                                <th class="registro-col registro-col--action"></th>
+                            </tr>
+                        </thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -2186,24 +2238,63 @@ if($idReporteActual > 0){
                 </div>
             </div>
             <style>
-                #tablaAdd {
+                .registro-table {
                     width: 100%;
                     max-width: 100%;
+                    border: 1px solid #e5e5e5;
                 }
 
-                #tablaAdd td {
-                    vertical-align: top;
-                    padding: 14px;
+                .registro-table td,
+                .registro-table th {
+                    vertical-align: middle;
+                    padding: 10px 12px;
+                    border: 1px solid #e5e5e5;
                 }
 
-                #tablaAdd input {
+                .registro-table thead th {
+                    font-weight: bold;
+                    background-color: #f7f7f7;
+                }
+
+                @media (min-width: 768px) {
+                    .registro-table tbody strong {
+                        display: none;
+                    }
+                }
+
+                .registro-table input {
                     margin-top: 8px;
                 }
 
-                #tablaAdd .btn-eliminar-fila {
-                    margin-top: 18px;
-                    padding: 6px 10px;
+                @media (min-width: 768px) {
+                    .registro-table .registro-col--nombre {
+                        width: 55%;
+                    }
+
+                    .registro-table .registro-col--identificacion {
+                        width: 45%;
+                    }
+
+                    .registro-table .registro-col--action {
+                        width: 56px;
+                        white-space: nowrap;
+                        text-align: center;
+                        padding-left: 6px;
+                        padding-right: 6px;
+                    }
+                }
+
+                .registro-table .btn-eliminar-fila,
+                .registro-table .btn-cir-uno {
+                    width: 36px;
+                    height: 34px;
+                    min-width: 36px;
+                    margin: 0 auto;
+                    padding: 0;
                     border-radius: 4px;
+                    display: flex !important;
+                    align-items: center;
+                    justify-content: center;
                 }
 
                 #cantidadAdd {
@@ -2216,20 +2307,6 @@ if($idReporteActual > 0){
                 #adicionarAdd,
                 #borrarTodoAdd {
                     white-space: nowrap;
-                }
-
-                @media (min-width: 992px) {
-                    #tablaAdd td:first-child {
-                        width: 58% !important;
-                    }
-
-                    #tablaAdd td:nth-child(2) {
-                        width: 32% !important;
-                    }
-
-                    #tablaAdd td:nth-child(3) {
-                        width: 10% !important;
-                    }
                 }
             </style>
             <script>
@@ -2600,6 +2677,13 @@ if($idReporteActual > 0){
                             });
                         </script>
                         <table id="tablaAdd2" class="table table-bordered registro-table">
+                            <thead>
+                                <tr>
+                                    <th class="registro-col registro-col--nombre">Nombre completo del siervo Facilitador</th>
+                                    <th class="registro-col registro-col--identificacion">Tarjeta dactilar / N° identificación</th>
+                                    <th class="registro-col registro-col--action"></th>
+                                </tr>
+                            </thead>
                             <tbody>
                             <tr class="fila-fijaAdd2 registro-table-row">
                                 <td class="registro-col registro-col--nombre">
@@ -2726,6 +2810,13 @@ if($idReporteActual > 0){
                             });
                         </script>
                         <table id="tablaAdd3" class="table table-bordered registro-table">
+                            <thead>
+                                <tr>
+                                    <th class="registro-col registro-col--nombre">Nombre completo del entrenador</th>
+                                    <th class="registro-col registro-col--identificacion">N° identificación</th>
+                                    <th class="registro-col registro-col--action"></th>
+                                </tr>
+                            </thead>
                             <tbody>
                             <tr class="fila-fijaAdd3 registro-table-row">
                                 <td class="registro-col registro-col--nombre">
@@ -3278,19 +3369,23 @@ else{
         var tabla = document.getElementById(cfg.tablaId);
         if (!tabla || !filas || filas.length === 0) return;
 
-        /* Obtener la fila plantilla (primera fila) */
-        var filaPlantilla = tabla.querySelector('tr');
+        /* Las filas de datos viven dentro de <tbody>; el <thead> solo tiene los títulos de columna */
+        var tbody = tabla.querySelector('tbody');
+        var contenedorFilas = tbody || tabla;
+
+        /* Obtener la fila plantilla (primera fila de datos) */
+        var filaPlantilla = contenedorFilas.querySelector('tr');
         if (!filaPlantilla) return;
 
-        /* Eliminar todas las filas excepto la primera */
-        var todasFilas = tabla.querySelectorAll('tr');
+        /* Eliminar todas las filas de datos excepto la primera (nunca tocar el <thead>) */
+        var todasFilas = contenedorFilas.querySelectorAll('tr');
         for (var i = todasFilas.length - 1; i >= 1; i--) {
             todasFilas[i].parentNode.removeChild(todasFilas[i]);
         }
 
         /* Rellenar la primera fila con el primer registro */
-        var primerNom = tabla.querySelector('input.' + cfg.claseNom);
-        var primerTar = tabla.querySelector('input.' + cfg.claseTar);
+        var primerNom = filaPlantilla.querySelector('input.' + cfg.claseNom);
+        var primerTar = filaPlantilla.querySelector('input.' + cfg.claseTar);
         if (primerNom) primerNom.value = filas[0].nom || '';
         if (primerTar) primerTar.value = filas[0].tar || '';
 
@@ -3303,10 +3398,7 @@ else{
             if (inputNom) inputNom.value = filas[j].nom || '';
             if (inputTar) inputTar.value = filas[j].tar || '';
 
-            /* Agregar la fila al tbody si existe, o directamente a la tabla */
-            var tbody = tabla.querySelector('tbody');
-            if (tbody) tbody.appendChild(nuevaFila);
-            else tabla.appendChild(nuevaFila);
+            contenedorFilas.appendChild(nuevaFila);
         }
     }
 
