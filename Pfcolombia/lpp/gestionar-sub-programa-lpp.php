@@ -942,16 +942,20 @@ if($idReporteActual > 0){
             }
 
             @media (min-width: 768px) {
+                .registro-table {
+                    table-layout: fixed;
+                }
+
                 .registro-table .registro-col--nombre {
-                    width: 55%;
+                    width: 46%;
                 }
 
                 .registro-table .registro-col--identificacion {
-                    width: 45%;
+                    width: 40%;
                 }
 
                 .registro-table .registro-col--action {
-                    width: 56px;
+                    width: 14%;
                     white-space: nowrap;
                     text-align: center;
                     padding-left: 6px;
@@ -2267,16 +2271,20 @@ if($idReporteActual > 0){
                 }
 
                 @media (min-width: 768px) {
+                    .registro-table {
+                        table-layout: fixed;
+                    }
+
                     .registro-table .registro-col--nombre {
-                        width: 55%;
+                        width: 46%;
                     }
 
                     .registro-table .registro-col--identificacion {
-                        width: 45%;
+                        width: 40%;
                     }
 
                     .registro-table .registro-col--action {
-                        width: 56px;
+                        width: 14%;
                         white-space: nowrap;
                         text-align: center;
                         padding-left: 6px;
