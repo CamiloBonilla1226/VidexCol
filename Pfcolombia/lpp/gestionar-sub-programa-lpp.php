@@ -2635,6 +2635,28 @@ if($idReporteActual > 0){
                         <script>
                             $(function(){
                                 var total = 0;
+
+                                function crearFilaVin() {
+                                    return $(
+                                        '<tr class="registro-table-row">' +
+                                            '<td class="registro-col registro-col--nombre">' +
+                                                '<strong>Nombre completo del siervo Facilitador:</strong>' +
+                                                '<input name="act_vin_nom[]" type="text" class="act_vin_nom form-control" />' +
+                                            '</td>' +
+                                            '<td class="registro-col registro-col--identificacion">' +
+                                                '<strong>Tarjeta dactilar / N&deg; identificaci&oacute;n:</strong>' +
+                                                '<input name="act_vin_tar[]" type="text" min="0" class="act_vin_tar form-control" />' +
+                                            '</td>' +
+                                            '<td class="registro-col registro-col--action eliminarAdd2">' +
+                                                '<button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button>' +
+                                            '</td>' +
+                                        '</tr>'
+                                    );
+                                }
+
+                                /* La primera fila se genera igual que las siguientes, para que siempre tenga el boton de eliminar */
+                                $("#tablaAdd2 tbody").append(crearFilaVin());
+
                                 var tar = $(".act_vin_tar").val();
                                 var nom = $(".act_vin_nom").val();
                                 if (tar == "" || nom == "") {
@@ -2642,7 +2664,7 @@ if($idReporteActual > 0){
                                 }else{
                                     $("#adicionarAdd2").prop( "disabled", false );
                                 }
-                                $(".act_vin_nom").change(function(){
+                                $(document).on("change", ".act_vin_nom", function(){
                                     var tar3 = $(".act_vin_tar").val();
                                     var nom3 = $(".act_vin_nom").val();
                                     if (tar3 != "" && nom3 !="") {
@@ -2661,7 +2683,7 @@ if($idReporteActual > 0){
                                     }
                                     $('#total2').val(total);
                                 });
-                                $(".act_vin_tar").change(function(){
+                                $(document).on("change", ".act_vin_tar", function(){
                                     var nom2 = $(".act_vin_nom").val();
                                     var tar2 = $(".act_vin_tar").val();
                                     if (nom2 != ""&& tar2 != "") {
@@ -2669,7 +2691,7 @@ if($idReporteActual > 0){
                                             total = total + 1;
                                         }
                                         $("#adicionarAdd2").prop( "disabled", false );
-                                    }else if (tar3 == "" && nom3 =="") {
+                                    }else if (nom2 == "" && tar2 =="") {
                                         if (total == 1) {
                                             total = total - 1;
                                             $(".act_vin_nom").prop('required',false);
@@ -2682,27 +2704,28 @@ if($idReporteActual > 0){
                                 });
 
                                 $("#adicionarAdd2").on('click',function(){
-                                    var tar2 = $(".act_vin_tar").val();
-                                    var nom2 = $(".act_vin_nom").val();
+                                    var tar2 = $(".act_vin_tar").last().val();
+                                    var nom2 = $(".act_vin_nom").last().val();
                                     if (tar2!="" && nom2!="") {
-                                        $("#tablaAdd2 tbody tr:last").clone().removeClass('fila-fijaAdd2').appendTo("#tablaAdd2 tbody");
-                                        $("#tablaAdd2 tbody tr input.act_vin_nom:last").val('');
-                                        $("#tablaAdd2 tbody tr input.act_vin_tar:last").val('');
+                                        $("#tablaAdd2 tbody").append(crearFilaVin());
                                         total = total + 1;
                                     }else{
                                         alert("Ingrese toda la información antes de agregar otro campo");
                                     }
-                                    $(".act_vin_nom").prop('required',true);
-                                    $(".act_vin_tar").prop('required',true);
                                     $('#total2').val(total);
                                 });
                                 $(document).on("click",".eliminarAdd2",function(){
-                                    var parent = $(this).parents().get(0);
-                                    $(parent).remove();
+                                    var $filas = $("#tablaAdd2 tbody tr");
+                                    if ($filas.length <= 1) {
+                                        /* No se permite quedar sin filas: solo se limpia el registro */
+                                        $(this).closest('tr').find('input').val('');
+                                        return;
+                                    }
+                                    $(this).closest('tr').remove();
                                     total = total - 1;
                                     $('#total2').val(total);
                                 });
-                                
+
                             });
                         </script>
                         <div class="table-responsive">
@@ -2714,19 +2737,7 @@ if($idReporteActual > 0){
                                     <th class="registro-col registro-col--action"></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            <tr class="fila-fijaAdd2 registro-table-row">
-                                <td class="registro-col registro-col--nombre">
-                                    <strong>Nombre completo del siervo Facilitador:</strong>
-                                    <input name="act_vin_nom[]" type="text" id="act_vin_nom" class="act_vin_nom form-control" />
-                                </td>
-                                <td class="registro-col registro-col--identificacion">
-                                    <strong>Tarjeta dactilar / N° identificación:</strong>
-                                    <input name="act_vin_tar[]" type="text" id="act_vin_tar" min="0" class="act_vin_tar form-control" />
-                                </td>
-                                <td class="registro-col registro-col--action eliminarAdd2"><button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button></td>
-                            </tr>
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                         </div>
                     </div>
@@ -2770,6 +2781,28 @@ if($idReporteActual > 0){
                         <script>
                             $(function(){
                                 var total = 0;
+
+                                function crearFilaVex() {
+                                    return $(
+                                        '<tr class="registro-table-row">' +
+                                            '<td class="registro-col registro-col--nombre">' +
+                                                '<strong>Nombre completo del entrenador:</strong>' +
+                                                '<input name="act_vex_nom[]" type="text" class="act_vex_nom form-control" />' +
+                                            '</td>' +
+                                            '<td class="registro-col registro-col--identificacion">' +
+                                                '<strong>N&deg; identificaci&oacute;n:</strong>' +
+                                                '<input name="act_vex_tar[]" type="text" min="0" class="act_vex_tar form-control" />' +
+                                            '</td>' +
+                                            '<td class="registro-col registro-col--action eliminarAdd3">' +
+                                                '<button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button>' +
+                                            '</td>' +
+                                        '</tr>'
+                                    );
+                                }
+
+                                /* La primera fila se genera igual que las siguientes, para que siempre tenga el boton de eliminar */
+                                $("#tablaAdd3 tbody").append(crearFilaVex());
+
                                 var tar = $(".act_vex_tar").val();
                                 var nom = $(".act_vex_nom").val();
                                 if (tar == "" || nom == "") {
@@ -2777,7 +2810,7 @@ if($idReporteActual > 0){
                                 }else{
                                     $("#adicionarAdd3").prop( "disabled", false );
                                 }
-                                $(".act_vex_nom").change(function(){
+                                $(document).on("change", ".act_vex_nom", function(){
                                     var tar3 = $(".act_vex_tar").val();
                                     var nom3 = $(".act_vex_nom").val();
                                     if (tar3 != "" && nom3 !="") {
@@ -2796,7 +2829,7 @@ if($idReporteActual > 0){
                                     }
                                     $('#total3').val(total);
                                 });
-                                $(".act_vex_tar").change(function(){
+                                $(document).on("change", ".act_vex_tar", function(){
                                     var nom2 = $(".act_vex_nom").val();
                                     var tar2 = $(".act_vex_tar").val();
                                     if (nom2 != ""&& tar2 != "") {
@@ -2804,7 +2837,7 @@ if($idReporteActual > 0){
                                             total = total + 1;
                                         }
                                         $("#adicionarAdd3").prop( "disabled", false );
-                                    }else if (tar3 == "" && nom3 =="") {
+                                    }else if (nom2 == "" && tar2 =="") {
                                         if (total == 1) {
                                             total = total - 1;
                                             $(".act_vex_nom").prop('required',false);
@@ -2817,27 +2850,28 @@ if($idReporteActual > 0){
                                 });
 
                                 $("#adicionarAdd3").on('click',function(){
-                                    var tar2 = $(".act_vex_tar").val();
-                                    var nom2 = $(".act_vex_nom").val();
+                                    var tar2 = $(".act_vex_tar").last().val();
+                                    var nom2 = $(".act_vex_nom").last().val();
                                     if (tar2!="" && nom2!="") {
-                                        $("#tablaAdd3 tbody tr:last").clone().removeClass('fila-fijaAdd3').appendTo("#tablaAdd3 tbody");
-                                        $("#tablaAdd3 tbody tr input.act_vex_nom:last").val('');
-                                        $("#tablaAdd3 tbody tr input.act_vex_tar:last").val('');
+                                        $("#tablaAdd3 tbody").append(crearFilaVex());
                                         total = total + 1;
                                     }else{
                                         alert("Ingrese toda la información antes de agregar otro campo");
                                     }
-                                    $(".act_vex_nom").prop('required',true);
-                                    $(".act_vex_tar").prop('required',true);
                                     $('#total3').val(total);
                                 });
                                 $(document).on("click",".eliminarAdd3",function(){
-                                    var parent = $(this).parents().get(0);
-                                    $(parent).remove();
+                                    var $filas = $("#tablaAdd3 tbody tr");
+                                    if ($filas.length <= 1) {
+                                        /* No se permite quedar sin filas: solo se limpia el registro */
+                                        $(this).closest('tr').find('input').val('');
+                                        return;
+                                    }
+                                    $(this).closest('tr').remove();
                                     total = total - 1;
                                     $('#total3').val(total);
                                 });
-                                
+
                             });
                         </script>
                         <div class="table-responsive">
@@ -2849,19 +2883,7 @@ if($idReporteActual > 0){
                                     <th class="registro-col registro-col--action"></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            <tr class="fila-fijaAdd3 registro-table-row">
-                                <td class="registro-col registro-col--nombre">
-                                    <strong>Nombre completo del entrenador:</strong>
-                                    <input name="act_vex_nom[]" type="text" id="act_vex_nom" class="act_vex_nom form-control"  />
-                                </td>
-                                <td class="registro-col registro-col--identificacion">
-                                    <strong>N° identificación:</strong>
-                                    <input name="act_vex_tar[]" type="text" id="act_vex_tar" min="0" class="act_vex_tar form-control" />
-                                </td>
-                                <td class="registro-col registro-col--action eliminarAdd3"><button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button></td>
-                            </tr>
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                         </div>
                     </div>
