@@ -1441,9 +1441,9 @@ if($idReporteActual > 0){
                         <input type="text" name="total2" id="total2" class="form-control" value="<?=$bautizados; ?>" readonly>
                     </div>
                     <div class="col-sm-4 registro-summary__actions">
-                        <center>
-                            <button id="adicionarAdd2" class="btn btn-success" type="button" class="boton" <?= ($_SESSION['perfil']=="168" || $fechLimite > $fechaReporte)?'disabled="disabled"':'';?>><i class="fas fa-plus"></i>  Adicionar</button>
-                        </center>
+                        <button id="adicionarAdd2" class="btn btn-success btn-block" type="button" <?= ($_SESSION['perfil']=="168" || $fechLimite > $fechaReporte)?'disabled="disabled"':'';?>>
+                            <i class="fa fa-plus"></i> Adicionar
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1600,9 +1600,9 @@ if($idReporteActual > 0){
                     <input type="text" name="total3" id="total3" class="form-control" value="<?=$desiciones; ?>" readonly>
                 </div>
                 <div class="col-sm-4 registro-summary__actions">
-                    <center>
-                        <button id="adicionarAdd3" class="btn btn-success" type="button" class="boton" ><i class="fas fa-plus"></i>  Adicionar</button>
-                    </center>
+                    <button id="adicionarAdd3" class="btn btn-success btn-block" type="button">
+                        <i class="fa fa-plus"></i> Adicionar
+                    </button>
                 </div>
                 </div>
             </div>
@@ -2307,12 +2307,23 @@ if($idReporteActual > 0){
                     width: 36px;
                     height: 34px;
                     min-width: 36px;
-                    margin: 0 auto;
                     padding: 0;
+                    margin: 0 auto;
                     border-radius: 4px;
                     display: flex !important;
                     align-items: center;
                     justify-content: center;
+                    background-color: #d9534f !important;
+                    border: 1px solid #d43f3a;
+                    color: #fff !important;
+                    font-size: 18px;
+                    font-weight: bold;
+                    line-height: 1;
+                    text-align: center;
+                    text-decoration: none !important;
+                    cursor: pointer;
+                    opacity: 1 !important;
+                    visibility: visible !important;
                 }
 
                 #cantidadAdd {
@@ -2728,9 +2739,9 @@ if($idReporteActual > 0){
                             <input type="text" name="total2" id="total2" value="" class="form-control" readonly>
                         </div>
                         <div class="col-sm-4 registro-summary__actions">
-                            <center>
-                                <button id="adicionarAdd2" class="btn btn-success" type="button" class="boton"><i class="fas fa-plus"></i>  Adicionar</button>
-                            </center>
+                            <button id="adicionarAdd2" class="btn btn-success btn-block" type="button">
+                                <i class="fa fa-plus"></i> Adicionar
+                            </button>
                         </div>
                         </div>
                     </div>
@@ -2863,9 +2874,9 @@ if($idReporteActual > 0){
                             <input type="text" name="total3" id="total3" value="" class="form-control" readonly>
                         </div>
                         <div class="col-sm-4 registro-summary__actions">
-                            <center>
-                                <button id="adicionarAdd3" class="btn btn-success" type="button" class="boton" ><i class="fas fa-plus"></i>  Adicionar</button>
-                            </center>
+                            <button id="adicionarAdd3" class="btn btn-success btn-block" type="button">
+                                <i class="fa fa-plus"></i> Adicionar
+                            </button>
                         </div>
                         </div>
                     </div>
