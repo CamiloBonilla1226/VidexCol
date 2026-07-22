@@ -38,8 +38,8 @@ $buscar_programa = isset($_REQUEST["programa_id"]) ? soloNumeros($_REQUEST["prog
 $fechaInicial = isset($_REQUEST["fechaInicial"]) ? $_REQUEST["fechaInicial"] : "";
 $fechaFinal   = isset($_REQUEST["fechaFinal"])   ? $_REQUEST["fechaFinal"]   : "";
 
-// Perfil 163 (facilitador) solo puede ver los graduados que le pertenecen
-if($_SESSION["perfil"] == 163){
+// Perfiles 162 (coordinador) y 163 (facilitador) solo pueden ver los graduados que les pertenecen
+if($_SESSION["perfil"] == 163 || $_SESSION["perfil"] == 162){
     $buscar_idUsuario = soloNumeros($_SESSION["id"]);
 } elseif(isset($_REQUEST["idUsuario"]) && soloNumeros($_REQUEST["idUsuario"]) > 0){
     $buscar_idUsuario = soloNumeros($_REQUEST["idUsuario"]);
@@ -165,11 +165,11 @@ if($total_registros > 0){
                 <div class="col-sm-6 col-md-3 filtro-col">
                     <label>Facilitador</label>
                     <select name="idUsuario" class="form-control">
-                        <?php if($_SESSION["perfil"] != 163){ ?>
+                        <?php if($_SESSION["perfil"] != 163 && $_SESSION["perfil"] != 162){ ?>
                             <option value="">— Ver todos —</option>
                         <?php }
                         $sql = "SELECT U.id, U.nombre FROM usuario AS U WHERE U.tipo IN (162, 163, 167) ";
-                        if($_SESSION["perfil"] == 163){
+                        if($_SESSION["perfil"] == 163 || $_SESSION["perfil"] == 162){
                             $sql .= " AND U.id = '".soloNumeros($_SESSION["id"])."'";
                         }
                         $sql .= " ORDER BY U.nombre ASC";
