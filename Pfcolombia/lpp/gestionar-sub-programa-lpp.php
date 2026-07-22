@@ -1300,21 +1300,69 @@ if($idReporteActual > 0){
         </div>
         <div class="form-group">
             <div class="col-sm-12 registro-table-wrap">
+                <?php
+                $internosExistentes = array();
+                $sql = "SELECT id_interno_lpp AS adj_id, nombre AS adj_nom, identificacion AS adj_url FROM reporte_interno_lpp ";
+                $sql.=" WHERE id_reporte_lpp = '".$idReporteActual."' ORDER BY id_interno_lpp ASC";
+                $PSN1->query($sql);
+                $numero=$PSN1->num_rows();
+                echo '<input type="hidden" name="vin_regist" value="'.$numero.'" placeholder="">';
+                while($PSN1->next_record()){
+                    ?><input type="hidden" name="act_vin_id[]" value="<?= $PSN1->f("adj_id"); ?>"><?php
+                    $internosExistentes[] = array(
+                        'nombre' => $PSN1->f("adj_nom"),
+                        'tarjeta' => $PSN1->f("adj_url"),
+                    );
+                }
+                ?>
                 <script>
                     $(function(){
                         var total = <?=$bautizados; ?>;
+                        var soloLectura = <?php echo ($_SESSION['perfil']=="168" || $fechLimite > $fechaReporte) ? 'true' : 'false'; ?>;
+                        var registrosIniciales = <?= json_encode($internosExistentes); ?>;
+
+                        function crearFilaVin() {
+                            return $(
+                                '<tr class="registro-table-row">' +
+                                    '<td class="registro-col registro-col--nombre">' +
+                                        '<strong>Nombre completo del siervo facilitador:</strong>' +
+                                        '<input name="act_vin_nom[]" type="text" class="act_vin_nom form-control" />' +
+                                    '</td>' +
+                                    '<td class="registro-col registro-col--identificacion">' +
+                                        '<strong>Tarjeta dactilar / N&deg; identificaci&oacute;n:</strong>' +
+                                        '<input name="act_vin_tar[]" type="text" min="0" class="act_vin_tar form-control" />' +
+                                    '</td>' +
+                                    '<td class="registro-col registro-col--action eliminarAdd2">' +
+                                        '<button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button>' +
+                                    '</td>' +
+                                '</tr>'
+                            );
+                        }
+
+                        /* Todas las filas (incluida la primera) se generan igual, para que siempre tengan el boton de eliminar */
+                        if (registrosIniciales.length > 0) {
+                            $.each(registrosIniciales, function(_, item){
+                                var $fila = crearFilaVin();
+                                $fila.find('.act_vin_nom').val(item.nombre || '');
+                                $fila.find('.act_vin_tar').val(item.tarjeta || '');
+                                $("#tablaAdd2 tbody").append($fila);
+                            });
+                        }else{
+                            $("#tablaAdd2 tbody").append(crearFilaVin());
+                        }
+
+                        if (soloLectura) {
+                            $("#tablaAdd2 input").prop('disabled', true);
+                        }
+
                         var tar = $(".act_vin_tar").val();
                         var nom = $(".act_vin_nom").val();
                         if (tar == "" || nom == "") {
                             $("#adicionarAdd2").prop( "disabled", true );
                         }else{
-                            <?php if($_SESSION['perfil']=="168" || $fechLimite > $fechaReporte){ ?>
-                                $("#adicionarAdd2").prop( "disabled", true );
-                            <?php }else{ ?>
-                                $("#adicionarAdd2").prop( "disabled", false );
-                            <?php } ?>
+                            $("#adicionarAdd2").prop( "disabled", soloLectura );
                         }
-                        $(".act_vin_nom").change(function(){
+                        $(document).on("change", ".act_vin_nom", function(){
                             var tar3 = $(".act_vin_tar").val();
                             var nom3 = $(".act_vin_nom").val();
                             if (tar3 != "" && nom3 !="") {
@@ -1333,7 +1381,7 @@ if($idReporteActual > 0){
                             }
                             $('#total2').val(total);
                         });
-                        $(".act_vin_tar").change(function(){
+                        $(document).on("change", ".act_vin_tar", function(){
                             var nom2 = $(".act_vin_nom").val();
                             var tar2 = $(".act_vin_tar").val();
                             if (nom2 != ""&& tar2 != "") {
@@ -1341,7 +1389,7 @@ if($idReporteActual > 0){
                                     total = total + 1;
                                 }
                                 $("#adicionarAdd2").prop( "disabled", false );
-                            }else if (tar2 == "" && nom2 =="") {
+                            }else if (nom2 == "" && tar2 =="") {
                                 if (total == 1) {
                                     total = total - 1;
                                     $(".act_vin_nom").prop('required',false);
@@ -1354,12 +1402,10 @@ if($idReporteActual > 0){
                         });
 
                         $("#adicionarAdd2").on('click',function(){
-                            $("#tablaAdd2 tbody tr:last").clone().removeClass('fila-fijaAdd2').appendTo("#tablaAdd2 tbody");
-                            $("#tablaAdd2 tbody tr input.act_vin_nom:last").val('');
-                            $("#tablaAdd2 tbody tr input.act_vin_tar:last").val('');
-                            var tar2 = $(".act_vin_tar").val();
-                            var nom2 = $(".act_vin_nom").val();
+                            var tar2 = $(".act_vin_tar").last().val();
+                            var nom2 = $(".act_vin_nom").last().val();
                             if (tar2!="" && nom2!="") {
+                                $("#tablaAdd2 tbody").append(crearFilaVin());
                                 total = total + 1;
                             }
                             $(".act_vin_nom").prop('required',true);
@@ -1367,28 +1413,20 @@ if($idReporteActual > 0){
                             $('#total2').val(total);
                         });
                         $(document).on("click",".eliminarAdd2",function(){
-                            var parent = $(this).parents().get(0);
-                            $(parent).remove();
+                            if (soloLectura) { return; }
+                            var $filas = $("#tablaAdd2 tbody tr");
+                            if ($filas.length <= 1) {
+                                /* No se permite quedar sin filas: solo se limpia el registro */
+                                $(this).closest('tr').find('input').val('');
+                                return;
+                            }
+                            $(this).closest('tr').remove();
                             total = total - 1;
                             $('#total2').val(total);
                         });
-                        
+
                     });
                 </script>
-                <?php 
-                $sql = "SELECT id_interno_lpp AS adj_id, nombre AS adj_nom, identificacion AS adj_url FROM reporte_interno_lpp ";
-                $sql.=" WHERE id_reporte_lpp = '".$idReporteActual."' ";
-                $PSN1->query($sql);
-                $numero=$PSN1->num_rows();
-                $cont = 0;
-                echo '<input type="hidden" name="vin_regist" value="'.$numero.'" placeholder="">';
-                if($numero > 0){
-                    while($PSN1->next_record()){ ?>
-                        <input type="hidden" name="act_vin_id[]" value="<?= $PSN1->f("adj_id");  ?>">
-                    <?php }
-                    $PSN1->query($sql);
-                }
-                ?>
                 <div class="table-responsive">
                 <table id="tablaAdd2" class="table table-bordered registro-table">
                     <thead>
@@ -1398,37 +1436,7 @@ if($idReporteActual > 0){
                             <th class="registro-col registro-col--action"></th>
                         </tr>
                     </thead>
-                    <tbody>
-                    <?php
-                    if($numero > 0){
-                        while($PSN1->next_record()){ ?>
-                            <tr <?php echo($cont==0)?'class="fila-fijaAdd2 registro-table-row"':'class="registro-table-row"'; ?>>
-                                <td class="registro-col registro-col--nombre">
-                                    <strong>Nombre completo del siervo facilitador:</strong>
-                                    <input name="act_vin_nom[]" type="text" id="act_vin_nom" class="act_vin_nom form-control" value="<?=$PSN1->f("adj_nom"); ?>" required />
-                                </td>
-                                <td class="registro-col registro-col--identificacion">
-                                    <strong>Tarjeta dactilar / N° identificación:</strong>
-                                    <input name="act_vin_tar[]" type="text" id="act_vin_tar" min="0" class="act_vin_tar form-control" value="<?=$PSN1->f("adj_url"); ?>" required />
-                                </td>
-                                <td class="registro-col registro-col--action eliminarAdd2"><button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button></td>
-                            </tr>
-                        <?php $cont++;
-                        }
-                    }else{ ?>
-                        <tr class="fila-fijaAdd2 registro-table-row">
-                            <td class="registro-col registro-col--nombre">
-                                <strong>Nombre completo del siervo facilitador:</strong>
-                                <input name="act_vin_nom[]" type="text" id="act_vin_nom" class="act_vin_nom form-control"  />
-                            </td>
-                            <td class="registro-col registro-col--identificacion">
-                                <strong>Tarjeta dactilar / N° identificación:</strong>
-                                <input name="act_vin_tar[]" type="text" id="act_vin_tar" min="0" class="act_vin_tar form-control"  />
-                            </td>
-                            <td class="registro-col registro-col--action eliminarAdd2"><button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button></td>
-                        </tr>
-                    <?php } ?>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
                 </div>
             </div>
@@ -1459,21 +1467,69 @@ if($idReporteActual > 0){
         </div>
         <div class="form-group">
             <div class="col-sm-12 registro-table-wrap">
+                <?php
+                $externosExistentes = array();
+                $sql = "SELECT id_externo_lpp AS adj_id, nombre AS adj_nom, identificacion AS adj_url FROM reporte_externo_lpp ";
+                $sql.=" WHERE id_reporte_lpp = '".$idReporteActual."' ORDER BY id_externo_lpp ASC";
+                $PSN1->query($sql);
+                $numero=$PSN1->num_rows();
+                echo '<input type="hidden" name="vex_regist" value="'.$numero.'" placeholder="">';
+                while($PSN1->next_record()){
+                    ?><input type="hidden" name="act_vex_id[]" value="<?= $PSN1->f("adj_id"); ?>"><?php
+                    $externosExistentes[] = array(
+                        'nombre' => $PSN1->f("adj_nom"),
+                        'tarjeta' => $PSN1->f("adj_url"),
+                    );
+                }
+                ?>
                 <script>
                     $(function(){
                         var total = <?=$desiciones; ?>;
+                        var soloLectura = <?php echo ($_SESSION['perfil']=="168" || $fechLimite > $fechaReporte) ? 'true' : 'false'; ?>;
+                        var registrosIniciales = <?= json_encode($externosExistentes); ?>;
+
+                        function crearFilaVex() {
+                            return $(
+                                '<tr class="registro-table-row">' +
+                                    '<td class="registro-col registro-col--nombre">' +
+                                        '<strong>Nombre completo del entrenador:</strong>' +
+                                        '<input name="act_vex_nom[]" type="text" class="act_vex_nom form-control" />' +
+                                    '</td>' +
+                                    '<td class="registro-col registro-col--identificacion">' +
+                                        '<strong>N&deg; identificaci&oacute;n:</strong>' +
+                                        '<input name="act_vex_tar[]" type="text" min="0" class="act_vex_tar form-control" />' +
+                                    '</td>' +
+                                    '<td class="registro-col registro-col--action eliminarAdd3">' +
+                                        '<button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button>' +
+                                    '</td>' +
+                                '</tr>'
+                            );
+                        }
+
+                        /* Todas las filas (incluida la primera) se generan igual, para que siempre tengan el boton de eliminar */
+                        if (registrosIniciales.length > 0) {
+                            $.each(registrosIniciales, function(_, item){
+                                var $fila = crearFilaVex();
+                                $fila.find('.act_vex_nom').val(item.nombre || '');
+                                $fila.find('.act_vex_tar').val(item.tarjeta || '');
+                                $("#tablaAdd3 tbody").append($fila);
+                            });
+                        }else{
+                            $("#tablaAdd3 tbody").append(crearFilaVex());
+                        }
+
+                        if (soloLectura) {
+                            $("#tablaAdd3 input").prop('disabled', true);
+                        }
+
                         var tar = $(".act_vex_tar").val();
                         var nom = $(".act_vex_nom").val();
                         if (tar == "" || nom == "") {
                             $("#adicionarAdd3").prop( "disabled", true );
                         }else{
-                            <?php if($_SESSION['perfil']=="168" || $fechLimite > $fechaReporte){ ?>
-                                $("#adicionarAdd3").prop( "disabled", true );
-                            <?php }else{ ?>
-                                $("#adicionarAdd3").prop( "disabled", false );
-                            <?php } ?>
+                            $("#adicionarAdd3").prop( "disabled", soloLectura );
                         }
-                        $(".act_vex_nom").change(function(){
+                        $(document).on("change", ".act_vex_nom", function(){
                             var tar3 = $(".act_vex_tar").val();
                             var nom3 = $(".act_vex_nom").val();
                             if (tar3 != "" && nom3 !="") {
@@ -1492,7 +1548,7 @@ if($idReporteActual > 0){
                             }
                             $('#total3').val(total);
                         });
-                        $(".act_vex_tar").change(function(){
+                        $(document).on("change", ".act_vex_tar", function(){
                             var nom2 = $(".act_vex_nom").val();
                             var tar2 = $(".act_vex_tar").val();
                             if (nom2 != ""&& tar2 != "") {
@@ -1500,7 +1556,7 @@ if($idReporteActual > 0){
                                     total = total + 1;
                                 }
                                 $("#adicionarAdd3").prop( "disabled", false );
-                            }else if (tar2 == "" && nom2 =="") {
+                            }else if (nom2 == "" && tar2 =="") {
                                 if (total == 1) {
                                     total = total - 1;
                                     $(".act_vex_nom").prop('required',false);
@@ -1513,12 +1569,10 @@ if($idReporteActual > 0){
                         });
 
                         $("#adicionarAdd3").on('click',function(){
-                            $("#tablaAdd3 tbody tr:last").clone().removeClass('fila-fijaAdd3').appendTo("#tablaAdd3 tbody");
-                            $("#tablaAdd3 tbody tr input.act_vex_nom:last").val('');
-                            $("#tablaAdd3 tbody tr input.act_vex_tar:last").val('');
-                            var tar2 = $(".act_vex_tar").val();
-                            var nom2 = $(".act_vex_nom").val();
+                            var tar2 = $(".act_vex_tar").last().val();
+                            var nom2 = $(".act_vex_nom").last().val();
                             if (tar2!="" && nom2!="") {
+                                $("#tablaAdd3 tbody").append(crearFilaVex());
                                 total = total + 1;
                             }
                             $(".act_vex_nom").prop('required',true);
@@ -1526,28 +1580,20 @@ if($idReporteActual > 0){
                             $('#total3').val(total);
                         });
                         $(document).on("click",".eliminarAdd3",function(){
-                            var parent = $(this).parents().get(0);
-                            $(parent).remove();
+                            if (soloLectura) { return; }
+                            var $filas = $("#tablaAdd3 tbody tr");
+                            if ($filas.length <= 1) {
+                                /* No se permite quedar sin filas: solo se limpia el registro */
+                                $(this).closest('tr').find('input').val('');
+                                return;
+                            }
+                            $(this).closest('tr').remove();
                             total = total - 1;
                             $('#total3').val(total);
                         });
-                        
+
                     });
                 </script>
-                <?php 
-                $sql = "SELECT id_externo_lpp AS adj_id, nombre AS adj_nom, identificacion AS adj_url FROM reporte_externo_lpp ";
-                $sql.=" WHERE id_reporte_lpp = '".$idReporteActual."' ";
-                $PSN1->query($sql);
-                $numero=$PSN1->num_rows();
-                $cont = 0;
-                echo '<input type="hidden" name="vex_regist" value="'.$numero.'" placeholder="">';
-                if($numero > 0){
-                    while($PSN1->next_record()){ ?>
-                        <input type="hidden" name="act_vex_id[]" value="<?= $PSN1->f("adj_id");  ?>">
-                    <?php }
-                    $PSN1->query($sql);
-                }
-                ?>
                 <div class="table-responsive">
                 <table id="tablaAdd3" class="table table-bordered registro-table">
                     <thead>
@@ -1557,37 +1603,7 @@ if($idReporteActual > 0){
                             <th class="registro-col registro-col--action"></th>
                         </tr>
                     </thead>
-                    <tbody>
-                    <?php
-                    if($numero > 0){
-                        while($PSN1->next_record()){ ?>
-                            <tr <?php echo($cont==0)?'class="fila-fijaAdd3 registro-table-row"':'class="registro-table-row"'; ?>>
-                                <td class="registro-col registro-col--nombre">
-                                    <strong>Nombre completo del entrenador:</strong>
-                                    <input name="act_vex_nom[]" type="text" id="act_vex_nom" class="act_vex_nom form-control" value="<?=$PSN1->f("adj_nom"); ?>" required />
-                                </td>
-                                <td class="registro-col registro-col--identificacion">
-                                    <strong>N° identificación:</strong>
-                                    <input name="act_vex_tar[]" type="text" id="act_vex_tar" min="0" class="act_vex_tar form-control" value="<?=$PSN1->f("adj_url"); ?>" required />
-                                </td>
-                                <td class="registro-col registro-col--action eliminarAdd3"><button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button></td>
-                            </tr>
-                        <?php $cont++;
-                        }
-                    }else{ ?>
-                        <tr class="fila-fijaAdd3 registro-table-row">
-                                <td class="registro-col registro-col--nombre">
-                                    <strong>Nombre completo del entrenador:</strong>
-                                    <input name="act_vex_nom[]" type="text" id="act_vex_nom" class="act_vex_nom form-control"  />
-                                </td>
-                                <td class="registro-col registro-col--identificacion">
-                                    <strong>N° identificación:</strong>
-                                    <input name="act_vex_tar[]" type="text" id="act_vex_tar" min="0" class="act_vex_tar form-control"  />
-                                </td>
-                                <td class="registro-col registro-col--action eliminarAdd3"><button type="button" class="btn btn-cir-uno usua-col" title="Eliminar"><i class="fa fa-times"></i></button></td>
-                            </tr>
-                    <?php } ?>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
                 </div>
             </div>
