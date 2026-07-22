@@ -519,7 +519,7 @@ if($idReporteActual > 0){
             
             ?> DE <?=$temp_letrero; ?></h3>
             <?php //if ($_SESSION["perfil"] == 162 || $_SESSION["perfil"] == 2){ ?>
-            <div class="cont-btn cont-flex fl-sbet">
+            <div class="cont-btn cont-flex fl-sbet lpp-nav-reportes">
                 <div class="item-btn">
                     <?php
                     if ($antId != 0) {?>
@@ -536,6 +536,21 @@ if($idReporteActual > 0){
                     <?php } ?>
                 </div>
             </div>
+            <style>
+                .lpp-nav-reportes {
+                    flex-wrap: wrap;
+                    row-gap: 8px;
+                }
+                .lpp-nav-reportes .item-btn {
+                    max-width: 100%;
+                }
+                .lpp-nav-reportes .item-btn a {
+                    display: inline-block;
+                    max-width: 100%;
+                    white-space: normal;
+                    word-break: break-word;
+                }
+            </style>
         <?php 
             $fecha_actual = date("Y-m-d");
             $fechLimite = date("Y-m-d",strtotime($fecha_actual."- 90 days"));
