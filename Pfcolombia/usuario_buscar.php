@@ -11,17 +11,15 @@ $PSN1 = new DBbase_Sql;
 $PSN2 = new DBbase_Sql;
 $PSN3 = new DBbase_Sql;
 // Array que nos servira para ir llevando cuenta de los requerimientos.
-if(isset($_GET["del"]))
-{
-	//$sql = 'delete from usuario where id = "'.$_GET["del"].'" and tipo != 4 and tipo != 5 and tipo != 1';
-	//$ultimoQuery = $PSN1->query($sql);
-	//$varExitoDEL = 1;
-}
 if(isset($_GET["del"])){
-        $sql = 'DELETE FROM usuario WHERE id = "'.$_GET["del"].'" and tipo != 4 and tipo != 5 and tipo != 1';
-        $ultimoQuery = $PSN1->query($sql);
-        $varExitoDEL = 1;
-    }  
+    if($_SESSION["id"] != 1){
+        die("<h1>No esta autorizado para eliminar usuarios</h1>");
+    }
+    $id_usuario_del = soloNumeros($_GET["del"]);
+    $sql = 'DELETE FROM usuario WHERE id = "'.$id_usuario_del.'" and tipo != 4 and tipo != 5 and tipo != 1';
+    $ultimoQuery = $PSN1->query($sql);
+    $varExitoDEL = 1;
+}
 
 /*
 *   AFECTA FORMULARIO Y ACTUAR DE LA PÁGINA
@@ -748,7 +746,9 @@ LEFT JOIN categorias AS CA ON CA.id = C.idSec ";
                             echo "No";
                         } ?></a></td>
                         <td>
+                            <?php if($_SESSION["id"] == 1){ ?>
                             <a class="btn btn-danger" href="javascript:borrarRegistro('<?=$id; ?>');void(0);"><i class="far fa-trash-alt"></i> Eliminar</a>
+                            <?php } ?>
                         </td>
                     </tr>
                     <?php
