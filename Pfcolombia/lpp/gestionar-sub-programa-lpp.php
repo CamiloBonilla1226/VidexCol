@@ -863,6 +863,7 @@ if($idReporteActual > 0){
                     );
                 }
                 ?>
+                <div class="table-responsive">
                 <table id="tablaAdd" class="table table-bordered registro-table">
                     <thead>
                         <tr>
@@ -873,6 +874,7 @@ if($idReporteActual > 0){
                     </thead>
                     <tbody></tbody>
                 </table>
+                </div>
             </div>
         </div>
         <div class="form-group">
@@ -1387,6 +1389,7 @@ if($idReporteActual > 0){
                     $PSN1->query($sql);
                 }
                 ?>
+                <div class="table-responsive">
                 <table id="tablaAdd2" class="table table-bordered registro-table">
                     <thead>
                         <tr>
@@ -1427,6 +1430,7 @@ if($idReporteActual > 0){
                     <?php } ?>
                     </tbody>
                 </table>
+                </div>
         </div>
         <div class="form-group">
             <div class="col-sm-12">
@@ -1543,6 +1547,7 @@ if($idReporteActual > 0){
                     $PSN1->query($sql);
                 }
                 ?>
+                <div class="table-responsive">
                 <table id="tablaAdd3" class="table table-bordered registro-table">
                     <thead>
                         <tr>
@@ -1583,6 +1588,7 @@ if($idReporteActual > 0){
                     <?php } ?>
                     </tbody>
                 </table>
+                </div>
         </div>
         <div class="form-group">
             <div class="col-sm-12">
@@ -2190,6 +2196,7 @@ if($idReporteActual > 0){
             </div>
             <div class="form-group">
                 <div class="col-sm-12 registro-table-wrap">
+                    <div class="table-responsive">
                     <table id="tablaAdd" class="table table-bordered registro-table">
                         <thead>
                             <tr>
@@ -2200,6 +2207,7 @@ if($idReporteActual > 0){
                         </thead>
                         <tbody></tbody>
                     </table>
+                    </div>
                 </div>
             </div>
             <div class="form-group">
@@ -2684,6 +2692,7 @@ if($idReporteActual > 0){
                                 
                             });
                         </script>
+                        <div class="table-responsive">
                         <table id="tablaAdd2" class="table table-bordered registro-table">
                             <thead>
                                 <tr>
@@ -2706,6 +2715,7 @@ if($idReporteActual > 0){
                             </tr>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -2817,6 +2827,7 @@ if($idReporteActual > 0){
                                 
                             });
                         </script>
+                        <div class="table-responsive">
                         <table id="tablaAdd3" class="table table-bordered registro-table">
                             <thead>
                                 <tr>
@@ -2839,6 +2850,7 @@ if($idReporteActual > 0){
                             </tr>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
