@@ -57,7 +57,8 @@ if($buscar_identificacion != ""){
     $sqlFiltro .= " AND TG.identificacion_graduado LIKE '%".addslashes($buscar_identificacion)."%'";
 }
 
-if($buscar_programa == 307 || $buscar_programa == 308){
+$programasValidos = array(307, 308, 317, 319, 347);
+if($buscar_programa !== "" && in_array((int)$buscar_programa, $programasValidos, true)){
     $sqlFiltro .= " AND TG.programa_id = '".$buscar_programa."'";
 }
 
@@ -70,8 +71,11 @@ if($fechaFinal != ""){
 }
 
 /*
-*   UNION DE GRADUADOS: LPP (307) + C&M (308)
-*   Son los únicos programas que almacenan graduados de forma individual (nombre + identificación).
+*   UNION DE GRADUADOS: LPP (307) + C&M (308) + Instituto Bíblico (317)
+*   + Proyecto Felipe (319) + ECOP (347)
+*   LPP y C&M almacenan sus graduados en tablas dedicadas (nombre + identificación).
+*   Instituto Bíblico, Proyecto Felipe y ECOP los almacenan en tbl_adjuntos (adj_tip = 1),
+*   enlazados a sat_reportes mediante adj_rep_fk.
 */
 $sqlUnion = "
     SELECT
@@ -95,6 +99,19 @@ $sqlUnion = "
         RC.id_cm         AS report_id
     FROM reporte_graduado_cm AS G
     INNER JOIN reporte_cm AS RC ON RC.id_cm = G.id_cm
+
+    UNION ALL
+
+    SELECT
+        CONVERT(A.adj_nom USING utf8mb4) AS nombre_graduado,
+        CONVERT(A.adj_url USING utf8mb4) AS identificacion_graduado,
+        SR.idUsuario     AS usuario_id,
+        SR.fechaReporte  AS fecha_reporte,
+        SR.rep_tip       AS programa_id,
+        SR.id            AS report_id
+    FROM tbl_adjuntos AS A
+    INNER JOIN sat_reportes AS SR ON SR.id = A.adj_rep_fk
+    WHERE A.adj_tip = 1 AND SR.rep_tip IN (317, 319, 347)
 ";
 
 // Conteo
@@ -113,7 +130,10 @@ if($total_registros > 0){
     $sql = "SELECT TG.*, U.nombre AS facilitador,
             CASE TG.programa_id
                 WHEN 307 THEN 'La Peregrinación del Prisionero (LPP)'
-                WHEN 308 THEN 'Cada Comunidad para Cristo (C&M)'
+                WHEN 308 THEN 'Capacitar y Multiplicar (C&M)'
+                WHEN 317 THEN 'Instituto Bíblico'
+                WHEN 319 THEN 'Proyecto Felipe'
+                WHEN 347 THEN 'ECOP'
                 ELSE 'Otro'
             END AS programa
         FROM (".$sqlUnion.") AS TG
@@ -174,7 +194,10 @@ if($total_registros > 0){
                     <select name="programa_id" class="form-control">
                         <option value="">Todos los programas</option>
                         <option value="307" <?= $buscar_programa=="307" ? 'selected' : '' ?>>La Peregrinación del Prisionero (LPP)</option>
-                        <option value="308" <?= $buscar_programa=="308" ? 'selected' : '' ?>>Cada Comunidad para Cristo (C&M)</option>
+                        <option value="308" <?= $buscar_programa=="308" ? 'selected' : '' ?>>Capacitar y Multiplicar (C&M)</option>
+                        <option value="317" <?= $buscar_programa=="317" ? 'selected' : '' ?>>Instituto Bíblico</option>
+                        <option value="319" <?= $buscar_programa=="319" ? 'selected' : '' ?>>Proyecto Felipe</option>
+                        <option value="347" <?= $buscar_programa=="347" ? 'selected' : '' ?>>ECOP</option>
                     </select>
                 </div>
             </div>
@@ -363,7 +386,14 @@ if($total_registros > 0){
                         $programa_id           = $PSN1->f("programa_id");
                         $report_id             = $PSN1->f("report_id");
 
-                        $docReporte = ($programa_id == 308) ? 'gestionar-sub-programa-ecc' : 'gestionar-sub-programa-lpp';
+                        $mapaDocReporte = array(
+                            307 => 'gestionar-sub-programa-lpp',
+                            308 => 'gestionar-sub-programa-ecc',
+                            317 => 'gestionar-sub-programa-instituto-biblico',
+                            319 => 'gestionar-sub-programa-proyecto-felipe',
+                            347 => 'gestionar-sub-programa-ecop',
+                        );
+                        $docReporte = isset($mapaDocReporte[$programa_id]) ? $mapaDocReporte[$programa_id] : 'gestionar-sub-programa-lpp';
                         $hrefReporte = 'index.php?doc='.$docReporte.'&id='.$report_id;
                         ?>
                         <tr class="clickable-row" data-href="<?= $hrefReporte ?>" style="cursor:pointer">
