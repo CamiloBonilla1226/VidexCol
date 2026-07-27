@@ -34,23 +34,7 @@ $nombreGrafica ="SOCIEDAD MISIONERA DEL ECUADOR";
     <div class="jumbotron" >
         <div class="container-fluid cont-info ">
 
-<? /*            <video  width="100%" height="200" controls autoplay>
-                  <source src="https://video-cdn.youversionapi.com/25490/es/high.webm" type="video/webm">
-            </video> */ ?>
-            <?php if($_SESSION["youtube"] != ""){?> 
-                <div class="col-sm-3 item-grf">
-
-
-
-                </div>
-            <?php  
-            $ancho = 9;
-            }else{ $ancho = 8;?>
-                <div class="col-sm-4 item-grf">
-<? /*                    <img src="images/titulo.png" class="img-responsive" /> */ ?>
-                </div>
-            <?php }?>
-            <div class="col-sm-<?php echo $ancho; ?> item-tex">
+            <div class="col-sm-12 item-tex">
                 <br/>
 
                 <strong style="font-size: 24px;">Bienvenid@ <?=$_SESSION["nombre"]; ?></strong>
