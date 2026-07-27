@@ -42,19 +42,12 @@ $nombreGrafica ="SOCIEDAD MISIONERA DEL ECUADOR";
 
 
 
-<? /*                    <iframe width="100%" height="200"  src="https://www.youtube.com/embed/<?=$_SESSION["youtube"]; ?>" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> */ ?>
-            <video  width="100%" height="200" controls autoplay>
-                  <source src="https://video-cdn.youversionapi.com/25490/es/high.webm" type="video/webm">
-            </video>
                 </div>
             <?php  
             $ancho = 9;
             }else{ $ancho = 8;?>
                 <div class="col-sm-4 item-grf">
 <? /*                    <img src="images/titulo.png" class="img-responsive" /> */ ?>
-            <video  width="100%" height="200" controls autoplay>
-                  <source src="https://video-cdn.youversionapi.com/25490/es/high.webm" type="video/webm">
-            </video>
                 </div>
             <?php }?>
             <div class="col-sm-<?php echo $ancho; ?> item-tex">
