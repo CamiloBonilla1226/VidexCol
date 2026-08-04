@@ -79,41 +79,57 @@ if(isset($_REQUEST["empresa_paisid"]) && soloNumeros($_REQUEST["empresa_paisid"]
 
 if(isset($_REQUEST["idUsuario"]) && soloNumeros($_REQUEST["idUsuario"]) != "" && soloNumeros($_REQUEST["idUsuario"]) != "0"){
     $buscar_idUsuario = soloNumeros($_REQUEST["idUsuario"]);
-    $sqlFiltro .= " AND SR.idUsuario = '".$buscar_idUsuario."'";
+    $sqlFiltro .= " AND RL.usuario_id = '".$buscar_idUsuario."'";
 }
 
 
 //
 if(isset($_REQUEST["empresa_pd"]) && soloNumeros($_REQUEST["empresa_pd"]) != "" && soloNumeros($_REQUEST["empresa_pd"]) != "0"){
     $buscar_empresa_pd = soloNumeros($_REQUEST["empresa_pd"]);
-    $sqlFiltro .= " AND UE.empresa_pd = '".$buscar_empresa_pd."'";
+    $sqlFiltro .= " AND RU.reub_reg_fk = '".$buscar_empresa_pd."'";
 }
 
 //
 if(isset($_REQUEST["nombre"]) && eliminarInvalidos($_REQUEST["nombre"]) != ""){
     $buscar_nombre = eliminarInvalidos($_REQUEST["nombre"]);
-    $sqlFiltro .= " AND SR.plantador LIKE '%".$buscar_nombre."%'";
+    $sqlFiltro .= " AND RGL.nombre LIKE '%".$buscar_nombre."%'";
 }
 
 if(isset($_REQUEST["sitioReunion"]) && eliminarInvalidos($_REQUEST["sitioReunion"]) != ""){
     $prision = eliminarInvalidos($_REQUEST["sitioReunion"]);
-    $sqlFiltro .= " AND SR.sitioReunion = ".$prision." ";   
+    $sqlFiltro .= " AND RL.carcel_id = ".$prision." ";
 }
 
 if(isset($_REQUEST["fechaInicial"]) && eliminarInvalidos($_REQUEST["fechaInicial"]) != ""){
     $fechaInicial = eliminarInvalidos($_REQUEST["fechaInicial"]);
-    $sqlFiltro .= " AND SR.fechaReporte >= '".$fechaInicial."'";
+    $sqlFiltro .= " AND RL.fecha_reporte >= '".$fechaInicial."'";
 }
 
 //
 if(isset($_REQUEST["fechaFinal"]) && eliminarInvalidos($_REQUEST["fechaFinal"]) != ""){
     $fechaFinal = eliminarInvalidos($_REQUEST["fechaFinal"]);
-    $sqlFiltro .= " AND SR.fechaReporte <= '".$fechaFinal."'";
+    $sqlFiltro .= " AND RL.fecha_reporte <= '".$fechaFinal."'";
 }
-                
-$sql = "SELECT AD.adj_id, UPPER(AD.adj_nom) nom_gra, AD.adj_url, AD.adj_fec, SR.id, SR.rep_tip, SR.fechaInicio, SR.fechaReporte, RU.reub_nom AS prision, C.descripcion AS regional";
-$sql .= " FROM tbl_adjuntos AS AD LEFT JOIN sat_reportes AS SR ON AD.adj_rep_fk = SR.id LEFT JOIN tbl_regional_ubicacion AS RU ON RU.reub_id = SR.sitioReunion LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = SR.idUsuario
-WHERE SR.rep_tip = ".$tip_reporte." AND AD.adj_tip = 1 ".$sqlFiltro." GROUP BY AD.adj_id ORDER BY AD.adj_nom ASC";
+
+//
+if(isset($_REQUEST["rep_qua"]) && trim($_REQUEST["rep_qua"]) != "" && soloNumeros($_REQUEST["rep_qua"]) != ""){
+    $buscar_periodo = soloNumeros($_REQUEST["rep_qua"]);
+    $sqlFiltro .= " AND RL.periodo_trimestre = '".$buscar_periodo."'";
+}
+
+//
+if(isset($_REQUEST["rep_inex"]) && eliminarInvalidos($_REQUEST["rep_inex"]) != ""){
+    $tipoInex = eliminarInvalidos($_REQUEST["rep_inex"]);
+    if($tipoInex == 2){
+        $sqlFiltro .= " AND RL.carcel_id = 0 ";
+    }else{
+        $sqlFiltro .= " AND RL.carcel_id <> 0 ";
+    }
+}
+
+$sql = "SELECT RGL.id_graduado_lpp, UPPER(RGL.nombre) AS nom_gra, RGL.identificacion AS adj_url, RGL.fecha_registro AS adj_fec, RL.id_lpp AS id, RL.programa_id AS rep_tip, RL.fecha_reporte AS fechaInicio, RL.fecha_reporte AS fechaReporte, RU.reub_nom AS prision, C.descripcion AS regional";
+$sql .= " FROM reporte_graduado_lpp AS RGL LEFT JOIN reporte_lpp AS RL ON RGL.id_reporte_lpp = RL.id_lpp LEFT JOIN tbl_regional_ubicacion AS RU ON RU.reub_id = RL.carcel_id LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = RL.usuario_id
+WHERE RL.programa_id = ".$tip_reporte." ".$sqlFiltro." ORDER BY RGL.nombre ASC";
 $reportCSV = $PSN1->query($sql);
 $numero=$PSN1->num_rows();
 //

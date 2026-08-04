@@ -582,7 +582,7 @@ if ($num > 0) {
         </div>
       </div>
       <div id="barchart_values" style="width: 100%; height: 500px;"></div>
-      <center><a href="generaExcel-graduados.php?rep_tip=307&idUsuario=<?= $_REQUEST["idUsuario"]; ?>&empresa_paisid=<?= $_REQUEST["empresa_paisid"]; ?>&sitioReunion=<?= $_REQUEST["sitioReunion"]; ?>&empresa_pd=<?= $_REQUEST["empresa_pd"]; ?>&rep_qua=<?= $_REQUEST['rep_qua']; ?>&rep_ani=<?= $_REQUEST['rep_ani']  ?>&fechaInicial=<?= $_REQUEST['fechaInicial']  ?>&fechaFinal=<?= $_REQUEST['fechaFinal']  ?>&rep_inex=<?= $_REQUEST['rep_inex']  ?>" target="_blank" class="btn btn-info"><span class="glyphicon glyphicon-cloud-download"></span> DESCARGAR EXCEL</a></center>
+      <center><a href="generaExcel-graduados_lpp.php?rep_tip=307&idUsuario=<?= $_REQUEST["idUsuario"]; ?>&empresa_paisid=<?= $_REQUEST["empresa_paisid"]; ?>&sitioReunion=<?= $_REQUEST["sitioReunion"]; ?>&empresa_pd=<?= $_REQUEST["empresa_pd"]; ?>&rep_qua=<?= $_REQUEST['rep_qua']; ?>&rep_ani=<?= $_REQUEST['rep_ani']  ?>&fechaInicial=<?= $_REQUEST['fechaInicial']  ?>&fechaFinal=<?= $_REQUEST['fechaFinal']  ?>&rep_inex=<?= $_REQUEST['rep_inex']  ?>" target="_blank" class="btn btn-info"><span class="glyphicon glyphicon-cloud-download"></span> DESCARGAR EXCEL</a></center>
     </div>
   <?php } ?>
 </div>
