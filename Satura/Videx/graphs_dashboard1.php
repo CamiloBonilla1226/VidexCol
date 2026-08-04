@@ -1,7 +1,5 @@
 <?php
 /*******************************************
-DASHBOARD Generaciones 0-5
-Archivo: graphs_Gen0-5.php
 
 ORGANIZACIÓN VISUAL:
 --Grafica metas-----Capacitación--
