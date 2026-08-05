@@ -209,6 +209,94 @@ if($PSN->num_rows() > 0){
 } else {
     $varErrorCrecimiento = 1;
 }
+
+/* =========================
+   #4: RECORRIDO DE GRUPOS (GENEALOGÍA) POR FACILITADOR
+   - OrgChart: grupo madre (generación 0) -> hijos -> nietos ...
+   - No se filtra por fecha de reporte (son fechas de inicio de grupo),
+     solo por facilitador y país.
+   ========================= */
+$varErrorGenealogia   = 0;
+$nombreGenealogia     = "RECORRIDO DE GRUPOS (GENEALOGÍA)";
+$datosGenealogia      = [];
+$totalGenealogiaNodos = 0;
+$generacionesGenealogia = [];
+$LIMITE_NODOS_GENEALOGIA = 400;
+
+$paletaGeneraciones = ['#0259a5','#27ae60','#f39c12','#8e44ad','#e74c3c','#16a085','#d35400','#2c3e50','#c0392b','#2980b9'];
+
+$sqlFiltroGenealogia = "";
+if($buscar_idUsuario !== ""){
+    $sqlFiltroGenealogia .= " AND sat_reportes.idUsuario = '".$buscar_idUsuario."'";
+}
+if($empresa_paisid !== ""){
+    $sqlFiltroGenealogia .= " AND usuario_empresa.empresa_paisid = '".$empresa_paisid."'";
+}
+
+$sql = "SELECT
+            sat_reportes.id,
+            sat_reportes.nombreGrupo_txt,
+            sat_reportes.idGrupoMadre,
+            sat_reportes.generacionNumero,
+            sat_reportes.fechaInicio,
+            sat_reportes.plantador,
+            sat_reportes.grupoMadre_txt
+        FROM sat_reportes
+        LEFT JOIN usuario_empresa ON usuario_empresa.idUsuario = sat_reportes.idUsuario
+        WHERE sat_reportes.id_grupo = 0
+          ".$sqlFiltroGenealogia."
+        ORDER BY sat_reportes.generacionNumero ASC, sat_reportes.fechaInicio ASC";
+
+$PSN->query($sql);
+if($PSN->num_rows() > 0){
+    $filas = [];
+    $idsExistentes = [];
+    while($PSN->next_record()){
+        $fila = [
+            'id'          => (int)$PSN->f('id'),
+            'nombre'      => trim($PSN->f('nombreGrupo_txt')) != "" ? trim($PSN->f('nombreGrupo_txt')) : "(Sin nombre)",
+            'idMadre'     => (int)$PSN->f('idGrupoMadre'),
+            'generacion'  => (int)$PSN->f('generacionNumero'),
+            'fecha'       => $PSN->f('fechaInicio'),
+            'plantador'   => trim($PSN->f('plantador')),
+            'madreTxt'    => trim($PSN->f('grupoMadre_txt')),
+        ];
+        $filas[] = $fila;
+        $idsExistentes[$fila['id']] = true;
+    }
+
+    $totalGenealogiaNodos = count($filas);
+
+    if($totalGenealogiaNodos > $LIMITE_NODOS_GENEALOGIA){
+        $varErrorGenealogia = 2; // demasiados nodos: pedir filtrar por facilitador
+    } else {
+        foreach($filas as $fila){
+            $esRaiz = ($fila['idMadre'] <= 0 || !isset($idsExistentes[$fila['idMadre']]));
+            $fechaFmt = "";
+            if(!empty($fila['fecha']) && $fila['fecha'] != "0000-00-00"){
+                $ts = strtotime($fila['fecha']);
+                if($ts) $fechaFmt = date("d/m/Y", $ts);
+            }
+            $color = $paletaGeneraciones[$fila['generacion'] % count($paletaGeneraciones)];
+
+            $datosGenealogia[] = [
+                'id'         => $fila['id'],
+                'idMadre'    => $esRaiz ? '' : $fila['idMadre'],
+                'nombre'     => $fila['nombre'],
+                'generacion' => $fila['generacion'],
+                'fecha'      => $fechaFmt,
+                'plantador'  => $fila['plantador'],
+                'madreTxt'   => $fila['madreTxt'],
+                'color'      => $color,
+            ];
+
+            $generacionesGenealogia[$fila['generacion']] = true;
+        }
+        ksort($generacionesGenealogia);
+    }
+} else {
+    $varErrorGenealogia = 1;
+}
 ?>
 
 <style>
@@ -353,13 +441,66 @@ if($PSN->num_rows() > 0){
   margin-bottom: 5px;
 }
 
+/* ===== Genealogía de grupos (OrgChart) ===== */
+.chart-box--org{
+  height: 560px;
+  overflow: auto;
+}
+.genealogia-legend{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.genealogia-legend__item{
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.04);
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+}
+.genealogia-legend__swatch{
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.genealogia-node{
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: #fff;
+  min-width: 150px;
+  font-family: inherit;
+  text-align: center;
+  line-height: 1.35;
+}
+.genealogia-node__nombre{
+  font-weight: 900;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+  margin: 0 auto;
+}
+.genealogia-node__fecha{
+  font-size: 11px;
+  opacity: .92;
+}
+
 @media (max-width: 992px){
   .chart-box{ height: 340px; }
+  .chart-box--org{ height: 480px; }
 }
 @media (max-width: 767px){
   .db-card{ border-radius: 12px; }
   .db-card__title{ font-size: 12px; }
   .chart-box{ height: 320px; }
+  .chart-box--org{ height: 420px; }
 
   form.form-horizontal .form-group > [class*="col-"]{
     width: 100% !important;
@@ -544,6 +685,50 @@ if($PSN->num_rows() > 0){
   -->
 </div>
 
+<!-- #4: RECORRIDO DE GRUPOS (GENEALOGÍA) -->
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12">
+    <div class="db-card">
+      <div class="db-card__head">
+        <div class="db-card__title-wrap">
+          <h4 class="db-card__title"><?=$nombreGenealogia;?></h4>
+          <button class="db-info-btn" onclick="dbOpenInfo('genealogia')" type="button" title="Ver descripción">i</button>
+        </div>
+        <div class="db-card__meta">
+          <?php if($varErrorGenealogia == 0){ ?>
+            <span class="db-pill">Grupos: <?=$totalGenealogiaNodos;?></span>
+            <span class="db-pill">Generaciones: <?=count($generacionesGenealogia);?></span>
+          <?php } ?>
+        </div>
+      </div>
+      <div class="db-card__body">
+        <?php if($varErrorGenealogia == 1){ ?>
+          <div class="alert alert-warning text-center" style="margin-bottom:0;">
+            No se ha encontrado ningún grupo madre registrado para el facilitador / filtros seleccionados.
+          </div>
+        <?php } elseif($varErrorGenealogia == 2){ ?>
+          <div class="alert alert-warning text-center" style="margin-bottom:0;">
+            Hay demasiados grupos (<?=$totalGenealogiaNodos;?>) para mostrar en un solo árbol. Por favor selecciona un
+            <strong>Facilitador Satura</strong> en los filtros para ver su recorrido de grupos.
+          </div>
+        <?php } else { ?>
+          <div class="genealogia-legend">
+            <?php foreach($generacionesGenealogia as $gen => $ok){
+              $color = $paletaGeneraciones[$gen % count($paletaGeneraciones)];
+              ?>
+              <span class="genealogia-legend__item">
+                <span class="genealogia-legend__swatch" style="background:<?=$color;?>"></span>
+                Generación <?=$gen;?>
+              </span>
+            <?php } ?>
+          </div>
+          <div id="chart_genealogia" class="chart-box chart-box--org"></div>
+        <?php } ?>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /container -->
 
 <!-- ===== Modal de información de gráficas ===== -->
@@ -556,7 +741,7 @@ if($PSN->num_rows() > 0){
 </div>
 
 <script type="text/javascript">
-google.charts.load("current", {packages:["corechart"]});
+google.charts.load("current", {packages:["corechart","orgchart"]});
 google.charts.setOnLoadCallback(drawAllCharts);
 
 (function(){
@@ -577,7 +762,7 @@ google.charts.setOnLoadCallback(drawAllCharts);
       if(window.__dbRoTimer) clearTimeout(window.__dbRoTimer);
       window.__dbRoTimer = setTimeout(drawAllCharts, 220);
     });
-    ['chart_madurez','chart_especiales','chart_crecimiento'].forEach(function(id){
+    ['chart_madurez','chart_especiales','chart_crecimiento','chart_genealogia'].forEach(function(id){
       var el = document.getElementById(id);
       if(el) ro.observe(el);
     });
@@ -587,6 +772,7 @@ google.charts.setOnLoadCallback(drawAllCharts);
 function drawAllCharts(){
   drawEspeciales();
   drawMadurez();
+  drawGenealogia();
   // drawCrecimiento(); // Comentado: no debe aparecer por ahora
 }
 
@@ -696,6 +882,55 @@ function drawCrecimiento(){
   <?php } ?>
 }
 
+/* ===== #4 Recorrido de Grupos - Genealogía (OrgChart) ===== */
+function drawGenealogia(){
+  <?php if($varErrorGenealogia == 0){ ?>
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'Nombre');
+  data.addColumn('string', 'Grupo madre');
+  data.addColumn('string', 'ToolTip');
+  data.addRows([
+    <?php
+      $rows = [];
+      foreach($datosGenealogia as $n){
+          $nodeId   = (string)$n['id'];
+          $parentId = ($n['idMadre'] === '') ? '' : (string)$n['idMadre'];
+
+          $nombreEsc = htmlspecialchars($n['nombre'], ENT_QUOTES, 'UTF-8');
+          $fechaTxt  = $n['fecha'] !== "" ? $n['fecha'] : "Sin fecha registrada";
+
+          $htmlLabel = '<div class="genealogia-node" style="background:'.$n['color'].';">'
+                     . '<div class="genealogia-node__nombre" title="'.$nombreEsc.'">'.$nombreEsc.'</div>'
+                     . '<div class="genealogia-node__fecha">🕓 '.htmlspecialchars($fechaTxt, ENT_QUOTES, 'UTF-8').'</div>'
+                     . '</div>';
+
+          $tooltipParts = [];
+          $tooltipParts[] = 'Grupo: '.$n['nombre'];
+          $tooltipParts[] = 'Generación: '.$n['generacion'];
+          $tooltipParts[] = 'Inicio: '.$fechaTxt;
+          if($n['plantador'] !== "") $tooltipParts[] = 'Plantador: '.$n['plantador'];
+          if($n['madreTxt']  !== "") $tooltipParts[] = 'Grupo madre: '.$n['madreTxt'];
+          $tooltip = implode(" | ", $tooltipParts);
+
+          $rows[] = "[{v:".json_encode($nodeId).", f:".json_encode($htmlLabel)."}, "
+                   . json_encode($parentId).", ".json_encode($tooltip)."]";
+      }
+      echo implode(",\n    ", $rows);
+    ?>
+  ]);
+
+  var el = document.getElementById('chart_genealogia');
+  if(!el) return;
+
+  var chart = new google.visualization.OrgChart(el);
+  chart.draw(data, {
+    allowHtml: true,
+    allowCollapse: true,
+    size: 'medium'
+  });
+  <?php } ?>
+}
+
 /* ===== Sistema de Info ===== */
 (function(){
   var INFO = {
@@ -719,6 +954,17 @@ function drawCrecimiento(){
       html: '<ul>'
           + '<li><strong>👥 Acumulado:</strong> Suma, mes a mes, el total de personas alcanzadas (asistencia) desde el inicio del rango de fechas seleccionado.</li>'
           + '<li><strong>💡 Úsala para:</strong> visualizar el alcance total del movimiento a lo largo del tiempo, sin importar si hubo meses con menor actividad.</li>'
+          + '</ul>'
+    },
+    'genealogia': {
+      title: '🌳 Recorrido de Grupos (Genealogía)',
+      html: '<ul>'
+          + '<li><strong>🌱 Grupo madre (Generación 0):</strong> es el punto de partida de la cadena, ubicado en la parte superior del árbol.</li>'
+          + '<li><strong>➡️ Grupos hijos:</strong> cada rama muestra el grupo que nació a partir del grupo anterior (Generación 1, 2, 3...), formando el recorrido completo del movimiento.</li>'
+          + '<li><strong>📦 Cada tarjeta muestra:</strong> el nombre del grupo y su fecha de inicio. Al pasar el mouse verás además la generación, el plantador y el nombre del grupo madre.</li>'
+          + '<li><strong>👤 Filtro por facilitador:</strong> usa el filtro "Facilitador Satura" en la parte superior para ver el recorrido de los grupos que él o ella ha plantado.</li>'
+          + '<li><strong>🖱️ Colapsar ramas:</strong> haz clic en el signo (-) de una tarjeta para plegar o desplegar sus grupos hijos.</li>'
+          + '<li><strong>💡 Úsala para:</strong> visualizar la multiplicación de los grupos generación tras generación.</li>'
           + '</ul>'
     }
   };
