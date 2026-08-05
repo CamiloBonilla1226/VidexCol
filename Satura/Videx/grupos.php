@@ -1431,24 +1431,9 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                     <span>Reunión regular del grupo</span>
                 </button>
 
-                <button type="button" class="activity-button otra" onclick="selectActivity('siembra_abundante')">
-                    <strong>🌱 Siembra Abundante</strong>
-                    <span>Actividad de siembra abundante</span>
-                </button>
-
-                <button type="button" class="activity-button otra" onclick="selectActivity('caminata_oracion')">
-                    <strong>🚶 Caminata de Oración</strong>
-                    <span>Caminata de oración por el sector</span>
-                </button>
-
                 <button type="button" class="activity-button otra" onclick="selectActivity('identificar_hijo_paz')">
                     <strong>🕊️ Identificar al Hijo de Paz</strong>
                     <span>Actividad para identificar al hijo de paz</span>
-                </button>
-
-                <button type="button" class="activity-button otra" onclick="selectActivity('oracion_exp_ferviente')">
-                    <strong>🙏 Oración Exp. y Ferviente</strong>
-                    <span>Oración expectante y ferviente</span>
                 </button>
 
                 <button type="button" class="activity-button otra" onclick="selectActivity('taller')">
@@ -3034,10 +3019,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             asistenciaLabel.textContent = 'Asistencia';
         } else if ([
             'evangelismo',
-            'siembra_abundante',
-            'caminata_oracion',
             'identificar_hijo_paz',
-            'oracion_exp_ferviente',
             'taller',
             'otra_actividad',
             'capacitacion'
@@ -3068,10 +3050,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             'gran_celebracion': '🎉 Nuevo Reporte - Gran Celebración',
             'bautizo': '💧 Nuevo Reporte - Bautizo',
             'reunion_cotidiana': '🤝 Nuevo Reporte - Coach',
-            'siembra_abundante': '🌱 Nuevo Reporte - Siembra Abundante',
-            'caminata_oracion': '🚶 Nuevo Reporte - Caminata de Oración',
             'identificar_hijo_paz': '🕊️ Nuevo Reporte - Identificar al Hijo de Paz',
-            'oracion_exp_ferviente': '🙏 Nuevo Reporte - Oración Exp. y Ferviente',
             'taller': '🛠️ Nuevo Reporte - Taller',
             'otra_actividad': '➕ Nuevo Reporte - Otra Actividad',
             'capacitacion': '🎓 Nuevo Reporte - Capacitación'
