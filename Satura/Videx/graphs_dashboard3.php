@@ -89,6 +89,7 @@ $fechaFinal   = req_date_or_default("fechaFinal",   $fechaFinal);
 
 $buscar_idUsuario = req_num("idUsuario");
 $empresa_paisid   = req_num("empresa_paisid");
+$buscar_idGrupoGenealogia = req_num("idGrupoGenealogia");
 
 $sqlFiltroBase = build_filtros_sat($buscar_idUsuario, $fechaInicial, $fechaFinal, $empresa_paisid);
 
@@ -215,12 +216,18 @@ if($PSN->num_rows() > 0){
    - OrgChart: grupo madre (generación 0) -> hijos -> nietos ...
    - No se filtra por fecha de reporte (son fechas de inicio de grupo),
      solo por facilitador y país.
+   - Filtro adicional "idGrupoGenealogia": permite elegir UN grupo
+     (de cualquier generación) y ver solo su árbol completo
+     (ancestros + descendientes). Vacío = "Ver todos" (bosque completo).
    ========================= */
 $varErrorGenealogia   = 0;
 $nombreGenealogia     = "RECORRIDO DE GRUPOS (GENEALOGÍA)";
 $datosGenealogia      = [];
+$opcionesGenealogia   = [];
 $totalGenealogiaNodos = 0;
 $generacionesGenealogia = [];
+$modoArbolUnico       = false;
+$nombreGrupoSeleccionado = "";
 $LIMITE_NODOS_GENEALOGIA = 400;
 
 $paletaGeneraciones = ['#0259a5','#27ae60','#f39c12','#8e44ad','#e74c3c','#16a085','#d35400','#2c3e50','#c0392b','#2980b9'];
@@ -250,6 +257,7 @@ $sql = "SELECT
 $PSN->query($sql);
 if($PSN->num_rows() > 0){
     $filas = [];
+    $filasPorId = [];
     $idsExistentes = [];
     while($PSN->next_record()){
         $fila = [
@@ -262,15 +270,60 @@ if($PSN->num_rows() > 0){
             'madreTxt'    => trim($PSN->f('grupoMadre_txt')),
         ];
         $filas[] = $fila;
+        $filasPorId[$fila['id']] = $fila;
         $idsExistentes[$fila['id']] = true;
     }
 
-    $totalGenealogiaNodos = count($filas);
+    /* Opciones del selector: TODOS los grupos, cualquier generación,
+       ordenados por generación y nombre. */
+    $opcionesGenealogia = $filas;
+    usort($opcionesGenealogia, function($a, $b){
+        if($a['generacion'] === $b['generacion']){
+            return strcasecmp($a['nombre'], $b['nombre']);
+        }
+        return $a['generacion'] <=> $b['generacion'];
+    });
+
+    /* Resuelve el id del grupo RAÍZ (generación 0 / tope de la cadena)
+       al que pertenece un grupo dado, caminando hacia arriba por idMadre. */
+    $cacheRaizGenealogia = [];
+    $resolverRaiz = function($idInicial) use ($filasPorId, $idsExistentes, &$cacheRaizGenealogia){
+        if(isset($cacheRaizGenealogia[$idInicial])) return $cacheRaizGenealogia[$idInicial];
+        $actual = $idInicial;
+        $visitados = [];
+        while(
+            isset($filasPorId[$actual]) &&
+            $filasPorId[$actual]['idMadre'] > 0 &&
+            isset($idsExistentes[$filasPorId[$actual]['idMadre']]) &&
+            !isset($visitados[$actual])
+        ){
+            $visitados[$actual] = true;
+            $actual = $filasPorId[$actual]['idMadre'];
+        }
+        $cacheRaizGenealogia[$idInicial] = $actual;
+        return $actual;
+    };
+
+    $filasArbol = $filas;
+
+    if($buscar_idGrupoGenealogia !== "" && isset($filasPorId[$buscar_idGrupoGenealogia])){
+        $modoArbolUnico = true;
+        $nombreGrupoSeleccionado = $filasPorId[$buscar_idGrupoGenealogia]['nombre'];
+        $raizSeleccionada = $resolverRaiz((int)$buscar_idGrupoGenealogia);
+
+        $filasArbol = array_values(array_filter($filas, function($f) use ($resolverRaiz, $raizSeleccionada){
+            return $resolverRaiz($f['id']) === $raizSeleccionada;
+        }));
+    }
+
+    $totalGenealogiaNodos = count($filasArbol);
 
     if($totalGenealogiaNodos > $LIMITE_NODOS_GENEALOGIA){
-        $varErrorGenealogia = 2; // demasiados nodos: pedir filtrar por facilitador
+        $varErrorGenealogia = 2; // demasiados nodos: pedir filtrar por facilitador o por grupo
+    } else if($totalGenealogiaNodos == 0){
+        $varErrorGenealogia = 1;
     } else {
-        foreach($filas as $fila){
+        foreach($filasArbol as $fila){
             $esRaiz = ($fila['idMadre'] <= 0 || !isset($idsExistentes[$fila['idMadre']]));
             $fechaFmt = "";
             if(!empty($fila['fecha']) && $fila['fecha'] != "0000-00-00"){
@@ -445,6 +498,30 @@ if($PSN->num_rows() > 0){
 .chart-box--org{
   height: 560px;
   overflow: auto;
+}
+.genealogia-filtro{
+  display:flex;
+  align-items:flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed rgba(0,0,0,.1);
+}
+.genealogia-filtro__label{
+  display:flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 700;
+  min-width: 260px;
+  max-width: 420px;
+  flex: 1 1 260px;
+  margin: 0;
+}
+.genealogia-filtro__reset{
+  height: 34px;
+  display:inline-flex;
+  align-items:center;
 }
 .genealogia-legend{
   display:flex;
@@ -696,20 +773,59 @@ if($PSN->num_rows() > 0){
         </div>
         <div class="db-card__meta">
           <?php if($varErrorGenealogia == 0){ ?>
+            <span class="db-pill"><?=$modoArbolUnico ? "Árbol de: ".htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8') : "Todos los grupos";?></span>
             <span class="db-pill">Grupos: <?=$totalGenealogiaNodos;?></span>
             <span class="db-pill">Generaciones: <?=count($generacionesGenealogia);?></span>
           <?php } ?>
         </div>
       </div>
       <div class="db-card__body">
+        <?php if(!empty($opcionesGenealogia)){ ?>
+          <form action="index.php" method="get" name="formGenealogia" class="genealogia-filtro">
+            <input type="hidden" name="doc" value="graphs_dashboard3" />
+            <input type="hidden" name="idUsuario" value="<?=htmlspecialchars($buscar_idUsuario, ENT_QUOTES, 'UTF-8');?>" />
+            <input type="hidden" name="empresa_paisid" value="<?=htmlspecialchars($empresa_paisid, ENT_QUOTES, 'UTF-8');?>" />
+            <input type="hidden" name="fechaInicial" value="<?=htmlspecialchars($fechaInicial, ENT_QUOTES, 'UTF-8');?>" />
+            <input type="hidden" name="fechaFinal" value="<?=htmlspecialchars($fechaFinal, ENT_QUOTES, 'UTF-8');?>" />
+            <label class="genealogia-filtro__label">
+              <strong>Ver:</strong>
+              <select name="idGrupoGenealogia" class="form-control" onchange="this.form.submit()">
+                <option value="">🌐 Ver todos los grupos</option>
+                <?php
+                  $genActual = null;
+                  foreach($opcionesGenealogia as $op){
+                    if($genActual !== $op['generacion']){
+                        if($genActual !== null) echo "</optgroup>";
+                        echo '<optgroup label="Generación '.$op['generacion'].'">';
+                        $genActual = $op['generacion'];
+                    }
+                    $sel = ($buscar_idGrupoGenealogia !== "" && (int)$buscar_idGrupoGenealogia === $op['id']) ? 'selected="selected"' : '';
+                    $fechaOp = "";
+                    if(!empty($op['fecha']) && $op['fecha'] != "0000-00-00"){
+                        $tsOp = strtotime($op['fecha']);
+                        if($tsOp) $fechaOp = " (".date("d/m/Y", $tsOp).")";
+                    }
+                    echo '<option value="'.$op['id'].'" '.$sel.'>'.htmlspecialchars($op['nombre'], ENT_QUOTES, 'UTF-8').$fechaOp.'</option>';
+                  }
+                  if($genActual !== null) echo "</optgroup>";
+                ?>
+              </select>
+            </label>
+            <?php if($modoArbolUnico){ ?>
+              <a href="index.php?doc=graphs_dashboard3&idUsuario=<?=urlencode($buscar_idUsuario);?>&empresa_paisid=<?=urlencode($empresa_paisid);?>&fechaInicial=<?=urlencode($fechaInicial);?>&fechaFinal=<?=urlencode($fechaFinal);?>" class="btn btn-default genealogia-filtro__reset">✕ Ver todos</a>
+            <?php } ?>
+          </form>
+        <?php } ?>
+
         <?php if($varErrorGenealogia == 1){ ?>
           <div class="alert alert-warning text-center" style="margin-bottom:0;">
             No se ha encontrado ningún grupo madre registrado para el facilitador / filtros seleccionados.
           </div>
         <?php } elseif($varErrorGenealogia == 2){ ?>
           <div class="alert alert-warning text-center" style="margin-bottom:0;">
-            Hay demasiados grupos (<?=$totalGenealogiaNodos;?>) para mostrar en un solo árbol. Por favor selecciona un
-            <strong>Facilitador Satura</strong> en los filtros para ver su recorrido de grupos.
+            Hay demasiados grupos (<?=$totalGenealogiaNodos;?>) para mostrar en un solo árbol. Usa el selector
+            <strong>"Ver"</strong> de arriba para elegir un grupo puntual y ver solo su árbol, o filtra por
+            <strong>Facilitador Satura</strong> en los filtros superiores.
           </div>
         <?php } else { ?>
           <div class="genealogia-legend">
@@ -963,6 +1079,7 @@ function drawGenealogia(){
           + '<li><strong>➡️ Grupos hijos:</strong> cada rama muestra el grupo que nació a partir del grupo anterior (Generación 1, 2, 3...), formando el recorrido completo del movimiento.</li>'
           + '<li><strong>📦 Cada tarjeta muestra:</strong> el nombre del grupo y su fecha de inicio. Al pasar el mouse verás además la generación, el plantador y el nombre del grupo madre.</li>'
           + '<li><strong>👤 Filtro por facilitador:</strong> usa el filtro "Facilitador Satura" en la parte superior para ver el recorrido de los grupos que él o ella ha plantado.</li>'
+          + '<li><strong>🔎 Selector "Ver":</strong> lista todos los grupos, de cualquier generación. Elige "Ver todos" para el bosque completo, o elige un grupo puntual (por ejemplo uno de generación 2) para ver únicamente su árbol completo: sus antecedentes (grupos madre hacia arriba) y todos sus descendientes.</li>'
           + '<li><strong>🖱️ Colapsar ramas:</strong> haz clic en el signo (-) de una tarjeta para plegar o desplegar sus grupos hijos.</li>'
           + '<li><strong>💡 Úsala para:</strong> visualizar la multiplicación de los grupos generación tras generación.</li>'
           + '</ul>'
