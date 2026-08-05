@@ -2078,10 +2078,10 @@ if($idReporteActual > 0){
             <?php  }else if ($esActividadCoach){?>
                 <div class="col-sm-4">
                     <strong>GeneraciÃ³n:</strong>
-                    <input name="temporal_solotxt" type="text" id="temporal_solotxt" value="1" readonly class="form-control"  />
-                    <input name="generacionNumero" type="hidden" id="generacionNumero" value="1" readonly class="form-control" required />
+                    <input name="temporal_solotxt" type="text" id="temporal_solotxt" value="<?=$generacionNumeroOriginal; ?>" readonly class="form-control"  />
+                    <input name="generacionNumero" type="hidden" id="generacionNumero" value="<?=$generacionNumeroOriginal; ?>" readonly class="form-control" required />
                 </div>
-            <?php  } ?>            
+            <?php  } ?>
         </div>
         <?php if($esActividadCoach){ ?>
         <script>

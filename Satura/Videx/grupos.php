@@ -3709,8 +3709,9 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         document.getElementById('editGeneracion').value = selectedGrupo.generacion || '0';
 
         // Establecer radio buttons para grupo madre
-        // Si generación es 0, entonces no tiene grupo madre (debe ser "no aplica")
-        const tieneGrupoMadre = (selectedGrupo.generacion === 0 || selectedGrupo.grupo_madre === 'no aplica' || !selectedGrupo.grupo_madre) ? 'no' : 'si';
+        // El id real (no el nombre) es lo que determina si tiene grupo madre.
+        const idGrupoMadreActual = parseInt(selectedGrupo.id_grupo_madre, 10) || 0;
+        const tieneGrupoMadre = idGrupoMadreActual > 0 ? 'si' : 'no';
         document.querySelector('input[name="editTieneGrupoMadre"][value="' + tieneGrupoMadre + '"]').checked = true;
 
         // Mostrar u ocultar selector de grupo madre según corresponda
@@ -3721,9 +3722,9 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             // Esperar a que se carguen los grupos para establecer el seleccionado
             setTimeout(() => {
                 const dropdown = document.getElementById('editGrupoMadreDropdown');
-                // Encontrar la opción que corresponde al grupo madre actual
+                // Encontrar la opción que corresponde al id del grupo madre actual
                 for (let i = 0; i < dropdown.options.length; i++) {
-                    if (dropdown.options[i].textContent.includes(selectedGrupo.grupo_madre)) {
+                    if (parseInt(dropdown.options[i].value, 10) === idGrupoMadreActual) {
                         dropdown.selectedIndex = i;
                         updateEditGeneracionDisplay();
                         break;
@@ -3754,17 +3755,6 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         renderLideresUI();
         document.getElementById('liderInput').value = '';
         clearFormError('liderInput', 'liderInputError');
-        const grupoMadreRadio = document.querySelector('input[name="editTieneGrupoMadre"]');
-        if (grupoMadreRadio) {
-            const grupoMadreFormGroup = grupoMadreRadio.closest('.edit-form-group');
-            if (grupoMadreFormGroup) {
-                grupoMadreFormGroup.style.display = 'none';
-            }
-        }
-        const grupoMadreSelectOculto = document.getElementById('editGrupoMadreSelect');
-        if (grupoMadreSelectOculto) {
-            grupoMadreSelectOculto.style.display = 'none';
-        }
 
         // Mostrar modal
         document.getElementById('editModal').classList.add('active');
@@ -3995,9 +3985,24 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             console.log('Grupos recibidos para edición:', data);
 
             if (data.success && data.grupos) {
-                // Filtrar grupos que NO sean generación 5 y que NO sean el grupo actual
+                // Un grupo no puede tener como madre a un descendiente suyo (formaria un ciclo).
+                const descendientes = new Set();
+                let cambio = true;
+                while (cambio) {
+                    cambio = false;
+                    data.grupos.forEach(g => {
+                        const idMadre = parseInt(g.id_grupo_madre, 10) || 0;
+                        if ((idMadre === currentGroupId || descendientes.has(idMadre)) && !descendientes.has(g.id_unico)) {
+                            descendientes.add(g.id_unico);
+                            cambio = true;
+                        }
+                    });
+                }
+
+                // Filtrar grupos que NO sean generación 5, que NO sean el grupo actual
+                // y que NO sean descendientes del grupo actual.
                 const gruposValidos = data.grupos.filter(g =>
-                    g.generacion < 5 && g.id_unico !== currentGroupId
+                    g.generacion < 5 && g.id_unico !== currentGroupId && !descendientes.has(g.id_unico)
                 );
 
                 const dropdown = document.getElementById('editGrupoMadreDropdown');
@@ -4266,12 +4271,22 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             return;
         }
 
-        // Obtener el valor de grupo madre del selector
-        const grupoMadreValue = selectedGrupo.grupo_madre || '';
+        // Obtener el grupo madre elegido en el selector (siempre por id, nunca por nombre)
         const idGrupo = obtenerIdGrupoSeleccionado(selectedGrupo);
 
         if (!idGrupo) {
             showEditFormError('No se pudo identificar el grupo base');
+            return;
+        }
+
+        const editTieneGrupoMadreChecked = document.querySelector('input[name="editTieneGrupoMadre"]:checked');
+        const tieneGrupoMadre = editTieneGrupoMadreChecked ? editTieneGrupoMadreChecked.value : 'no';
+        const editGrupoMadreDropdown = document.getElementById('editGrupoMadreDropdown');
+        const grupoMadreId = tieneGrupoMadre === 'si' ? (editGrupoMadreDropdown.value || '') : '';
+
+        if (tieneGrupoMadre === 'si' && !grupoMadreId) {
+            showEditFormError('Debes seleccionar un grupo madre');
+            editGrupoMadreDropdown.focus();
             return;
         }
 
@@ -4282,8 +4297,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             ciudad: document.getElementById('editCiudad').value || null,
             barrio: document.getElementById('editBarrio').value || null,
             direccion: document.getElementById('editDireccion').value || null,
-            grupo_madre: grupoMadreValue,
-            generacion: parseInt(selectedGrupo.generacion, 10) || parseInt(document.getElementById('editGeneracion').value) || 0,
+            tieneGrupoMadre: tieneGrupoMadre,
+            grupoMadreId: grupoMadreId,
             lider: editFormData.lideresArray.length > 0 ? editFormData.lideresArray : []
         };
 
@@ -4321,18 +4336,10 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             if (data.success) {
                 showStatusMessage(`✅ Grupo actualizado correctamente. ${data.reportes_actualizados} reportes fueron actualizados.`, 'success');
 
-                // Actualizar los datos del grupo seleccionado
-                selectedGrupo.nombre_exacto = datosActualizacion.nombre_exacto || selectedGrupo.nombre_exacto;
-                selectedGrupo.ciudad = datosActualizacion.ciudad || selectedGrupo.ciudad;
-                selectedGrupo.barrio = datosActualizacion.barrio || selectedGrupo.barrio;
-                selectedGrupo.direccion = datosActualizacion.direccion || selectedGrupo.direccion;
-                selectedGrupo.grupo_madre = datosActualizacion.grupo_madre || selectedGrupo.grupo_madre;
-                selectedGrupo.lider = Array.isArray(datosActualizacion.lider) && datosActualizacion.lider.length > 0
-                    ? datosActualizacion.lider
-                    : '';
-
-                // Actualizar la vista
-                updateGroupPanel(selectedGrupo);
+                // El cambio puede afectar la generacion/madre de este grupo y de su
+                // descendencia, asi que se recarga la lista completa desde el servidor
+                // en vez de parchear selectedGrupo a mano.
+                loadGrupos();
 
                 // Cerrar modal
                 closeEditModal();

@@ -42,6 +42,7 @@ try {
             base.barrio,
             base.direccion,
             base.grupoMadre_txt AS grupo_madre,
+            base.idGrupoMadre AS id_grupo_madre,
             base.generacionNumero AS generacion,
             COUNT(DISTINCT hijo.id) AS reportes,
             GROUP_CONCAT(DISTINCT hijo.id ORDER BY hijo.fechaInicio DESC, hijo.id DESC SEPARATOR ',') AS reportes_ids_csv
@@ -60,6 +61,7 @@ try {
             base.barrio,
             base.direccion,
             base.grupoMadre_txt,
+            base.idGrupoMadre,
             base.generacionNumero
         ORDER BY base.nombreGrupo_txt ASC, base.id DESC
     ";
@@ -96,6 +98,7 @@ try {
             'barrio' => $barrio,
             'direccion' => $PSN1->f('direccion'),
             'grupo_madre' => $PSN1->f('grupo_madre'),
+            'id_grupo_madre' => (int)$PSN1->f('id_grupo_madre'),
             'generacion' => (int)$PSN1->f('generacion'),
             'ubicacion' => $ubicacion,
             'reportes' => (int)$PSN1->f('reportes'),
