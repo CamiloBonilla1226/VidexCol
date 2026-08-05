@@ -3917,7 +3917,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 gruposValidos.forEach(grupo => {
                     const option = document.createElement('option');
                     option.value = grupo.id_unico;
-                    const idGrupoMadre = obtenerIdReporteGrupo(grupo);
+                    const idGrupoMadre = grupo.id_grupo_base || grupo.id_unico;
                     if (idGrupoMadre) {
                         option.dataset.idGrupoMadre = idGrupoMadre;
                     }

@@ -102,10 +102,9 @@ try {
 
     $tieneGrupoMadre = ($data['tieneGrupoMadre'] ?? '') === 'si';
     $grupoMadreId = trim((string)($data['grupoMadreId'] ?? ''));
-    $grupoMadreHash = trim((string)($data['grupoMadreHash'] ?? $grupoMadreId));
 
-    if ($tieneGrupoMadre && $grupoMadreId === '' && $grupoMadreHash === '') {
-        throw new Exception('Debe seleccionar un grupo madre');
+    if ($tieneGrupoMadre && (!ctype_digit($grupoMadreId) || (int)$grupoMadreId <= 0)) {
+        throw new Exception('Debe seleccionar un grupo madre valido');
     }
 
     // Datos del primer reporte
@@ -140,89 +139,34 @@ try {
     $idGrupoMadre = 0;
     $grupoMadre_txt = '';
 
-    // Si tiene grupo madre, obtener información y calcular generación
-    if ($tieneGrupoMadre && ($grupoMadreId !== '' || $grupoMadreHash !== '')) {
-        $grupoMadreEncontrado = false;
+    // Si tiene grupo madre, la vinculación es estricta: el id enviado debe
+    // corresponder exactamente a un GRUPO (id_grupo = 0) del mismo facilitador.
+    // No se acepta ningún mecanismo alterno (hash, coincidencia por nombre, etc.)
+    // porque eso permitía enlazar por error con un reporte en vez del grupo real.
+    if ($tieneGrupoMadre) {
+        $idGrupoMadreSolicitado = (int)$grupoMadreId;
 
-        if (ctype_digit($grupoMadreId) && strlen($grupoMadreId) <= 11 && (int)$grupoMadreId > 0) {
-            $queryGrupoPorId = "
-                SELECT id, nombreGrupo_txt, plantador, ciudad, barrio, generacionNumero, grupoMadre_txt, direccion
-                FROM sat_reportes
-                WHERE id = " . (int)$grupoMadreId . "
-                  AND idUsuario = " . (int)$idFacilitador . "
-                LIMIT 1
-            ";
+        $queryGrupoPorId = "
+            SELECT id, nombreGrupo_txt, generacionNumero
+            FROM sat_reportes
+            WHERE id = " . $idGrupoMadreSolicitado . "
+              AND idUsuario = " . (int)$idFacilitador . "
+              AND (id_grupo = 0 OR id_grupo IS NULL)
+            LIMIT 1
+        ";
 
-            error_log('DEBUG: Buscando grupo madre por id con query: ' . $queryGrupoPorId);
-            $PSN1->query($queryGrupoPorId);
+        error_log('DEBUG: Buscando grupo madre por id con query: ' . $queryGrupoPorId);
+        $PSN1->query($queryGrupoPorId);
 
-            if ($PSN1->next_record()) {
-                $hashCoincide = true;
-
-                if ($grupoMadreHash !== '' && !ctype_digit($grupoMadreHash)) {
-                    $ubicacionGrupo = ($PSN1->f('ciudad') ?? '') . ($PSN1->f('barrio') ? ', ' . $PSN1->f('barrio') : '');
-                    $direccionGrupo = $PSN1->f('direccion') ?? '';
-                    $md5Test = md5($PSN1->f('nombreGrupo_txt') . '|' . $PSN1->f('plantador') . '|' . $ubicacionGrupo . '|' . ($PSN1->f('grupoMadre_txt') ?? '') . '|' . $direccionGrupo);
-                    $hashCoincide = (substr($md5Test, 0, 8) === substr($grupoMadreHash, 0, 8));
-                }
-
-                if ($hashCoincide) {
-                    $generacionNumero = (int)$PSN1->f('generacionNumero') + 1;
-                    $grupoMadre_txt = $PSN1->f('nombreGrupo_txt');
-                    $idGrupoMadre = (int)$PSN1->f('id');
-                    $grupoMadreEncontrado = true;
-                    error_log('DEBUG: Grupo madre encontrado por id: ' . $idGrupoMadre . ' con gen: ' . $generacionNumero);
-                } else {
-                    error_log('DEBUG: El id de grupo madre no coincide con el hash seleccionado. Se intentara por hash.');
-                }
-            }
-        }
-
-        if (!$grupoMadreEncontrado) {
-            // Buscar todos los grupos del facilitador para encontrar el grupo madre por hash.
-            $queryGrupos = "
-                SELECT
-                    MIN(id) AS idGrupoMadreSeleccionado,
-                    nombreGrupo_txt,
-                    plantador,
-                    ciudad,
-                    barrio,
-                    generacionNumero,
-                    grupoMadre_txt,
-                    direccion
-                FROM sat_reportes
-                WHERE idUsuario = " . (int)$idFacilitador . "
-                GROUP BY nombreGrupo_txt, plantador, ciudad, barrio, generacionNumero, grupoMadre_txt, direccion
-                ORDER BY generacionNumero DESC, idGrupoMadreSeleccionado DESC
-            ";
-
-            error_log('DEBUG: Buscando grupo madre con query: ' . $queryGrupos);
-
-            $PSN1->query($queryGrupos);
-
-            while ($PSN1->next_record()) {
-                $ubicacionGrupo = ($PSN1->f('ciudad') ?? '') . ($PSN1->f('barrio') ? ', ' . $PSN1->f('barrio') : '');
-                $direccionGrupo = $PSN1->f('direccion') ?? '';
-                $md5Test = md5($PSN1->f('nombreGrupo_txt') . '|' . $PSN1->f('plantador') . '|' . $ubicacionGrupo . '|' . ($PSN1->f('grupoMadre_txt') ?? '') . '|' . $direccionGrupo);
-
-                error_log('DEBUG: Comparando hash: ' . substr($md5Test, 0, 8) . ' vs ' . substr($grupoMadreHash, 0, 8));
-
-                // Comparar primeros 8 caracteres del hash
-                if (substr($md5Test, 0, 8) === substr($grupoMadreHash, 0, 8)) {
-                    $generacionNumero = (int)$PSN1->f('generacionNumero') + 1;
-                    $grupoMadre_txt = $PSN1->f('nombreGrupo_txt');
-                    $idGrupoMadre = (int)$PSN1->f('idGrupoMadreSeleccionado');
-                    $grupoMadreEncontrado = true;
-                    error_log('DEBUG: Grupo madre encontrado con id: ' . $idGrupoMadre . ' y gen: ' . $generacionNumero);
-                    break;
-                }
-            }
-        }
-
-        if (!$grupoMadreEncontrado) {
-            error_log('ERROR: Grupo madre no encontrado con id: ' . $grupoMadreId);
+        if (!$PSN1->next_record()) {
+            error_log('ERROR: Grupo madre no encontrado o invalido con id: ' . $idGrupoMadreSolicitado);
             throw new Exception('No se encontró el grupo madre seleccionado');
         }
+
+        $generacionNumero = (int)$PSN1->f('generacionNumero') + 1;
+        $grupoMadre_txt = $PSN1->f('nombreGrupo_txt');
+        $idGrupoMadre = $idGrupoMadreSolicitado;
+        error_log('DEBUG: Grupo madre encontrado por id: ' . $idGrupoMadre . ' con gen: ' . $generacionNumero);
 
         if ($generacionNumero > 5) {
             throw new Exception('No se puede crear un grupo de generación mayor a 5');
