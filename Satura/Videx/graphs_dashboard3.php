@@ -350,44 +350,30 @@ if($PSN->num_rows() > 0){
             ksort($generacionesGenealogia);
         }
     } else {
-        /* Vista por defecto: una tarjeta por cada grupo raíz (generación 0),
-           en vez de un único árbol gigante con todos los grupos del
-           facilitador. Al hacer clic en una tarjeta se abre su árbol. */
-        $conteoPorRaiz = [];
+        /* Vista por defecto: una tarjeta por cada grupo (de cualquier
+           generación), segmentadas por generación. Al hacer clic en una
+           tarjeta se abre el árbol completo de ese grupo (ancestros +
+           descendientes), sin importar si es raíz o no. */
         foreach($filas as $f){
-            $raizId = $resolverRaiz($f['id']);
-            if(!isset($conteoPorRaiz[$raizId])){
-                $conteoPorRaiz[$raizId] = ['total' => 0, 'generacionMax' => 0];
-            }
-            $conteoPorRaiz[$raizId]['total']++;
-            if($f['generacion'] > $conteoPorRaiz[$raizId]['generacionMax']){
-                $conteoPorRaiz[$raizId]['generacionMax'] = $f['generacion'];
-            }
-        }
-
-        foreach($filas as $f){
-            $esRaiz = ($f['idMadre'] <= 0 || !isset($idsExistentes[$f['idMadre']]));
-            if(!$esRaiz) continue;
-
             $fechaFmt = "";
             if(!empty($f['fecha']) && $f['fecha'] != "0000-00-00"){
                 $ts = strtotime($f['fecha']);
                 if($ts) $fechaFmt = date("d/m/Y", $ts);
             }
-            $info = isset($conteoPorRaiz[$f['id']]) ? $conteoPorRaiz[$f['id']] : ['total' => 1, 'generacionMax' => 0];
 
-            $tarjetasGenealogia[] = [
-                'id'           => $f['id'],
-                'nombre'       => $f['nombre'],
-                'fecha'        => $fechaFmt,
-                'plantador'    => $f['plantador'],
-                'totalGrupos'  => $info['total'],
-                'generaciones' => $info['generacionMax'] + 1,
+            $tarjetasGenealogia[$f['generacion']][] = [
+                'id'     => $f['id'],
+                'nombre' => $f['nombre'],
+                'fecha'  => $fechaFmt,
             ];
         }
-        usort($tarjetasGenealogia, function($a, $b){
-            return strcasecmp($a['nombre'], $b['nombre']);
-        });
+        ksort($tarjetasGenealogia);
+        foreach($tarjetasGenealogia as $gen => &$listaGen){
+            usort($listaGen, function($a, $b){
+                return strcasecmp($a['nombre'], $b['nombre']);
+            });
+        }
+        unset($listaGen);
 
         $totalGenealogiaNodos = count($filas);
         $varErrorGenealogia = empty($tarjetasGenealogia) ? 1 : 0;
@@ -609,65 +595,90 @@ if($PSN->num_rows() > 0){
   flex-shrink: 0;
 }
 .genealogia-grid__hint{
-  margin: 0 0 12px 0;
+  margin: 0 0 16px 0;
   font-size: 13px;
-  color: #555;
+  color: #777;
+}
+.genealogia-gen-section{
+  margin-bottom: 24px;
+}
+.genealogia-gen-section:last-child{
+  margin-bottom: 0;
+}
+.genealogia-gen-title{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px 0;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: #556;
+}
+.genealogia-gen-title__dot{
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.genealogia-gen-title__count{
+  font-weight: 700;
+  color: #aaa;
+  text-transform: none;
+  letter-spacing: 0;
 }
 .genealogia-grid{
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
 }
 .genealogia-card{
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 14px 16px;
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 12px;
+  gap: 4px;
+  padding: 16px;
+  border-radius: 14px;
   background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.08);
+  border-top: 3px solid #0259a5;
   text-decoration: none;
   color: inherit;
-  transition: box-shadow .15s ease, transform .15s ease, border-color .15s ease;
+  transition: box-shadow .18s ease, transform .18s ease;
 }
 .genealogia-card:hover,
 .genealogia-card:focus{
-  box-shadow: 0 8px 20px rgba(0,0,0,.10);
-  border-color: rgba(2, 117, 216, .35);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0,0,0,.12);
+  transform: translateY(-3px);
   text-decoration: none;
   color: inherit;
 }
 .genealogia-card__nombre{
-  font-weight: 900;
-  font-size: 14px;
-  color: #0259a5;
-  word-break: break-word;
-}
-.genealogia-card__dato{
-  font-size: 12px;
-  color: #555;
-}
-.genealogia-card__stats{
-  display:flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 4px;
-}
-.genealogia-card__badge{
-  display:inline-block;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: rgba(2, 117, 216, .08);
-  color: #0259a5;
-  font-size: 11px;
   font-weight: 800;
+  font-size: 13.5px;
+  color: #1c2b3a;
+  word-break: break-word;
+  line-height: 1.3;
+}
+.genealogia-card__fecha{
+  font-size: 12px;
+  color: #93a0ab;
 }
 .genealogia-card__cta{
-  margin-top: 8px;
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   font-weight: 800;
   color: #0259a5;
+}
+.genealogia-card__cta::after{
+  content: "\2192";
+  transition: transform .15s ease;
+}
+.genealogia-card:hover .genealogia-card__cta::after{
+  transform: translateX(3px);
 }
 .genealogia-node{
   padding: 6px 10px;
@@ -903,8 +914,8 @@ if($PSN->num_rows() > 0){
             <span class="db-pill">Grupos: <?=$totalGenealogiaNodos;?></span>
             <span class="db-pill">Generaciones: <?=count($generacionesGenealogia);?></span>
           <?php } elseif($varErrorGenealogia == 0){ ?>
-            <span class="db-pill">Grupos raíz: <?=count($tarjetasGenealogia);?></span>
-            <span class="db-pill">Grupos en total: <?=$totalGenealogiaNodos;?></span>
+            <span class="db-pill">Grupos: <?=$totalGenealogiaNodos;?></span>
+            <span class="db-pill">Generaciones: <?=count($tarjetasGenealogia);?></span>
           <?php } ?>
         </div>
       </div>
@@ -972,32 +983,36 @@ if($PSN->num_rows() > 0){
           <div id="chart_genealogia" class="chart-box chart-box--org"></div>
         <?php } else { ?>
           <p class="genealogia-grid__hint">Elige un grupo para ver su árbol genealógico completo (ancestros y descendientes):</p>
-          <div class="genealogia-grid">
-            <?php foreach($tarjetasGenealogia as $t){
-              $urlTarjeta = 'index.php?doc=graphs_dashboard3'
-                          .'&idUsuario='.urlencode($buscar_idUsuario)
-                          .'&empresa_paisid='.urlencode($empresa_paisid)
-                          .'&fechaInicial='.urlencode($fechaInicial)
-                          .'&fechaFinal='.urlencode($fechaFinal)
-                          .'&idGrupoGenealogia='.urlencode($t['id'])
-                          .'#genealogiaCard';
-              ?>
-              <a href="<?=$urlTarjeta;?>" class="genealogia-card">
-                <div class="genealogia-card__nombre"><?=htmlspecialchars($t['nombre'], ENT_QUOTES, 'UTF-8');?></div>
-                <?php if($t['plantador'] !== ""){ ?>
-                  <div class="genealogia-card__dato">👤 <?=htmlspecialchars($t['plantador'], ENT_QUOTES, 'UTF-8');?></div>
+          <?php foreach($tarjetasGenealogia as $gen => $listaGen){
+            $colorGen = $paletaGeneraciones[$gen % count($paletaGeneraciones)];
+            ?>
+            <div class="genealogia-gen-section">
+              <h5 class="genealogia-gen-title">
+                <span class="genealogia-gen-title__dot" style="background:<?=$colorGen;?>"></span>
+                Generación <?=$gen;?>
+                <span class="genealogia-gen-title__count">(<?=count($listaGen);?>)</span>
+              </h5>
+              <div class="genealogia-grid">
+                <?php foreach($listaGen as $t){
+                  $urlTarjeta = 'index.php?doc=graphs_dashboard3'
+                              .'&idUsuario='.urlencode($buscar_idUsuario)
+                              .'&empresa_paisid='.urlencode($empresa_paisid)
+                              .'&fechaInicial='.urlencode($fechaInicial)
+                              .'&fechaFinal='.urlencode($fechaFinal)
+                              .'&idGrupoGenealogia='.urlencode($t['id'])
+                              .'#genealogiaCard';
+                  ?>
+                  <a href="<?=$urlTarjeta;?>" class="genealogia-card" style="border-top-color:<?=$colorGen;?>;">
+                    <div class="genealogia-card__nombre"><?=htmlspecialchars($t['nombre'], ENT_QUOTES, 'UTF-8');?></div>
+                    <?php if($t['fecha'] !== ""){ ?>
+                      <div class="genealogia-card__fecha">🕓 <?=$t['fecha'];?></div>
+                    <?php } ?>
+                    <div class="genealogia-card__cta">Ver árbol</div>
+                  </a>
                 <?php } ?>
-                <?php if($t['fecha'] !== ""){ ?>
-                  <div class="genealogia-card__dato">🕓 <?=$t['fecha'];?></div>
-                <?php } ?>
-                <div class="genealogia-card__stats">
-                  <span class="genealogia-card__badge">🌳 <?=$t['totalGrupos'];?> grupo<?=$t['totalGrupos'] == 1 ? '' : 's';?></span>
-                  <span class="genealogia-card__badge">📊 <?=$t['generaciones'];?> gen.</span>
-                </div>
-                <div class="genealogia-card__cta">Ver árbol →</div>
-              </a>
-            <?php } ?>
-          </div>
+              </div>
+            </div>
+          <?php } ?>
         <?php } ?>
       </div>
     </div>
