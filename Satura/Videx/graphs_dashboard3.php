@@ -305,8 +305,11 @@ if($PSN->num_rows() > 0){
     };
 
     $filasArbol = $filas;
+    $tarjetasGenealogia = [];
 
     if($buscar_idGrupoGenealogia !== "" && isset($filasPorId[$buscar_idGrupoGenealogia])){
+        /* Se eligió un grupo puntual (desde una tarjeta o el selector "Ver"):
+           se muestra el árbol completo (ancestros + descendientes) de ese grupo. */
         $modoArbolUnico = true;
         $nombreGrupoSeleccionado = $filasPorId[$buscar_idGrupoGenealogia]['nombre'];
         $raizSeleccionada = $resolverRaiz((int)$buscar_idGrupoGenealogia);
@@ -314,38 +317,80 @@ if($PSN->num_rows() > 0){
         $filasArbol = array_values(array_filter($filas, function($f) use ($resolverRaiz, $raizSeleccionada){
             return $resolverRaiz($f['id']) === $raizSeleccionada;
         }));
-    }
 
-    $totalGenealogiaNodos = count($filasArbol);
+        $totalGenealogiaNodos = count($filasArbol);
 
-    if($totalGenealogiaNodos > $LIMITE_NODOS_GENEALOGIA){
-        $varErrorGenealogia = 2; // demasiados nodos: pedir filtrar por facilitador o por grupo
-    } else if($totalGenealogiaNodos == 0){
-        $varErrorGenealogia = 1;
+        if($totalGenealogiaNodos > $LIMITE_NODOS_GENEALOGIA){
+            $varErrorGenealogia = 2; // árbol individual demasiado grande
+        } else if($totalGenealogiaNodos == 0){
+            $varErrorGenealogia = 1;
+        } else {
+            foreach($filasArbol as $fila){
+                $esRaiz = ($fila['idMadre'] <= 0 || !isset($idsExistentes[$fila['idMadre']]));
+                $fechaFmt = "";
+                if(!empty($fila['fecha']) && $fila['fecha'] != "0000-00-00"){
+                    $ts = strtotime($fila['fecha']);
+                    if($ts) $fechaFmt = date("d/m/Y", $ts);
+                }
+                $color = $paletaGeneraciones[$fila['generacion'] % count($paletaGeneraciones)];
+
+                $datosGenealogia[] = [
+                    'id'         => $fila['id'],
+                    'idMadre'    => $esRaiz ? '' : $fila['idMadre'],
+                    'nombre'     => $fila['nombre'],
+                    'generacion' => $fila['generacion'],
+                    'fecha'      => $fechaFmt,
+                    'plantador'  => $fila['plantador'],
+                    'madreTxt'   => $fila['madreTxt'],
+                    'color'      => $color,
+                ];
+
+                $generacionesGenealogia[$fila['generacion']] = true;
+            }
+            ksort($generacionesGenealogia);
+        }
     } else {
-        foreach($filasArbol as $fila){
-            $esRaiz = ($fila['idMadre'] <= 0 || !isset($idsExistentes[$fila['idMadre']]));
+        /* Vista por defecto: una tarjeta por cada grupo raíz (generación 0),
+           en vez de un único árbol gigante con todos los grupos del
+           facilitador. Al hacer clic en una tarjeta se abre su árbol. */
+        $conteoPorRaiz = [];
+        foreach($filas as $f){
+            $raizId = $resolverRaiz($f['id']);
+            if(!isset($conteoPorRaiz[$raizId])){
+                $conteoPorRaiz[$raizId] = ['total' => 0, 'generacionMax' => 0];
+            }
+            $conteoPorRaiz[$raizId]['total']++;
+            if($f['generacion'] > $conteoPorRaiz[$raizId]['generacionMax']){
+                $conteoPorRaiz[$raizId]['generacionMax'] = $f['generacion'];
+            }
+        }
+
+        foreach($filas as $f){
+            $esRaiz = ($f['idMadre'] <= 0 || !isset($idsExistentes[$f['idMadre']]));
+            if(!$esRaiz) continue;
+
             $fechaFmt = "";
-            if(!empty($fila['fecha']) && $fila['fecha'] != "0000-00-00"){
-                $ts = strtotime($fila['fecha']);
+            if(!empty($f['fecha']) && $f['fecha'] != "0000-00-00"){
+                $ts = strtotime($f['fecha']);
                 if($ts) $fechaFmt = date("d/m/Y", $ts);
             }
-            $color = $paletaGeneraciones[$fila['generacion'] % count($paletaGeneraciones)];
+            $info = isset($conteoPorRaiz[$f['id']]) ? $conteoPorRaiz[$f['id']] : ['total' => 1, 'generacionMax' => 0];
 
-            $datosGenealogia[] = [
-                'id'         => $fila['id'],
-                'idMadre'    => $esRaiz ? '' : $fila['idMadre'],
-                'nombre'     => $fila['nombre'],
-                'generacion' => $fila['generacion'],
-                'fecha'      => $fechaFmt,
-                'plantador'  => $fila['plantador'],
-                'madreTxt'   => $fila['madreTxt'],
-                'color'      => $color,
+            $tarjetasGenealogia[] = [
+                'id'           => $f['id'],
+                'nombre'       => $f['nombre'],
+                'fecha'        => $fechaFmt,
+                'plantador'    => $f['plantador'],
+                'totalGrupos'  => $info['total'],
+                'generaciones' => $info['generacionMax'] + 1,
             ];
-
-            $generacionesGenealogia[$fila['generacion']] = true;
         }
-        ksort($generacionesGenealogia);
+        usort($tarjetasGenealogia, function($a, $b){
+            return strcasecmp($a['nombre'], $b['nombre']);
+        });
+
+        $totalGenealogiaNodos = count($filas);
+        $varErrorGenealogia = empty($tarjetasGenealogia) ? 1 : 0;
     }
 } else {
     $varErrorGenealogia = 1;
@@ -505,10 +550,8 @@ if($PSN->num_rows() > 0){
   gap: 14px;
   flex-wrap: wrap;
   margin-bottom: 16px;
-  padding: 12px 14px;
-  background: rgba(2, 117, 216, .05);
-  border: 1px solid rgba(2, 117, 216, .12);
-  border-radius: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed rgba(0,0,0,.1);
 }
 .genealogia-filtro__label{
   display:flex;
@@ -565,11 +608,72 @@ if($PSN->num_rows() > 0){
   border-radius: 4px;
   flex-shrink: 0;
 }
+.genealogia-grid__hint{
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  color: #555;
+}
+.genealogia-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.genealogia-card{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 12px;
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow .15s ease, transform .15s ease, border-color .15s ease;
+}
+.genealogia-card:hover,
+.genealogia-card:focus{
+  box-shadow: 0 8px 20px rgba(0,0,0,.10);
+  border-color: rgba(2, 117, 216, .35);
+  transform: translateY(-2px);
+  text-decoration: none;
+  color: inherit;
+}
+.genealogia-card__nombre{
+  font-weight: 900;
+  font-size: 14px;
+  color: #0259a5;
+  word-break: break-word;
+}
+.genealogia-card__dato{
+  font-size: 12px;
+  color: #555;
+}
+.genealogia-card__stats{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.genealogia-card__badge{
+  display:inline-block;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(2, 117, 216, .08);
+  color: #0259a5;
+  font-size: 11px;
+  font-weight: 800;
+}
+.genealogia-card__cta{
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0259a5;
+}
 .genealogia-node{
   padding: 6px 10px;
   border-radius: 8px;
   color: #fff;
-  min-width: 150px;
+  width: 170px;
   font-family: inherit;
   text-align: center;
   line-height: 1.35;
@@ -577,10 +681,13 @@ if($PSN->num_rows() > 0){
 .genealogia-node__nombre{
   font-weight: 900;
   font-size: 12px;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
   overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 220px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  max-width: 100%;
   margin: 0 auto;
 }
 .genealogia-node__fecha{
@@ -791,10 +898,13 @@ if($PSN->num_rows() > 0){
           <button class="db-info-btn" onclick="dbOpenInfo('genealogia')" type="button" title="Ver descripción">i</button>
         </div>
         <div class="db-card__meta">
-          <?php if($varErrorGenealogia == 0){ ?>
-            <span class="db-pill"><?=$modoArbolUnico ? "Árbol de: ".htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8') : "Todos los grupos";?></span>
+          <?php if($varErrorGenealogia == 0 && $modoArbolUnico){ ?>
+            <span class="db-pill">Árbol de: <?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8');?></span>
             <span class="db-pill">Grupos: <?=$totalGenealogiaNodos;?></span>
             <span class="db-pill">Generaciones: <?=count($generacionesGenealogia);?></span>
+          <?php } elseif($varErrorGenealogia == 0){ ?>
+            <span class="db-pill">Grupos raíz: <?=count($tarjetasGenealogia);?></span>
+            <span class="db-pill">Grupos en total: <?=$totalGenealogiaNodos;?></span>
           <?php } ?>
         </div>
       </div>
@@ -845,11 +955,10 @@ if($PSN->num_rows() > 0){
           </div>
         <?php } elseif($varErrorGenealogia == 2){ ?>
           <div class="alert alert-warning text-center" style="margin-bottom:0;">
-            Hay demasiados grupos (<?=$totalGenealogiaNodos;?>) para mostrar en un solo árbol. Usa el selector
-            <strong>"Ver"</strong> de arriba para elegir un grupo puntual y ver solo su árbol, o filtra por
-            <strong>Facilitador Satura</strong> en los filtros superiores.
+            El árbol de <strong><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8');?></strong> tiene demasiados grupos (<?=$totalGenealogiaNodos;?>) para mostrarse completo.
+            Usa el botón <strong>"Ver todos los grupos"</strong> de arriba para volver a la lista de tarjetas.
           </div>
-        <?php } else { ?>
+        <?php } elseif($modoArbolUnico){ ?>
           <div class="genealogia-legend">
             <?php foreach($generacionesGenealogia as $gen => $ok){
               $color = $paletaGeneraciones[$gen % count($paletaGeneraciones)];
@@ -861,6 +970,34 @@ if($PSN->num_rows() > 0){
             <?php } ?>
           </div>
           <div id="chart_genealogia" class="chart-box chart-box--org"></div>
+        <?php } else { ?>
+          <p class="genealogia-grid__hint">Elige un grupo para ver su árbol genealógico completo (ancestros y descendientes):</p>
+          <div class="genealogia-grid">
+            <?php foreach($tarjetasGenealogia as $t){
+              $urlTarjeta = 'index.php?doc=graphs_dashboard3'
+                          .'&idUsuario='.urlencode($buscar_idUsuario)
+                          .'&empresa_paisid='.urlencode($empresa_paisid)
+                          .'&fechaInicial='.urlencode($fechaInicial)
+                          .'&fechaFinal='.urlencode($fechaFinal)
+                          .'&idGrupoGenealogia='.urlencode($t['id'])
+                          .'#genealogiaCard';
+              ?>
+              <a href="<?=$urlTarjeta;?>" class="genealogia-card">
+                <div class="genealogia-card__nombre"><?=htmlspecialchars($t['nombre'], ENT_QUOTES, 'UTF-8');?></div>
+                <?php if($t['plantador'] !== ""){ ?>
+                  <div class="genealogia-card__dato">👤 <?=htmlspecialchars($t['plantador'], ENT_QUOTES, 'UTF-8');?></div>
+                <?php } ?>
+                <?php if($t['fecha'] !== ""){ ?>
+                  <div class="genealogia-card__dato">🕓 <?=$t['fecha'];?></div>
+                <?php } ?>
+                <div class="genealogia-card__stats">
+                  <span class="genealogia-card__badge">🌳 <?=$t['totalGrupos'];?> grupo<?=$t['totalGrupos'] == 1 ? '' : 's';?></span>
+                  <span class="genealogia-card__badge">📊 <?=$t['generaciones'];?> gen.</span>
+                </div>
+                <div class="genealogia-card__cta">Ver árbol →</div>
+              </a>
+            <?php } ?>
+          </div>
         <?php } ?>
       </div>
     </div>
@@ -1109,12 +1246,13 @@ function drawGenealogia(){
     'genealogia': {
       title: '🌳 Recorrido de Grupos (Genealogía)',
       html: '<ul>'
+          + '<li><strong>🃏 Tarjetas de grupo raíz:</strong> al entrar verás una tarjeta por cada grupo madre (Generación 0), con su fecha de inicio, plantador y el total de grupos/generaciones que ha producido.</li>'
+          + '<li><strong>🖱️ Haz clic en una tarjeta</strong> para abrir el árbol genealógico completo de ese grupo: sus antecedentes (grupos madre hacia arriba) y todos sus descendientes.</li>'
           + '<li><strong>🌱 Grupo madre (Generación 0):</strong> es el punto de partida de la cadena, ubicado en la parte superior del árbol.</li>'
           + '<li><strong>➡️ Grupos hijos:</strong> cada rama muestra el grupo que nació a partir del grupo anterior (Generación 1, 2, 3...), formando el recorrido completo del movimiento.</li>'
-          + '<li><strong>📦 Cada tarjeta muestra:</strong> el nombre del grupo y su fecha de inicio. Al pasar el mouse verás además la generación, el plantador y el nombre del grupo madre.</li>'
-          + '<li><strong>👤 Filtro por facilitador:</strong> usa el filtro "Facilitador Satura" en la parte superior para ver el recorrido de los grupos que él o ella ha plantado.</li>'
-          + '<li><strong>🔎 Selector "Ver":</strong> lista todos los grupos, de cualquier generación. Elige "Ver todos" para el bosque completo, o elige un grupo puntual (por ejemplo uno de generación 2) para ver únicamente su árbol completo: sus antecedentes (grupos madre hacia arriba) y todos sus descendientes.</li>'
-          + '<li><strong>🖱️ Colapsar ramas:</strong> haz clic en el signo (-) de una tarjeta para plegar o desplegar sus grupos hijos.</li>'
+          + '<li><strong>👤 Filtro por facilitador:</strong> usa el filtro "Facilitador Satura" en la parte superior para ver solo los grupos que él o ella ha plantado. Es obligatorio elegirlo para poder buscar un grupo puntual con el selector "Ver".</li>'
+          + '<li><strong>🔎 Selector "Ver":</strong> alternativa a las tarjetas para ir directo a cualquier grupo (de cualquier generación), sin importar si es raíz o no. Usa "Ver todos los grupos" para volver a las tarjetas.</li>'
+          + '<li><strong>🖱️ Colapsar ramas:</strong> dentro del árbol, haz clic en el signo (-) de una tarjeta para plegar o desplegar sus grupos hijos.</li>'
           + '<li><strong>💡 Úsala para:</strong> visualizar la multiplicación de los grupos generación tras generación.</li>'
           + '</ul>'
     }
