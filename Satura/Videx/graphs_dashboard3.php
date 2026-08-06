@@ -502,11 +502,13 @@ if($PSN->num_rows() > 0){
 .genealogia-filtro{
   display:flex;
   align-items:flex-end;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
   margin-bottom: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px dashed rgba(0,0,0,.1);
+  padding: 12px 14px;
+  background: rgba(2, 117, 216, .05);
+  border: 1px solid rgba(2, 117, 216, .12);
+  border-radius: 10px;
 }
 .genealogia-filtro__label{
   display:flex;
@@ -518,16 +520,33 @@ if($PSN->num_rows() > 0){
   flex: 1 1 260px;
   margin: 0;
 }
+.genealogia-filtro__label select[disabled]{
+  background-color: rgba(0,0,0,.05);
+  color: #999;
+  cursor: not-allowed;
+}
+.genealogia-filtro__hint{
+  font-weight: 600;
+  font-size: 12px;
+  color: #b06a00;
+  margin-top: 2px;
+}
+.genealogia-filtro__hint::before{
+  content: "⚠ ";
+}
 .genealogia-filtro__reset{
   height: 34px;
   display:inline-flex;
   align-items:center;
+  gap: 6px;
+  font-weight: 700;
 }
 .genealogia-legend{
   display:flex;
   flex-wrap:wrap;
   gap: 8px;
   margin-bottom: 14px;
+  padding-top: 2px;
 }
 .genealogia-legend__item{
   display:inline-flex;
@@ -763,7 +782,7 @@ if($PSN->num_rows() > 0){
 </div>
 
 <!-- #4: RECORRIDO DE GRUPOS (GENEALOGÍA) -->
-<div class="row">
+<div class="row" id="genealogiaCard">
   <div class="col-lg-12 col-md-12 col-sm-12">
     <div class="db-card">
       <div class="db-card__head">
@@ -789,7 +808,7 @@ if($PSN->num_rows() > 0){
             <input type="hidden" name="fechaFinal" value="<?=htmlspecialchars($fechaFinal, ENT_QUOTES, 'UTF-8');?>" />
             <label class="genealogia-filtro__label">
               <strong>Ver:</strong>
-              <select name="idGrupoGenealogia" class="form-control" onchange="this.form.submit()">
+              <select name="idGrupoGenealogia" class="form-control" onchange="dbNavGenealogia(this)" <?=($buscar_idUsuario === "" ? 'disabled="disabled"' : '');?>>
                 <option value="">🌐 Ver todos los grupos</option>
                 <?php
                   $genActual = null;
@@ -810,9 +829,12 @@ if($PSN->num_rows() > 0){
                   if($genActual !== null) echo "</optgroup>";
                 ?>
               </select>
+              <?php if($buscar_idUsuario === ""){ ?>
+                <span class="genealogia-filtro__hint">Selecciona primero un <strong>Facilitador Satura</strong> arriba para poder elegir un grupo puntual.</span>
+              <?php } ?>
             </label>
             <?php if($modoArbolUnico){ ?>
-              <a href="index.php?doc=graphs_dashboard3&idUsuario=<?=urlencode($buscar_idUsuario);?>&empresa_paisid=<?=urlencode($empresa_paisid);?>&fechaInicial=<?=urlencode($fechaInicial);?>&fechaFinal=<?=urlencode($fechaFinal);?>" class="btn btn-default genealogia-filtro__reset">✕ Ver todos</a>
+              <a href="index.php?doc=graphs_dashboard3&idUsuario=<?=urlencode($buscar_idUsuario);?>&empresa_paisid=<?=urlencode($empresa_paisid);?>&fechaInicial=<?=urlencode($fechaInicial);?>&fechaFinal=<?=urlencode($fechaFinal);?>#genealogiaCard" class="btn btn-default genealogia-filtro__reset">🌐 Ver todos los grupos</a>
             <?php } ?>
           </form>
         <?php } ?>
@@ -890,6 +912,18 @@ function drawAllCharts(){
   drawMadurez();
   drawGenealogia();
   // drawCrecimiento(); // Comentado: no debe aparecer por ahora
+}
+
+/* Navega el formulario de la genealogía preservando la posición de scroll
+   (evita que la página salte al inicio al elegir un grupo). */
+function dbNavGenealogia(selectEl){
+  var form = selectEl.form;
+  var params = [];
+  Array.prototype.forEach.call(form.elements, function(el){
+    if(!el.name || el.disabled) return;
+    params.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value));
+  });
+  window.location.href = 'index.php?' + params.join('&') + '#genealogiaCard';
 }
 
 /* ===== #1 Madurez Espiritual (ColumnChart escala 1-4) ===== */
