@@ -524,9 +524,15 @@ if($buscar_idGrupoGenealogia === ""){
 .reportes-modal__title{
   font-size: 16px;
   font-weight: 900;
-  margin: 0 0 16px 0;
+  margin: 0 0 4px 0;
   color: #0259a5;
   padding-right: 24px;
+}
+.reportes-modal__subtitle{
+  font-size: 13px;
+  font-weight: 700;
+  color: #667;
+  margin: 0 0 16px 0;
 }
 .reportes-modal__body{
   overflow-y: auto;
@@ -539,58 +545,47 @@ if($buscar_idGrupoGenealogia === ""){
   color: #888;
   font-size: 14px;
 }
-.reporte-item{
-  border: 1px solid rgba(0,0,0,.08);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: box-shadow .15s ease, border-color .15s ease;
+.reportes-tabla-wrap{
+  overflow-x: auto;
 }
-.reporte-item:hover{
-  border-color: rgba(2,117,216,.35);
-  box-shadow: 0 4px 14px rgba(0,0,0,.08);
+.reportes-tabla{
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
 }
-.reporte-item:last-child{ margin-bottom: 0; }
-.reporte-item__head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 6px;
-}
-.reporte-item__tipo{
+.reportes-tabla thead th{
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 11px;
   font-weight: 900;
-  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: .4px;
-  color: #0259a5;
+  color: #556;
+  border-bottom: 2px solid rgba(0,0,0,.08);
+  white-space: nowrap;
 }
-.reporte-item__fecha{
-  font-size: 12px;
+.reportes-tabla tbody td{
+  padding: 10px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  white-space: nowrap;
+}
+.reportes-tabla tbody tr{
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.reportes-tabla tbody tr:hover{
+  background: rgba(2,117,216,.07);
+}
+.reportes-tabla tbody tr:last-child td{
+  border-bottom: none;
+}
+.reportes-tabla td.reportes-tabla__id{
   color: #93a0ab;
-}
-.reporte-item__badges{
-  display:flex;
-  flex-wrap:wrap;
-  gap: 6px;
-  margin-bottom: 6px;
-}
-.reporte-badge{
-  display:inline-block;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: rgba(2,117,216,.10);
-  color: #0259a5;
-  font-size: 11.5px;
   font-weight: 700;
 }
-.reporte-comentario{
-  font-size: 13px;
-  color: #444;
-  line-height: 1.5;
-  white-space: pre-wrap;
+.reportes-tabla td.reportes-tabla__tipo{
+  color: #0259a5;
+  font-weight: 700;
 }
 
 @media (max-width: 992px){
@@ -669,6 +664,7 @@ if($buscar_idGrupoGenealogia === ""){
   <div class="reportes-modal">
     <button class="reportes-modal__close" id="reportesModalClose" title="Cerrar">&times;</button>
     <h4 class="reportes-modal__title" id="reportesModalTitle"></h4>
+    <div class="reportes-modal__subtitle" id="reportesModalSubtitle"></div>
     <div class="reportes-modal__body" id="reportesModalBody"></div>
   </div>
 </div>
@@ -876,7 +872,10 @@ function dbAbrirReportes(idGrupo, nombreGrupo){
   var body = document.getElementById('reportesModalBody');
   if(!overlay || !title || !body) return;
 
+  var subtitle = document.getElementById('reportesModalSubtitle');
+
   title.textContent = '📋 Reportes de: ' + nombreGrupo;
+  if(subtitle) subtitle.textContent = '';
   body.innerHTML = '<div class="reportes-modal__loading">Cargando reportes...</div>';
   overlay.classList.add('active');
 
@@ -891,7 +890,9 @@ function dbAbrirReportes(idGrupo, nombreGrupo){
       body.innerHTML = '<div class="reportes-modal__vacio">No se pudieron cargar los reportes.</div>';
       return;
     }
-    dbRenderReportes(body, data.reportes || []);
+    var reportes = data.reportes || [];
+    if(subtitle) subtitle.textContent = 'Cantidad de reportes: ' + reportes.length;
+    dbRenderReportes(body, reportes);
   })
   .catch(function(){
     body.innerHTML = '<div class="reportes-modal__vacio">Ocurrió un error al cargar los reportes.</div>';
@@ -915,31 +916,31 @@ function dbRenderReportes(container, reportes){
     return;
   }
 
-  container.innerHTML = reportes.map(function(r){
-    var etiqueta = ETIQUETAS_ACTIVIDAD[r.id_actividad] || 'Reporte';
-    var badges = '<span class="reporte-badge">👥 ' + (r.asistencia_total || 0) + ' asistentes</span>';
-    if(r.id_actividad === 99 && r.bautizados){
-      badges += '<span class="reporte-badge">💧 ' + r.bautizados + ' bautizados</span>';
-    }
-    if((r.id_actividad === 77 || r.id_actividad === 1) && r.desiciones){
-      badges += '<span class="reporte-badge">🙌 ' + r.desiciones + ' decisiones</span>';
-    }
-    if(r.id_actividad === 1){
-      if(r.discipulado) badges += '<span class="reporte-badge">📖 ' + r.discipulado + ' en discipulado</span>';
-      if(r.preparandose) badges += '<span class="reporte-badge">🌱 ' + r.preparandose + ' preparándose</span>';
-    }
-    var comentario = r.comentario ? '<div class="reporte-comentario">' + dbEscaparHtml(r.comentario) + '</div>' : '';
+  var filas = reportes.map(function(r){
     var idReporte = parseInt(r.id, 10) || 0;
+    var etiqueta = ETIQUETAS_ACTIVIDAD[r.id_actividad] || 'Reporte';
+    var asistencia = r.asistencia_total || 0;
+    var fecha = r.fecha || 'Sin fecha';
 
-    return '<div class="reporte-item" onclick="dbAbrirReporteIndividual(' + idReporte + ')" title="Abrir este reporte">'
-         +   '<div class="reporte-item__head">'
-         +     '<span class="reporte-item__tipo">' + dbEscaparHtml(etiqueta) + '</span>'
-         +     '<span class="reporte-item__fecha">🕓 ' + (r.fecha || 'Sin fecha') + '</span>'
-         +   '</div>'
-         +   '<div class="reporte-item__badges">' + badges + '</div>'
-         +   comentario
-         + '</div>';
+    return '<tr onclick="dbAbrirReporteIndividual(' + idReporte + ')" title="Abrir este reporte">'
+         +   '<td class="reportes-tabla__id">#' + idReporte + '</td>'
+         +   '<td class="reportes-tabla__tipo">' + dbEscaparHtml(etiqueta) + '</td>'
+         +   '<td>' + asistencia + '</td>'
+         +   '<td>' + dbEscaparHtml(fecha) + '</td>'
+         + '</tr>';
   }).join('');
+
+  container.innerHTML = '<div class="reportes-tabla-wrap">'
+    + '<table class="reportes-tabla">'
+    +   '<thead><tr>'
+    +     '<th>ID</th>'
+    +     '<th>Tipo de actividad</th>'
+    +     '<th>Asistencia total</th>'
+    +     '<th>Fecha</th>'
+    +   '</tr></thead>'
+    +   '<tbody>' + filas + '</tbody>'
+    + '</table>'
+    + '</div>';
 }
 
 (function(){
