@@ -544,6 +544,12 @@ if($buscar_idGrupoGenealogia === ""){
   border-radius: 10px;
   padding: 12px 14px;
   margin-bottom: 10px;
+  cursor: pointer;
+  transition: box-shadow .15s ease, border-color .15s ease;
+}
+.reporte-item:hover{
+  border-color: rgba(2,117,216,.35);
+  box-shadow: 0 4px 14px rgba(0,0,0,.08);
 }
 .reporte-item:last-child{ margin-bottom: 0; }
 .reporte-item__head{
@@ -897,6 +903,12 @@ function dbCerrarReportes(){
   if(overlay) overlay.classList.remove('active');
 }
 
+/* Abre el reporte individual en su formulario real (mismo destino que
+   usa el resto de la app, ej. grupos.php, al hacer clic en un reporte). */
+function dbAbrirReporteIndividual(idReporte){
+  window.location.href = 'index.php?doc=reportar&id=' + idReporte;
+}
+
 function dbRenderReportes(container, reportes){
   if(!reportes.length){
     container.innerHTML = '<div class="reportes-modal__vacio">Este grupo no tiene reportes registrados.</div>';
@@ -917,8 +929,9 @@ function dbRenderReportes(container, reportes){
       if(r.preparandose) badges += '<span class="reporte-badge">🌱 ' + r.preparandose + ' preparándose</span>';
     }
     var comentario = r.comentario ? '<div class="reporte-comentario">' + dbEscaparHtml(r.comentario) + '</div>' : '';
+    var idReporte = parseInt(r.id, 10) || 0;
 
-    return '<div class="reporte-item">'
+    return '<div class="reporte-item" onclick="dbAbrirReporteIndividual(' + idReporte + ')" title="Abrir este reporte">'
          +   '<div class="reporte-item__head">'
          +     '<span class="reporte-item__tipo">' + dbEscaparHtml(etiqueta) + '</span>'
          +     '<span class="reporte-item__fecha">🕓 ' + (r.fecha || 'Sin fecha') + '</span>'
