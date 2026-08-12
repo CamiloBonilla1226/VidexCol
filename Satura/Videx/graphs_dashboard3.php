@@ -3,14 +3,11 @@
 DASHBOARD 3 - 3 VISUALES (REDISEÑO)
 Archivo: graphs_dashboard3.php
 
-#1: ACTIVIDADES ESPECIALES (id_actividad IN 5,10,11,12,13,14)
-    - PieChart: frecuencia de actividades poco comunes
+#1: CRECIMIENTO ACUMULADO DE PERSONAS ALCANZADAS
+    - AreaChart: suma acumulada de asistencia_total mes a mes
 
 #2: MADUREZ ESPIRITUAL (mapeo_*, solo reportes de Coach id_actividad=1)
     - ColumnChart: promedio (escala 1-4) de cada área de madurez
-
-#3: CRECIMIENTO ACUMULADO DE PERSONAS ALCANZADAS
-    - LineChart: suma acumulada de asistencia_total mes a mes
 
 ID MENU (permiso): 23
 *******************************************/
@@ -136,50 +133,7 @@ if($row = db_first_row($PSN, $sql)){
 }
 
 /* =========================
-   #2: ACTIVIDADES ESPECIALES
-   ========================= */
-$varErrorEspeciales = 0;
-$nombreEspeciales = "ACTIVIDADES ESPECIALES";
-$totalEspeciales = 0;
-$datosEspeciales = [];
-
-$nombresActividad = [
-    5  => 'Otra',
-    10 => 'Siembra abundante',
-    11 => 'Caminata de oración',
-    12 => 'Identificar al hijo de paz',
-    13 => 'Oración Exp y Ferviente',
-    14 => 'Taller',
-];
-
-$sql = "SELECT
-            sat_reportes.id_actividad,
-            COUNT(sat_reportes.id) as conteo
-        FROM sat_reportes
-        LEFT JOIN usuario_empresa ON usuario_empresa.idUsuario = sat_reportes.idUsuario
-        WHERE sat_reportes.id_grupo > 0
-          AND sat_reportes.id_actividad IN (5, 10, 11, 12, 13, 14)
-          ".$sqlFiltroBase."
-        GROUP BY sat_reportes.id_actividad
-        ORDER BY conteo DESC";
-
-$PSN->query($sql);
-if($PSN->num_rows() > 0){
-    while($PSN->next_record()){
-        $idAct  = (int)$PSN->f('id_actividad');
-        $conteo = (int)$PSN->f('conteo');
-        $nombre = isset($nombresActividad[$idAct]) ? $nombresActividad[$idAct] : "Otra";
-
-        $datosEspeciales[] = [$nombre, $conteo];
-        $totalEspeciales += $conteo;
-    }
-    if($totalEspeciales <= 0) $varErrorEspeciales = 1;
-} else {
-    $varErrorEspeciales = 1;
-}
-
-/* =========================
-   #3: CRECIMIENTO ACUMULADO DE PERSONAS ALCANZADAS
+   #2: CRECIMIENTO ACUMULADO DE PERSONAS ALCANZADAS
    ========================= */
 $varErrorCrecimiento = 0;
 $nombreCrecimiento = "CRECIMIENTO ACUMULADO DE PERSONAS ALCANZADAS";
@@ -807,26 +761,26 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
   <div class="hr"><hr></div>
 </div>
 
-<!-- #1, #2 y #3 -->
+<!-- #1 y #2 -->
 <div class="row">
   <div class="col-lg-6 col-md-6 col-sm-12">
     <div class="db-card">
       <div class="db-card__head">
         <div class="db-card__title-wrap">
-          <h4 class="db-card__title"><?=$nombreEspeciales;?></h4>
-          <button class="db-info-btn" onclick="dbOpenInfo('especiales')" type="button" title="Ver descripción">i</button>
+          <h4 class="db-card__title"><?=$nombreCrecimiento;?></h4>
+          <button class="db-info-btn" onclick="dbOpenInfo('crecimiento')" type="button" title="Ver descripción">i</button>
         </div>
         <div class="db-card__meta">
-          <?php if($varErrorEspeciales == 0){ ?><span class="db-pill">Total: <?=$totalEspeciales;?></span><?php } ?>
+          <?php if($varErrorCrecimiento == 0){ ?><span class="db-pill">Total: <?=number_format($totalCrecimiento);?></span><?php } ?>
         </div>
       </div>
       <div class="db-card__body">
-        <?php if($varErrorEspeciales == 1){ ?>
+        <?php if($varErrorCrecimiento == 1){ ?>
           <div class="alert alert-warning text-center" style="margin-bottom:0;">
-            No se ha encontrado ningún registro de actividades especiales para el rango de fechas seleccionado.
+            No se ha encontrado ningún registro para el rango de fechas seleccionado.
           </div>
         <?php } else { ?>
-          <div id="chart_especiales" class="chart-box"></div>
+          <div id="chart_crecimiento" class="chart-box"></div>
         <?php } ?>
       </div>
     </div>
@@ -854,31 +808,6 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
       </div>
     </div>
   </div>
-
-  <!-- Comentado: no debe aparecer por ahora - CRECIMIENTO ACUMULADO DE PERSONAS ALCANZADAS
-  <div class="col-lg-4 col-md-6 col-sm-12">
-    <div class="db-card">
-      <div class="db-card__head">
-        <div class="db-card__title-wrap">
-          <h4 class="db-card__title"><?=$nombreCrecimiento;?></h4>
-          <button class="db-info-btn" onclick="dbOpenInfo('crecimiento')" type="button" title="Ver descripción">i</button>
-        </div>
-        <div class="db-card__meta">
-          <?php if($varErrorCrecimiento == 0){ ?><span class="db-pill">Total: <?=number_format($totalCrecimiento);?></span><?php } ?>
-        </div>
-      </div>
-      <div class="db-card__body">
-        <?php if($varErrorCrecimiento == 1){ ?>
-          <div class="alert alert-warning text-center" style="margin-bottom:0;">
-            No se ha encontrado ningún registro para el rango de fechas seleccionado.
-          </div>
-        <?php } else { ?>
-          <div id="chart_crecimiento" class="chart-box"></div>
-        <?php } ?>
-      </div>
-    </div>
-  </div>
-  -->
 </div>
 
 <!-- #4: RECORRIDO DE GRUPOS (GENERACIÓN 0-5) -->
@@ -993,7 +922,7 @@ google.charts.setOnLoadCallback(drawAllCharts);
       if(window.__dbRoTimer) clearTimeout(window.__dbRoTimer);
       window.__dbRoTimer = setTimeout(drawAllCharts, 220);
     });
-    ['chart_madurez','chart_especiales','chart_crecimiento'].forEach(function(id){
+    ['chart_madurez','chart_crecimiento'].forEach(function(id){
       var el = document.getElementById(id);
       if(el) ro.observe(el);
     });
@@ -1001,9 +930,8 @@ google.charts.setOnLoadCallback(drawAllCharts);
 })();
 
 function drawAllCharts(){
-  drawEspeciales();
   drawMadurez();
-  // drawCrecimiento(); // Comentado: no debe aparecer por ahora
+  drawCrecimiento();
 }
 
 /* ===== Búsqueda aproximada de tarjetas (sin acentos, tolera errores) ===== */
@@ -1247,40 +1175,7 @@ function drawMadurez(){
   <?php } ?>
 }
 
-/* ===== #2 Actividades Especiales (PieChart) ===== */
-function drawEspeciales(){
-  <?php if($varErrorEspeciales == 0){ ?>
-  var data = google.visualization.arrayToDataTable([
-    ['Actividad', 'Cantidad'],
-    <?php
-      $rows = [];
-      foreach($datosEspeciales as $r){
-        $label = str_replace("'", "\\'", $r[0]);
-        $rows[] = "['".$label."', ".(int)$r[1]."]";
-      }
-      echo implode(",\n    ", $rows);
-    ?>
-  ]);
-
-  var el = document.getElementById('chart_especiales');
-  if(!el) return;
-  var w = el.clientWidth || 600;
-  var isMobile = (w <= 480);
-
-  var options = {
-    pieHole: 0.45,
-    sliceVisibilityThreshold: 0,
-    colors: ['#0259a5','#27ae60','#f39c12','#8e44ad','#e74c3c','#16a085'],
-    legend: { position: 'bottom', textStyle: { fontSize: isMobile ? 10 : 12 } },
-    chartArea: isMobile ? { width:'96%', height:'78%' } : { width:'94%', height:'80%' },
-    tooltip: { text: 'both' }
-  };
-
-  new google.visualization.PieChart(el).draw(data, options);
-  <?php } ?>
-}
-
-/* ===== #3 Crecimiento Acumulado de Personas Alcanzadas (LineChart) ===== */
+/* ===== #2 Crecimiento Acumulado de Personas Alcanzadas (AreaChart) ===== */
 function drawCrecimiento(){
   <?php if($varErrorCrecimiento == 0){ ?>
   var data = google.visualization.arrayToDataTable([
@@ -1326,13 +1221,6 @@ function drawCrecimiento(){
           + '<li><strong>📊 Promedio por área:</strong> Muestra el promedio (en una escala de 1 a 4) de cómo califican los coaches a los grupos en Oración, Compañerismo, Adoración, Aplicar la Biblia, Evangelizar, Cena del Señor, Dar ofrenda, Bautizar y Entrenar líderes.</li>'
           + '<li><strong>📋 Fuente:</strong> Solo se calcula con los reportes de tipo Coach, donde se evalúa la madurez del grupo como iglesia.</li>'
           + '<li><strong>💡 Úsala para:</strong> identificar qué áreas necesitan más acompañamiento en los grupos.</li>'
-          + '</ul>'
-    },
-    'especiales': {
-      title: '🎉 Actividades Especiales',
-      html: '<ul>'
-          + '<li><strong>📌 Actividades:</strong> Frecuencia de actividades poco comunes registradas: Siembra abundante, Caminata de oración, Identificar al hijo de paz, Oración Expectante y Ferviente, Taller y Otra.</li>'
-          + '<li><strong>💡 Úsala para:</strong> ver qué tipo de actividades complementarias se están realizando además del proceso regular de grupos.</li>'
           + '</ul>'
     },
     'crecimiento': {
