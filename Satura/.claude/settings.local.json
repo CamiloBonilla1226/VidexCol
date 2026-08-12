@@ -4,7 +4,8 @@
       "Bash(php -l \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\Videx\\\\Videx\\\\graphs_dashboard3.php\")",
       "Bash(where mysql *)",
       "Read(//c/Users/LENOVO/Desktop/VidexCol/**)",
-      "Bash(find /c/Users/LENOVO/Desktop/VidexCol -iname \"*graphs_dashboard*\" -o -iname \"*ciclo*\" 2>/dev/null)"
+      "Bash(find /c/Users/LENOVO/Desktop/VidexCol -iname \"*graphs_dashboard*\" -o -iname \"*ciclo*\" 2>/dev/null)",
+      "Bash(php -l \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\VidexCol\\\\Satura\\\\Videx\\\\graphs_dashboard3.php\")"
     ]
   }
 }
