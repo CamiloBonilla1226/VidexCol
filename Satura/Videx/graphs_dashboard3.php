@@ -1195,6 +1195,15 @@ function drawCrecimiento(){
   var w = el.clientWidth || 700;
   var isMobile = (w <= 480);
 
+  /* Evita que los meses del eje X se amontonen: calcula cuántas
+     etiquetas caben cómodamente en el ancho disponible y solo muestra
+     una de cada N (Google Charts sigue dibujando todos los puntos,
+     solo se omiten etiquetas de texto). */
+  var totalPuntos = data.getNumberOfRows();
+  var anchoPorEtiqueta = isMobile ? 60 : 75;
+  var maxEtiquetas = Math.max(4, Math.floor(w / anchoPorEtiqueta));
+  var showTextEvery = Math.max(1, Math.ceil(totalPuntos / maxEtiquetas));
+
   var options = {
     animation:{ startup:true, duration:1000, easing:'out' },
     curveType: 'function',
@@ -1203,8 +1212,14 @@ function drawCrecimiento(){
     pointSize: 0,
     areaOpacity: 0.15,
     legend: { position: 'none' },
-    chartArea: isMobile ? { width:'90%', height:'68%' } : { width:'88%', height:'74%' },
-    hAxis: { textStyle: { fontSize: isMobile ? 10 : 12 }, slantedText: true, slantedTextAngle: isMobile ? 45 : 30 },
+    chartArea: isMobile ? { width:'90%', height:'66%' } : { width:'92%', height:'72%' },
+    hAxis: {
+      textStyle: { fontSize: isMobile ? 10 : 12 },
+      slantedText: showTextEvery <= 1,
+      slantedTextAngle: isMobile ? 45 : 30,
+      showTextEvery: showTextEvery,
+      maxAlternation: 1
+    },
     vAxis: { minValue: 0 }
   };
 
