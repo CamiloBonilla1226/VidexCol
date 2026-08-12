@@ -449,6 +449,11 @@ if($buscar_idGrupoGenealogia === ""){
   font-family: inherit;
   text-align: center;
   line-height: 1.35;
+  cursor: pointer;
+  transition: filter .15s ease;
+}
+.genealogia-node:hover{
+  filter: brightness(1.08);
 }
 .genealogia-node__nombre{
   font-weight: 900;
@@ -475,6 +480,111 @@ if($buscar_idGrupoGenealogia === ""){
 .genealogia-node--mas:hover{
   opacity: .85;
   text-decoration: none;
+}
+
+/* ===== Modal de reportes de un grupo ===== */
+.reportes-overlay{
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 9998;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.reportes-overlay.active{
+  display: flex;
+}
+.reportes-modal{
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.18);
+  max-width: 640px;
+  width: 100%;
+  max-height: 85vh;
+  padding: 24px 24px 20px 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.reportes-modal__close{
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #888;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+.reportes-modal__close:hover{ color: #333; }
+.reportes-modal__title{
+  font-size: 16px;
+  font-weight: 900;
+  margin: 0 0 16px 0;
+  color: #0259a5;
+  padding-right: 24px;
+}
+.reportes-modal__body{
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+.reportes-modal__loading,
+.reportes-modal__vacio{
+  padding: 24px 8px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
+.reporte-item{
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+.reporte-item:last-child{ margin-bottom: 0; }
+.reporte-item__head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.reporte-item__tipo{
+  font-weight: 900;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: #0259a5;
+}
+.reporte-item__fecha{
+  font-size: 12px;
+  color: #93a0ab;
+}
+.reporte-item__badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.reporte-badge{
+  display:inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(2,117,216,.10);
+  color: #0259a5;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.reporte-comentario{
+  font-size: 13px;
+  color: #444;
+  line-height: 1.5;
+  white-space: pre-wrap;
 }
 
 @media (max-width: 992px){
@@ -547,6 +657,15 @@ if($buscar_idGrupoGenealogia === ""){
   </div>
 
 </div><!-- /container -->
+
+<!-- ===== Modal de reportes de un grupo ===== -->
+<div class="reportes-overlay" id="reportesOverlay">
+  <div class="reportes-modal">
+    <button class="reportes-modal__close" id="reportesModalClose" title="Cerrar">&times;</button>
+    <h4 class="reportes-modal__title" id="reportesModalTitle"></h4>
+    <div class="reportes-modal__body" id="reportesModalBody"></div>
+  </div>
+</div>
 
 <script type="text/javascript">
 google.charts.load("current", {packages:["orgchart"]});
@@ -738,9 +857,97 @@ function dbComboSeleccionarActivo(){
   });
 })();
 
+/* ===== Modal de reportes de un grupo (clic en un nodo del árbol) ===== */
+var ETIQUETAS_ACTIVIDAD = {
+  1: 'Coach', 2: 'Ninguna', 5: 'Otra actividad', 8: 'Gran Celebración',
+  10: 'Siembra abundante', 11: 'Caminata de oración', 12: 'Identificar al hijo de paz',
+  13: 'Oración Exp y Ferviente', 14: 'Taller', 77: 'Evangelismo', 99: 'Bautizo', 100: 'Capacitación'
+};
+
+function dbAbrirReportes(idGrupo, nombreGrupo){
+  var overlay = document.getElementById('reportesOverlay');
+  var title = document.getElementById('reportesModalTitle');
+  var body = document.getElementById('reportesModalBody');
+  if(!overlay || !title || !body) return;
+
+  title.textContent = '📋 Reportes de: ' + nombreGrupo;
+  body.innerHTML = '<div class="reportes-modal__loading">Cargando reportes...</div>';
+  overlay.classList.add('active');
+
+  fetch('graphs_dashboard3_reportes_ajax.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idGrupo: idGrupo })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(!data || !data.success){
+      body.innerHTML = '<div class="reportes-modal__vacio">No se pudieron cargar los reportes.</div>';
+      return;
+    }
+    dbRenderReportes(body, data.reportes || []);
+  })
+  .catch(function(){
+    body.innerHTML = '<div class="reportes-modal__vacio">Ocurrió un error al cargar los reportes.</div>';
+  });
+}
+
+function dbCerrarReportes(){
+  var overlay = document.getElementById('reportesOverlay');
+  if(overlay) overlay.classList.remove('active');
+}
+
+function dbRenderReportes(container, reportes){
+  if(!reportes.length){
+    container.innerHTML = '<div class="reportes-modal__vacio">Este grupo no tiene reportes registrados.</div>';
+    return;
+  }
+
+  container.innerHTML = reportes.map(function(r){
+    var etiqueta = ETIQUETAS_ACTIVIDAD[r.id_actividad] || 'Reporte';
+    var badges = '<span class="reporte-badge">👥 ' + (r.asistencia_total || 0) + ' asistentes</span>';
+    if(r.id_actividad === 99 && r.bautizados){
+      badges += '<span class="reporte-badge">💧 ' + r.bautizados + ' bautizados</span>';
+    }
+    if((r.id_actividad === 77 || r.id_actividad === 1) && r.desiciones){
+      badges += '<span class="reporte-badge">🙌 ' + r.desiciones + ' decisiones</span>';
+    }
+    if(r.id_actividad === 1){
+      if(r.discipulado) badges += '<span class="reporte-badge">📖 ' + r.discipulado + ' en discipulado</span>';
+      if(r.preparandose) badges += '<span class="reporte-badge">🌱 ' + r.preparandose + ' preparándose</span>';
+    }
+    var comentario = r.comentario ? '<div class="reporte-comentario">' + dbEscaparHtml(r.comentario) + '</div>' : '';
+
+    return '<div class="reporte-item">'
+         +   '<div class="reporte-item__head">'
+         +     '<span class="reporte-item__tipo">' + dbEscaparHtml(etiqueta) + '</span>'
+         +     '<span class="reporte-item__fecha">🕓 ' + (r.fecha || 'Sin fecha') + '</span>'
+         +   '</div>'
+         +   '<div class="reporte-item__badges">' + badges + '</div>'
+         +   comentario
+         + '</div>';
+  }).join('');
+}
+
+(function(){
+  var closeBtn = document.getElementById('reportesModalClose');
+  var overlay = document.getElementById('reportesOverlay');
+  if(closeBtn) closeBtn.addEventListener('click', dbCerrarReportes);
+  if(overlay) overlay.addEventListener('click', function(e){
+    if(e.target === overlay) dbCerrarReportes();
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') dbCerrarReportes();
+  });
+})();
+
 /* ===== Dibuja el árbol (OrgChart) ===== */
 function drawGenealogia(){
   <?php if($varError == 0){ ?>
+  var GEN_NODOS = <?=json_encode(array_map(function($n){
+    return ['id' => $n['id'], 'nombre' => $n['nombre'], 'tipo' => $n['tipo']];
+  }, $datosGenealogia), JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE);?>;
+
   var data = new google.visualization.DataTable();
   data.addColumn('string', 'Nombre');
   data.addColumn('string', 'Grupo madre');
@@ -788,6 +995,15 @@ function drawGenealogia(){
   if(!el) return;
 
   var chart = new google.visualization.OrgChart(el);
+
+  google.visualization.events.addListener(chart, 'select', function(){
+    var sel = chart.getSelection();
+    if(!sel.length) return;
+    var nodo = GEN_NODOS[sel[0].row];
+    if(!nodo || nodo.tipo === 'mas') return;
+    dbAbrirReportes(nodo.id, nodo.nombre);
+  });
+
   chart.draw(data, {
     allowHtml: true,
     allowCollapse: true,
