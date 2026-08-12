@@ -1142,7 +1142,6 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
           </div>
           <div id="chart_genealogia" class="chart-box chart-box--org"></div>
         <?php } else { ?>
-          <p class="genealogia-grid__hint">Elige un grupo para ver su árbol genealógico (ancestros y hijos directos):</p>
           <?php foreach($tarjetasGenealogia as $gen => $listaGen){
             $colorGen = $paletaGeneraciones[$gen % count($paletaGeneraciones)];
             $gridId = 'genGrid_'.$gen;
@@ -1327,14 +1326,36 @@ function dbEscaparHtml(s){
   return div.innerHTML;
 }
 
+/* Reparte los resultados por generación (no un solo corte global) para
+   que generaciones con muchos grupos (ej. Generación 0) no acaparen
+   todo el espacio y dejen sin resultados a las demás generaciones. */
+function dbComboLimitarPorGeneracion(coincidencias, porGeneracion){
+  var porGen = {};
+  var ordenGen = [];
+  coincidencias.forEach(function(op){
+    if(!porGen[op.generacion]){
+      porGen[op.generacion] = [];
+      ordenGen.push(op.generacion);
+    }
+    porGen[op.generacion].push(op);
+  });
+  ordenGen.sort(function(a, b){ return a - b; });
+
+  var resultado = [];
+  ordenGen.forEach(function(gen){
+    resultado = resultado.concat(porGen[gen].slice(0, porGeneracion));
+  });
+  return resultado;
+}
+
 function dbComboRenderLista(query){
   var lista = document.getElementById('genComboLista');
   if(!lista || typeof GEN_OPCIONES === 'undefined') return;
   var q = (query || '').trim();
-  var filtradas = q === '' ? GEN_OPCIONES : GEN_OPCIONES.filter(function(op){
+  var coincidencias = q === '' ? GEN_OPCIONES : GEN_OPCIONES.filter(function(op){
     return dbCoincideAproximado(op.nombre, q);
   });
-  filtradas = filtradas.slice(0, 40);
+  var filtradas = dbComboLimitarPorGeneracion(coincidencias, 10);
   GEN_COMBO_ACTIVE_INDEX = -1;
 
   if(filtradas.length === 0){
