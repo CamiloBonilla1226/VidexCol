@@ -697,6 +697,33 @@ if($PSN->num_rows() > 0){
   letter-spacing: .6px;
   color: #556;
   cursor: pointer;
+  list-style: none;
+}
+.genealogia-gen-title::-webkit-details-marker{
+  display: none;
+}
+.genealogia-gen-title::marker{
+  content: "";
+}
+.genealogia-gen-title__toggle{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 2px solid #0259a5;
+  color: #0259a5;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.genealogia-gen-title__toggle::before{
+  content: "+";
+}
+details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
+  content: "\2212";
 }
 .genealogia-gen-section__body{
   margin-top: 12px;
@@ -704,9 +731,6 @@ if($PSN->num_rows() > 0){
 .genealogia-buscador{
   margin-bottom: 12px;
   max-width: 320px;
-}
-.genealogia-card--extra-hidden{
-  display: none !important;
 }
 .genealogia-gen-title__dot{
   width: 9px;
@@ -1081,9 +1105,9 @@ if($PSN->num_rows() > 0){
           <p class="genealogia-grid__hint">Todos los hijos directos de <strong><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8');?></strong>:</p>
           <div class="genealogia-grid" id="genGridHijos">
             <?php foreach($tarjetasHijos as $i => $t){
-              $extra = ($i >= $LIMITE_TARJETAS_VISIBLES) ? ' genealogia-card--extra-hidden' : '';
+              $esExtra = ($i >= $LIMITE_TARJETAS_VISIBLES);
               ?>
-              <a href="<?=genealogiaUrl(['idGrupoGenealogia' => $t['id']]);?>" class="genealogia-card<?=$extra;?>" data-nombre="<?=htmlspecialchars(strtolower($t['nombre']), ENT_QUOTES, 'UTF-8');?>">
+              <a href="<?=genealogiaUrl(['idGrupoGenealogia' => $t['id']]);?>" class="genealogia-card" <?=($esExtra ? 'data-extra="1" style="display:none;"' : '');?> data-nombre="<?=htmlspecialchars(strtolower($t['nombre']), ENT_QUOTES, 'UTF-8');?>">
                 <div class="genealogia-card__nombre"><?=htmlspecialchars($t['nombre'], ENT_QUOTES, 'UTF-8');?></div>
                 <?php if($t['fecha'] !== ""){ ?>
                   <div class="genealogia-card__fecha">🕓 <?=$t['fecha'];?></div>
@@ -1115,6 +1139,7 @@ if($PSN->num_rows() > 0){
             ?>
             <details class="genealogia-gen-section">
               <summary class="genealogia-gen-title">
+                <span class="genealogia-gen-title__toggle" aria-hidden="true"></span>
                 <span class="genealogia-gen-title__dot" style="background:<?=$colorGen;?>"></span>
                 Generación <?=$gen;?>
                 <span class="genealogia-gen-title__count">(<?=count($listaGen);?>)</span>
@@ -1124,9 +1149,9 @@ if($PSN->num_rows() > 0){
                 <div class="genealogia-grid" id="<?=$gridId;?>">
                   <?php foreach($listaGen as $i => $t){
                     $urlTarjeta = genealogiaUrl(['idGrupoGenealogia' => $t['id']]);
-                    $extra = ($i >= $LIMITE_TARJETAS_VISIBLES) ? ' genealogia-card--extra-hidden' : '';
+                    $esExtra = ($i >= $LIMITE_TARJETAS_VISIBLES);
                     ?>
-                    <a href="<?=$urlTarjeta;?>" class="genealogia-card<?=$extra;?>" style="border-top-color:<?=$colorGen;?>;" data-nombre="<?=htmlspecialchars(strtolower($t['nombre']), ENT_QUOTES, 'UTF-8');?>">
+                    <a href="<?=$urlTarjeta;?>" class="genealogia-card" <?=($esExtra ? 'data-extra="1" style="display:none;border-top-color:'.$colorGen.';"' : 'style="border-top-color:'.$colorGen.';"');?> data-nombre="<?=htmlspecialchars(strtolower($t['nombre']), ENT_QUOTES, 'UTF-8');?>">
                       <div class="genealogia-card__nombre"><?=htmlspecialchars($t['nombre'], ENT_QUOTES, 'UTF-8');?></div>
                       <?php if($t['fecha'] !== ""){ ?>
                         <div class="genealogia-card__fecha">🕓 <?=$t['fecha'];?></div>
@@ -1206,27 +1231,92 @@ function dbNavGenealogia(selectEl){
   window.location.href = 'index.php?' + params.join('&') + '#genealogiaCard';
 }
 
-/* Filtra en vivo las tarjetas de un grid por nombre (sin recargar la página). */
-function dbFiltrarTarjetas(inputEl, gridId){
-  var q = inputEl.value.toLowerCase();
-  var grid = document.getElementById(gridId);
-  if(!grid) return;
+/* ===== Búsqueda aproximada de tarjetas (sin acentos, tolera errores) ===== */
+var DB_REGEX_DIACRITICOS = new RegExp('[' + String.fromCharCode(768) + '-' + String.fromCharCode(879) + ']', 'g');
+
+function dbNormalizar(s){
+  s = (s || '').toString().toLowerCase().trim();
+  if(s.normalize){
+    s = s.normalize('NFD').replace(DB_REGEX_DIACRITICOS, '');
+  }
+  return s;
+}
+
+function dbLevenshtein(a, b){
+  var la = a.length, lb = b.length;
+  if(la === 0) return lb;
+  if(lb === 0) return la;
+  var fila = [];
+  for(var j = 0; j <= la; j++){ fila[j] = j; }
+  for(var i = 1; i <= lb; i++){
+    var anterior = fila[0];
+    fila[0] = i;
+    for(j = 1; j <= la; j++){
+      var temp = fila[j];
+      fila[j] = (b.charAt(i - 1) === a.charAt(j - 1))
+        ? anterior
+        : Math.min(anterior + 1, fila[j] + 1, fila[j - 1] + 1);
+      anterior = temp;
+    }
+  }
+  return fila[la];
+}
+
+/* Compara el nombre de un grupo contra el texto buscado, tolerando
+   errores de digitación y coincidencias parciales por palabra. */
+function dbCoincideAproximado(nombre, query){
+  if(!query) return true;
+  var nombreNorm = dbNormalizar(nombre);
+  var queryNorm = dbNormalizar(query);
+  if(nombreNorm.indexOf(queryNorm) !== -1) return true;
+
+  var palabrasNombre = nombreNorm.split(/\s+/).filter(Boolean);
+  var palabrasQuery = queryNorm.split(/\s+/).filter(Boolean);
+  if(palabrasQuery.length === 0) return true;
+
+  return palabrasQuery.every(function(pq){
+    return palabrasNombre.some(function(pn){
+      if(pn.indexOf(pq) !== -1 || pq.indexOf(pn) !== -1) return true;
+      var maxDist = pq.length <= 4 ? 1 : (pq.length <= 8 ? 2 : 3);
+      return dbLevenshtein(pn, pq) <= maxDist;
+    });
+  });
+}
+
+/* Recalcula qué tarjetas de un grid deben verse, combinando el texto
+   buscado (que ignora el límite "ver más" y busca en TODAS las tarjetas)
+   con el estado de "mostrar más" cuando no hay búsqueda activa. */
+function dbActualizarGrid(grid){
+  var q = grid.getAttribute('data-query') || '';
+  var mostrarTodo = grid.getAttribute('data-mostrar-todo') === '1';
   var cards = grid.querySelectorAll('.genealogia-card');
   Array.prototype.forEach.call(cards, function(c){
     var nombre = c.getAttribute('data-nombre') || '';
-    var coincide = nombre.indexOf(q) !== -1;
-    c.style.display = coincide ? '' : 'none';
+    var esExtra = c.getAttribute('data-extra') === '1';
+    var visible;
+    if(q !== ''){
+      visible = dbCoincideAproximado(nombre, q);
+    } else {
+      visible = (!esExtra || mostrarTodo);
+    }
+    c.style.display = visible ? '' : 'none';
   });
+}
+
+/* Filtra en vivo las tarjetas de un grid por nombre (sin recargar la página). */
+function dbFiltrarTarjetas(inputEl, gridId){
+  var grid = document.getElementById(gridId);
+  if(!grid) return;
+  grid.setAttribute('data-query', inputEl.value || '');
+  dbActualizarGrid(grid);
 }
 
 /* Revela las tarjetas ocultas (marcadas como "extra") de un grid. */
 function dbMostrarMas(btn, gridId){
   var grid = document.getElementById(gridId);
   if(!grid) return;
-  var ocultas = grid.querySelectorAll('.genealogia-card--extra-hidden');
-  Array.prototype.forEach.call(ocultas, function(c){
-    c.classList.remove('genealogia-card--extra-hidden');
-  });
+  grid.setAttribute('data-mostrar-todo', '1');
+  dbActualizarGrid(grid);
   btn.style.display = 'none';
 }
 
