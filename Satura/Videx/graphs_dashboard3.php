@@ -809,7 +809,7 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
 
 <!-- #1, #2 y #3 -->
 <div class="row">
-  <div class="col-lg-4 col-md-6 col-sm-12">
+  <div class="col-lg-6 col-md-6 col-sm-12">
     <div class="db-card">
       <div class="db-card__head">
         <div class="db-card__title-wrap">
@@ -832,7 +832,7 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
     </div>
   </div>
 
-  <div class="col-lg-4 col-md-6 col-sm-12">
+  <div class="col-lg-6 col-md-6 col-sm-12">
     <div class="db-card">
       <div class="db-card__head">
         <div class="db-card__title-wrap">
