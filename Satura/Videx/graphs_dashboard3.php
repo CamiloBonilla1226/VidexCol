@@ -220,22 +220,21 @@ if($PSN->num_rows() > 0){
      (de cualquier generación) y ver un árbol ENFOCADO en él: toda
      la cadena de ancestros (hasta la generación 0) + máximo 4 hijos
      directos (si tiene más, se muestra un nodo "+N" clicable).
-   - Filtro adicional "verHijosDe": muestra en tarjetas TODOS los hijos
-     directos de un grupo (se llega ahí al hacer clic en el nodo "+N").
-     Vacío = "Ver todos" (tarjetas por generación).
+   - Filtro adicional "hijosCompletos=1": al hacer clic en el nodo "+N"
+     se recarga el MISMO árbol pero mostrando TODOS los hijos directos
+     del grupo enfocado (sin límite de 4).
    ========================= */
 $varErrorGenealogia   = 0;
 $nombreGenealogia     = "RECORRIDO DE GRUPOS (GENEALOGÍA)";
 $datosGenealogia      = [];
 $opcionesGenealogia   = [];
+$jsOpcionesGenealogia = [];
 $totalGenealogiaNodos = 0;
 $generacionesGenealogia = [];
 $modoArbolUnico       = false;
-$modoHijos            = false;
 $nombreGrupoSeleccionado = "";
 $totalHijosDirectos   = 0;
 $hijosOcultos         = 0;
-$tarjetasHijos        = [];
 $tarjetasGenealogia   = [];
 $LIMITE_HIJOS_VISIBLES    = 4;
 $LIMITE_TARJETAS_VISIBLES = 24;
@@ -258,7 +257,7 @@ function genealogiaUrl($params){
     return 'index.php?'.implode('&', $qs).'#genealogiaCard';
 }
 
-$buscar_verHijosDe = req_num("verHijosDe");
+$buscar_hijosCompletos = req_num("hijosCompletos");
 
 $sqlFiltroGenealogia = "";
 if($buscar_idUsuario !== ""){
@@ -325,6 +324,15 @@ if($PSN->num_rows() > 0){
         return $a['generacion'] <=> $b['generacion'];
     });
 
+    foreach($opcionesGenealogia as $op){
+        $jsOpcionesGenealogia[] = [
+            'id'         => $op['id'],
+            'nombre'     => $op['nombre'],
+            'generacion' => $op['generacion'],
+            'url'        => genealogiaUrl(['idGrupoGenealogia' => $op['id']]),
+        ];
+    }
+
     $formatFecha = function($f){
         if(!empty($f) && $f != "0000-00-00"){
             $ts = strtotime($f);
@@ -333,25 +341,11 @@ if($PSN->num_rows() > 0){
         return "";
     };
 
-    if($buscar_verHijosDe !== "" && isset($filasPorId[$buscar_verHijosDe])){
-        /* Se hizo clic en el nodo "+N": muestra en tarjetas TODOS los
-           hijos directos de ese grupo. */
-        $modoHijos = true;
-        $nombreGrupoSeleccionado = $filasPorId[$buscar_verHijosDe]['nombre'];
-        $hijos = isset($hijosPorMadre[$buscar_verHijosDe]) ? $hijosPorMadre[$buscar_verHijosDe] : [];
-        foreach($hijos as $h){
-            $tarjetasHijos[] = [
-                'id'     => $h['id'],
-                'nombre' => $h['nombre'],
-                'fecha'  => $formatFecha($h['fecha']),
-            ];
-        }
-        $totalHijosDirectos = count($tarjetasHijos);
-        if($totalHijosDirectos == 0) $varErrorGenealogia = 1;
-    } else if($buscar_idGrupoGenealogia !== "" && isset($filasPorId[$buscar_idGrupoGenealogia])){
-        /* Se eligió un grupo puntual (desde una tarjeta o el selector "Ver"):
+    if($buscar_idGrupoGenealogia !== "" && isset($filasPorId[$buscar_idGrupoGenealogia])){
+        /* Se eligió un grupo puntual (desde una tarjeta o el buscador "Ver"):
            se muestra un árbol ENFOCADO: cadena completa de ancestros
-           (hasta generación 0) + hasta 4 hijos directos de ese grupo. */
+           (hasta generación 0) + hijos directos de ese grupo (hasta 4,
+           o todos si se pidió expandir con "hijosCompletos=1"). */
         $modoArbolUnico = true;
         $nombreGrupoSeleccionado = $filasPorId[$buscar_idGrupoGenealogia]['nombre'];
 
@@ -371,7 +365,8 @@ if($PSN->num_rows() > 0){
 
         $hijosDirectos  = isset($hijosPorMadre[$buscar_idGrupoGenealogia]) ? $hijosPorMadre[$buscar_idGrupoGenealogia] : [];
         $totalHijosDirectos = count($hijosDirectos);
-        $hijosVisibles  = array_slice($hijosDirectos, 0, $LIMITE_HIJOS_VISIBLES);
+        $mostrarHijosCompletos = ($buscar_hijosCompletos == 1);
+        $hijosVisibles  = $mostrarHijosCompletos ? $hijosDirectos : array_slice($hijosDirectos, 0, $LIMITE_HIJOS_VISIBLES);
         $hijosOcultos   = max(0, $totalHijosDirectos - count($hijosVisibles));
 
         foreach($cadena as $fila){
@@ -424,7 +419,7 @@ if($PSN->num_rows() > 0){
                 'madreTxt'   => '',
                 'color'      => '#7f8c8d',
                 'tipo'       => 'mas',
-                'url'        => genealogiaUrl(['verHijosDe' => $buscar_idGrupoGenealogia]),
+                'url'        => genealogiaUrl(['idGrupoGenealogia' => $buscar_idGrupoGenealogia, 'hijosCompletos' => 1]),
             ];
         }
 
@@ -623,10 +618,58 @@ if($PSN->num_rows() > 0){
   flex: 1 1 260px;
   margin: 0;
 }
-.genealogia-filtro__label select[disabled]{
+.genealogia-filtro__label select[disabled],
+.genealogia-filtro__label input[disabled]{
   background-color: rgba(0,0,0,.05);
   color: #999;
   cursor: not-allowed;
+}
+.genealogia-combo{
+  position: relative;
+}
+.genealogia-combo__lista{
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.14);
+  z-index: 20;
+}
+.genealogia-combo__lista.activa{
+  display: block;
+}
+.genealogia-combo__grupo{
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: #99a;
+  background: rgba(0,0,0,.03);
+}
+.genealogia-combo__item{
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1c2b3a;
+  cursor: pointer;
+}
+.genealogia-combo__item:hover,
+.genealogia-combo__item.activo{
+  background: rgba(2,117,216,.10);
+  color: #0259a5;
+}
+.genealogia-combo__vacio{
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #999;
 }
 .genealogia-filtro__hint{
   font-weight: 600;
@@ -1035,10 +1078,7 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
           <button class="db-info-btn" onclick="dbOpenInfo('genealogia')" type="button" title="Ver descripción">i</button>
         </div>
         <div class="db-card__meta">
-          <?php if($varErrorGenealogia == 0 && $modoHijos){ ?>
-            <span class="db-pill">Hijos de: <?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8');?></span>
-            <span class="db-pill">Total: <?=$totalHijosDirectos;?></span>
-          <?php } elseif($varErrorGenealogia == 0 && $modoArbolUnico){ ?>
+          <?php if($varErrorGenealogia == 0 && $modoArbolUnico){ ?>
             <span class="db-pill">Árbol de: <?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8');?></span>
             <span class="db-pill">Hijos directos: <?=$totalHijosDirectos;?></span>
             <span class="db-pill">Generaciones: <?=count($generacionesGenealogia);?></span>
@@ -1049,76 +1089,32 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
         </div>
       </div>
       <div class="db-card__body">
-        <?php if(!empty($opcionesGenealogia) && !$modoHijos){ ?>
-          <form action="index.php" method="get" name="formGenealogia" class="genealogia-filtro">
-            <input type="hidden" name="doc" value="graphs_dashboard3" />
-            <input type="hidden" name="idUsuario" value="<?=htmlspecialchars($buscar_idUsuario, ENT_QUOTES, 'UTF-8');?>" />
-            <input type="hidden" name="empresa_paisid" value="<?=htmlspecialchars($empresa_paisid, ENT_QUOTES, 'UTF-8');?>" />
-            <input type="hidden" name="fechaInicial" value="<?=htmlspecialchars($fechaInicial, ENT_QUOTES, 'UTF-8');?>" />
-            <input type="hidden" name="fechaFinal" value="<?=htmlspecialchars($fechaFinal, ENT_QUOTES, 'UTF-8');?>" />
-            <label class="genealogia-filtro__label">
+        <?php if(!empty($opcionesGenealogia)){ ?>
+          <div class="genealogia-filtro">
+            <div class="genealogia-filtro__label genealogia-combo" id="genComboWrap">
               <strong>Ver:</strong>
-              <select name="idGrupoGenealogia" class="form-control" onchange="dbNavGenealogia(this)" <?=($buscar_idUsuario === "" ? 'disabled="disabled"' : '');?>>
-                <option value="">🌐 Ver todos los grupos</option>
-                <?php
-                  $genActual = null;
-                  foreach($opcionesGenealogia as $op){
-                    if($genActual !== $op['generacion']){
-                        if($genActual !== null) echo "</optgroup>";
-                        echo '<optgroup label="Generación '.$op['generacion'].'">';
-                        $genActual = $op['generacion'];
-                    }
-                    $sel = ($buscar_idGrupoGenealogia !== "" && (int)$buscar_idGrupoGenealogia === $op['id']) ? 'selected="selected"' : '';
-                    $fechaOp = "";
-                    if(!empty($op['fecha']) && $op['fecha'] != "0000-00-00"){
-                        $tsOp = strtotime($op['fecha']);
-                        if($tsOp) $fechaOp = " (".date("d/m/Y", $tsOp).")";
-                    }
-                    echo '<option value="'.$op['id'].'" '.$sel.'>'.htmlspecialchars($op['nombre'], ENT_QUOTES, 'UTF-8').$fechaOp.'</option>';
-                  }
-                  if($genActual !== null) echo "</optgroup>";
-                ?>
-              </select>
+              <input type="text" id="genComboInput" class="form-control" autocomplete="off"
+                     placeholder="Escribe el nombre de un grupo..."
+                     <?=($buscar_idUsuario === "" ? 'disabled="disabled"' : '');?>
+                     value="<?=$modoArbolUnico ? htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8') : '';?>" />
+              <div class="genealogia-combo__lista" id="genComboLista"></div>
               <?php if($buscar_idUsuario === ""){ ?>
                 <span class="genealogia-filtro__hint">Selecciona primero un <strong>Facilitador Satura</strong> arriba para poder elegir un grupo puntual.</span>
               <?php } ?>
-            </label>
+            </div>
             <?php if($modoArbolUnico){ ?>
               <a href="<?=genealogiaUrl(['idGrupoGenealogia' => '']);?>" class="btn btn-default genealogia-filtro__reset">🌐 Ver todos los grupos</a>
             <?php } ?>
-          </form>
-        <?php } ?>
-
-        <?php if($modoHijos){ ?>
-          <a href="<?=genealogiaUrl(['idGrupoGenealogia' => $buscar_verHijosDe]);?>" class="btn btn-default genealogia-filtro__reset" style="margin-bottom:16px;">← Volver al árbol de <?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8');?></a>
+          </div>
+          <script type="text/javascript">
+            var GEN_OPCIONES = <?=json_encode($jsOpcionesGenealogia, JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE);?>;
+          </script>
         <?php } ?>
 
         <?php if($varErrorGenealogia == 1){ ?>
           <div class="alert alert-warning text-center" style="margin-bottom:0;">
-            <?php if($modoHijos){ ?>
-              Este grupo no tiene hijos registrados.
-            <?php } else { ?>
-              No se ha encontrado ningún grupo madre registrado para el facilitador / filtros seleccionados.
-            <?php } ?>
+            No se ha encontrado ningún grupo madre registrado para el facilitador / filtros seleccionados.
           </div>
-        <?php } elseif($modoHijos){ ?>
-          <p class="genealogia-grid__hint">Todos los hijos directos de <strong><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, 'UTF-8');?></strong>:</p>
-          <div class="genealogia-grid" id="genGridHijos">
-            <?php foreach($tarjetasHijos as $i => $t){
-              $esExtra = ($i >= $LIMITE_TARJETAS_VISIBLES);
-              ?>
-              <a href="<?=genealogiaUrl(['idGrupoGenealogia' => $t['id']]);?>" class="genealogia-card" <?=($esExtra ? 'data-extra="1" style="display:none;"' : '');?> data-nombre="<?=htmlspecialchars(strtolower($t['nombre']), ENT_QUOTES, 'UTF-8');?>">
-                <div class="genealogia-card__nombre"><?=htmlspecialchars($t['nombre'], ENT_QUOTES, 'UTF-8');?></div>
-                <?php if($t['fecha'] !== ""){ ?>
-                  <div class="genealogia-card__fecha">🕓 <?=$t['fecha'];?></div>
-                <?php } ?>
-                <div class="genealogia-card__cta">Ver árbol</div>
-              </a>
-            <?php } ?>
-          </div>
-          <?php if($totalHijosDirectos > $LIMITE_TARJETAS_VISIBLES){ ?>
-            <button type="button" class="btn btn-default" style="margin-top:12px;" onclick="dbMostrarMas(this,'genGridHijos')">Ver más (<?=($totalHijosDirectos - $LIMITE_TARJETAS_VISIBLES);?> restantes)</button>
-          <?php } ?>
         <?php } elseif($modoArbolUnico){ ?>
           <div class="genealogia-legend">
             <?php foreach($generacionesGenealogia as $gen => $ok){
@@ -1219,18 +1215,6 @@ function drawAllCharts(){
   // drawCrecimiento(); // Comentado: no debe aparecer por ahora
 }
 
-/* Navega el formulario de la genealogía preservando la posición de scroll
-   (evita que la página salte al inicio al elegir un grupo). */
-function dbNavGenealogia(selectEl){
-  var form = selectEl.form;
-  var params = [];
-  Array.prototype.forEach.call(form.elements, function(el){
-    if(!el.name || el.disabled) return;
-    params.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value));
-  });
-  window.location.href = 'index.php?' + params.join('&') + '#genealogiaCard';
-}
-
 /* ===== Búsqueda aproximada de tarjetas (sin acentos, tolera errores) ===== */
 var DB_REGEX_DIACRITICOS = new RegExp('[' + String.fromCharCode(768) + '-' + String.fromCharCode(879) + ']', 'g');
 
@@ -1319,6 +1303,100 @@ function dbMostrarMas(btn, gridId){
   dbActualizarGrid(grid);
   btn.style.display = 'none';
 }
+
+/* ===== Combobox "Ver" del árbol de genealogía: escribir para buscar ===== */
+var GEN_COMBO_ACTIVE_INDEX = -1;
+
+function dbEscaparHtml(s){
+  var div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+function dbComboRenderLista(query){
+  var lista = document.getElementById('genComboLista');
+  if(!lista || typeof GEN_OPCIONES === 'undefined') return;
+  var q = (query || '').trim();
+  var filtradas = q === '' ? GEN_OPCIONES : GEN_OPCIONES.filter(function(op){
+    return dbCoincideAproximado(op.nombre, q);
+  });
+  filtradas = filtradas.slice(0, 40);
+  GEN_COMBO_ACTIVE_INDEX = -1;
+
+  if(filtradas.length === 0){
+    lista.innerHTML = '<div class="genealogia-combo__vacio">Sin coincidencias</div>';
+    lista.classList.add('activa');
+    return;
+  }
+
+  var html = '';
+  var genActual = null;
+  filtradas.forEach(function(op){
+    if(genActual !== op.generacion){
+      html += '<div class="genealogia-combo__grupo">Generación ' + op.generacion + '</div>';
+      genActual = op.generacion;
+    }
+    html += '<div class="genealogia-combo__item" data-url="' + dbEscaparHtml(op.url) + '">' + dbEscaparHtml(op.nombre) + '</div>';
+  });
+  lista.innerHTML = html;
+  lista.classList.add('activa');
+
+  Array.prototype.forEach.call(lista.querySelectorAll('.genealogia-combo__item'), function(el){
+    el.addEventListener('mousedown', function(e){
+      e.preventDefault();
+      window.location.href = el.getAttribute('data-url');
+    });
+  });
+}
+
+function dbComboOcultarLista(){
+  var lista = document.getElementById('genComboLista');
+  if(lista) lista.classList.remove('activa');
+}
+
+function dbComboMoverActivo(delta){
+  var lista = document.getElementById('genComboLista');
+  if(!lista) return;
+  var items = lista.querySelectorAll('.genealogia-combo__item');
+  if(items.length === 0) return;
+  GEN_COMBO_ACTIVE_INDEX += delta;
+  if(GEN_COMBO_ACTIVE_INDEX < 0) GEN_COMBO_ACTIVE_INDEX = items.length - 1;
+  if(GEN_COMBO_ACTIVE_INDEX >= items.length) GEN_COMBO_ACTIVE_INDEX = 0;
+  Array.prototype.forEach.call(items, function(el, i){
+    el.classList.toggle('activo', i === GEN_COMBO_ACTIVE_INDEX);
+  });
+  items[GEN_COMBO_ACTIVE_INDEX].scrollIntoView({block:'nearest'});
+}
+
+function dbComboSeleccionarActivo(){
+  var lista = document.getElementById('genComboLista');
+  if(!lista) return;
+  var items = lista.querySelectorAll('.genealogia-combo__item');
+  if(items.length === 0) return;
+  var idx = GEN_COMBO_ACTIVE_INDEX >= 0 ? GEN_COMBO_ACTIVE_INDEX : 0;
+  var el = items[idx];
+  if(el) window.location.href = el.getAttribute('data-url');
+}
+
+(function(){
+  var input = document.getElementById('genComboInput');
+  if(!input) return;
+  input.addEventListener('input', function(){
+    dbComboRenderLista(input.value);
+  });
+  input.addEventListener('focus', function(){
+    dbComboRenderLista(input.value);
+  });
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowDown'){ e.preventDefault(); dbComboMoverActivo(1); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); dbComboMoverActivo(-1); }
+    else if(e.key === 'Enter'){ e.preventDefault(); dbComboSeleccionarActivo(); }
+    else if(e.key === 'Escape'){ dbComboOcultarLista(); }
+  });
+  input.addEventListener('blur', function(){
+    setTimeout(dbComboOcultarLista, 120);
+  });
+})();
 
 /* ===== #1 Madurez Espiritual (ColumnChart escala 1-4) ===== */
 function drawMadurez(){
@@ -1515,9 +1593,9 @@ function drawGenealogia(){
           + '<li><strong>🃏 Tarjetas por generación:</strong> al entrar verás los grupos agrupados en secciones plegables por generación (0, 1, 2...). Haz clic en el título de una generación para desplegarla.</li>'
           + '<li><strong>🔍 Buscador y "Ver más":</strong> dentro de cada generación puedes escribir el nombre del grupo para filtrarlo al instante, y usar "Ver más" si hay demasiadas tarjetas para mostrarlas todas de una vez.</li>'
           + '<li><strong>🖱️ Haz clic en una tarjeta</strong> para abrir el árbol genealógico de ese grupo: su cadena completa de ancestros (hasta la Generación 0) y sus hijos directos.</li>'
-          + '<li><strong>➕ Nodo "+N":</strong> si un grupo tiene más de 4 hijos, el árbol solo muestra 4 y un nodo "+N grupos más" — haz clic en él para ver la lista completa de esos hijos en tarjetas.</li>'
-          + '<li><strong>👤 Filtro por facilitador:</strong> usa el filtro "Facilitador Satura" en la parte superior para ver solo los grupos que él o ella ha plantado. Es obligatorio elegirlo para poder buscar un grupo puntual con el selector "Ver".</li>'
-          + '<li><strong>🔎 Selector "Ver":</strong> alternativa a las tarjetas para ir directo a cualquier grupo (de cualquier generación), sin importar si es raíz o no. Usa "Ver todos los grupos" para volver a las tarjetas.</li>'
+          + '<li><strong>➕ Nodo "+N":</strong> si un grupo tiene más de 4 hijos, el árbol solo muestra 4 y un nodo "+N grupos más" — haz clic en él para expandir ese mismo árbol y ver todos sus hijos.</li>'
+          + '<li><strong>👤 Filtro por facilitador:</strong> usa el filtro "Facilitador Satura" en la parte superior para ver solo los grupos que él o ella ha plantado. Es obligatorio elegirlo para poder buscar un grupo puntual con el campo "Ver".</li>'
+          + '<li><strong>🔎 Campo "Ver":</strong> escribe el nombre de cualquier grupo (de cualquier generación) para encontrarlo al instante y saltar directo a su árbol, sin importar si es raíz o no. Usa "Ver todos los grupos" para volver a las tarjetas.</li>'
           + '<li><strong>💡 Úsala para:</strong> visualizar la multiplicación de los grupos generación tras generación, sin perderte en árboles enormes.</li>'
           + '</ul>'
     }
