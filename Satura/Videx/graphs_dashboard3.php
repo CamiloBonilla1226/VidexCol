@@ -839,11 +839,25 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
 .genealogia-card:hover .genealogia-card__cta::after{
   transform: translateX(3px);
 }
+#chart_genealogia table.google-visualization-orgchart-table{
+  border-collapse: separate;
+  border-spacing: 0;
+}
+#chart_genealogia td.google-visualization-orgchart-node{
+  background: transparent !important;
+  border: none !important;
+  padding: 4px !important;
+}
 .genealogia-node{
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  min-width: 150px;
+  min-height: 48px;
   padding: 6px 10px;
   border-radius: 8px;
   color: #fff;
-  width: 170px;
   font-family: inherit;
   text-align: center;
   line-height: 1.35;
