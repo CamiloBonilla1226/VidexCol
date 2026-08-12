@@ -554,7 +554,7 @@ if($buscar_idGrupoGenealogia === ""){
   font-size: 13px;
 }
 .reportes-tabla thead th{
-  text-align: left;
+  text-align: center;
   padding: 8px 10px;
   font-size: 11px;
   font-weight: 900;
@@ -562,12 +562,21 @@ if($buscar_idGrupoGenealogia === ""){
   letter-spacing: .4px;
   color: #556;
   border-bottom: 2px solid rgba(0,0,0,.08);
+  border-right: 1px solid rgba(0,0,0,.08);
   white-space: nowrap;
+}
+.reportes-tabla thead th:last-child{
+  border-right: none;
 }
 .reportes-tabla tbody td{
   padding: 10px;
+  text-align: center;
   border-bottom: 1px solid rgba(0,0,0,.06);
+  border-right: 1px solid rgba(0,0,0,.06);
   white-space: nowrap;
+}
+.reportes-tabla tbody td:last-child{
+  border-right: none;
 }
 .reportes-tabla tbody tr{
   cursor: pointer;
@@ -919,13 +928,11 @@ function dbRenderReportes(container, reportes){
   var filas = reportes.map(function(r){
     var idReporte = parseInt(r.id, 10) || 0;
     var etiqueta = ETIQUETAS_ACTIVIDAD[r.id_actividad] || 'Reporte';
-    var asistencia = r.asistencia_total || 0;
     var fecha = r.fecha || 'Sin fecha';
 
     return '<tr onclick="dbAbrirReporteIndividual(' + idReporte + ')" title="Abrir este reporte">'
          +   '<td class="reportes-tabla__id">#' + idReporte + '</td>'
          +   '<td class="reportes-tabla__tipo">' + dbEscaparHtml(etiqueta) + '</td>'
-         +   '<td>' + asistencia + '</td>'
          +   '<td>' + dbEscaparHtml(fecha) + '</td>'
          + '</tr>';
   }).join('');
@@ -935,7 +942,6 @@ function dbRenderReportes(container, reportes){
     +   '<thead><tr>'
     +     '<th>ID</th>'
     +     '<th>Tipo de actividad</th>'
-    +     '<th>Asistencia total</th>'
     +     '<th>Fecha</th>'
     +   '</tr></thead>'
     +   '<tbody>' + filas + '</tbody>'
