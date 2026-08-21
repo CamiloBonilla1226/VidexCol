@@ -180,23 +180,177 @@ referencia al `id` del usuario que generó, creó o modificó un reporte.
   `varchar(25)` en lugar de `datetime`/`date`).
 
 ============================================================
+## TABLA: usuario_empresa
+============================================================
+
+Tabla de **información organizacional** del usuario. Se diligencia desde la
+pestaña "Información Organizacional" del formulario de usuario
+(`usuario.php`, tab `#empresa`). Se relaciona con `usuario` mediante
+`idUsuario`.
+
+### Campo "Programa al que pertenece" (`empresa_proceso`)
+
+En el formulario, el select "Programa al que pertenece" se llena con un
+catálogo de `categorias`, pero usando una sección distinta a la de
+`sat_reportes.rep_tip`:
+
+```sql
+SELECT * FROM categorias WHERE idSec = 38 ORDER BY descripcion asc
+```
+
+- El `<option value>` es el `categorias.id` y el texto mostrado es
+  `categorias.descripcion`.
+- ⚠️ **No confundir con `sat_reportes.rep_tip`**: ese usa `categorias.idSec = 305`
+  (programas de Ecuador) o `idSec = 83` (programas de policía). El campo
+  `empresa_proceso` del usuario usa `idSec = 38`, un agrupador distinto dentro
+  de la misma tabla `categorias` (catálogo de "procesos/programas" a nivel de
+  usuario, no de reporte).
+
+### Flujo de guardado (`usuario.php`)
+
+1. El valor seleccionado llega como `$_POST["empresa_proceso"]` y se
+   sanitiza con `eliminarInvalidos()`.
+2. **Usuario nuevo** → `INSERT INTO usuario_empresa (... empresa_proceso ...)`
+   junto con el resto de campos organizacionales, ligado a `idUsuario`
+   (`$ultimoId`).
+3. **Edición de usuario** → `UPDATE usuario_empresa SET ... empresa_proceso = "..."
+   WHERE idUsuario = "$idUsuarioActual"`.
+4. Al recargar el formulario de edición, se lee de vuelta con
+   `$empresa_proceso = $PSN1->f("empresa_proceso")` para marcar la opción
+   `selected` en el combo.
+
+### Otros campos de `usuario_empresa` guardados junto con `empresa_proceso`
+
+- `empresa_tipo` — tipo de ministerio (`categorias.idSec = 15`).
+- `empresa_representante`, `empresa_contacto` — datos de contacto.
+- `empresa_direccion`, `empresa_url` — dirección y página web.
+- `empresa_paisid`, `empresa_pais` — país (fijo: Ecuador, id `282`).
+- `empresa_sitio_cor` — zona (`categorias.idSec = 85`).
+- `empresa_socio`, `empresa_pd`, `empresa_sitio`, `empresa_rm`,
+  `empresa_circuito` — otros datos organizacionales/financieros.
+- ⚠️ **Mismo riesgo de seguridad** que en `tbl_adjuntos`: el `INSERT`/`UPDATE`
+  concatena directamente las variables (ya pasadas por `eliminarInvalidos()`)
+  dentro del SQL en vez de usar sentencias preparadas.
+
+============================================================
+## FORMULARIO: gestionar-sub-programa-evangelistas.php
+============================================================
+
+Formulario de reportes del programa **Evangelistas** (`categorias.id = 318`).
+Guarda principalmente en `sat_reportes`, con `rep_tip = 318` **fijo en el
+código** (no es una selección del usuario).
+
+### Mapa de campos visibles del formulario → columna real
+
+| Campo mostrado al usuario | Columna en `sat_reportes` | Input HTML |
+|---|---|---|
+| Fecha del informe | `fechaReporte` | `fechaReporte` |
+| Nombre del evangelista | `idUsuario` | `usua_id` (hidden, autocompletado vía JS) |
+| Total población que hay en la prisión | `asistencia_total` | `asistencia_total` |
+| Número de prisioneros invitados | `asistencia_hom` | `asistencia_hom` |
+| Número de prisioneros que iniciaron el curso | `asistencia_muj` | `asistencia_muj` |
+| Cárcel ubicación | *(no va a `sat_reportes`)* | `car_id[]` → tabla `tbl_adjuntos` |
+| Actividades (checkboxes de mapeo) | `mapeo_oracion`, `mapeo_companerismo`, `mapeo_adoracion`, `mapeo_biblia`, `mapeo_evangelizar`, `mapeo_cena`, `mapeo_dar`, `mapeo_bautizar`, `mapeo_trabajadores` | mismos nombres |
+| Total de creyentes que asistieron a los grupos en el mes | `asistencia_jov` | `asistencia_jov` |
+| Número de bautizos en el mes | `bautizados` | `bautizados` |
+| Número de voluntarios internos activos | `discipulado` | `discipulado` |
+| Número de voluntarios externos activos | `desiciones` | `desiciones` |
+| Número de pospenados que está acompañando | `preparandose` | `preparandose` |
+| Testimonio 1 (impacto positivo PPL) | `comentario` | `rep_text1` |
+| Testimonio 2 (superación pospenado) | `rep_text2` | `rep_text2` |
+| Testimonio 3 (autoridad carcelaria) | `rep_text3` | `rep_text3` |
+| Observaciones/obstáculos | `rep_text4` | `rep_text4` |
+| Foto | `ext1` (extensión) | `archivo1` → archivo físico en `archivos/evi_{id}_1.{ext}` |
+
+⚠️ **Las etiquetas del formulario NO coinciden con el nombre técnico de la
+columna** (p. ej. "Total población en la prisión" se guarda en
+`asistencia_total`, que en otros programas significa "asistencia total").
+Este formulario es evidentemente una copia/adaptación de otro programa
+(grupos/plantación de iglesias) al que solo se le cambiaron las etiquetas
+visibles, no los nombres internos de los campos.
+
+### Cárceles seleccionadas → `tbl_adjuntos`
+
+El select `car_id[]` no guarda en `sat_reportes`, sino en `tbl_adjuntos`:
+
+```php
+INSERT INTO tbl_adjuntos (adj_nom, adj_url, adj_fec, adj_tip, adj_rep_fk)
+VALUES ('{id_carcel}', '{id_carcel}', '{fecha}', 4, {idReporte})
+```
+
+`adj_tip = 4` identifica este bloque como **cárceles** (agregar a la lista de
+valores conocidos de `adj_tip`: `1` = graduados, `4` = cárceles). `adj_nom` y
+`adj_url` guardan el mismo `id` de `tbl_regional_ubicacion` en ambas
+columnas (parece redundante/copiado del bloque de graduados, donde esas dos
+columnas sí tenían usos distintos).
+
+### Datos que se guardan pero NO aparecen en el formulario de inserción
+
+1. **`rep_tip = 318`** — fijo en el código, no es una opción del usuario.
+2. **`iglesias_reconocidas = 0`** — siempre se guarda en cero.
+3. **`creacionFecha = NOW()`, `creacionUsuario = $_SESSION["id"]`** —
+   auditoría automática.
+4. **Columnas que el código intenta leer de `$_REQUEST` pero que NO tienen
+   ningún `<input>` en este formulario** (quedan vacías/0 porque el índice
+   no existe en el POST): `sitioReunion`, `grupoMadre_txt`,
+   `nombreGrupo_txt`, `pabellon`, `direccion`, `ciudad` (municipio),
+   `capacitacion_txt`, `generacionNumero`, `idGrupoMadre` (tiene un hidden
+   pero nunca se le asigna valor), `rep_ndis`, `mapeo_fecha`,
+   `mapeo_comprometido`, `mapeo_cuarto`, `mapeo_anho`.
+5. **`plantador` y `rep_entr` (entrenador)** — se usan en el `INSERT` pero
+   `$plantador`/`$entrenador` **nunca se definen** en la rama de inserción
+   de este archivo → variable indefinida en PHP, se guarda cadena vacía.
+   ⚠️ Posible bug a corregir.
+6. **`number_person_without_freedom` y `number_person_post_penalties`** —
+   el código sí los procesa y guarda, pero sus `<input>` están **comentados**
+   en el HTML del formulario de inserción. La columna existe y se intenta
+   llenar, pero actualmente no hay forma de que el usuario la diligencie
+   desde esta pantalla — siempre se guarda vacío/0.
+7. **`asistencia_nin`** — mismo caso: su `<input>` está comentado en el
+   formulario de inserción, aunque en el modo de edición/visualización sí
+   aparece poblado (reportes antiguos donde este campo sí se llenaba).
+8. **`archivo2` / `archivo3`** — el código procesa hasta 3 archivos (`ext1`,
+   `ext2`, `ext3`), pero el formulario de inserción solo tiene el input
+   `archivo1`; no hay manera de cargar una segunda o tercera foto desde esta
+   pantalla.
+
+### Resumen rápido
+
+- **Tabla principal:** `sat_reportes` (`rep_tip = 318` fijo).
+- **Tabla secundaria:** `tbl_adjuntos` (`adj_tip = 4`) para las cárceles
+  seleccionadas, ligada por `adj_rep_fk = sat_reportes.id`.
+- **Archivo físico:** la foto se guarda en disco
+  (`archivos/evi_{id}_1.{ext}`); solo su extensión queda en `ext1`.
+- Hay código heredado (variables no definidas, inputs comentados) que hace
+  que varias columnas de `sat_reportes` siempre queden vacías en este
+  formulario específico, aunque la tabla sí tiene esos campos.
+
+============================================================
 ## Relación entre las tablas (resumen)
 
 ```
-categorias (id) ──────< sat_reportes (rep_tip)
+categorias (id) ──────< sat_reportes (rep_tip, idSec=305/83)
                               │      ▲
                               │ id   │ idUsuario / creacionUsuario /
                               ▼      │ modificacionUsuario
                       tbl_adjuntos   │
                       (adj_rep_fk)   │
                                      │
-                              usuario (id)
+                              usuario (id) ──────< usuario_empresa (idUsuario)
+                                                          │
+                                                          ▼
+                                            categorias (id, idSec=38)
+                                            "empresa_proceso" (programa del usuario)
 ```
 
-- `categorias.id` identifica el **programa**.
+- `categorias.id` identifica el **programa** (para reportes, `idSec = 305`/`83`).
 - `sat_reportes.rep_tip` indica a qué programa pertenece cada reporte.
 - `sat_reportes.id` es referenciado por `tbl_adjuntos.adj_rep_fk` para
   asociar adjuntos (por ejemplo, graduados) a un reporte específico.
 - `usuario.id` es referenciado por `sat_reportes.idUsuario`,
   `sat_reportes.creacionUsuario` y `sat_reportes.modificacionUsuario` para
   identificar al usuario que reportó, creó o modificó cada registro.
+- `usuario.id` también es referenciado por `usuario_empresa.idUsuario` para
+  guardar la información organizacional del usuario, incluyendo
+  `empresa_proceso` (el "programa al que pertenece" el usuario, distinto del
+  programa del reporte: usa `categorias.idSec = 38`).
