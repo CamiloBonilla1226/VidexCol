@@ -326,6 +326,163 @@ columnas sí tenían usos distintos).
   formulario específico, aunque la tabla sí tiene esos campos.
 
 ============================================================
+## FORMULARIO: subcategoria-ecc.php
+============================================================
+
+Formulario de reportes del programa **ECC — Ecuador ECC Cada Comunidad para
+Cristo** (`categorias.id = 308`). A pesar de sus ~6259 líneas, maneja un
+**único sub-programa**: `rep_tip` está hardcodeado a `308`
+(`subcategoria-ecc.php:310`, `638`) y las consultas de navegación
+anterior/siguiente filtran explícitamente `rep_tip = 308`
+(`subcategoria-ecc.php:1636`, `1672`). El tamaño se debe a mucho **código
+muerto heredado**: variables de "generación" (`CERO`/`EVAN`/`GCEL`/`EXTRA`)
+que ya no se usan — hoy `$generacionActual` está fijo en `"INTRA"`
+(`subcategoria-ecc.php:83-84`) y `$preguntarGeneracion = 0`
+(`subcategoria-ecc.php:81`), por lo que la rama que preguntaría la
+generación (`subcategoria-ecc.php:3374`, `3562`) es inalcanzable.
+
+Tiene **tres formularios** en el mismo archivo:
+
+| Rango | Propósito | Se activa cuando |
+|---|---|---|
+| `subcategoria-ecc.php:1608`–`3168` | Edición/visualización de un reporte existente | `$idReporteActual > 0` |
+| `subcategoria-ecc.php:3388`–`3426` | Selector de "generación" (INTRA/EXTRA) | `$preguntarGeneracion == 1` — **código muerto, nunca se ejecuta** |
+| `subcategoria-ecc.php:3728`–`5592` | Alta de reporte nuevo (wizard multi-fieldset) | `$idReporteActual == 0` |
+
+### Mapa de campos — modo INSERTAR (alta de reporte nuevo)
+
+| Label visible | Input name | Columna en `sat_reportes` |
+|---|---|---|
+| (buscador de usuario/tag) | `usua_id` (hidden) | `idUsuario` |
+| (hidden) | `fechaReporte` | `fechaReporte` |
+| "Fecha de inicio del grupo/iglesia" | `fechaInicio` | `fechaInicio` |
+| "Grupo madre" (fijo "ECUADOR", readonly) | `grupoMadre_txt` | `grupoMadre_txt` |
+| "Nombre grupo/iglesia" (readonly) | `nombreGrupo_txt` | `nombreGrupo_txt` |
+| Radios de generación (1-5) | `generacionNumero` | `generacionNumero` |
+| "Municipio" (combo cargado por AJAX desde `datos_ubicacion.php`) | `municipio` | `ciudad` |
+| "Dirección" | `direccion` | `direccion` |
+| "Fecha de mapeo" (fija a hoy, readonly) | `mapeo_fecha` | `mapeo_fecha` |
+| "¿Este grupo/iglesia está comprometido?" | `mapeo_comprometido` | `mapeo_comprometido` |
+| Ítems del "Método de verificación" (Orar, Compañerismo, Adorar, Aplicar la biblia, Evangelizar, Cena del Señor, Dar, Bautizar, Entrenar nuevos líderes) | `mapeo_oracion`, `mapeo_companerismo`, `mapeo_adoracion`, `mapeo_biblia`, `mapeo_evangelizar`, `mapeo_cena`, `mapeo_dar`, `mapeo_bautizar`, `mapeo_trabajadores` | mismas columnas |
+| "Foto + Fecha + Cantidad bautizados" (bloque repetible) | `act_bau_img[]`, `act_bau_fec[]`, `act_bau_can[]` | → **`tbl_adjuntos`**, no `sat_reportes` |
+| "Foto 1/2/3" | `archivo1`, `archivo2`, `archivo3` | `ext1`, `ext2`, `ext3` |
+| Hombres/Mujeres/Jóvenes/Niños | `asistencia_hom`, `asistencia_muj`, `asistencia_jov`, `asistencia_nin` | mismas columnas |
+| "Decisiones para cristo" (puenteado por JS al hidden `final_desiciones`) | `desiciones` → `final_desiciones` | `desiciones` |
+| "Asistencia total" (calculado por JS, no editable) | `final_asistencia_total` | `asistencia_total` |
+| "Miembros bautizados" (suma JS de `act_bau_can[]`) | `final_bautizados` | `bautizados` |
+| "Bautizados este período" (mismo total JS) | `final_bautizadosPeriodo` | `bautizadosPeriodo` |
+| "En discipulado" (= asistencia total, JS) | `final_discipulado` | `discipulado` |
+| "Preparándose para bautismo" (= asistencia total − bautizadosPeriodo, JS) | `final_preparandose` | `preparandose` |
+
+⚠️ **Todo el bloque `final_*` se recalcula en JavaScript** (`sumar()`,
+`subcategoria-ecc.php:5835-5999`) justo antes del submit, y **el PHP del
+servidor NO vuelve a validar/recalcular esos totales** — confía ciegamente
+en lo que llega en los campos hidden. Un usuario con JS deshabilitado o que
+manipule el POST puede enviar cualquier valor sin relación con los datos
+reales.
+
+### Mapa de campos — modo ACTUALIZAR (edición)
+
+Usa un juego de nombres distinto (todos con prefijo `final_` para los
+numéricos), pero consistente dentro de este modo: `usua_nombre/usua_id` →
+`idUsuario`; `inactivo` → `inactivo`; `final_comentarios` → `comentario`;
+`fechaInicio`, `grupoMadre_txt`, `nombreGrupo_txt`, `generacionNumero`,
+`direccion` → columnas homónimas; `municipio` → `ciudad`;
+`final_asistencia_hom/muj/jov/nin` → `asistencia_hom/muj/jov/nin`;
+`final_bautizados` → `bautizados`; `final_discipulado` → `discipulado`;
+`final_desiciones` → `desiciones`; `rep_ndis` → `rep_ndis` (aquí sí
+funciona, a diferencia del modo insertar); `final_preparandose` →
+`preparandose`; `final_bautizadosPeriodo` → `bautizadosPeriodo`;
+`mapeo_fecha`, `mapeo_comprometido`, `mapeo_*` → columnas homónimas;
+`archivo1/2/3` → `ext1/2/3` (solo si llega un archivo nuevo).
+
+No es un bug: cada modo (insertar/actualizar) usa su propio par de nombres
+de forma consistente, solo son estilísticamente distintos entre sí.
+
+### Uso de `tbl_adjuntos`
+
+Se usa **únicamente** para las evidencias fotográficas de "bautizos"
+(`act_bau_img[]`, `act_bau_fec[]`, `act_bau_can[]`), tanto al insertar
+(`subcategoria-ecc.php:657-688`) como al actualizar
+(`subcategoria-ecc.php:1103-1251`).
+
+⚠️ **A diferencia de evangelistas (que usa `adj_tip = 4` para cárceles),
+aquí el INSERT/UPDATE de `tbl_adjuntos` NUNCA asigna `adj_tip`** — solo
+inserta `adj_nom, adj_url, adj_fec, adj_can, adj_rep_fk`. El campo queda con
+su valor por defecto de la tabla. Las consultas que leen estos adjuntos
+filtran solo por `adj_rep_fk`, sin `adj_tip`, porque en este archivo no hay
+necesidad de distinguir tipos de adjunto dentro de un mismo reporte.
+
+### Datos guardados en BD sin input funcional en el formulario (bugs/código muerto)
+
+| Columna | Estado real |
+|---|---|
+| `comentario` (modo insertar) | Lee `$_REQUEST["final_comentarios"]`, pero no existe ningún `<input name="final_comentarios">` alcanzable en el formulario de alta — solo existe dentro de ramas muertas (`GCEL`). **Siempre se guarda vacío al crear.** |
+| `rep_ndis` (modo insertar) | El único `<input name="rep_ndis">` del formulario de alta está dentro de un bloque comentado (`subcategoria-ecc.php:5208-5268`). **Siempre vacío/0 al crear** (en edición sí funciona). |
+| `rep_entr` (entrenador) | El `<input name="entrenador">` está comentado en los tres formularios. **Nunca se llena por el usuario.** |
+| `sitioReunion` ("Cárcel ubicación") | El `<select name="sitioReunion">` está comentado en los tres formularios; como `isset($_REQUEST["sitioReunion"])` es `false`, siempre cae al `else` y **se guarda como `0`**. |
+| `pabellon` ("Lugar") | `<input name="pabellon">` comentado en los tres formularios. **Siempre vacío.** |
+| `plantador` | No existe ningún `<input name="plantador">` en todo el archivo (ni comentado). **Columna siempre vacía.** |
+| `capacitacion_txt` | No existe ningún `<input name="capacitacion_txt">` en todo el archivo. **Columna siempre vacía.** |
+| `idGrupoMadre` | No hay input; el valor solo puede llegar como parámetro GET (`idGrupoMadre` en la URL) que queda en `$_REQUEST` porque el `<form>` no define `action` y reenvía sobre la URL actual con su query string. Dependencia frágil pero no necesariamente un bug. |
+| `iglesias_reconocidas` | Se calcula (`= 0` hardcodeado) pero **ni siquiera aparece en la lista de columnas del INSERT/UPDATE** — variable muerta que no llega a escribirse en BD. |
+
+### Lógica INSERT / UPDATE / DELETE
+
+Controlada por `$_POST["funcion"]` (`subcategoria-ecc.php:128`):
+
+- **`"insertar"`** (`subcategoria-ecc.php:146-763`): valida que `usua_id`
+  exista y sea `usuario.tipo = 163`; si no, `$error_datos = 4`. Inserta en
+  `sat_reportes` (`412-642`), obtiene `$ultimoId`, y si
+  `$bautizadosPeriodo > 0` inserta las filas de `tbl_adjuntos`
+  (`657-688`). Luego sube/comprime hasta 3 fotos.
+- **`"eliminar"`** (`subcategoria-ecc.php:765-770`): `DELETE FROM
+  sat_reportes WHERE id = '$idReporteActual'` — **borrado físico**, sin
+  soft-delete ni validación adicional de permisos en ese bloque.
+- **`"actualizar"`** (`subcategoria-ecc.php:771-1354`): misma validación de
+  usuario, `UPDATE sat_reportes` (`965-1097`), actualiza filas existentes de
+  `tbl_adjuntos` (`1103-1173`), inserta las nuevas filas de `act_bau_*`
+  agregadas (`1199-1251`), y reemplaza `archivo1/2/3` si llegaron nuevos.
+- ⚠️ **Efecto secundario en cada GET**: si viene `$_REQUEST["id"]` y el
+  perfil de sesión es `162` o `163`, se ejecuta `UPDATE sat_reportes SET
+  mapeo_fecha = CURDATE() WHERE id = ...` (`subcategoria-ecc.php:96-112`)
+  **con solo abrir la página para ver el reporte**, no solo al guardar —
+  esto pisa silenciosamente `mapeo_fecha` en cada visualización.
+
+### Relaciones (JOIN) relevantes para combos/selects
+
+- **Buscador de usuario ("Pastor/Plantador/Entrenador")**:
+  `obtenerOpcionesUsuarioEcc()` (`subcategoria-ecc.php:47-69`) —
+  `SELECT DISTINCT U.id, U.nombre FROM usuario AS U WHERE U.id != 2 AND
+  U.tipo = '163' ORDER BY U.nombre ASC`.
+- **Zona/Regional del reporte** (solo lectura, cabecera de edición,
+  `subcategoria-ecc.php:1404-1418`) confirma el mismo patrón ya documentado
+  en `usuario_empresa`:
+  ```sql
+  SELECT CA.descripcion AS zona, C.descripcion AS regional, ...
+  FROM sat_reportes
+  LEFT JOIN usuario AS U ON U.id = sat_reportes.idUsuario
+  LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = U.id
+  LEFT JOIN categorias AS C ON C.id = UE.empresa_pd
+  LEFT JOIN categorias AS CA ON CA.id = C.idSec
+  ```
+  Es decir: `usuario_empresa.empresa_pd → categorias.id` da la "regional", y
+  `categorias.idSec` de esa fila da la "zona" superior.
+- **Combo "Provincia"**: `SELECT id_departamento, departamento FROM
+  dane_departamentos ORDER BY departamento asc`.
+- **Combo "Municipio"**: no se arma inline; se delega a AJAX a
+  `datos_ubicacion.php` con `id_depa`, que devuelve el HTML del
+  `<select name="municipio">`.
+- **`sat_grupos`**: solo se lee (`sat_grupos.nombre` vía
+  `idGrupoMadre`); el bloque que creaba un grupo madre nuevo
+  (`INSERT INTO sat_grupos`) está completamente comentado
+  (`subcategoria-ecc.php:328-400`) — todo reporte de ECC cuelga de un
+  `idGrupoMadre` preexistente que llega por la URL.
+- **`tbl_regional_ubicacion`** (combo "Cárcel ubicación", filtrado por
+  `reub_reg_fk = $_SESSION['empresa_pd']`) existe en el código pero está
+  dentro de HTML comentado — coherente con que `sitioReunion` esté muerto.
+
+============================================================
 ## Relación entre las tablas (resumen)
 
 ```
