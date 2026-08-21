@@ -390,11 +390,28 @@ numéricos), pero consistente dentro de este modo: `usua_nombre/usua_id` →
 `direccion` → columnas homónimas; `municipio` → `ciudad`;
 `final_asistencia_hom/muj/jov/nin` → `asistencia_hom/muj/jov/nin`;
 `final_bautizados` → `bautizados`; `final_discipulado` → `discipulado`;
-`final_desiciones` → `desiciones`; `rep_ndis` → `rep_ndis` (aquí sí
-funciona, a diferencia del modo insertar); `final_preparandose` →
+`final_desiciones` → `desiciones`; `final_preparandose` →
 `preparandose`; `final_bautizadosPeriodo` → `bautizadosPeriodo`;
 `mapeo_fecha`, `mapeo_comprometido`, `mapeo_*` → columnas homónimas;
 `archivo1/2/3` → `ext1/2/3` (solo si llega un archivo nuevo).
+
+⚠️ **Corrección:** `rep_ndis` ("Número de discípulos LPP") también está
+**comentado en el formulario de edición**
+(`subcategoria-ecc.php:2402-2408`), igual que en el de alta — no hay ningún
+input funcional para esta columna en ningún modo; siempre se guarda
+vacío/0.
+
+`final_comentarios` → `comentario` **sí existe y es funcional** en el
+formulario de edición (`subcategoria-ecc.php:3086-3122`), pero está
+condicionado a `if ($generacionNumero == 8)`. Los radios del formulario de
+alta solo ofrecen `generacionNumero` de `1` a `5`
+(`subcategoria-ecc.php:4118-4159`), por lo que `8` (junto con `0` y `77`,
+usados en condiciones similares en `subcategoria-ecc.php:2022, 2196, 2208,
+3218`) es un **valor legado** de una versión anterior del sistema. En la
+práctica, este campo de comentario solo aparece al editar reportes
+**antiguos** que ya tienen `generacionNumero = 8` guardado en BD; ningún
+reporte creado con el formulario actual puede llegar a ese valor, así que
+la sección nunca se muestra para reportes nuevos.
 
 No es un bug: cada modo (insertar/actualizar) usa su propio par de nombres
 de forma consistente, solo son estilísticamente distintos entre sí.
@@ -481,6 +498,157 @@ Controlada por `$_POST["funcion"]` (`subcategoria-ecc.php:128`):
 - **`tbl_regional_ubicacion`** (combo "Cárcel ubicación", filtrado por
   `reub_reg_fk = $_SESSION['empresa_pd']`) existe en el código pero está
   dentro de HTML comentado — coherente con que `sitioReunion` esté muerto.
+
+============================================================
+## FORMULARIO: gestionar-sub-programa-ecc.php
+============================================================
+
+**No es un duplicado de `subcategoria-ecc.php`.** Es un formulario "hub"
+(4223 líneas) que atiende **varios flujos distintos** seleccionados por
+`$_REQUEST["generacion"]` ([gestionar-sub-programa-ecc.php:344-345](gestionar-sub-programa-ecc.php#L344-L345)),
+más un módulo totalmente ajeno de inventario. Comparte estructura y muchos
+nombres de campo con `subcategoria-ecc.php` (evidencia de copy-paste), pero
+diverge en el manejo de `rep_tip` y en el alcance funcional.
+
+### `rep_tip` — variable según la generación
+
+| Generación (`$_REQUEST["generacion"]`) | `rep_tip` asignado |
+|---|---|
+| `EVAN` (capacitadores) | **317** fijo (`:461-462`) |
+| `GCEL` (gran celebración) | **327** fijo (`:463-464`) |
+| `CERO` / `OTRA` | **nunca se asigna** — variable indefinida → se guarda vacío/0 |
+| `SOPA` (deshidratados) | N/A — no usa `sat_reportes` |
+
+⚠️ `consultar-sub-programa-ecc.php` filtra `rep_tip IN (308, 317, 327)`. Un
+reporte creado aquí con `generacion=CERO/OTRA` **queda huérfano** (invisible
+en el listado). En la práctica casi no ocurre: la pantalla de selección
+normal solo ofrece 2 botones ("Actividades de capacitadores" y "Gran
+celebración"); el tercer botón visible enlaza directamente a
+`subcategoria-ecc.php` en vez de generar `generacion=CERO`.
+
+**Diferencia con `subcategoria-ecc.php`:** ese archivo es para el usuario de
+campo (siempre `rep_tip=308`); este es para **capacitadores/coordinadores**
+(perfil `162`/`163`) que reportan evangelismo (317) y gran celebración
+(327), y además sirve como pantalla de edición genérica para cualquier
+reporte ECC ya existente sin importar su `rep_tip` original.
+
+### Mapa de campos → columna
+
+| Label visible | Input | Columna |
+|---|---|---|
+| Selector de tags de usuario | `usua_id` (hidden, multi-tag JS) | `idUsuario` |
+| Plantador/Pastor/Líder (solo si generación no es 77/8) | `plantador` | `plantador` |
+| Fecha del reporte (readonly) | `fechaReporte` | `fechaReporte` |
+| Fecha de inicio | `fechaInicio` | `fechaInicio` |
+| Barrio (Evento) | `pabellon` | `pabellon` |
+| Dirección / Método de evangelismo | `direccion` | `direccion` |
+| Ciudad (Evento) | `ciudad` | `ciudad` |
+| Grupo madre / Denominación | `grupoMadre_txt` | `grupoMadre_txt` |
+| Generación | `generacionNumero` | `generacionNumero` |
+| Asistencia hom/muj/jov/nin | `final_asistencia_hom/muj/jov/nin` | `asistencia_hom/muj/jov/nin` |
+| Bautizados, discipulado, decisiones, preparándose | `final_bautizados`, `final_discipulado`, `final_desiciones`, `final_preparandose` | columnas homónimas |
+| Fotos de bautizos | `act_bau_img[]`, `act_bau_fec[]`, `act_bau_can[]` | → **`tbl_adjuntos`** |
+| Foto del grupo | `archivo1` | `ext1` |
+| Activo/Inactivo | `inactivo` | `inactivo` |
+| Comentarios | `final_comentarios` | `comentario` (solo si `generacionNumero==8`) |
+| Provincia | `departamento` (select real y funcional) | **no se guarda en ninguna parte** |
+
+### Discrepancias verificadas
+
+- **`capacitacion_txt`** — leído y guardado en INSERT/UPDATE, pero el único
+  input está dentro de un comentario PHP `/* ... */`
+  (`gestionar-sub-programa-ecc.php:1161-1165`). Siempre vacío.
+- **`sitioReunion`** — comentado en HTML `<!-- -->`
+  (`gestionar-sub-programa-ecc.php:1208-1210`). Siempre vacío.
+- **`comentario`** — mismo patrón que en `subcategoria-ecc.php`: el textarea
+  `final_comentarios` solo aparece si `generacionNumero == 8` (valor
+  legado, no seleccionable hoy). Siempre vacío para reportes nuevos.
+- **`departamento`** — caso inverso: el `<select>` **sí es real y
+  visible**, con datos de `dane_departamentos`, pero su valor **nunca se
+  incluye** en el INSERT/UPDATE de `sat_reportes`
+  (`gestionar-sub-programa-ecc.php:2101-2162` vs. columnas del INSERT
+  `:511-563` / UPDATE `:787-831`) — se pierde silenciosamente, solo sirve
+  para la cascada JS del combo de municipio.
+- **`fechaReporte` en modo actualizar** — se captura del POST pero **no
+  aparece en el UPDATE SET** (`:787-831`) — queda congelada en el valor del
+  INSERT original, nunca se puede corregir después.
+- **`idGrupoMadre`** y **`rep_tip`** tampoco se actualizan en modo
+  `actualizar` (ausentes del UPDATE SET).
+- **`rep_ndis`** no existe en este archivo (0 ocurrencias) — no aplica el
+  bug encontrado en `subcategoria-ecc.php`.
+
+### `tbl_adjuntos`
+
+Igual que en `subcategoria-ecc.php`: usado solo para fotos de "bautizos"
+(`act_bau_*`), **nunca asigna `adj_tip`**
+(`gestionar-sub-programa-ecc.php:633-655`, `863-885`, `903-925`).
+
+### Lógica INSERT / UPDATE / DELETE y efectos secundarios
+
+- Distinción por `$_POST["funcion"]`: `"insertar"` (`:379`), `"actualizar"`
+  (`:704`), `"eliminar"` (`:700-703`) — el `DELETE` es un simple `DELETE
+  FROM sat_reportes`, **no borra los `tbl_adjuntos` ni los archivos físicos
+  asociados**, quedan huérfanos.
+- ⚠️ **Mismo efecto secundario en GET que en `subcategoria-ecc.php`**: cada
+  visita con `?id=X` dispara `UPDATE sat_reportes SET mapeo_fecha = NOW()`
+  antes de procesar cualquier `$_POST["funcion"]`
+  (`gestionar-sub-programa-ecc.php:354-362`) — aquí **sí está acotado a
+  perfiles 162/163**, a diferencia de `subcategoria-ecc.php` donde no había
+  esa condición.
+- Bug de lógica: `gestionar-sub-programa-ecc.php:1337` tiene
+  `if($generacionNumero == 77 && $generacionNumero == 8)` — condición
+  **imposible** (debería ser `||`), esa etiqueta nunca se activa.
+- Código muerto evidente de copy-paste desde un módulo de gestión de
+  usuarios/vehículos ajeno: redirecciones a `doc=admin_usu4`
+  (`:4014-4019`) y mensajes de error sobre "vehículo" (`:2035-2037`).
+- Manejo de adjuntos en `actualizar` es más elaborado que en
+  `subcategoria-ecc.php`: distingue fotos "antiguas a modificar"
+  (`act_bau_id[]`, UPDATE `:863-886`) de "nuevas" (INSERT `:900-926`).
+
+### Módulo completamente ajeno: "Deshidratados" (banco de alimentos)
+
+Las líneas `gestionar-sub-programa-ecc.php:65-316` implementan un sistema de
+inventario de comida (`$_POST["SendOpcion"]` = "1a", "2a", "1aa", "2aa",
+"3aa"), con `INSERT INTO inventario` e `INSERT/UPDATE beneficiarios`. **No
+tiene relación alguna con `sat_reportes` ni con ECC** — está incrustado en
+el mismo archivo físico, aparentemente por conveniencia/descuido de
+desarrollo. Usa su propio combo: `SELECT IdBeneficiado, Nombre FROM
+beneficiarios ORDER BY 1` (`:2787`).
+
+### JOINs relevantes
+
+- Usuario responsable: `SELECT DISTINCT id, nombre FROM usuario WHERE id !=
+  2 AND tipo = '163'` (`:41-63`, sin JOIN a `categorias`).
+- Datos del reporte al editar: `SELECT sat_reportes.*, sat_grupos.nombre,
+  U.id, U.nombre FROM sat_reportes LEFT JOIN sat_grupos ON sat_grupos.id =
+  sat_reportes.idGrupoMadre LEFT JOIN usuario AS U ON U.id =
+  sat_reportes.idUsuario WHERE sat_reportes.id = X GROUP BY
+  sat_reportes.id` (`:1011-1016`).
+- Reportes anterior/siguiente (navegación): subconsultas `MAX(id) WHERE id
+  < X` / `MIN(id) WHERE id > X` sobre `sat_reportes` **sin filtrar por
+  `rep_tip`** (`:1110,1119`) — la navegación puede saltar entre reportes de
+  programas completamente distintos.
+
+### Comparación con `subcategoria-ecc.php`
+
+| Aspecto | `subcategoria-ecc.php` | `gestionar-sub-programa-ecc.php` |
+|---|---|---|
+| `rep_tip` | Fijo = 308 | Variable: 317 (EVAN), 327 (GCEL), indefinido para CERO/OTRA |
+| Público objetivo | Usuario de campo | Capacitadores/coordinadores (162/163) + edición genérica |
+| Módulos adicionales | No | Sí: inventario "Deshidratados" (tablas `inventario`, `beneficiarios`) |
+| `rep_ndis` comentado | Sí, ambos modos | No existe el campo |
+| `sitioReunion` comentado | Sí | Sí, igual |
+| `comentario` atado a generación legado (`==8`) | Sí | Sí, idéntico |
+| Efecto secundario UPDATE `mapeo_fecha` en GET | Sin condición de perfil | Acotado a perfiles 162/163 |
+| Campo visible pero descartado al guardar | No reportado | `departamento` |
+| `fechaReporte` en UPDATE | No verificado | Confirmado: se captura pero no se persiste |
+| `adj_tip` en `tbl_adjuntos` | Sin asignar | Igual, sin asignar |
+
+**Conclusión:** ambos archivos comparten un antepasado común de copy-paste
+(mismos patrones de campos comentados, mismo condicional de
+`generacionNumero==8`), pero han divergido en el manejo de `rep_tip` y en el
+alcance funcional — `gestionar-sub-programa-ecc.php` es notablemente más
+frágil por la cantidad de código heredado de otros módulos no relacionados.
 
 ============================================================
 ## Relación entre las tablas (resumen)
