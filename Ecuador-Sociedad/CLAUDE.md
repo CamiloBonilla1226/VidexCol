@@ -679,3 +679,271 @@ categorias (id) ──────< sat_reportes (rep_tip, idSec=305/83)
   guardar la información organizacional del usuario, incluyendo
   `empresa_proceso` (el "programa al que pertenece" el usuario, distinto del
   programa del reporte: usa `categorias.idSec = 38`).
+============================================================
+# PROYECTO NUEVO: Unificación de Facilitadores y ECC (`ecu_grupos` / `ecu_reportes`)
+============================================================
+
+> Diseño para reemplazar los cuatro formularios actuales (Evangelistas 318,
+> subcategoria-ecc.php 308, gestionar-sub-programa-ecc.php 317/327) por un
+> único flujo: selección/creación de grupo → un solo formulario de reporte
+> por programa. Documentado a partir del análisis de `sat_reportes` de las
+> secciones anteriores de este archivo.
+
+## Objetivo
+
+Hoy Facilitadores (318) y ECC (308, 317, 327) tienen formularios totalmente
+separados que escriben sobre la misma tabla `sat_reportes` con nombres de
+campo distintos entre alta y edición, y varios campos que nunca se guardan
+(ver secciones anteriores: `sitioReunion`, `rep_entr`, `plantador`,
+`departamento`, etc.). El nuevo diseño:
+
+1. Obliga a seleccionar o crear un **grupo** antes de poder hacer un reporte.
+2. Unifica los reportes de Facilitadores y ECC en **una sola tabla**
+   (`ecu_reportes`), distinguidos por `tipo_reporte` (318 o 308).
+3. Calcula en el **servidor** (no en JavaScript del cliente) los campos
+   automáticos, corrigiendo el problema documentado en `subcategoria-ecc.php`
+   donde el bloque `final_*` se calculaba en JS y el servidor lo guardaba
+   sin validar.
+
+## Estructura de grupos: `ecu_grupos`
+
+Jerarquía de generaciones, de 0 a 8, sin tope duro (es raro llegar a 8, pero
+no está bloqueado).
+
+| Generación | Cómo se determina |
+|---|---|
+| 0 — "OMS" | Grupo raíz único, semilla de todo el árbol. Existe para todos los usuarios. Es la única fila sembrada por script (`id_grupo = 1`). |
+| 1 | **No vive en `ecu_grupos`.** Se calcula al vuelo desde `usuario_empresa.empresa_proceso`, cruzando `usuario.id = usuario_empresa.idUsuario`, cada vez que el sistema lo necesita (por ejemplo, para llenar `grupo_madre` en un reporte). |
+| 2 en adelante | Se crean manualmente desde el sistema. Si se crea sin partir de otro grupo, `grupo_anterior = NULL` (generación 2). Si se crea a partir de un grupo existente, `grupo_anterior` = el `id_grupo` de ese grupo, y la generación es la del padre + 1. |
+
+### Script de creación
+
+```sql
+-- =========================================================
+-- ECU_GRUPOS
+-- Estructura jerárquica de grupos (generación 0 a 8, sin tope duro)
+-- Generación 0 = "OMS", única, semilla de todo el árbol.
+-- Generación 1 NO vive en esta tabla: se calcula al vuelo desde
+-- usuario_empresa.empresa_proceso cuando se necesita.
+-- Generación 2 en adelante: grupos creados manualmente por los usuarios.
+--
+-- NOTA: usuario.id es INT(11) con signo, en tabla MyISAM.
+-- MyISAM no soporta llaves foráneas (ni como origen ni como destino),
+-- por eso id_usuario NO lleva FOREIGN KEY hacia usuario: la validación
+-- de que el usuario exista queda a cargo del código de la aplicación,
+-- igual que ya ocurre hoy con sat_reportes.idUsuario.
+-- =========================================================
+CREATE TABLE ecu_grupos (
+    id_grupo        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nombre_grupo    VARCHAR(150)     NOT NULL,
+    id_usuario      INT(11)          NOT NULL,   -- quién creó el grupo (sin FK, ver nota arriba)
+    generacion      TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    grupo_anterior  INT UNSIGNED     NULL,        -- NULL = sin antecesor (grupo creado directo desde OMS)
+    fecha_creacion  DATE             NOT NULL,
+
+    CONSTRAINT fk_ecu_grupos_anterior
+        FOREIGN KEY (grupo_anterior) REFERENCES ecu_grupos(id_grupo),
+
+    INDEX idx_ecu_grupos_generacion (generacion),
+    INDEX idx_ecu_grupos_usuario (id_usuario)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_spanish_ci;
+
+-- Semilla obligatoria: grupo generación 0 ("OMS"), único para todo el sistema.
+-- Reemplazar el id_usuario (1) por el del usuario admin/sistema real.
+INSERT INTO ecu_grupos (id_grupo, nombre_grupo, id_usuario, generacion, grupo_anterior, fecha_creacion)
+VALUES (1, 'OMS', 1, 0, NULL, CURDATE());
+```
+
+Estado: **ejecutado y verificado en producción** (tabla creada, fila OMS
+insertada correctamente).
+
+## Reportes unificados: `ecu_reportes`
+
+Una sola tabla para Facilitadores y ECC. `tipo_reporte` reemplaza la
+necesidad de tener formularios/tablas separados por programa:
+
+- `tipo_reporte = 318` → viene del formulario de Facilitadores.
+- `tipo_reporte = 308` → viene del formulario de ECC (unifica lo que antes
+  eran 308, 317 y 327 en el sistema viejo — ver decisión abajo).
+
+### Campos que llena el usuario en el formulario
+
+| Campo | Tipo | Nota |
+|---|---|---|
+| `nombre_lider` | texto libre | No es un usuario del sistema — es el líder local del grupo |
+| `ubicacion` | texto | |
+| `asistencia_hom`, `asistencia_muj`, `asistencia_jov`, `asistencia_nin` | número | |
+| `total_creyentes_grupo` | número | |
+| `nuevos_creyentes_grupo` | número | |
+| `total_bautizados_grupo` | número | |
+| `nuevos_bautizados_grupo` | número | |
+| `carcel_ubicacion` | texto | Solo aplica si `tipo_reporte = 318` (Facilitadores) |
+| `pabellon` | texto | Solo aplica si `tipo_reporte = 318` (Facilitadores) |
+| `foto` | archivo | Extensión guardada en la columna; archivo físico en disco |
+| `mapeo_oracion` … `mapeo_trabajadores` | 9 campos, escala 1–4 | Igual que en `sat_reportes` actual |
+| `comentario` | texto, opcional | Para ambos tipos de reporte |
+
+### Campos automáticos (calculados en servidor, NO los llena el usuario)
+
+| Campo | Se llena con |
+|---|---|
+| `idreporte` | autoincremental |
+| `idgrupo` | el grupo seleccionado antes de crear el reporte |
+| `idusuario` | el usuario de sesión que está creando el reporte |
+| `tipo_reporte` | 318 o 308, según el formulario de origen |
+| `nombre_grupo` | nombre del grupo seleccionado |
+| `fecha_inicio` | fecha del momento en que se hace el reporte |
+| `generacion` | la generación del grupo seleccionado |
+| `grupo_madre` | dato del grupo generación 1 del **usuario que reporta** (vía `usuario_empresa.empresa_proceso`) — describe al usuario, no necesariamente el linaje real del grupo reportado |
+| `asistencia_total` | automático = `asistencia_hom + asistencia_muj + asistencia_jov + asistencia_nin` |
+| `asistencia_grupo` | automático = `total_creyentes_grupo + nuevos_creyentes_grupo + total_bautizados_grupo + nuevos_bautizados_grupo` |
+
+⚠️ Importante: estos cálculos deben hacerse en el **backend** al momento del
+INSERT, nunca en JavaScript del navegador — ese fue exactamente el problema
+documentado en `subcategoria-ecc.php` (bloque `final_*`, sección anterior de
+este archivo), donde el servidor confiaba ciegamente en totales calculados
+en el cliente.
+
+### Script de creación
+
+```sql
+-- =========================================================
+-- ECU_REPORTES
+-- Reporte unificado: reemplaza sat_reportes para los programas
+-- Facilitadores (tipo_reporte = 318) y ECC (tipo_reporte = 308).
+-- Todo reporte cuelga de un grupo de ecu_grupos.
+--
+-- NOTA: idusuario tampoco lleva FK hacia usuario, por la misma
+-- razón (MyISAM). idgrupo sí lleva FK real, porque ecu_grupos es InnoDB.
+-- =========================================================
+CREATE TABLE ecu_reportes (
+    idreporte                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+
+    idgrupo                   INT UNSIGNED     NOT NULL,   -- grupo al que se le hace el reporte
+    idusuario                 INT(11)          NOT NULL,   -- quién hace el reporte (sin FK, ver nota arriba)
+    tipo_reporte               SMALLINT UNSIGNED NOT NULL,  -- 318 = Facilitadores, 308 = ECC
+
+    nombre_lider               VARCHAR(150)     NOT NULL,   -- texto libre, no es un usuario del sistema
+    nombre_grupo               VARCHAR(150)     NOT NULL,   -- automático: nombre del grupo seleccionado
+    fecha_inicio                DATE             NOT NULL,   -- automático: fecha del reporte
+    generacion                 TINYINT UNSIGNED NOT NULL,   -- automático: generación del grupo seleccionado
+    grupo_madre                 VARCHAR(150)     NULL,       -- automático: grupo generación 1 del usuario
+    ubicacion                   VARCHAR(200)     NULL,
+
+    asistencia_hom              INT UNSIGNED     NOT NULL DEFAULT 0,
+    asistencia_muj              INT UNSIGNED     NOT NULL DEFAULT 0,
+    asistencia_jov              INT UNSIGNED     NOT NULL DEFAULT 0,
+    asistencia_nin              INT UNSIGNED     NOT NULL DEFAULT 0,
+    asistencia_total            INT UNSIGNED     NOT NULL DEFAULT 0,  -- automático = hom+muj+jov+nin
+
+    total_creyentes_grupo       INT UNSIGNED     NOT NULL DEFAULT 0,
+    nuevos_creyentes_grupo      INT UNSIGNED     NOT NULL DEFAULT 0,
+    total_bautizados_grupo      INT UNSIGNED     NOT NULL DEFAULT 0,
+    nuevos_bautizados_grupo     INT UNSIGNED     NOT NULL DEFAULT 0,
+    asistencia_grupo            INT UNSIGNED     NOT NULL DEFAULT 0,  -- automático = suma de las 4 anteriores
+
+    mapeo_oracion               TINYINT UNSIGNED NOT NULL,   -- escala 1-4
+    mapeo_companerismo          TINYINT UNSIGNED NOT NULL,
+    mapeo_adoracion             TINYINT UNSIGNED NOT NULL,
+    mapeo_biblia                 TINYINT UNSIGNED NOT NULL,
+    mapeo_evangelizar           TINYINT UNSIGNED NOT NULL,
+    mapeo_cena                   TINYINT UNSIGNED NOT NULL,
+    mapeo_dar                    TINYINT UNSIGNED NOT NULL,
+    mapeo_bautizar               TINYINT UNSIGNED NOT NULL,
+    mapeo_trabajadores          TINYINT UNSIGNED NOT NULL,
+
+    comentario                   TEXT             NULL,       -- opcional, ambos tipos de reporte
+
+    carcel_ubicacion             VARCHAR(150)     NULL,       -- solo tipo_reporte = 318
+    pabellon                      VARCHAR(150)     NULL,       -- solo tipo_reporte = 318
+
+    foto                          VARCHAR(10)      NULL,       -- extensión del archivo (jpg, png, etc.)
+
+    fecha_registro                TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- cuándo se insertó la fila
+
+    CONSTRAINT fk_ecu_reportes_grupo
+        FOREIGN KEY (idgrupo) REFERENCES ecu_grupos(id_grupo),
+
+    CONSTRAINT chk_ecu_reportes_tipo
+        CHECK (tipo_reporte IN (308, 318)),
+
+    CONSTRAINT chk_ecu_reportes_mapeo
+        CHECK (
+            mapeo_oracion BETWEEN 1 AND 4 AND mapeo_companerismo BETWEEN 1 AND 4 AND
+            mapeo_adoracion BETWEEN 1 AND 4 AND mapeo_biblia BETWEEN 1 AND 4 AND
+            mapeo_evangelizar BETWEEN 1 AND 4 AND mapeo_cena BETWEEN 1 AND 4 AND
+            mapeo_dar BETWEEN 1 AND 4 AND mapeo_bautizar BETWEEN 1 AND 4 AND
+            mapeo_trabajadores BETWEEN 1 AND 4
+        ),
+
+    INDEX idx_ecu_reportes_grupo (idgrupo),
+    INDEX idx_ecu_reportes_usuario (idusuario),
+    INDEX idx_ecu_reportes_tipo (tipo_reporte),
+    INDEX idx_ecu_reportes_fecha (fecha_inicio)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_spanish_ci;
+```
+
+Estado: **ejecutado y verificado en producción** (tabla creada
+correctamente, tras corregir el error inicial — ver "Decisiones técnicas y
+correcciones" abajo).
+
+## Decisiones técnicas y correcciones aplicadas
+
+- **`grupo_anterior` usa `NULL`, no `0`, para "sin antecesor".** Es una
+  llave foránea hacia `ecu_grupos.id_grupo`; un `0` literal rompería la
+  validación porque no existe fila con ese id. `NULL` es la forma estándar
+  de modelar un árbol en SQL.
+- **`grupo_madre` es una fotografía en texto, no una relación.** Se guarda
+  el dato del grupo generación 1 del usuario al momento de crear el
+  reporte; si ese grupo cambia de nombre después, los reportes viejos no
+  se alteran retroactivamente.
+- **`ecu_grupos.nombre_grupo`** se agregó porque `ecu_reportes.nombre_grupo`
+  necesita una fuente de donde copiarse automáticamente; no estaba en la
+  lista original de campos pero es indispensable.
+- **Error real en producción — `#1005 Foreign key constraint is incorrectly
+  formed`:** causado porque `usuario` es `ENGINE=MyISAM`, y MyISAM no
+  soporta llaves foráneas (ni como origen ni como destino). Se eliminaron
+  las `FOREIGN KEY` de `id_usuario` / `idusuario` hacia `usuario` en ambas
+  tablas nuevas; quedan como columnas normales con índice, y la validación
+  de que el usuario exista pasa a ser responsabilidad del código de la
+  aplicación — mismo esquema que ya usa `sat_reportes.idUsuario` hoy.
+  También se corrigió el tipo de esas columnas a `INT(11)` con signo (igual
+  que `usuario.id`) y el charset de las tablas nuevas a `utf8mb3` /
+  `utf8mb3_spanish_ci` para que coincida con `usuario` y evite problemas de
+  comparación en JOINs futuros.
+- **`ecu_grupos` y `ecu_reportes` sí llevan FK entre sí** (`ecu_reportes.idgrupo
+  → ecu_grupos.id_grupo`, `ecu_grupos.grupo_anterior → ecu_grupos.id_grupo`)
+  porque ambas se crearon en InnoDB.
+- **Dos `CHECK` constraints** (`tipo_reporte IN (308, 318)` y mapeos entre 1
+  y 4) para que la base rechace datos inválidos aunque falle el formulario o
+  se inserte directo — corrige de raíz el patrón "el servidor confía
+  ciegamente en lo que llega" visto en `subcategoria-ecc.php`. Solo
+  funcionan en MySQL 8.0.16+; si la versión es anterior, esta validación
+  debe moverse al código de la aplicación.
+
+## Nombres de las tablas — alternativas consideradas
+
+Se evaluaron tres líneas de nombres antes de decidir:
+
+- **Prefijo `sat_`** (`sat_grupos_v2`, `sat_reportes_v2`) — descartado por
+  posible confusión con la `sat_grupos` ya existente (de solo lectura, otro
+  propósito).
+- **Prefijo `rep_`** (`rep_grupos`, `rep_reportes`) — considerado, corto y
+  sin choques.
+- **Nombres descriptivos** (`grupos_generacionales`, `reportes_unificados`)
+  — descartado por longitud.
+
+**Decisión final: `ecu_grupos` y `ecu_reportes`.**
+
+## Pendiente por definir en próximas sesiones
+
+- Relación grupo–reporte: si un grupo puede tener varios reportes sin
+  restricción, o máximo uno por período (mes).
+- Si EVAN (317, actividades de capacitadores) y GCEL (327, gran
+  celebración) del sistema viejo necesitan seguir distinguiéndose de algún
+  modo dentro del nuevo `tipo_reporte = 308`, o si esa distinción
+  desaparece por completo con el nuevo esquema de grupos.
+- Diseño del formulario de selección/creación de grupo (pantalla previa a
+  cualquier reporte).
+- Migración/convivencia con `sat_reportes` existente: si los reportes
+  viejos se migran a `ecu_reportes` o quedan como histórico separado.
