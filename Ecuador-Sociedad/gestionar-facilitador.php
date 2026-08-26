@@ -629,6 +629,32 @@ if($PSN1->num_rows() > 0){
                 });
         }
 
+        /*
+        *   La lista muestra siempre los primeros 5 grupos sin recortar;
+        *   el resto queda disponible haciendo scroll dentro del recuadro.
+        *   Se calcula en JS (y no con un alto fijo en CSS) para que se
+        *   ajuste al alto real de las tarjetas, sea cual sea el largo del
+        *   nombre del grupo.
+        */
+        function ajustarAlturaLista(){
+            if(!lista){ return; }
+            var opciones = lista.querySelectorAll('.ecu-group-option');
+            if(opciones.length <= 5){
+                lista.style.maxHeight = 'none';
+                return;
+            }
+            var gap = 10; // debe coincidir con el "gap" definido en .ecu-group-list
+            var alturaTotal = 0;
+            for(var i = 0; i < 5; i++){
+                alturaTotal += opciones[i].offsetHeight;
+                if(i > 0){ alturaTotal += gap; }
+            }
+            lista.style.maxHeight = alturaTotal + 'px';
+        }
+
+        ajustarAlturaLista();
+        window.addEventListener('load', ajustarAlturaLista);
+
         if(lista){
             lista.addEventListener('click', function(e){
                 var opcion = e.target.closest('.ecu-group-option');
