@@ -124,26 +124,27 @@ if($PSN1->num_rows() > 0){
 <style>
     /* Todo el bloque queda bajo .ecu-wrap para no afectar el resto del sitio */
     .ecu-wrap {
-        --pine: #1F3A2E;
-        --pine-dark: #16281F;
-        --moss: #4A6B52;
-        --gold: #B98A32;
-        --paper-alt: #EDF1E7;
-        --ink: #1B2420;
-        --ink-soft: #55625A;
-        --line: #DCE1D4;
-        --line-strong: #BFC8B2;
-        --success-bg: #E4EEDC;
-        --success-text: #2F5233;
-        --danger-bg: #FBEAE6;
-        --danger-text: #A3402F;
-        --warning-bg: #FBF3DF;
+        --azul: #1D5FA6;
+        --azul-dark: #154A82;
+        --azul-tint: #E8F0FA;
+        --verde: #2E8B4F;
+        --verde-dark: #226B3C;
+        --verde-tint: #E7F4EA;
+        --negro: #1A1A1A;
+        --gris-texto: #55595C;
+        --line: #D9DEE2;
+        --line-strong: #B9C1C7;
+        --success-bg: #E7F4EA;
+        --success-text: #226B3C;
+        --danger-bg: #FBEAEA;
+        --danger-text: #A3302F;
+        --warning-bg: #FCF3DC;
         --warning-text: #8A6414;
-        --radius-card: 14px;
+        --radius-card: 12px;
         --radius-control: 8px;
 
         background: #FFFFFF;
-        color: var(--ink);
+        color: var(--negro);
         font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         max-width: 720px;
         margin: 0 auto;
@@ -157,7 +158,7 @@ if($PSN1->num_rows() > 0){
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: var(--moss);
+        color: var(--azul);
         margin: 0 0 16px;
     }
 
@@ -167,13 +168,13 @@ if($PSN1->num_rows() > 0){
         font-size: 24px;
         line-height: 1.25;
         margin: 0 0 6px;
-        color: var(--pine-dark);
+        color: var(--negro);
         text-align: left;
     }
     .ecu-wrap h5.ecu-subtitle {
         font-size: 14px;
         font-weight: 400;
-        color: var(--ink-soft);
+        color: var(--gris-texto);
         margin: 0 0 28px;
     }
 
@@ -187,7 +188,7 @@ if($PSN1->num_rows() > 0){
     .ecu-wrap .ecu-banner.ecu-success { background: var(--success-bg); color: var(--success-text); }
     .ecu-wrap .ecu-banner.ecu-error { background: var(--danger-bg); color: var(--danger-text); }
     .ecu-wrap .ecu-banner.ecu-warning { background: var(--warning-bg); color: var(--warning-text); }
-    .ecu-wrap .ecu-banner.ecu-info { background: var(--paper-alt); color: var(--pine-dark); }
+    .ecu-wrap .ecu-banner.ecu-info { background: var(--azul-tint); color: var(--azul-dark); }
 
     .ecu-wrap .ecu-card {
         background: #FFFFFF;
@@ -202,24 +203,24 @@ if($PSN1->num_rows() > 0){
         font-weight: 500;
         font-size: 17px;
         margin: 0 0 4px;
-        color: var(--pine-dark);
+        color: var(--negro);
         text-align: left;
     }
     .ecu-wrap .ecu-section-sub {
         font-size: 13px;
-        color: var(--ink-soft);
+        color: var(--gris-texto);
         margin: 0 0 18px;
         text-align: left;
     }
 
-    /* Anillo generacional */
+    /* Anillo generacional: aro azul, aro verde interior */
     .ecu-wrap .ecu-ring {
         position: relative;
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: var(--paper-alt);
-        border: 2px solid var(--pine);
+        background: var(--azul-tint);
+        border: 2px solid var(--azul);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -230,14 +231,15 @@ if($PSN1->num_rows() > 0){
         position: absolute;
         inset: 4px;
         border-radius: 50%;
-        border: 1.5px solid var(--moss);
+        border: 1.5px solid var(--verde);
     }
     .ecu-wrap .ecu-ring::after {
         content: "";
         position: absolute;
         inset: 9px;
         border-radius: 50%;
-        border: 1px solid var(--gold);
+        border: 1px solid var(--negro);
+        opacity: 0.35;
     }
     .ecu-wrap .ecu-ring span {
         position: relative;
@@ -245,7 +247,7 @@ if($PSN1->num_rows() > 0){
         font-family: 'IBM Plex Mono', monospace;
         font-weight: 600;
         font-size: 11px;
-        color: var(--pine-dark);
+        color: var(--azul-dark);
     }
 
     .ecu-wrap .ecu-group-list {
@@ -267,8 +269,8 @@ if($PSN1->num_rows() > 0){
     }
     .ecu-wrap .ecu-group-option:hover { border-color: var(--line-strong); }
     .ecu-wrap .ecu-group-option.ecu-selected {
-        border-color: var(--pine);
-        background: var(--paper-alt);
+        border-color: var(--azul);
+        background: var(--azul-tint);
     }
     .ecu-wrap .ecu-group-option input[type="radio"] {
         position: absolute;
@@ -279,12 +281,12 @@ if($PSN1->num_rows() > 0){
     .ecu-wrap .ecu-group-name {
         font-weight: 600;
         font-size: 14.5px;
-        color: var(--ink);
+        color: var(--negro);
         margin: 0 0 2px;
     }
     .ecu-wrap .ecu-group-detail {
         font-size: 12.5px;
-        color: var(--ink-soft);
+        color: var(--gris-texto);
         margin: 0;
     }
     .ecu-wrap .ecu-check {
@@ -297,8 +299,8 @@ if($PSN1->num_rows() > 0){
         justify-content: center;
     }
     .ecu-wrap .ecu-group-option.ecu-selected .ecu-check {
-        border-color: var(--pine);
-        background: var(--pine);
+        border-color: var(--azul);
+        background: var(--azul);
     }
     .ecu-wrap .ecu-group-option.ecu-selected .ecu-check::after {
         content: "";
@@ -311,12 +313,12 @@ if($PSN1->num_rows() > 0){
         display: block;
         font-size: 13px;
         font-weight: 600;
-        color: var(--ink);
+        color: var(--negro);
         margin-bottom: 7px;
         text-align: left;
     }
-    .ecu-wrap label.ecu-label .ecu-req { color: var(--gold); }
-    .ecu-wrap label.ecu-label .ecu-opt { font-weight: 400; color: var(--ink-soft); font-size: 12.5px; }
+    .ecu-wrap label.ecu-label .ecu-req { color: var(--azul); }
+    .ecu-wrap label.ecu-label .ecu-opt { font-weight: 400; color: var(--gris-texto); font-size: 12.5px; }
 
     .ecu-wrap .ecu-field-row {
         display: grid;
@@ -334,15 +336,15 @@ if($PSN1->num_rows() > 0){
         border: 1.5px solid var(--line);
         border-radius: var(--radius-control);
         background: #FFFFFF;
-        color: var(--ink);
+        color: var(--negro);
         outline: none;
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
         height: auto;
     }
     .ecu-wrap input[type="text"].ecu-input:focus,
     .ecu-wrap select.ecu-select:focus {
-        border-color: var(--pine);
-        box-shadow: 0 0 0 3px rgba(31, 58, 46, 0.12);
+        border-color: var(--azul);
+        box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.15);
     }
 
     .ecu-wrap .ecu-btn {
@@ -356,10 +358,10 @@ if($PSN1->num_rows() > 0){
         transition: background 0.15s ease, transform 0.05s ease;
     }
     .ecu-wrap .ecu-btn:active { transform: scale(0.99); }
-    .ecu-wrap .ecu-btn-primary { background: var(--pine); color: #F4F6F0; }
-    .ecu-wrap .ecu-btn-primary:hover { background: var(--pine-dark); }
-    .ecu-wrap .ecu-btn-secondary { background: transparent; color: var(--pine-dark); border: 1.5px solid var(--pine); }
-    .ecu-wrap .ecu-btn-secondary:hover { background: var(--paper-alt); }
+    .ecu-wrap .ecu-btn-primary { background: var(--verde); color: #FFFFFF; }
+    .ecu-wrap .ecu-btn-primary:hover { background: var(--verde-dark); }
+    .ecu-wrap .ecu-btn-secondary { background: var(--azul); color: #FFFFFF; border: 1.5px solid var(--azul); }
+    .ecu-wrap .ecu-btn-secondary:hover { background: var(--azul-dark); border-color: var(--azul-dark); }
 
     .ecu-wrap .ecu-btn-row { display: flex; justify-content: center; margin-top: 4px; }
 
@@ -369,7 +371,47 @@ if($PSN1->num_rows() > 0){
         padding: 22px;
         text-align: center;
         font-size: 13.5px;
-        color: var(--ink-soft);
+        color: var(--gris-texto);
+    }
+
+    /* CREAR GRUPO — fila superior, a todo el ancho */
+    .ecu-wrap .ecu-crear-grupo-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        align-items: end;
+    }
+
+    /* Fila inferior: listado de grupos + formulario de reporte lado a lado */
+    .ecu-wrap .ecu-fila-inferior {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        align-items: start;
+    }
+    .ecu-wrap .ecu-fila-inferior .ecu-card { margin-bottom: 0; }
+    .ecu-wrap .ecu-panel-reporte { min-height: 220px; }
+
+    /* ---------- ESCRITORIO ---------- */
+    @media (min-width: 900px) {
+        .ecu-wrap {
+            max-width: 1180px;
+            padding: 48px 32px 96px;
+        }
+        .ecu-wrap h3.ecu-title { font-size: 30px; }
+        .ecu-wrap h5.ecu-subtitle { font-size: 15.5px; }
+
+        .ecu-wrap .ecu-crear-grupo-row {
+            grid-template-columns: 1fr 1fr auto;
+        }
+
+        .ecu-wrap .ecu-fila-inferior {
+            grid-template-columns: 380px 1fr;
+        }
+
+        .ecu-wrap .ecu-card { padding: 28px; }
+        .ecu-wrap .ecu-section-title { font-size: 18.5px; }
+        .ecu-wrap .ecu-btn { padding: 12px 28px; }
     }
 
     @media (max-width: 560px) {
@@ -400,46 +442,13 @@ if($PSN1->num_rows() > 0){
     <?php } ?>
 
     <div class="ecu-card">
-        <h4 class="ecu-section-title">Mis grupos</h4>
-        <p class="ecu-section-sub">Elige el grupo al que le vas a hacer el reporte.</p>
-
-        <form method="post" id="formGrupo" name="formGrupo">
-            <input type="hidden" name="funcion" value="seleccionar_grupo" />
-
-            <?php if(count($gruposDisponibles) > 0){ ?>
-                <div class="ecu-group-list" id="ecuGroupList">
-                    <?php foreach($gruposDisponibles as $g){
-                        $marcado = ($idGrupoSeleccionado == $g["id_grupo"]);
-                        $fechaFmt = date("d/m/Y", strtotime($g["fecha_creacion"]));
-                    ?>
-                        <label class="ecu-group-option<?php if($marcado){ ?> ecu-selected<?php } ?>">
-                            <input type="radio" name="idgrupo" value="<?=$g["id_grupo"]; ?>" <?php if($marcado){ ?>checked="checked"<?php } ?> required />
-                            <span class="ecu-ring"><span><?=$g["generacion"]; ?></span></span>
-                            <span class="ecu-group-meta">
-                                <p class="ecu-group-name"><?=htmlspecialchars($g["nombre_grupo"], ENT_QUOTES, "UTF-8"); ?></p>
-                                <p class="ecu-group-detail">Generación <?=$g["generacion"]; ?> · creado el <?=$fechaFmt; ?></p>
-                            </span>
-                            <span class="ecu-check"></span>
-                        </label>
-                    <?php } ?>
-                </div>
-                <div class="ecu-btn-row">
-                    <input type="submit" name="button" value="Continuar con este grupo" class="ecu-btn ecu-btn-primary" />
-                </div>
-            <?php }else{ ?>
-                <div class="ecu-banner ecu-info">Aún no tiene grupos creados. Cree uno nuevo más abajo para continuar.</div>
-            <?php } ?>
-        </form>
-    </div>
-
-    <div class="ecu-card">
         <h4 class="ecu-section-title">Crear grupo nuevo</h4>
         <p class="ecu-section-sub">La generación se calcula automáticamente según el grupo del que parte.</p>
 
         <form method="post" id="formCrearGrupo" name="formCrearGrupo">
             <input type="hidden" name="funcion" value="crear_grupo" />
 
-            <div class="ecu-field-row">
+            <div class="ecu-crear-grupo-row">
                 <div>
                     <label class="ecu-label">Nombre del grupo <span class="ecu-req">*</span></label>
                     <input type="text" name="nombre_grupo" id="nombre_grupo" maxlength="150" class="ecu-input" placeholder="Ej. Célula Vida Nueva" required />
@@ -455,31 +464,65 @@ if($PSN1->num_rows() > 0){
                         <?php } ?>
                     </select>
                 </div>
-            </div>
-
-            <div class="ecu-btn-row">
-                <input type="submit" name="button" value="Crear grupo" class="ecu-btn ecu-btn-secondary" />
+                <div>
+                    <input type="submit" name="button" value="Crear grupo" class="ecu-btn ecu-btn-secondary" style="width:100%;" />
+                </div>
             </div>
         </form>
     </div>
 
-    <div class="ecu-card" style="border-style: dashed;">
-        <h4 class="ecu-section-title">Formulario de reporte</h4>
+    <div class="ecu-fila-inferior">
+        <div class="ecu-card">
+            <h4 class="ecu-section-title">Mis grupos</h4>
+            <p class="ecu-section-sub">Elige el grupo al que le vas a hacer el reporte.</p>
 
-        <?php if($idGrupoSeleccionado > 0){ ?>
-            <div class="ecu-banner ecu-info" style="display:flex; align-items:center; gap:10px;">
-                <span class="ecu-ring" style="width:28px;height:28px;"><span><?=$generacionGrupoSeleccionado; ?></span></span>
-                Grupo seleccionado: <strong><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?></strong>
-                (Generación <?=$generacionGrupoSeleccionado; ?>)
-            </div>
-            <!--
-                A partir de aquí va el formulario de reporte de Facilitadores
-                (pendiente de implementación), usando $idGrupoSeleccionado como
-                idgrupo del reporte en ecu_reportes.
-            -->
-        <?php }else{ ?>
-            <div class="ecu-banner ecu-warning">Debe seleccionar o crear un grupo antes de continuar al formulario de reporte.</div>
-        <?php } ?>
+            <form method="post" id="formGrupo" name="formGrupo">
+                <input type="hidden" name="funcion" value="seleccionar_grupo" />
+
+                <?php if(count($gruposDisponibles) > 0){ ?>
+                    <div class="ecu-group-list" id="ecuGroupList">
+                        <?php foreach($gruposDisponibles as $g){
+                            $marcado = ($idGrupoSeleccionado == $g["id_grupo"]);
+                            $fechaFmt = date("d/m/Y", strtotime($g["fecha_creacion"]));
+                        ?>
+                            <label class="ecu-group-option<?php if($marcado){ ?> ecu-selected<?php } ?>">
+                                <input type="radio" name="idgrupo" value="<?=$g["id_grupo"]; ?>" <?php if($marcado){ ?>checked="checked"<?php } ?> required />
+                                <span class="ecu-ring"><span><?=$g["generacion"]; ?></span></span>
+                                <span class="ecu-group-meta">
+                                    <p class="ecu-group-name"><?=htmlspecialchars($g["nombre_grupo"], ENT_QUOTES, "UTF-8"); ?></p>
+                                    <p class="ecu-group-detail">Generación <?=$g["generacion"]; ?> · creado el <?=$fechaFmt; ?></p>
+                                </span>
+                                <span class="ecu-check"></span>
+                            </label>
+                        <?php } ?>
+                    </div>
+                    <div class="ecu-btn-row">
+                        <input type="submit" name="button" value="Continuar con este grupo" class="ecu-btn ecu-btn-primary" />
+                    </div>
+                <?php }else{ ?>
+                    <div class="ecu-banner ecu-info">Aún no tiene grupos creados. Cree uno nuevo arriba para continuar.</div>
+                <?php } ?>
+            </form>
+        </div>
+
+        <div class="ecu-card ecu-panel-reporte" style="border-style: dashed;">
+            <h4 class="ecu-section-title">Formulario de reporte</h4>
+
+            <?php if($idGrupoSeleccionado > 0){ ?>
+                <div class="ecu-banner ecu-info" style="display:flex; align-items:center; gap:10px;">
+                    <span class="ecu-ring" style="width:28px;height:28px;"><span><?=$generacionGrupoSeleccionado; ?></span></span>
+                    Grupo seleccionado: <strong><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?></strong>
+                    (Generación <?=$generacionGrupoSeleccionado; ?>)
+                </div>
+                <!--
+                    A partir de aquí va el formulario de reporte de Facilitadores
+                    (pendiente de implementación), usando $idGrupoSeleccionado como
+                    idgrupo del reporte en ecu_reportes.
+                -->
+            <?php }else{ ?>
+                <div class="ecu-banner ecu-warning">Debe seleccionar o crear un grupo antes de continuar al formulario de reporte.</div>
+            <?php } ?>
+        </div>
     </div>
 
 </div>
