@@ -283,6 +283,7 @@ if($PSN1->num_rows() > 0){
         max-height: 360px;
         overflow-y: auto;
         padding-right: 4px;
+        overscroll-behavior: contain;
     }
     .ecu-wrap .ecu-buscador {
         margin-bottom: 14px;
@@ -528,6 +529,11 @@ if($PSN1->num_rows() > 0){
                             </label>
                         <?php } ?>
                     </div>
+                    <noscript>
+                        <div class="ecu-btn-row">
+                            <input type="submit" name="button" value="Ver información del grupo" class="ecu-btn ecu-btn-secondary" />
+                        </div>
+                    </noscript>
                 <?php }else{ ?>
                     <div class="ecu-banner ecu-info">Aún no tiene grupos creados. Cree uno nuevo arriba para continuar.</div>
                 <?php } ?>
@@ -537,6 +543,7 @@ if($PSN1->num_rows() > 0){
         <div class="ecu-card ecu-panel-reporte">
             <h4 class="ecu-section-title">Información del grupo</h4>
 
+            <div id="ecuPanelInfo">
             <?php if($idGrupoSeleccionado > 0){
                 $fechaCreacionFmt = date("d/m/Y", strtotime($fechaCreacionGrupoSeleccionado));
             ?>
@@ -569,6 +576,7 @@ if($PSN1->num_rows() > 0){
             <?php }else{ ?>
                 <div class="ecu-banner ecu-warning">Seleccione o cree un grupo para ver su información.</div>
             <?php } ?>
+            </div>
         </div>
     </div>
 
@@ -577,14 +585,65 @@ if($PSN1->num_rows() > 0){
 <script>
     (function(){
         var lista = document.getElementById('ecuGroupList');
-        var formulario = document.getElementById('formGrupo');
-        if(lista && formulario){
+        var panelInfo = document.getElementById('ecuPanelInfo');
+
+        function escaparHtml(texto){
+            var div = document.createElement('div');
+            div.textContent = (texto === null || texto === undefined) ? '' : String(texto);
+            return div.innerHTML;
+        }
+
+        function filaTabla(etiqueta, valor, esUltima){
+            var borde = esUltima ? '' : 'border-bottom: 1px solid var(--line);';
+            return '<tr><td style="padding: 9px 0; color: var(--gris-texto); ' + borde + '">' + etiqueta + '</td>' +
+                   '<td style="padding: 9px 0; text-align: right; font-weight: 600; ' + borde + '">' + valor + '</td></tr>';
+        }
+
+        function construirHtmlInfo(data){
+            var html = '<table style="width:100%; border-collapse: collapse; font-size: 14px; margin-bottom: 22px;">';
+            html += filaTabla('Nombre del grupo', escaparHtml(data.nombre_grupo));
+            html += filaTabla('Generación', escaparHtml(data.generacion));
+            html += filaTabla('Reportes realizados', escaparHtml(data.total_reportes));
+            html += filaTabla('Fecha de creación', escaparHtml(data.fecha_creacion));
+            html += filaTabla('Creado por', escaparHtml(data.creado_por), true);
+            html += '</table>';
+            html += '<div class="ecu-btn-row"><a href="reportar_facilitador.php?idgrupo=' + encodeURIComponent(data.id_grupo) +
+                    '" class="ecu-btn ecu-btn-primary" style="text-decoration:none; display:inline-block;">Generar reporte</a></div>';
+            return html;
+        }
+
+        function cargarInfoGrupo(idGrupo){
+            if(!panelInfo){ return; }
+            panelInfo.innerHTML = '<div class="ecu-banner ecu-info">Cargando información del grupo...</div>';
+            fetch('ajax_info_grupo.php?idgrupo=' + encodeURIComponent(idGrupo), { credentials: 'same-origin' })
+                .then(function(resp){ return resp.json(); })
+                .then(function(data){
+                    if(!data.ok){
+                        panelInfo.innerHTML = '<div class="ecu-banner ecu-error">' + escaparHtml(data.mensaje || 'No se pudo cargar la información del grupo.') + '</div>';
+                        return;
+                    }
+                    panelInfo.innerHTML = construirHtmlInfo(data);
+                })
+                .catch(function(){
+                    panelInfo.innerHTML = '<div class="ecu-banner ecu-error">Ocurrió un error al consultar el grupo.</div>';
+                });
+        }
+
+        if(lista){
             lista.addEventListener('click', function(e){
                 var opcion = e.target.closest('.ecu-group-option');
                 if(!opcion){ return; }
+
                 var input = opcion.querySelector('input[type="radio"]');
                 if(input){ input.checked = true; }
-                formulario.submit();
+
+                var todas = lista.querySelectorAll('.ecu-group-option');
+                for(var i = 0; i < todas.length; i++){ todas[i].classList.remove('ecu-selected'); }
+                opcion.classList.add('ecu-selected');
+
+                if(input && input.value){
+                    cargarInfoGrupo(input.value);
+                }
             });
         }
 
