@@ -35,7 +35,7 @@ $PSN1->connect();
 *   El grupo debe pertenecer al usuario de sesión y no ser generación 0 ni 1
 *   (misma regla aplicada en gestionar-facilitador.php).
 */
-$sql = "SELECT id_grupo, nombre_grupo, generacion, fecha_creacion, id_usuario FROM ecu_grupos ";
+$sql = "SELECT id_grupo, nombre_grupo, generacion, grupo_anterior, fecha_creacion, id_usuario FROM ecu_grupos ";
 $sql .= "WHERE id_grupo = ".$idGrupo." AND id_usuario = ".$idUsuarioSesion." AND generacion NOT IN (0,1) LIMIT 1";
 $PSN1->query($sql);
 
@@ -49,6 +49,7 @@ if($PSN1->num_rows() == 0){
 $PSN1->next_record();
 $nombreGrupo = $PSN1->f("nombre_grupo");
 $generacion = intval($PSN1->f("generacion"));
+$grupoAnteriorId = intval($PSN1->f("grupo_anterior"));
 $fechaCreacion = $PSN1->f("fecha_creacion");
 $idUsuarioCreador = intval($PSN1->f("id_usuario"));
 
@@ -70,6 +71,63 @@ if($PSN3->num_rows() > 0){
     $totalReportes = intval($PSN3->f("total"));
 }
 
+/*
+*   Grupo/generación anterior:
+*   - Generación 2: no tiene "grupo_anterior" en ecu_grupos (la generación 1
+*     no vive en esta tabla). Se calcula a partir de
+*     usuario_empresa.empresa_proceso del usuario que creó el grupo.
+*   - Generación 3 en adelante: se busca directamente el nombre del grupo
+*     referenciado por grupo_anterior.
+*/
+$generacionAnteriorNombre = null;
+$generacionAnteriorMensaje = null;
+
+if($generacion == 2){
+    $PSN4 = new DBbase_Sql;
+    $sqlProceso = "SELECT empresa_proceso FROM usuario_empresa WHERE idUsuario = ".$idUsuarioCreador." LIMIT 1";
+    $PSN4->query($sqlProceso);
+    $empresaProcesoId = 0;
+    if($PSN4->num_rows() > 0){
+        $PSN4->next_record();
+        $empresaProcesoId = intval($PSN4->f("empresa_proceso"));
+    }
+    if($empresaProcesoId > 0){
+        $PSN5 = new DBbase_Sql;
+        $sqlCategoria = "SELECT descripcion FROM categorias WHERE id = ".$empresaProcesoId." LIMIT 1";
+        $PSN5->query($sqlCategoria);
+        if($PSN5->num_rows() > 0){
+            $PSN5->next_record();
+            $generacionAnteriorNombre = $PSN5->f("descripcion");
+        }
+    }
+    if($generacionAnteriorNombre === null){
+        $generacionAnteriorMensaje = "El usuario actualmente no pertenece a un grupo de generación 1.";
+    }
+}else{
+    if($grupoAnteriorId > 0){
+        $PSN4 = new DBbase_Sql;
+        $sqlPadreNombre = "SELECT nombre_grupo FROM ecu_grupos WHERE id_grupo = ".$grupoAnteriorId." LIMIT 1";
+        $PSN4->query($sqlPadreNombre);
+        if($PSN4->num_rows() > 0){
+            $PSN4->next_record();
+            $generacionAnteriorNombre = $PSN4->f("nombre_grupo");
+        }
+    }
+    if($generacionAnteriorNombre === null){
+        $generacionAnteriorMensaje = "Este grupo no tiene un grupo antecesor registrado.";
+    }
+}
+
+// Grupo de generación 0 (raíz única del sistema, ej. "OMS")
+$nombreGrupoGeneracionCero = "";
+$PSN6 = new DBbase_Sql;
+$sqlGenCero = "SELECT nombre_grupo FROM ecu_grupos WHERE generacion = 0 LIMIT 1";
+$PSN6->query($sqlGenCero);
+if($PSN6->num_rows() > 0){
+    $PSN6->next_record();
+    $nombreGrupoGeneracionCero = $PSN6->f("nombre_grupo");
+}
+
 $respuesta["ok"] = true;
 $respuesta["id_grupo"] = $idGrupo;
 $respuesta["nombre_grupo"] = $nombreGrupo;
@@ -77,5 +135,8 @@ $respuesta["generacion"] = $generacion;
 $respuesta["fecha_creacion"] = date("d/m/Y", strtotime($fechaCreacion));
 $respuesta["creado_por"] = $nombreCreador;
 $respuesta["total_reportes"] = $totalReportes;
+$respuesta["generacion_anterior_nombre"] = $generacionAnteriorNombre;
+$respuesta["generacion_anterior_mensaje"] = $generacionAnteriorMensaje;
+$respuesta["grupo_generacion_cero"] = $nombreGrupoGeneracionCero;
 
 echo json_encode($respuesta);

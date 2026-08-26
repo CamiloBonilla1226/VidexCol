@@ -89,15 +89,19 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "seleccionar_grupo"){
 $nombreCreadorGrupo = "";
 $totalReportesGrupo = 0;
 $fechaCreacionGrupoSeleccionado = "";
+$generacionAnteriorNombre = null;
+$generacionAnteriorMensaje = null;
+$nombreGrupoGeneracionCero = "";
 
 if($idGrupoSeleccionado > 0){
-    $sqlValida = "SELECT id_grupo, nombre_grupo, generacion, fecha_creacion, id_usuario FROM ecu_grupos ";
+    $sqlValida = "SELECT id_grupo, nombre_grupo, generacion, grupo_anterior, fecha_creacion, id_usuario FROM ecu_grupos ";
     $sqlValida .= "WHERE id_grupo = ".$idGrupoSeleccionado." AND id_usuario = ".$idUsuarioSesion." AND generacion NOT IN (0,1) LIMIT 1";
     $PSN1->query($sqlValida);
     if($PSN1->num_rows() > 0){
         $PSN1->next_record();
         $nombreGrupoSeleccionado = $PSN1->f("nombre_grupo");
         $generacionGrupoSeleccionado = $PSN1->f("generacion");
+        $grupoAnteriorIdSeleccionado = intval($PSN1->f("grupo_anterior"));
         $fechaCreacionGrupoSeleccionado = $PSN1->f("fecha_creacion");
         $idUsuarioCreadorGrupo = intval($PSN1->f("id_usuario"));
 
@@ -117,6 +121,59 @@ if($idGrupoSeleccionado > 0){
         if($PSN4->num_rows() > 0){
             $PSN4->next_record();
             $totalReportesGrupo = intval($PSN4->f("total"));
+        }
+
+        /*
+        *   Grupo/generación anterior:
+        *   - Generación 2: no tiene "grupo_anterior" en ecu_grupos (la
+        *     generación 1 no vive en esta tabla). Se calcula a partir de
+        *     usuario_empresa.empresa_proceso del usuario que creó el grupo.
+        *   - Generación 3 en adelante: se busca el nombre del grupo
+        *     referenciado por grupo_anterior.
+        */
+        if($generacionGrupoSeleccionado == 2){
+            $PSN5 = new DBbase_Sql;
+            $sqlProceso = "SELECT empresa_proceso FROM usuario_empresa WHERE idUsuario = ".$idUsuarioCreadorGrupo." LIMIT 1";
+            $PSN5->query($sqlProceso);
+            $empresaProcesoId = 0;
+            if($PSN5->num_rows() > 0){
+                $PSN5->next_record();
+                $empresaProcesoId = intval($PSN5->f("empresa_proceso"));
+            }
+            if($empresaProcesoId > 0){
+                $PSN6 = new DBbase_Sql;
+                $sqlCategoria = "SELECT descripcion FROM categorias WHERE id = ".$empresaProcesoId." LIMIT 1";
+                $PSN6->query($sqlCategoria);
+                if($PSN6->num_rows() > 0){
+                    $PSN6->next_record();
+                    $generacionAnteriorNombre = $PSN6->f("descripcion");
+                }
+            }
+            if($generacionAnteriorNombre === null){
+                $generacionAnteriorMensaje = "El usuario actualmente no pertenece a un grupo de generación 1.";
+            }
+        }else{
+            if($grupoAnteriorIdSeleccionado > 0){
+                $PSN5 = new DBbase_Sql;
+                $sqlPadreNombre = "SELECT nombre_grupo FROM ecu_grupos WHERE id_grupo = ".$grupoAnteriorIdSeleccionado." LIMIT 1";
+                $PSN5->query($sqlPadreNombre);
+                if($PSN5->num_rows() > 0){
+                    $PSN5->next_record();
+                    $generacionAnteriorNombre = $PSN5->f("nombre_grupo");
+                }
+            }
+            if($generacionAnteriorNombre === null){
+                $generacionAnteriorMensaje = "Este grupo no tiene un grupo antecesor registrado.";
+            }
+        }
+
+        // Grupo de generación 0 (raíz única del sistema, ej. "OMS")
+        $PSN7 = new DBbase_Sql;
+        $sqlGenCero = "SELECT nombre_grupo FROM ecu_grupos WHERE generacion = 0 LIMIT 1";
+        $PSN7->query($sqlGenCero);
+        if($PSN7->num_rows() > 0){
+            $PSN7->next_record();
+            $nombreGrupoGeneracionCero = $PSN7->f("nombre_grupo");
         }
     }else{
         $idGrupoSeleccionado = 0;
@@ -144,6 +201,20 @@ if($PSN1->num_rows() > 0){
         );
     }
 }
+
+/*
+*   SOLO VISUAL: iniciales del creador del grupo, para el avatar circular
+*   de la ficha de información. No es una consulta ni una regla de
+*   negocio nueva, solo se deriva del nombre que ya se trajo arriba.
+*/
+$inicialesCreadorGrupo = "";
+if($nombreCreadorGrupo !== ""){
+    $partesNombreCreador = preg_split('/\s+/', trim($nombreCreadorGrupo));
+    $inicialesCreadorGrupo = mb_strtoupper(mb_substr($partesNombreCreador[0], 0, 1, "UTF-8"), "UTF-8");
+    if(count($partesNombreCreador) > 1){
+        $inicialesCreadorGrupo .= mb_strtoupper(mb_substr($partesNombreCreador[count($partesNombreCreador) - 1], 0, 1, "UTF-8"), "UTF-8");
+    }
+}
 ?>
 <style>
     /* Todo el bloque queda bajo .ecu-wrap para no afectar el resto del sitio */
@@ -156,6 +227,7 @@ if($PSN1->num_rows() > 0){
         --verde-tint: #E7F4EA;
         --negro: #1A1A1A;
         --gris-texto: #55595C;
+        --gris-claro: #F4F6F7;
         --line: #D9DEE2;
         --line-strong: #B9C1C7;
         --success-bg: #E7F4EA;
@@ -238,42 +310,6 @@ if($PSN1->num_rows() > 0){
         text-align: left;
     }
 
-    /* Anillo generacional: aro azul, aro verde interior */
-    .ecu-wrap .ecu-ring {
-        position: relative;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: var(--azul-tint);
-        border: 2px solid var(--azul);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: none;
-    }
-    .ecu-wrap .ecu-ring::before {
-        content: "";
-        position: absolute;
-        inset: 4px;
-        border-radius: 50%;
-        border: 1.5px solid var(--verde);
-    }
-    .ecu-wrap .ecu-ring::after {
-        content: "";
-        position: absolute;
-        inset: 9px;
-        border-radius: 50%;
-        border: 1px solid var(--negro);
-        opacity: 0.35;
-    }
-    .ecu-wrap .ecu-ring span {
-        position: relative;
-        z-index: 1;
-        font-family: 'IBM Plex Mono', monospace;
-        font-weight: 600;
-        font-size: 11px;
-        color: var(--azul-dark);
-    }
 
     .ecu-wrap .ecu-group-list {
         display: flex;
@@ -388,6 +424,9 @@ if($PSN1->num_rows() > 0){
         cursor: pointer;
         border: none;
         transition: background 0.15s ease, transform 0.05s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
     }
     .ecu-wrap .ecu-btn:active { transform: scale(0.99); }
     .ecu-wrap .ecu-btn-primary { background: var(--verde); color: #FFFFFF; }
@@ -396,6 +435,10 @@ if($PSN1->num_rows() > 0){
     .ecu-wrap .ecu-btn-secondary:hover { background: var(--azul-dark); border-color: var(--azul-dark); }
     .ecu-wrap .ecu-btn-danger { background: var(--danger-text); color: #FFFFFF; }
     .ecu-wrap .ecu-btn-danger:hover { background: #7E2523; }
+    /* SOLO VISUAL: variante outline, usada en "Editar" y "Cancelar" para
+       que se lean como acciones secundarias frente a "Guardar" (verde). */
+    .ecu-wrap .ecu-btn-azul-outline { background: #FFFFFF; color: var(--azul); border: 1.5px solid var(--azul); }
+    .ecu-wrap .ecu-btn-azul-outline:hover { background: var(--azul-tint); }
 
     .ecu-wrap .ecu-btn-row { display: flex; justify-content: center; margin-top: 4px; }
 
@@ -432,14 +475,21 @@ if($PSN1->num_rows() > 0){
     }
     .ecu-wrap .oculto { display: none !important; }
 
-    /* Encabezado de la ficha: anillo de generación + nombre del grupo */
-    .ecu-wrap .ecu-info-header {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 20px;
+    /* Nombre del grupo, campos de generación y "pertenece al grupo" */
+    .ecu-wrap .ecu-info-nombre-wrap { margin-bottom: 20px; }
+    .ecu-wrap .ecu-info-field { margin-bottom: 14px; }
+    .ecu-wrap .ecu-info-valor {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--negro);
+        margin: 0;
     }
-    .ecu-wrap .ecu-info-header-text { flex: 1; min-width: 0; }
+    .ecu-wrap .ecu-info-mensaje {
+        font-size: 13px;
+        font-style: italic;
+        color: var(--gris-texto);
+        margin: 0;
+    }
     .ecu-wrap .ecu-info-eyebrow {
         font-size: 11.5px;
         text-transform: uppercase;
@@ -473,7 +523,9 @@ if($PSN1->num_rows() > 0){
         padding: 2px 6px;
     }
 
-    /* Tarjetas de estadísticas del grupo */
+    /* Tarjetas de estadísticas del grupo.
+       SOLO VISUAL: fondo neutro (gris-claro) en vez de azul-tint, para que
+       no compitan con el color de foco/selección del resto de la pantalla. */
     .ecu-wrap .ecu-info-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -481,7 +533,7 @@ if($PSN1->num_rows() > 0){
         margin-bottom: 16px;
     }
     .ecu-wrap .ecu-info-tile {
-        background: var(--azul-tint);
+        background: var(--gris-claro);
         border-radius: var(--radius-control);
         padding: 14px 16px;
     }
@@ -489,7 +541,7 @@ if($PSN1->num_rows() > 0){
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.04em;
-        color: var(--azul-dark);
+        color: var(--gris-texto);
         margin: 0 0 4px;
         font-weight: 600;
     }
@@ -508,6 +560,54 @@ if($PSN1->num_rows() > 0){
         border-bottom: 1px solid var(--line);
     }
     .ecu-wrap .ecu-info-creador strong { color: var(--negro); }
+
+    /* SOLO VISUAL: filas con ícono para Generación / Grupo anterior /
+       Pertenece al grupo / Creado por, en vez del texto plano apilado. */
+    .ecu-wrap .ecu-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        border-top: 1px solid var(--line);
+    }
+    .ecu-wrap .ecu-meta-row:first-of-type { border-top: none; padding-top: 0; }
+    .ecu-wrap .ecu-meta-icon {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        background: var(--azul-tint);
+        color: var(--azul-dark);
+        display: flex; align-items: center; justify-content: center;
+        flex: none;
+    }
+    .ecu-wrap .ecu-meta-avatar {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        background: var(--verde-tint);
+        color: var(--verde-dark);
+        font-weight: 700;
+        font-size: 12px;
+        display: flex; align-items: center; justify-content: center;
+        flex: none;
+    }
+    .ecu-wrap .ecu-meta-label {
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--gris-texto);
+        margin: 0 0 2px;
+    }
+    .ecu-wrap .ecu-meta-value {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+        color: var(--negro);
+    }
+    .ecu-wrap .ecu-meta-value.ecu-meta-value-mensaje {
+        font-style: italic;
+        font-weight: 400;
+        color: var(--gris-texto);
+    }
 
     /* Modal propio de la aplicación (reemplaza alert()/confirm() nativos) */
     .ecu-wrap .ecu-modal-overlay {
@@ -707,12 +807,9 @@ if($PSN1->num_rows() > 0){
             <?php if($idGrupoSeleccionado > 0){
                 $fechaCreacionFmt = date("d/m/Y", strtotime($fechaCreacionGrupoSeleccionado));
             ?>
-                <div class="ecu-info-header">
-                    <div class="ecu-ring"><span>G<?=$generacionGrupoSeleccionado; ?></span></div>
-                    <div class="ecu-info-header-text">
-                        <p class="ecu-info-eyebrow">Nombre del grupo</p>
-                        <input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini ecu-input-nombre-grande" maxlength="150" readonly value="<?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?>" />
-                    </div>
+                <div class="ecu-info-nombre-wrap">
+                    <p class="ecu-info-eyebrow">Nombre del grupo</p>
+                    <input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini ecu-input-nombre-grande" maxlength="150" readonly value="<?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?>" />
                 </div>
 
                 <div class="ecu-info-grid">
@@ -726,13 +823,59 @@ if($PSN1->num_rows() > 0){
                     </div>
                 </div>
 
-                <p class="ecu-info-creador">Creado por <strong><?=htmlspecialchars($nombreCreadorGrupo, ENT_QUOTES, "UTF-8"); ?></strong></p>
+                <div class="ecu-meta-row">
+                    <div class="ecu-meta-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+                    </div>
+                    <div>
+                        <p class="ecu-meta-label">Generación</p>
+                        <p class="ecu-meta-value"><?=$generacionGrupoSeleccionado; ?></p>
+                    </div>
+                </div>
+
+                <div class="ecu-meta-row">
+                    <div class="ecu-meta-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                    </div>
+                    <div>
+                        <p class="ecu-meta-label">Grupo de generación anterior</p>
+                        <?php if($generacionAnteriorNombre !== null){ ?>
+                            <p class="ecu-meta-value"><?=htmlspecialchars($generacionAnteriorNombre, ENT_QUOTES, "UTF-8"); ?></p>
+                        <?php }else{ ?>
+                            <p class="ecu-meta-value ecu-meta-value-mensaje"><?=htmlspecialchars($generacionAnteriorMensaje, ENT_QUOTES, "UTF-8"); ?></p>
+                        <?php } ?>
+                    </div>
+                </div>
+
+                <div class="ecu-meta-row">
+                    <div class="ecu-meta-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    </div>
+                    <div>
+                        <p class="ecu-meta-label">Pertenece al grupo</p>
+                        <p class="ecu-meta-value"><?=htmlspecialchars($nombreGrupoGeneracionCero, ENT_QUOTES, "UTF-8"); ?></p>
+                    </div>
+                </div>
+
+                <div class="ecu-meta-row">
+                    <div class="ecu-meta-avatar"><?=htmlspecialchars($inicialesCreadorGrupo, ENT_QUOTES, "UTF-8"); ?></div>
+                    <div>
+                        <p class="ecu-meta-label">Creado por</p>
+                        <p class="ecu-meta-value"><?=htmlspecialchars($nombreCreadorGrupo, ENT_QUOTES, "UTF-8"); ?></p>
+                    </div>
+                </div>
 
                 <div class="ecu-panel-actions">
-                    <button type="button" class="ecu-btn ecu-btn-secondary ecu-btn-slim" data-action="iniciar-edicion">Editar</button>
+                    <button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim" data-action="iniciar-edicion">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                        Editar
+                    </button>
                     <button type="button" class="ecu-btn ecu-btn-primary ecu-btn-slim oculto" data-action="guardar-nombre">Guardar</button>
-                    <button type="button" class="ecu-btn ecu-btn-secondary ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>
-                    <button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">Eliminar grupo</button>
+                    <button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>
+                    <button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+                        Eliminar grupo
+                    </button>
                 </div>
             <?php }else{ ?>
                 <div class="ecu-banner ecu-warning" style="margin: auto 0;">Seleccione o cree un grupo para ver su información.</div>
@@ -766,20 +909,25 @@ if($PSN1->num_rows() > 0){
             return div.innerHTML;
         }
 
-        function filaTabla(etiqueta, valor, esUltima){
-            var borde = esUltima ? '' : 'border-bottom: 1px solid var(--line);';
-            return '<tr><td style="padding: 9px 0; color: var(--gris-texto); ' + borde + '">' + etiqueta + '</td>' +
-                   '<td style="padding: 9px 0; text-align: right; font-weight: 600; ' + borde + '">' + valor + '</td></tr>';
+        /*
+        *   SOLO VISUAL: iniciales para el avatar de "Creado por", espejo
+        *   del mismo cálculo que ya se hace en PHP para la carga inicial.
+        */
+        function obtenerIniciales(nombre){
+            if(!nombre){ return ''; }
+            var partes = nombre.trim().split(/\s+/);
+            var iniciales = partes[0].charAt(0).toUpperCase();
+            if(partes.length > 1){
+                iniciales += partes[partes.length - 1].charAt(0).toUpperCase();
+            }
+            return iniciales;
         }
 
         function construirHtmlInfo(data){
             var html = '';
-            html += '<div class="ecu-info-header">' +
-                        '<div class="ecu-ring"><span>G' + escaparHtml(data.generacion) + '</span></div>' +
-                        '<div class="ecu-info-header-text">' +
-                            '<p class="ecu-info-eyebrow">Nombre del grupo</p>' +
-                            '<input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini ecu-input-nombre-grande" maxlength="150" readonly value="' + escaparHtml(data.nombre_grupo) + '" />' +
-                        '</div>' +
+            html += '<div class="ecu-info-nombre-wrap">' +
+                        '<p class="ecu-info-eyebrow">Nombre del grupo</p>' +
+                        '<input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini ecu-input-nombre-grande" maxlength="150" readonly value="' + escaparHtml(data.nombre_grupo) + '" />' +
                     '</div>';
             html += '<div class="ecu-info-grid">' +
                         '<div class="ecu-info-tile">' +
@@ -791,12 +939,48 @@ if($PSN1->num_rows() > 0){
                             '<p class="ecu-info-tile-value" style="font-size:15px;">' + escaparHtml(data.fecha_creacion) + '</p>' +
                         '</div>' +
                     '</div>';
-            html += '<p class="ecu-info-creador">Creado por <strong>' + escaparHtml(data.creado_por) + '</strong></p>';
+            html += '<div class="ecu-meta-row">' +
+                        '<div class="ecu-meta-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg></div>' +
+                        '<div>' +
+                            '<p class="ecu-meta-label">Generación</p>' +
+                            '<p class="ecu-meta-value">' + escaparHtml(data.generacion) + '</p>' +
+                        '</div>' +
+                    '</div>';
+            html += '<div class="ecu-meta-row">' +
+                        '<div class="ecu-meta-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></div>' +
+                        '<div>' +
+                            '<p class="ecu-meta-label">Grupo de generación anterior</p>';
+            if(data.generacion_anterior_nombre){
+                html += '<p class="ecu-meta-value">' + escaparHtml(data.generacion_anterior_nombre) + '</p>';
+            }else{
+                html += '<p class="ecu-meta-value ecu-meta-value-mensaje">' + escaparHtml(data.generacion_anterior_mensaje) + '</p>';
+            }
+            html += '</div></div>';
+            html += '<div class="ecu-meta-row">' +
+                        '<div class="ecu-meta-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>' +
+                        '<div>' +
+                            '<p class="ecu-meta-label">Pertenece al grupo</p>' +
+                            '<p class="ecu-meta-value">' + escaparHtml(data.grupo_generacion_cero) + '</p>' +
+                        '</div>' +
+                    '</div>';
+            html += '<div class="ecu-meta-row">' +
+                        '<div class="ecu-meta-avatar">' + escaparHtml(obtenerIniciales(data.creado_por)) + '</div>' +
+                        '<div>' +
+                            '<p class="ecu-meta-label">Creado por</p>' +
+                            '<p class="ecu-meta-value">' + escaparHtml(data.creado_por) + '</p>' +
+                        '</div>' +
+                    '</div>';
             html += '<div class="ecu-panel-actions">' +
-                        '<button type="button" class="ecu-btn ecu-btn-secondary ecu-btn-slim" data-action="iniciar-edicion">Editar</button>' +
+                        '<button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim" data-action="iniciar-edicion">' +
+                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>' +
+                            'Editar' +
+                        '</button>' +
                         '<button type="button" class="ecu-btn ecu-btn-primary ecu-btn-slim oculto" data-action="guardar-nombre">Guardar</button>' +
-                        '<button type="button" class="ecu-btn ecu-btn-secondary ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>' +
-                        '<button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">Eliminar grupo</button>' +
+                        '<button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>' +
+                        '<button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">' +
+                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>' +
+                            'Eliminar grupo' +
+                        '</button>' +
                     '</div>';
             return html;
         }
