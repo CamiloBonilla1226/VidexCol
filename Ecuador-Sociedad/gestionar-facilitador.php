@@ -665,8 +665,18 @@ if($nombreCreadorGrupo !== ""){
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    .ecu-wrap .ecu-fila-inferior .ecu-card { margin-bottom: 0; display: flex; flex-direction: column; }
+    /* min-height: 0 evita el bug clásico de flex/grid donde un hijo con
+       contenido largo (la lista de grupos, con varios grupos creados)
+       infla la altura "auto" del contenedor por encima de lo que se ve,
+       dejando un espacio en blanco fantasma debajo de las fichas. */
+    .ecu-wrap .ecu-fila-inferior .ecu-card {
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
     .ecu-wrap .ecu-panel-reporte { min-height: 220px; }
+    #ecuPanelInfo { min-height: 0; }
 
     /* ---------- ESCRITORIO ---------- */
     @media (min-width: 900px) {
