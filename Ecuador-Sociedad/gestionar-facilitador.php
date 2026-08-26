@@ -121,124 +121,383 @@ if($PSN1->num_rows() > 0){
     }
 }
 ?>
-<div class="container">
-    <div class="cont-tit">
-        <div class="hr"><hr></div>
-        <div class="tit-cen">
-            <h3 class="text-center">REPORTE DE <?=$temp_letrero; ?></h3>
-            <h5>Seleccione un grupo existente o cree uno nuevo para continuar</h5>
-        </div>
-        <div class="hr"><hr></div>
-    </div>
+<style>
+    /* Todo el bloque queda bajo .ecu-wrap para no afectar el resto del sitio */
+    .ecu-wrap {
+        --pine: #1F3A2E;
+        --pine-dark: #16281F;
+        --moss: #4A6B52;
+        --gold: #B98A32;
+        --paper-alt: #EDF1E7;
+        --ink: #1B2420;
+        --ink-soft: #55625A;
+        --line: #DCE1D4;
+        --line-strong: #BFC8B2;
+        --success-bg: #E4EEDC;
+        --success-text: #2F5233;
+        --danger-bg: #FBEAE6;
+        --danger-text: #A3402F;
+        --warning-bg: #FBF3DF;
+        --warning-text: #8A6414;
+        --radius-card: 14px;
+        --radius-control: 8px;
+
+        background: #FFFFFF;
+        color: var(--ink);
+        font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 32px 16px 64px;
+    }
+    .ecu-wrap * { box-sizing: border-box; }
+
+    .ecu-wrap .ecu-eyebrow {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--moss);
+        margin: 0 0 16px;
+    }
+
+    .ecu-wrap h3.ecu-title {
+        font-family: 'Fraunces', Georgia, serif;
+        font-weight: 500;
+        font-size: 24px;
+        line-height: 1.25;
+        margin: 0 0 6px;
+        color: var(--pine-dark);
+        text-align: left;
+    }
+    .ecu-wrap h5.ecu-subtitle {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--ink-soft);
+        margin: 0 0 28px;
+    }
+
+    .ecu-wrap .ecu-banner {
+        padding: 13px 16px;
+        border-radius: var(--radius-control);
+        font-size: 14px;
+        margin-bottom: 24px;
+        text-align: left;
+    }
+    .ecu-wrap .ecu-banner.ecu-success { background: var(--success-bg); color: var(--success-text); }
+    .ecu-wrap .ecu-banner.ecu-error { background: var(--danger-bg); color: var(--danger-text); }
+    .ecu-wrap .ecu-banner.ecu-warning { background: var(--warning-bg); color: var(--warning-text); }
+    .ecu-wrap .ecu-banner.ecu-info { background: var(--paper-alt); color: var(--pine-dark); }
+
+    .ecu-wrap .ecu-card {
+        background: #FFFFFF;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .ecu-wrap .ecu-section-title {
+        font-family: 'Fraunces', Georgia, serif;
+        font-weight: 500;
+        font-size: 17px;
+        margin: 0 0 4px;
+        color: var(--pine-dark);
+        text-align: left;
+    }
+    .ecu-wrap .ecu-section-sub {
+        font-size: 13px;
+        color: var(--ink-soft);
+        margin: 0 0 18px;
+        text-align: left;
+    }
+
+    /* Anillo generacional */
+    .ecu-wrap .ecu-ring {
+        position: relative;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--paper-alt);
+        border: 2px solid var(--pine);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+    }
+    .ecu-wrap .ecu-ring::before {
+        content: "";
+        position: absolute;
+        inset: 4px;
+        border-radius: 50%;
+        border: 1.5px solid var(--moss);
+    }
+    .ecu-wrap .ecu-ring::after {
+        content: "";
+        position: absolute;
+        inset: 9px;
+        border-radius: 50%;
+        border: 1px solid var(--gold);
+    }
+    .ecu-wrap .ecu-ring span {
+        position: relative;
+        z-index: 1;
+        font-family: 'IBM Plex Mono', monospace;
+        font-weight: 600;
+        font-size: 11px;
+        color: var(--pine-dark);
+    }
+
+    .ecu-wrap .ecu-group-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .ecu-wrap .ecu-group-option {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 13px 15px;
+        border: 1.5px solid var(--line);
+        border-radius: var(--radius-control);
+        cursor: pointer;
+        transition: border-color 0.15s ease, background 0.15s ease;
+        margin: 0;
+    }
+    .ecu-wrap .ecu-group-option:hover { border-color: var(--line-strong); }
+    .ecu-wrap .ecu-group-option.ecu-selected {
+        border-color: var(--pine);
+        background: var(--paper-alt);
+    }
+    .ecu-wrap .ecu-group-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .ecu-wrap .ecu-group-meta { flex: 1; min-width: 0; }
+    .ecu-wrap .ecu-group-name {
+        font-weight: 600;
+        font-size: 14.5px;
+        color: var(--ink);
+        margin: 0 0 2px;
+    }
+    .ecu-wrap .ecu-group-detail {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+        margin: 0;
+    }
+    .ecu-wrap .ecu-check {
+        width: 18px; height: 18px;
+        border-radius: 50%;
+        border: 1.5px solid var(--line-strong);
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .ecu-wrap .ecu-group-option.ecu-selected .ecu-check {
+        border-color: var(--pine);
+        background: var(--pine);
+    }
+    .ecu-wrap .ecu-group-option.ecu-selected .ecu-check::after {
+        content: "";
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #FFFFFF;
+    }
+
+    .ecu-wrap label.ecu-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 7px;
+        text-align: left;
+    }
+    .ecu-wrap label.ecu-label .ecu-req { color: var(--gold); }
+    .ecu-wrap label.ecu-label .ecu-opt { font-weight: 400; color: var(--ink-soft); font-size: 12.5px; }
+
+    .ecu-wrap .ecu-field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .ecu-wrap input[type="text"].ecu-input,
+    .ecu-wrap select.ecu-select {
+        width: 100%;
+        font-family: 'Public Sans', sans-serif;
+        font-size: 14px;
+        padding: 11px 13px;
+        border: 1.5px solid var(--line);
+        border-radius: var(--radius-control);
+        background: #FFFFFF;
+        color: var(--ink);
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        height: auto;
+    }
+    .ecu-wrap input[type="text"].ecu-input:focus,
+    .ecu-wrap select.ecu-select:focus {
+        border-color: var(--pine);
+        box-shadow: 0 0 0 3px rgba(31, 58, 46, 0.12);
+    }
+
+    .ecu-wrap .ecu-btn {
+        font-family: 'Public Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: var(--radius-control);
+        padding: 12px 22px;
+        cursor: pointer;
+        border: none;
+        transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .ecu-wrap .ecu-btn:active { transform: scale(0.99); }
+    .ecu-wrap .ecu-btn-primary { background: var(--pine); color: #F4F6F0; }
+    .ecu-wrap .ecu-btn-primary:hover { background: var(--pine-dark); }
+    .ecu-wrap .ecu-btn-secondary { background: transparent; color: var(--pine-dark); border: 1.5px solid var(--pine); }
+    .ecu-wrap .ecu-btn-secondary:hover { background: var(--paper-alt); }
+
+    .ecu-wrap .ecu-btn-row { display: flex; justify-content: center; margin-top: 4px; }
+
+    .ecu-wrap .ecu-report-stub {
+        border: 1.5px dashed var(--line-strong);
+        border-radius: var(--radius-control);
+        padding: 22px;
+        text-align: center;
+        font-size: 13.5px;
+        color: var(--ink-soft);
+    }
+
+    @media (max-width: 560px) {
+        .ecu-wrap .ecu-field-row { grid-template-columns: 1fr; }
+        .ecu-wrap h3.ecu-title { font-size: 20px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ecu-wrap * { transition: none !important; }
+    }
+</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
+
+<div class="ecu-wrap">
+
+    <p class="ecu-eyebrow">ECU · Grupos</p>
+    <h3 class="ecu-title">Reporte de <?=$temp_letrero; ?></h3>
+    <h5 class="ecu-subtitle">Seleccione un grupo existente o cree uno nuevo para continuar</h5>
 
     <?php if($errorGrupo != ""){ ?>
-        <div class="row">
-            <h5 class="alert alert-danger text-center"><?=htmlspecialchars($errorGrupo, ENT_QUOTES, "UTF-8"); ?></h5>
-        </div>
+        <div class="ecu-banner ecu-error"><?=htmlspecialchars($errorGrupo, ENT_QUOTES, "UTF-8"); ?></div>
     <?php } ?>
     <?php if($exitoGrupo != ""){ ?>
-        <div class="row">
-            <h5 class="alert alert-success text-center"><?=htmlspecialchars($exitoGrupo, ENT_QUOTES, "UTF-8"); ?></h5>
-        </div>
+        <div class="ecu-banner ecu-success"><?=htmlspecialchars($exitoGrupo, ENT_QUOTES, "UTF-8"); ?></div>
     <?php } ?>
 
-    <div class="cont-tit">
-        <div class="hr"><hr></div>
-        <div class="tit-cen">
-            <h3 class="text-center">MIS GRUPOS</h3>
-        </div>
-        <div class="hr"><hr></div>
+    <div class="ecu-card">
+        <h4 class="ecu-section-title">Mis grupos</h4>
+        <p class="ecu-section-sub">Elige el grupo al que le vas a hacer el reporte.</p>
+
+        <form method="post" id="formGrupo" name="formGrupo">
+            <input type="hidden" name="funcion" value="seleccionar_grupo" />
+
+            <?php if(count($gruposDisponibles) > 0){ ?>
+                <div class="ecu-group-list" id="ecuGroupList">
+                    <?php foreach($gruposDisponibles as $g){
+                        $marcado = ($idGrupoSeleccionado == $g["id_grupo"]);
+                        $fechaFmt = date("d/m/Y", strtotime($g["fecha_creacion"]));
+                    ?>
+                        <label class="ecu-group-option<?php if($marcado){ ?> ecu-selected<?php } ?>">
+                            <input type="radio" name="idgrupo" value="<?=$g["id_grupo"]; ?>" <?php if($marcado){ ?>checked="checked"<?php } ?> required />
+                            <span class="ecu-ring"><span><?=$g["generacion"]; ?></span></span>
+                            <span class="ecu-group-meta">
+                                <p class="ecu-group-name"><?=htmlspecialchars($g["nombre_grupo"], ENT_QUOTES, "UTF-8"); ?></p>
+                                <p class="ecu-group-detail">Generación <?=$g["generacion"]; ?> · creado el <?=$fechaFmt; ?></p>
+                            </span>
+                            <span class="ecu-check"></span>
+                        </label>
+                    <?php } ?>
+                </div>
+                <div class="ecu-btn-row">
+                    <input type="submit" name="button" value="Continuar con este grupo" class="ecu-btn ecu-btn-primary" />
+                </div>
+            <?php }else{ ?>
+                <div class="ecu-banner ecu-info">Aún no tiene grupos creados. Cree uno nuevo más abajo para continuar.</div>
+            <?php } ?>
+        </form>
     </div>
 
-    <form method="post" id="formGrupo" name="formGrupo" class="form-horizontal">
-        <input type="hidden" name="funcion" value="seleccionar_grupo" />
-        <div class="form-group">
-            <div class="col-sm-2"></div>
-            <div class="col-sm-8">
-                <?php if(count($gruposDisponibles) > 0){ ?>
-                    <strong>Grupo:</strong>
-                    <select name="idgrupo" id="idgrupo" class="form-control" required>
-                        <option value="">Seleccione un grupo...</option>
+    <div class="ecu-card">
+        <h4 class="ecu-section-title">Crear grupo nuevo</h4>
+        <p class="ecu-section-sub">La generación se calcula automáticamente según el grupo del que parte.</p>
+
+        <form method="post" id="formCrearGrupo" name="formCrearGrupo">
+            <input type="hidden" name="funcion" value="crear_grupo" />
+
+            <div class="ecu-field-row">
+                <div>
+                    <label class="ecu-label">Nombre del grupo <span class="ecu-req">*</span></label>
+                    <input type="text" name="nombre_grupo" id="nombre_grupo" maxlength="150" class="ecu-input" placeholder="Ej. Célula Vida Nueva" required />
+                </div>
+                <div>
+                    <label class="ecu-label">Crear a partir de <span class="ecu-opt">(opcional)</span></label>
+                    <select name="grupo_anterior" id="grupo_anterior" class="ecu-select">
+                        <option value="">Ninguno (nuevo grupo de generación 2)</option>
                         <?php foreach($gruposDisponibles as $g){ ?>
-                            <option value="<?=$g["id_grupo"]; ?>" <?php if($idGrupoSeleccionado == $g["id_grupo"]){ ?>selected="selected"<?php } ?>>
+                            <option value="<?=$g["id_grupo"]; ?>">
                                 <?=htmlspecialchars($g["nombre_grupo"], ENT_QUOTES, "UTF-8"); ?> (Generación <?=$g["generacion"]; ?>)
                             </option>
                         <?php } ?>
                     </select>
-                <?php }else{ ?>
-                    <div class="alert alert-info text-center">Aún no tiene grupos creados. Cree uno nuevo más abajo para continuar.</div>
-                <?php } ?>
-            </div>
-            <div class="col-sm-2"></div>
-        </div>
-        <?php if(count($gruposDisponibles) > 0){ ?>
-            <div class="cont-btn cont-flex fl-cent">
-                <div class="item-btn">
-                    <input type="submit" name="button" value="Continuar con este grupo" class="btn btn-success" />
                 </div>
             </div>
-        <?php } ?>
-    </form>
 
-    <div class="cont-tit">
-        <div class="hr"><hr></div>
-        <div class="tit-cen">
-            <h3 class="text-center">CREAR GRUPO NUEVO</h3>
-        </div>
-        <div class="hr"><hr></div>
+            <div class="ecu-btn-row">
+                <input type="submit" name="button" value="Crear grupo" class="ecu-btn ecu-btn-secondary" />
+            </div>
+        </form>
     </div>
 
-    <form method="post" id="formCrearGrupo" name="formCrearGrupo" class="form-horizontal">
-        <input type="hidden" name="funcion" value="crear_grupo" />
-        <div class="form-group">
-            <div class="col-sm-1"></div>
-            <div class="col-sm-5">
-                <strong>Nombre del grupo: <span class="text-danger">*</span></strong>
-                <input type="text" name="nombre_grupo" id="nombre_grupo" maxlength="150" class="form-control" required />
-            </div>
-            <div class="col-sm-5">
-                <strong>Crear a partir de (opcional):</strong>
-                <select name="grupo_anterior" id="grupo_anterior" class="form-control">
-                    <option value="">Ninguno (nuevo grupo de generación 2)</option>
-                    <?php foreach($gruposDisponibles as $g){ ?>
-                        <option value="<?=$g["id_grupo"]; ?>">
-                            <?=htmlspecialchars($g["nombre_grupo"], ENT_QUOTES, "UTF-8"); ?> (Generación <?=$g["generacion"]; ?>)
-                        </option>
-                    <?php } ?>
-                </select>
-            </div>
-            <div class="col-sm-1"></div>
-        </div>
-        <div class="cont-btn cont-flex fl-cent">
-            <div class="item-btn">
-                <input type="submit" name="button" value="Crear grupo" class="btn btn-primary" />
-            </div>
-        </div>
-    </form>
+    <div class="ecu-card" style="border-style: dashed;">
+        <h4 class="ecu-section-title">Formulario de reporte</h4>
 
-    <div class="cont-tit">
-        <div class="hr"><hr></div>
-        <div class="tit-cen">
-            <h3 class="text-center">FORMULARIO DE REPORTE</h3>
-        </div>
-        <div class="hr"><hr></div>
-    </div>
-
-    <?php if($idGrupoSeleccionado > 0){ ?>
-        <div class="row">
-            <h5 class="alert alert-success text-center">
+        <?php if($idGrupoSeleccionado > 0){ ?>
+            <div class="ecu-banner ecu-info" style="display:flex; align-items:center; gap:10px;">
+                <span class="ecu-ring" style="width:28px;height:28px;"><span><?=$generacionGrupoSeleccionado; ?></span></span>
                 Grupo seleccionado: <strong><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?></strong>
                 (Generación <?=$generacionGrupoSeleccionado; ?>)
-            </h5>
-        </div>
-        <!--
-            A partir de aquí va el formulario de reporte de Facilitadores
-            (pendiente de implementación), usando $idGrupoSeleccionado como
-            idgrupo del reporte en ecu_reportes.
-        -->
-    <?php }else{ ?>
-        <div class="row">
-            <h5 class="alert alert-warning text-center">Debe seleccionar o crear un grupo antes de continuar al formulario de reporte.</h5>
-        </div>
-    <?php } ?>
+            </div>
+            <!--
+                A partir de aquí va el formulario de reporte de Facilitadores
+                (pendiente de implementación), usando $idGrupoSeleccionado como
+                idgrupo del reporte en ecu_reportes.
+            -->
+        <?php }else{ ?>
+            <div class="ecu-banner ecu-warning">Debe seleccionar o crear un grupo antes de continuar al formulario de reporte.</div>
+        <?php } ?>
+    </div>
+
 </div>
+
+<script>
+    (function(){
+        var lista = document.getElementById('ecuGroupList');
+        if(!lista){ return; }
+        lista.addEventListener('click', function(e){
+            var opcion = e.target.closest('.ecu-group-option');
+            if(!opcion){ return; }
+            var todas = lista.querySelectorAll('.ecu-group-option');
+            for(var i = 0; i < todas.length; i++){
+                todas[i].classList.remove('ecu-selected');
+            }
+            opcion.classList.add('ecu-selected');
+            var input = opcion.querySelector('input[type="radio"]');
+            if(input){ input.checked = true; }
+        });
+    })();
+</script>
