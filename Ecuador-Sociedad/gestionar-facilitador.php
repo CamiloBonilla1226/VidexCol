@@ -131,7 +131,7 @@ if($idGrupoSeleccionado > 0){
 $gruposDisponibles = array();
 $sqlGrupos = "SELECT id_grupo, nombre_grupo, generacion, grupo_anterior, fecha_creacion ";
 $sqlGrupos .= "FROM ecu_grupos WHERE id_usuario = ".$idUsuarioSesion." AND generacion NOT IN (0,1) ";
-$sqlGrupos .= "ORDER BY generacion ASC, nombre_grupo ASC";
+$sqlGrupos .= "ORDER BY fecha_creacion DESC, id_grupo DESC";
 $PSN1->query($sqlGrupos);
 if($PSN1->num_rows() > 0){
     while($PSN1->next_record()){
@@ -633,6 +633,14 @@ if($PSN1->num_rows() > 0){
             lista.addEventListener('click', function(e){
                 var opcion = e.target.closest('.ecu-group-option');
                 if(!opcion){ return; }
+
+                /*
+                *   Se evita el comportamiento nativo del <label> (enfocar el
+                *   radio interno), ya que al estar posicionado de forma
+                *   absoluta esto hacía que el navegador desplazara toda la
+                *   página para "mostrarlo". El estado se marca a mano.
+                */
+                e.preventDefault();
 
                 var input = opcion.querySelector('input[type="radio"]');
                 if(input){ input.checked = true; }
