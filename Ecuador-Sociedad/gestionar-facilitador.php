@@ -86,14 +86,38 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "seleccionar_grupo"){
 *   VALIDACIÓN: el grupo seleccionado (venga de crear o de elegir) debe
 *   pertenecer al usuario de sesión y no ser generación 0 ni 1.
 */
+$nombreCreadorGrupo = "";
+$totalReportesGrupo = 0;
+$fechaCreacionGrupoSeleccionado = "";
+
 if($idGrupoSeleccionado > 0){
-    $sqlValida = "SELECT id_grupo, nombre_grupo, generacion FROM ecu_grupos ";
+    $sqlValida = "SELECT id_grupo, nombre_grupo, generacion, fecha_creacion, id_usuario FROM ecu_grupos ";
     $sqlValida .= "WHERE id_grupo = ".$idGrupoSeleccionado." AND id_usuario = ".$idUsuarioSesion." AND generacion NOT IN (0,1) LIMIT 1";
     $PSN1->query($sqlValida);
     if($PSN1->num_rows() > 0){
         $PSN1->next_record();
         $nombreGrupoSeleccionado = $PSN1->f("nombre_grupo");
         $generacionGrupoSeleccionado = $PSN1->f("generacion");
+        $fechaCreacionGrupoSeleccionado = $PSN1->f("fecha_creacion");
+        $idUsuarioCreadorGrupo = intval($PSN1->f("id_usuario"));
+
+        // Nombre de quien creó el grupo
+        $PSN3 = new DBbase_Sql;
+        $sqlCreador = "SELECT nombre FROM usuario WHERE id = ".$idUsuarioCreadorGrupo." LIMIT 1";
+        $PSN3->query($sqlCreador);
+        if($PSN3->num_rows() > 0){
+            $PSN3->next_record();
+            $nombreCreadorGrupo = $PSN3->f("nombre");
+        }
+
+        // Cantidad de reportes que tiene este grupo en ecu_reportes
+        $PSN4 = new DBbase_Sql;
+        $sqlConteo = "SELECT COUNT(*) AS total FROM ecu_reportes WHERE idgrupo = ".$idGrupoSeleccionado;
+        $PSN4->query($sqlConteo);
+        if($PSN4->num_rows() > 0){
+            $PSN4->next_record();
+            $totalReportesGrupo = intval($PSN4->f("total"));
+        }
     }else{
         $idGrupoSeleccionado = 0;
     }
@@ -169,13 +193,14 @@ if($PSN1->num_rows() > 0){
         line-height: 1.25;
         margin: 0 0 6px;
         color: var(--negro);
-        text-align: left;
+        text-align: center;
     }
     .ecu-wrap h5.ecu-subtitle {
         font-size: 14px;
         font-weight: 400;
         color: var(--gris-texto);
         margin: 0 0 28px;
+        text-align: center;
     }
 
     .ecu-wrap .ecu-banner {
@@ -255,6 +280,12 @@ if($PSN1->num_rows() > 0){
         flex-direction: column;
         gap: 10px;
         margin-bottom: 20px;
+        max-height: 360px;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+    .ecu-wrap .ecu-buscador {
+        margin-bottom: 14px;
     }
     .ecu-wrap .ecu-group-option {
         display: flex;
@@ -480,24 +511,22 @@ if($PSN1->num_rows() > 0){
                 <input type="hidden" name="funcion" value="seleccionar_grupo" />
 
                 <?php if(count($gruposDisponibles) > 0){ ?>
+                    <div class="ecu-buscador">
+                        <input type="text" id="buscarGrupo" class="ecu-input" placeholder="Buscar grupo por nombre..." />
+                    </div>
                     <div class="ecu-group-list" id="ecuGroupList">
                         <?php foreach($gruposDisponibles as $g){
                             $marcado = ($idGrupoSeleccionado == $g["id_grupo"]);
-                            $fechaFmt = date("d/m/Y", strtotime($g["fecha_creacion"]));
+                            $nombreDataAttr = htmlspecialchars(mb_strtolower($g["nombre_grupo"], "UTF-8"), ENT_QUOTES, "UTF-8");
                         ?>
-                            <label class="ecu-group-option<?php if($marcado){ ?> ecu-selected<?php } ?>">
+                            <label class="ecu-group-option<?php if($marcado){ ?> ecu-selected<?php } ?>" data-nombre="<?=$nombreDataAttr; ?>">
                                 <input type="radio" name="idgrupo" value="<?=$g["id_grupo"]; ?>" <?php if($marcado){ ?>checked="checked"<?php } ?> required />
-                                <span class="ecu-ring"><span><?=$g["generacion"]; ?></span></span>
                                 <span class="ecu-group-meta">
                                     <p class="ecu-group-name"><?=htmlspecialchars($g["nombre_grupo"], ENT_QUOTES, "UTF-8"); ?></p>
-                                    <p class="ecu-group-detail">Generación <?=$g["generacion"]; ?> · creado el <?=$fechaFmt; ?></p>
                                 </span>
                                 <span class="ecu-check"></span>
                             </label>
                         <?php } ?>
-                    </div>
-                    <div class="ecu-btn-row">
-                        <input type="submit" name="button" value="Continuar con este grupo" class="ecu-btn ecu-btn-primary" />
                     </div>
                 <?php }else{ ?>
                     <div class="ecu-banner ecu-info">Aún no tiene grupos creados. Cree uno nuevo arriba para continuar.</div>
@@ -505,22 +534,40 @@ if($PSN1->num_rows() > 0){
             </form>
         </div>
 
-        <div class="ecu-card ecu-panel-reporte" style="border-style: dashed;">
-            <h4 class="ecu-section-title">Formulario de reporte</h4>
+        <div class="ecu-card ecu-panel-reporte">
+            <h4 class="ecu-section-title">Información del grupo</h4>
 
-            <?php if($idGrupoSeleccionado > 0){ ?>
-                <div class="ecu-banner ecu-info" style="display:flex; align-items:center; gap:10px;">
-                    <span class="ecu-ring" style="width:28px;height:28px;"><span><?=$generacionGrupoSeleccionado; ?></span></span>
-                    Grupo seleccionado: <strong><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?></strong>
-                    (Generación <?=$generacionGrupoSeleccionado; ?>)
+            <?php if($idGrupoSeleccionado > 0){
+                $fechaCreacionFmt = date("d/m/Y", strtotime($fechaCreacionGrupoSeleccionado));
+            ?>
+                <table style="width:100%; border-collapse: collapse; font-size: 14px; margin-bottom: 22px;">
+                    <tr>
+                        <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Nombre del grupo</td>
+                        <td style="padding: 9px 0; text-align: right; font-weight: 600; border-bottom: 1px solid var(--line);"><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Generación</td>
+                        <td style="padding: 9px 0; text-align: right; font-weight: 600; border-bottom: 1px solid var(--line);"><?=$generacionGrupoSeleccionado; ?></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Reportes realizados</td>
+                        <td style="padding: 9px 0; text-align: right; font-weight: 600; border-bottom: 1px solid var(--line);"><?=$totalReportesGrupo; ?></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Fecha de creación</td>
+                        <td style="padding: 9px 0; text-align: right; font-weight: 600; border-bottom: 1px solid var(--line);"><?=$fechaCreacionFmt; ?></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 9px 0; color: var(--gris-texto);">Creado por</td>
+                        <td style="padding: 9px 0; text-align: right; font-weight: 600;"><?=htmlspecialchars($nombreCreadorGrupo, ENT_QUOTES, "UTF-8"); ?></td>
+                    </tr>
+                </table>
+
+                <div class="ecu-btn-row">
+                    <a href="reportar_facilitador.php?idgrupo=<?=$idGrupoSeleccionado; ?>" class="ecu-btn ecu-btn-primary" style="text-decoration:none; display:inline-block;">Generar reporte</a>
                 </div>
-                <!--
-                    A partir de aquí va el formulario de reporte de Facilitadores
-                    (pendiente de implementación), usando $idGrupoSeleccionado como
-                    idgrupo del reporte en ecu_reportes.
-                -->
             <?php }else{ ?>
-                <div class="ecu-banner ecu-warning">Debe seleccionar o crear un grupo antes de continuar al formulario de reporte.</div>
+                <div class="ecu-banner ecu-warning">Seleccione o cree un grupo para ver su información.</div>
             <?php } ?>
         </div>
     </div>
@@ -530,17 +577,27 @@ if($PSN1->num_rows() > 0){
 <script>
     (function(){
         var lista = document.getElementById('ecuGroupList');
-        if(!lista){ return; }
-        lista.addEventListener('click', function(e){
-            var opcion = e.target.closest('.ecu-group-option');
-            if(!opcion){ return; }
-            var todas = lista.querySelectorAll('.ecu-group-option');
-            for(var i = 0; i < todas.length; i++){
-                todas[i].classList.remove('ecu-selected');
-            }
-            opcion.classList.add('ecu-selected');
-            var input = opcion.querySelector('input[type="radio"]');
-            if(input){ input.checked = true; }
-        });
+        var formulario = document.getElementById('formGrupo');
+        if(lista && formulario){
+            lista.addEventListener('click', function(e){
+                var opcion = e.target.closest('.ecu-group-option');
+                if(!opcion){ return; }
+                var input = opcion.querySelector('input[type="radio"]');
+                if(input){ input.checked = true; }
+                formulario.submit();
+            });
+        }
+
+        var buscador = document.getElementById('buscarGrupo');
+        if(buscador && lista){
+            buscador.addEventListener('input', function(){
+                var termino = buscador.value.toLowerCase();
+                var opciones = lista.querySelectorAll('.ecu-group-option');
+                for(var i = 0; i < opciones.length; i++){
+                    var nombre = opciones[i].getAttribute('data-nombre') || '';
+                    opciones[i].style.display = (nombre.indexOf(termino) > -1) ? '' : 'none';
+                }
+            });
+        }
     })();
 </script>
