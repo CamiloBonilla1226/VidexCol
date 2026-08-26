@@ -91,7 +91,6 @@ $totalReportesGrupo = 0;
 $fechaCreacionGrupoSeleccionado = "";
 $generacionAnteriorNombre = null;
 $generacionAnteriorMensaje = null;
-$nombreGrupoGeneracionCero = "";
 
 if($idGrupoSeleccionado > 0){
     $sqlValida = "SELECT id_grupo, nombre_grupo, generacion, grupo_anterior, fecha_creacion, id_usuario FROM ecu_grupos ";
@@ -165,15 +164,6 @@ if($idGrupoSeleccionado > 0){
             if($generacionAnteriorNombre === null){
                 $generacionAnteriorMensaje = "Este grupo no tiene un grupo antecesor registrado.";
             }
-        }
-
-        // Grupo de generación 0 (raíz única del sistema, ej. "OMS")
-        $PSN7 = new DBbase_Sql;
-        $sqlGenCero = "SELECT nombre_grupo FROM ecu_grupos WHERE generacion = 0 LIMIT 1";
-        $PSN7->query($sqlGenCero);
-        if($PSN7->num_rows() > 0){
-            $PSN7->next_record();
-            $nombreGrupoGeneracionCero = $PSN7->f("nombre_grupo");
         }
     }else{
         $idGrupoSeleccionado = 0;
@@ -529,24 +519,24 @@ if($nombreCreadorGrupo !== ""){
     .ecu-wrap .ecu-info-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-bottom: 16px;
+        gap: 8px;
+        margin-bottom: 10px;
     }
     .ecu-wrap .ecu-info-tile {
         background: var(--gris-claro);
         border-radius: var(--radius-control);
-        padding: 14px 16px;
+        padding: 8px 12px;
     }
     .ecu-wrap .ecu-info-tile-label {
-        font-size: 11px;
+        font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.04em;
         color: var(--gris-texto);
-        margin: 0 0 4px;
+        margin: 0 0 2px;
         font-weight: 600;
     }
     .ecu-wrap .ecu-info-tile-value {
-        font-size: 20px;
+        font-size: 15px;
         font-weight: 600;
         color: var(--negro);
         margin: 0;
@@ -562,7 +552,7 @@ if($nombreCreadorGrupo !== ""){
     .ecu-wrap .ecu-info-creador strong { color: var(--negro); }
 
     /* SOLO VISUAL: filas con ícono para Generación / Grupo anterior /
-       Pertenece al grupo / Creado por, en vez del texto plano apilado. */
+       Creado por, en vez del texto plano apilado. */
     .ecu-wrap .ecu-meta-row {
         display: flex;
         align-items: center;
@@ -819,7 +809,7 @@ if($nombreCreadorGrupo !== ""){
                     </div>
                     <div class="ecu-info-tile">
                         <p class="ecu-info-tile-label">Fecha de creación</p>
-                        <p class="ecu-info-tile-value" style="font-size:15px;"><?=$fechaCreacionFmt; ?></p>
+                        <p class="ecu-info-tile-value" style="font-size:13px;"><?=$fechaCreacionFmt; ?></p>
                     </div>
                 </div>
 
@@ -844,16 +834,6 @@ if($nombreCreadorGrupo !== ""){
                         <?php }else{ ?>
                             <p class="ecu-meta-value ecu-meta-value-mensaje"><?=htmlspecialchars($generacionAnteriorMensaje, ENT_QUOTES, "UTF-8"); ?></p>
                         <?php } ?>
-                    </div>
-                </div>
-
-                <div class="ecu-meta-row">
-                    <div class="ecu-meta-icon">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                    </div>
-                    <div>
-                        <p class="ecu-meta-label">Pertenece al grupo</p>
-                        <p class="ecu-meta-value"><?=htmlspecialchars($nombreGrupoGeneracionCero, ENT_QUOTES, "UTF-8"); ?></p>
                     </div>
                 </div>
 
@@ -936,7 +916,7 @@ if($nombreCreadorGrupo !== ""){
                         '</div>' +
                         '<div class="ecu-info-tile">' +
                             '<p class="ecu-info-tile-label">Fecha de creación</p>' +
-                            '<p class="ecu-info-tile-value" style="font-size:15px;">' + escaparHtml(data.fecha_creacion) + '</p>' +
+                            '<p class="ecu-info-tile-value" style="font-size:13px;">' + escaparHtml(data.fecha_creacion) + '</p>' +
                         '</div>' +
                     '</div>';
             html += '<div class="ecu-meta-row">' +
@@ -956,13 +936,6 @@ if($nombreCreadorGrupo !== ""){
                 html += '<p class="ecu-meta-value ecu-meta-value-mensaje">' + escaparHtml(data.generacion_anterior_mensaje) + '</p>';
             }
             html += '</div></div>';
-            html += '<div class="ecu-meta-row">' +
-                        '<div class="ecu-meta-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>' +
-                        '<div>' +
-                            '<p class="ecu-meta-label">Pertenece al grupo</p>' +
-                            '<p class="ecu-meta-value">' + escaparHtml(data.grupo_generacion_cero) + '</p>' +
-                        '</div>' +
-                    '</div>';
             html += '<div class="ecu-meta-row">' +
                         '<div class="ecu-meta-avatar">' + escaparHtml(obtenerIniciales(data.creado_por)) + '</div>' +
                         '<div>' +

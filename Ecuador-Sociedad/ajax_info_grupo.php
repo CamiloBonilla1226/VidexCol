@@ -118,16 +118,6 @@ if($generacion == 2){
     }
 }
 
-// Grupo de generación 0 (raíz única del sistema, ej. "OMS")
-$nombreGrupoGeneracionCero = "";
-$PSN6 = new DBbase_Sql;
-$sqlGenCero = "SELECT nombre_grupo FROM ecu_grupos WHERE generacion = 0 LIMIT 1";
-$PSN6->query($sqlGenCero);
-if($PSN6->num_rows() > 0){
-    $PSN6->next_record();
-    $nombreGrupoGeneracionCero = $PSN6->f("nombre_grupo");
-}
-
 $respuesta["ok"] = true;
 $respuesta["id_grupo"] = $idGrupo;
 $respuesta["nombre_grupo"] = $nombreGrupo;
@@ -137,6 +127,5 @@ $respuesta["creado_por"] = $nombreCreador;
 $respuesta["total_reportes"] = $totalReportes;
 $respuesta["generacion_anterior_nombre"] = $generacionAnteriorNombre;
 $respuesta["generacion_anterior_mensaje"] = $generacionAnteriorMensaje;
-$respuesta["grupo_generacion_cero"] = $nombreGrupoGeneracionCero;
 
 echo json_encode($respuesta);
