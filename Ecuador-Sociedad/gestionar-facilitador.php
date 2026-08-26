@@ -397,6 +397,21 @@ if($PSN1->num_rows() > 0){
 
     .ecu-wrap .ecu-btn-row { display: flex; justify-content: center; margin-top: 4px; }
 
+    .ecu-wrap .ecu-panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+    .ecu-wrap .ecu-panel-header .ecu-section-title { margin: 0; }
+    .ecu-wrap .ecu-btn-slim {
+        padding: 7px 16px;
+        font-size: 12.5px;
+        flex: none;
+    }
+
     .ecu-wrap .ecu-report-stub {
         border: 1.5px dashed var(--line-strong);
         border-radius: var(--radius-control);
@@ -414,14 +429,15 @@ if($PSN1->num_rows() > 0){
         align-items: end;
     }
 
-    /* Fila inferior: listado de grupos + formulario de reporte lado a lado */
+    /* Fila inferior: listado de grupos + formulario de reporte lado a lado.
+       align-items queda en su valor por defecto (stretch) para que ambas
+       fichas terminen con la misma altura. */
     .ecu-wrap .ecu-fila-inferior {
         display: grid;
         grid-template-columns: 1fr;
         gap: 20px;
-        align-items: start;
     }
-    .ecu-wrap .ecu-fila-inferior .ecu-card { margin-bottom: 0; }
+    .ecu-wrap .ecu-fila-inferior .ecu-card { margin-bottom: 0; display: flex; flex-direction: column; }
     .ecu-wrap .ecu-panel-reporte { min-height: 220px; }
 
     /* ---------- ESCRITORIO ---------- */
@@ -541,13 +557,19 @@ if($PSN1->num_rows() > 0){
         </div>
 
         <div class="ecu-card ecu-panel-reporte">
-            <h4 class="ecu-section-title">Información del grupo</h4>
+            <div class="ecu-panel-header">
+                <h4 class="ecu-section-title">Información del grupo</h4>
+                <a href="<?php echo ($idGrupoSeleccionado > 0) ? 'reportar_facilitador.php?idgrupo='.$idGrupoSeleccionado : '#'; ?>"
+                   id="ecuBtnReporte"
+                   class="ecu-btn ecu-btn-primary ecu-btn-slim"
+                   style="text-decoration:none; display:<?php echo ($idGrupoSeleccionado > 0) ? 'inline-block' : 'none'; ?>;">Generar reporte</a>
+            </div>
 
             <div id="ecuPanelInfo">
             <?php if($idGrupoSeleccionado > 0){
                 $fechaCreacionFmt = date("d/m/Y", strtotime($fechaCreacionGrupoSeleccionado));
             ?>
-                <table style="width:100%; border-collapse: collapse; font-size: 14px; margin-bottom: 22px;">
+                <table style="width:100%; border-collapse: collapse; font-size: 14px;">
                     <tr>
                         <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Nombre del grupo</td>
                         <td style="padding: 9px 0; text-align: right; font-weight: 600; border-bottom: 1px solid var(--line);"><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?></td>
@@ -569,10 +591,6 @@ if($PSN1->num_rows() > 0){
                         <td style="padding: 9px 0; text-align: right; font-weight: 600;"><?=htmlspecialchars($nombreCreadorGrupo, ENT_QUOTES, "UTF-8"); ?></td>
                     </tr>
                 </table>
-
-                <div class="ecu-btn-row">
-                    <a href="reportar_facilitador.php?idgrupo=<?=$idGrupoSeleccionado; ?>" class="ecu-btn ecu-btn-primary" style="text-decoration:none; display:inline-block;">Generar reporte</a>
-                </div>
             <?php }else{ ?>
                 <div class="ecu-banner ecu-warning">Seleccione o cree un grupo para ver su información.</div>
             <?php } ?>
@@ -586,6 +604,7 @@ if($PSN1->num_rows() > 0){
     (function(){
         var lista = document.getElementById('ecuGroupList');
         var panelInfo = document.getElementById('ecuPanelInfo');
+        var btnReporte = document.getElementById('ecuBtnReporte');
 
         function escaparHtml(texto){
             var div = document.createElement('div');
@@ -600,21 +619,30 @@ if($PSN1->num_rows() > 0){
         }
 
         function construirHtmlInfo(data){
-            var html = '<table style="width:100%; border-collapse: collapse; font-size: 14px; margin-bottom: 22px;">';
+            var html = '<table style="width:100%; border-collapse: collapse; font-size: 14px;">';
             html += filaTabla('Nombre del grupo', escaparHtml(data.nombre_grupo));
             html += filaTabla('Generación', escaparHtml(data.generacion));
             html += filaTabla('Reportes realizados', escaparHtml(data.total_reportes));
             html += filaTabla('Fecha de creación', escaparHtml(data.fecha_creacion));
             html += filaTabla('Creado por', escaparHtml(data.creado_por), true);
             html += '</table>';
-            html += '<div class="ecu-btn-row"><a href="reportar_facilitador.php?idgrupo=' + encodeURIComponent(data.id_grupo) +
-                    '" class="ecu-btn ecu-btn-primary" style="text-decoration:none; display:inline-block;">Generar reporte</a></div>';
             return html;
+        }
+
+        function actualizarBotonReporte(idGrupo){
+            if(!btnReporte){ return; }
+            if(idGrupo){
+                btnReporte.href = 'reportar_facilitador.php?idgrupo=' + encodeURIComponent(idGrupo);
+                btnReporte.style.display = 'inline-block';
+            }else{
+                btnReporte.style.display = 'none';
+            }
         }
 
         function cargarInfoGrupo(idGrupo){
             if(!panelInfo){ return; }
             panelInfo.innerHTML = '<div class="ecu-banner ecu-info">Cargando información del grupo...</div>';
+            actualizarBotonReporte(null);
             fetch('ajax_info_grupo.php?idgrupo=' + encodeURIComponent(idGrupo), { credentials: 'same-origin' })
                 .then(function(resp){ return resp.json(); })
                 .then(function(data){
@@ -623,6 +651,7 @@ if($PSN1->num_rows() > 0){
                         return;
                     }
                     panelInfo.innerHTML = construirHtmlInfo(data);
+                    actualizarBotonReporte(data.id_grupo);
                 })
                 .catch(function(){
                     panelInfo.innerHTML = '<div class="ecu-banner ecu-error">Ocurrió un error al consultar el grupo.</div>';
