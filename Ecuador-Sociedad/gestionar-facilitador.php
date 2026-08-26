@@ -426,28 +426,36 @@ if($PSN1->num_rows() > 0){
         margin-top: auto;
         padding-top: 18px;
         display: flex;
+        gap: 10px;
         justify-content: flex-end;
+        flex-wrap: wrap;
     }
+    .ecu-wrap .oculto { display: none !important; }
 
-    /* Campo editable (nombre del grupo) dentro de la tabla de información */
-    .ecu-wrap .ecu-editable-field {
+    /* Encabezado de la ficha: anillo de generación + nombre del grupo */
+    .ecu-wrap .ecu-info-header {
         display: flex;
         align-items: center;
-        justify-content: flex-end;
-        gap: 4px;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+    .ecu-wrap .ecu-info-header-text { flex: 1; min-width: 0; }
+    .ecu-wrap .ecu-info-eyebrow {
+        font-size: 11.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--gris-texto);
+        margin: 0 0 3px;
+        font-weight: 600;
     }
     .ecu-wrap .ecu-input-mini {
         font-family: 'Public Sans', sans-serif;
-        font-size: 13.5px;
         font-weight: 600;
-        text-align: right;
         padding: 4px 7px;
         border: 1.5px solid transparent;
         border-radius: 6px;
         background: transparent;
         color: var(--negro);
-        width: auto;
-        max-width: 220px;
         outline: none;
     }
     .ecu-wrap .ecu-input-mini:read-only { cursor: default; }
@@ -456,23 +464,91 @@ if($PSN1->num_rows() > 0){
         background: #FFFFFF;
         box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.15);
     }
-    .ecu-wrap .ecu-icon-btn {
-        border: none;
-        background: transparent;
-        cursor: pointer;
-        font-size: 14px;
-        line-height: 1;
-        padding: 4px 6px;
-        color: var(--gris-texto);
-        border-radius: 6px;
-        flex: none;
+    .ecu-wrap .ecu-input-mini.ecu-input-nombre-grande {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 18px;
+        font-weight: 500;
+        width: 100%;
+        max-width: 100%;
+        padding: 2px 6px;
     }
-    .ecu-wrap .ecu-icon-btn:hover { background: var(--azul-tint); color: var(--azul-dark); }
-    .ecu-wrap .ecu-icon-guardar { color: var(--verde); }
-    .ecu-wrap .ecu-icon-guardar:hover { background: var(--verde-tint); color: var(--verde-dark); }
-    .ecu-wrap .ecu-icon-cancelar { color: var(--danger-text); }
-    .ecu-wrap .ecu-icon-cancelar:hover { background: var(--danger-bg); }
-    .ecu-wrap .oculto { display: none !important; }
+
+    /* Tarjetas de estadísticas del grupo */
+    .ecu-wrap .ecu-info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .ecu-wrap .ecu-info-tile {
+        background: var(--azul-tint);
+        border-radius: var(--radius-control);
+        padding: 14px 16px;
+    }
+    .ecu-wrap .ecu-info-tile-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--azul-dark);
+        margin: 0 0 4px;
+        font-weight: 600;
+    }
+    .ecu-wrap .ecu-info-tile-value {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--negro);
+        margin: 0;
+        font-family: 'Fraunces', Georgia, serif;
+    }
+    .ecu-wrap .ecu-info-creador {
+        font-size: 13px;
+        color: var(--gris-texto);
+        margin: 0;
+        padding-bottom: 4px;
+        border-bottom: 1px solid var(--line);
+    }
+    .ecu-wrap .ecu-info-creador strong { color: var(--negro); }
+
+    /* Modal propio de la aplicación (reemplaza alert()/confirm() nativos) */
+    .ecu-wrap .ecu-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(26, 26, 26, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 1000;
+    }
+    .ecu-wrap .ecu-modal-overlay.oculto { display: none; }
+    .ecu-wrap .ecu-modal-card {
+        background: #FFFFFF;
+        border-radius: var(--radius-card);
+        padding: 26px;
+        max-width: 420px;
+        width: 100%;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+    }
+    .ecu-wrap .ecu-modal-titulo {
+        font-family: 'Fraunces', Georgia, serif;
+        font-weight: 500;
+        font-size: 18px;
+        margin: 0 0 10px;
+        color: var(--negro);
+    }
+    .ecu-wrap .ecu-modal-card.ecu-modal-error .ecu-modal-titulo { color: var(--danger-text); }
+    .ecu-wrap .ecu-modal-mensaje {
+        font-size: 14px;
+        color: var(--gris-texto);
+        line-height: 1.5;
+        margin: 0 0 22px;
+        text-align: left;
+    }
+    .ecu-wrap .ecu-modal-botones {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
 
     .ecu-wrap .ecu-report-stub {
         border: 1.5px dashed var(--line-strong);
@@ -631,43 +707,45 @@ if($PSN1->num_rows() > 0){
             <?php if($idGrupoSeleccionado > 0){
                 $fechaCreacionFmt = date("d/m/Y", strtotime($fechaCreacionGrupoSeleccionado));
             ?>
-                <table style="width:100%; border-collapse: collapse; font-size: 14px;">
-                    <tr>
-                        <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Nombre del grupo</td>
-                        <td style="padding: 9px 0; border-bottom: 1px solid var(--line);">
-                            <div class="ecu-editable-field">
-                                <input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini" maxlength="150" readonly value="<?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?>" />
-                                <button type="button" class="ecu-icon-btn" data-action="editar-nombre" title="Editar nombre">✎</button>
-                                <button type="button" class="ecu-icon-btn ecu-icon-guardar oculto" data-action="guardar-nombre" title="Guardar">✔</button>
-                                <button type="button" class="ecu-icon-btn ecu-icon-cancelar oculto" data-action="cancelar-nombre" title="Cancelar">✕</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Generación</td>
-                        <td style="padding: 9px 0; text-align: right; font-weight: 600; border-bottom: 1px solid var(--line);"><?=$generacionGrupoSeleccionado; ?></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Reportes realizados</td>
-                        <td style="padding: 9px 0; text-align: right; font-weight: 600; border-bottom: 1px solid var(--line);"><?=$totalReportesGrupo; ?></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Fecha de creación</td>
-                        <td style="padding: 9px 0; text-align: right; font-weight: 600; border-bottom: 1px solid var(--line);"><?=$fechaCreacionFmt; ?></td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 9px 0; color: var(--gris-texto);">Creado por</td>
-                        <td style="padding: 9px 0; text-align: right; font-weight: 600;"><?=htmlspecialchars($nombreCreadorGrupo, ENT_QUOTES, "UTF-8"); ?></td>
-                    </tr>
-                </table>
+                <div class="ecu-info-header">
+                    <div class="ecu-ring"><span>G<?=$generacionGrupoSeleccionado; ?></span></div>
+                    <div class="ecu-info-header-text">
+                        <p class="ecu-info-eyebrow">Nombre del grupo</p>
+                        <input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini ecu-input-nombre-grande" maxlength="150" readonly value="<?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?>" />
+                    </div>
+                </div>
+
+                <div class="ecu-info-grid">
+                    <div class="ecu-info-tile">
+                        <p class="ecu-info-tile-label">Reportes realizados</p>
+                        <p class="ecu-info-tile-value"><?=$totalReportesGrupo; ?></p>
+                    </div>
+                    <div class="ecu-info-tile">
+                        <p class="ecu-info-tile-label">Fecha de creación</p>
+                        <p class="ecu-info-tile-value" style="font-size:15px;"><?=$fechaCreacionFmt; ?></p>
+                    </div>
+                </div>
+
+                <p class="ecu-info-creador">Creado por <strong><?=htmlspecialchars($nombreCreadorGrupo, ENT_QUOTES, "UTF-8"); ?></strong></p>
 
                 <div class="ecu-panel-actions">
+                    <button type="button" class="ecu-btn ecu-btn-secondary ecu-btn-slim" data-action="iniciar-edicion">Editar</button>
+                    <button type="button" class="ecu-btn ecu-btn-primary ecu-btn-slim oculto" data-action="guardar-nombre">Guardar</button>
+                    <button type="button" class="ecu-btn ecu-btn-secondary ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>
                     <button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">Eliminar grupo</button>
                 </div>
             <?php }else{ ?>
                 <div class="ecu-banner ecu-warning" style="margin: auto 0;">Seleccione o cree un grupo para ver su información.</div>
             <?php } ?>
             </div>
+        </div>
+    </div>
+
+    <div class="ecu-modal-overlay oculto" id="ecuModalOverlay">
+        <div class="ecu-modal-card" id="ecuModalCard">
+            <h4 class="ecu-modal-titulo" id="ecuModalTitulo">Aviso</h4>
+            <p class="ecu-modal-mensaje" id="ecuModalMensaje"></p>
+            <div class="ecu-modal-botones" id="ecuModalBotones"></div>
         </div>
     </div>
 
@@ -695,25 +773,95 @@ if($PSN1->num_rows() > 0){
         }
 
         function construirHtmlInfo(data){
-            var html = '<table style="width:100%; border-collapse: collapse; font-size: 14px;">';
-            html += '<tr><td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Nombre del grupo</td>' +
-                    '<td style="padding: 9px 0; border-bottom: 1px solid var(--line);">' +
-                        '<div class="ecu-editable-field">' +
-                            '<input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini" maxlength="150" readonly value="' + escaparHtml(data.nombre_grupo) + '" />' +
-                            '<button type="button" class="ecu-icon-btn" data-action="editar-nombre" title="Editar nombre">✎</button>' +
-                            '<button type="button" class="ecu-icon-btn ecu-icon-guardar oculto" data-action="guardar-nombre" title="Guardar">✔</button>' +
-                            '<button type="button" class="ecu-icon-btn ecu-icon-cancelar oculto" data-action="cancelar-nombre" title="Cancelar">✕</button>' +
+            var html = '';
+            html += '<div class="ecu-info-header">' +
+                        '<div class="ecu-ring"><span>G' + escaparHtml(data.generacion) + '</span></div>' +
+                        '<div class="ecu-info-header-text">' +
+                            '<p class="ecu-info-eyebrow">Nombre del grupo</p>' +
+                            '<input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini ecu-input-nombre-grande" maxlength="150" readonly value="' + escaparHtml(data.nombre_grupo) + '" />' +
                         '</div>' +
-                    '</td></tr>';
-            html += filaTabla('Generación', escaparHtml(data.generacion));
-            html += filaTabla('Reportes realizados', escaparHtml(data.total_reportes));
-            html += filaTabla('Fecha de creación', escaparHtml(data.fecha_creacion));
-            html += filaTabla('Creado por', escaparHtml(data.creado_por), true);
-            html += '</table>';
+                    '</div>';
+            html += '<div class="ecu-info-grid">' +
+                        '<div class="ecu-info-tile">' +
+                            '<p class="ecu-info-tile-label">Reportes realizados</p>' +
+                            '<p class="ecu-info-tile-value">' + escaparHtml(data.total_reportes) + '</p>' +
+                        '</div>' +
+                        '<div class="ecu-info-tile">' +
+                            '<p class="ecu-info-tile-label">Fecha de creación</p>' +
+                            '<p class="ecu-info-tile-value" style="font-size:15px;">' + escaparHtml(data.fecha_creacion) + '</p>' +
+                        '</div>' +
+                    '</div>';
+            html += '<p class="ecu-info-creador">Creado por <strong>' + escaparHtml(data.creado_por) + '</strong></p>';
             html += '<div class="ecu-panel-actions">' +
+                        '<button type="button" class="ecu-btn ecu-btn-secondary ecu-btn-slim" data-action="iniciar-edicion">Editar</button>' +
+                        '<button type="button" class="ecu-btn ecu-btn-primary ecu-btn-slim oculto" data-action="guardar-nombre">Guardar</button>' +
+                        '<button type="button" class="ecu-btn ecu-btn-secondary ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>' +
                         '<button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">Eliminar grupo</button>' +
                     '</div>';
             return html;
+        }
+
+        /*
+        *   Modal propio de la aplicación: reemplaza los alert()/confirm()
+        *   nativos del navegador para que los avisos se vean como parte
+        *   del sistema y no como un popup del navegador.
+        */
+        var modalOverlay = document.getElementById('ecuModalOverlay');
+        var modalCard = document.getElementById('ecuModalCard');
+        var modalTitulo = document.getElementById('ecuModalTitulo');
+        var modalMensaje = document.getElementById('ecuModalMensaje');
+        var modalBotones = document.getElementById('ecuModalBotones');
+
+        function cerrarModal(){
+            if(modalOverlay){ modalOverlay.classList.add('oculto'); }
+        }
+
+        function mostrarModal(titulo, mensaje, tipo, botones){
+            if(!modalOverlay){ return; }
+            modalTitulo.textContent = titulo;
+            modalMensaje.textContent = mensaje;
+            modalCard.className = 'ecu-modal-card' + (tipo ? ' ecu-modal-' + tipo : '');
+            modalBotones.innerHTML = '';
+            botones.forEach(function(b){
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'ecu-btn ecu-btn-slim ' + (b.clase || 'ecu-btn-secondary');
+                btn.textContent = b.texto;
+                btn.addEventListener('click', function(){
+                    cerrarModal();
+                    if(b.onClick){ b.onClick(); }
+                });
+                modalBotones.appendChild(btn);
+            });
+            modalOverlay.classList.remove('oculto');
+        }
+
+        function mostrarAviso(mensaje, titulo){
+            mostrarModal(titulo || 'Aviso', mensaje, 'aviso', [
+                { texto: 'Entendido', clase: 'ecu-btn-secondary' }
+            ]);
+        }
+
+        function mostrarError(mensaje, titulo){
+            mostrarModal(titulo || 'No fue posible completar la acción', mensaje, 'error', [
+                { texto: 'Entendido', clase: 'ecu-btn-secondary' }
+            ]);
+        }
+
+        function mostrarConfirmacion(mensaje, onConfirmar, titulo){
+            mostrarModal(titulo || 'Confirmar acción', mensaje, 'confirmar', [
+                { texto: 'Cancelar', clase: 'ecu-btn-secondary' },
+                { texto: 'Eliminar', clase: 'ecu-btn-danger', onClick: onConfirmar }
+            ]);
+        }
+
+        if(modalOverlay){
+            modalOverlay.addEventListener('click', function(e){
+                if(e.target === modalOverlay){ cerrarModal(); }
+            });
+            document.addEventListener('keydown', function(e){
+                if(e.key === 'Escape'){ cerrarModal(); }
+            });
         }
 
         function actualizarBotonReporte(idGrupo){
@@ -796,13 +944,15 @@ if($PSN1->num_rows() > 0){
                 var accion = boton.getAttribute('data-action');
                 var input = panelInfo.querySelector('#ecuInputNombreGrupo');
 
-                if(accion === 'editar-nombre'){
+                if(accion === 'iniciar-edicion'){
                     if(!input){ return; }
                     nombreOriginalGrupo = input.value;
                     input.readOnly = false;
                     input.focus();
                     input.select();
                     boton.classList.add('oculto');
+                    var btnEliminarOcultar = panelInfo.querySelector('[data-action="eliminar-grupo"]');
+                    if(btnEliminarOcultar){ btnEliminarOcultar.classList.add('oculto'); }
                     panelInfo.querySelector('[data-action="guardar-nombre"]').classList.remove('oculto');
                     panelInfo.querySelector('[data-action="cancelar-nombre"]').classList.remove('oculto');
 
@@ -810,7 +960,9 @@ if($PSN1->num_rows() > 0){
                     if(!input){ return; }
                     input.value = nombreOriginalGrupo;
                     input.readOnly = true;
-                    panelInfo.querySelector('[data-action="editar-nombre"]').classList.remove('oculto');
+                    panelInfo.querySelector('[data-action="iniciar-edicion"]').classList.remove('oculto');
+                    var btnEliminarMostrar = panelInfo.querySelector('[data-action="eliminar-grupo"]');
+                    if(btnEliminarMostrar){ btnEliminarMostrar.classList.remove('oculto'); }
                     boton.classList.add('oculto');
                     var btnGuardar = panelInfo.querySelector('[data-action="guardar-nombre"]');
                     if(btnGuardar){ btnGuardar.classList.add('oculto'); }
@@ -819,7 +971,7 @@ if($PSN1->num_rows() > 0){
                     if(!input){ return; }
                     var nombreNuevo = input.value.trim();
                     if(nombreNuevo === ''){
-                        alert('El nombre del grupo es obligatorio.');
+                        mostrarAviso('El nombre del grupo es obligatorio.');
                         return;
                     }
                     boton.disabled = true;
@@ -834,12 +986,14 @@ if($PSN1->num_rows() > 0){
                         .then(function(data){
                             boton.disabled = false;
                             if(!data.ok){
-                                alert(data.mensaje || 'No se pudo guardar el nombre del grupo.');
+                                mostrarError(data.mensaje || 'No se pudo guardar el nombre del grupo.');
                                 return;
                             }
                             input.value = data.nombre_grupo;
                             input.readOnly = true;
-                            panelInfo.querySelector('[data-action="editar-nombre"]').classList.remove('oculto');
+                            panelInfo.querySelector('[data-action="iniciar-edicion"]').classList.remove('oculto');
+                            var btnEliminarRestaurar = panelInfo.querySelector('[data-action="eliminar-grupo"]');
+                            if(btnEliminarRestaurar){ btnEliminarRestaurar.classList.remove('oculto'); }
                             boton.classList.add('oculto');
                             var btnCancelar = panelInfo.querySelector('[data-action="cancelar-nombre"]');
                             if(btnCancelar){ btnCancelar.classList.add('oculto'); }
@@ -847,36 +1001,39 @@ if($PSN1->num_rows() > 0){
                         })
                         .catch(function(){
                             boton.disabled = false;
-                            alert('Ocurrió un error al guardar el nombre del grupo.');
+                            mostrarError('Ocurrió un error de conexión al guardar el nombre del grupo. Intenta de nuevo.');
                         });
 
                 }else if(accion === 'eliminar-grupo'){
-                    if(!confirm('¿Está seguro que desea eliminar este grupo? Esta acción no se puede deshacer.')){
-                        return;
-                    }
-                    boton.disabled = true;
+                    mostrarConfirmacion(
+                        '¿Está seguro que desea eliminar este grupo? Esta acción no se puede deshacer.',
+                        function(){
+                            boton.disabled = true;
 
-                    var datosEliminar = new URLSearchParams();
-                    datosEliminar.set('accion', 'eliminar');
-                    datosEliminar.set('idgrupo', idGrupoActual);
+                            var datosEliminar = new URLSearchParams();
+                            datosEliminar.set('accion', 'eliminar');
+                            datosEliminar.set('idgrupo', idGrupoActual);
 
-                    fetch('ajax_grupo_accion.php', { method: 'POST', credentials: 'same-origin', body: datosEliminar })
-                        .then(function(resp){ return resp.json(); })
-                        .then(function(data){
-                            if(!data.ok){
-                                boton.disabled = false;
-                                alert(data.mensaje || 'No se pudo eliminar el grupo.');
-                                return;
-                            }
-                            quitarGrupoDeListaYSelect(idGrupoActual);
-                            idGrupoActual = 0;
-                            panelInfo.innerHTML = '<div class="ecu-banner ecu-warning" style="margin: auto 0;">Seleccione o cree un grupo para ver su información.</div>';
-                            actualizarBotonReporte(null);
-                        })
-                        .catch(function(){
-                            boton.disabled = false;
-                            alert('Ocurrió un error al eliminar el grupo.');
-                        });
+                            fetch('ajax_grupo_accion.php', { method: 'POST', credentials: 'same-origin', body: datosEliminar })
+                                .then(function(resp){ return resp.json(); })
+                                .then(function(data){
+                                    if(!data.ok){
+                                        boton.disabled = false;
+                                        mostrarError(data.mensaje || 'No se pudo eliminar el grupo.', 'No es posible eliminar este grupo');
+                                        return;
+                                    }
+                                    quitarGrupoDeListaYSelect(idGrupoActual);
+                                    idGrupoActual = 0;
+                                    panelInfo.innerHTML = '<div class="ecu-banner ecu-warning" style="margin: auto 0;">Seleccione o cree un grupo para ver su información.</div>';
+                                    actualizarBotonReporte(null);
+                                })
+                                .catch(function(){
+                                    boton.disabled = false;
+                                    mostrarError('Ocurrió un error de conexión al eliminar el grupo. Intenta de nuevo.');
+                                });
+                        },
+                        'Eliminar grupo'
+                    );
                 }
             });
         }

@@ -94,8 +94,16 @@ if($accion == "editar_nombre"){
         $tieneReportes = intval($PSN3->f("total"));
     }
 
-    if($tieneHijos > 0 || $tieneReportes > 0){
-        $respuesta["mensaje"] = "No es posible realizar esta acción. Por favor contacte con el administrador.";
+    if($tieneHijos > 0 && $tieneReportes > 0){
+        $respuesta["mensaje"] = "No es posible eliminar este grupo: ya tiene reportes registrados y además otros grupos fueron creados a partir de él. Si de verdad necesitas eliminarlo, comunícate con el administrador del sistema.";
+        echo json_encode($respuesta);
+        exit;
+    }else if($tieneHijos > 0){
+        $respuesta["mensaje"] = "No es posible eliminar este grupo porque otros grupos fueron creados a partir de él (es su grupo de origen). Si de verdad necesitas eliminarlo, comunícate con el administrador del sistema.";
+        echo json_encode($respuesta);
+        exit;
+    }else if($tieneReportes > 0){
+        $respuesta["mensaje"] = "No es posible eliminar este grupo porque ya tiene reportes registrados. Si de verdad necesitas eliminarlo, comunícate con el administrador del sistema.";
         echo json_encode($respuesta);
         exit;
     }
