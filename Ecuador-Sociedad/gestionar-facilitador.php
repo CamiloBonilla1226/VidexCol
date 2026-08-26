@@ -645,16 +645,69 @@ if($PSN1->num_rows() > 0){
                     cargarInfoGrupo(input.value);
                 }
             });
+
+            /*
+            *   Al llegar al tope de la lista, un primer scroll hacia arriba
+            *   se "absorbe" (la lista se queda quieta); solo al segundo
+            *   intento consecutivo se deja pasar el scroll a la página
+            *   completa. Mejora la usabilidad: evita que un solo gesto de
+            *   scroll dispare de golpe el scroll de toda la página.
+            */
+            var intentosArriba = 0;
+            var restaurarContencionId = null;
+            var UMBRAL_INTENTOS = 2;
+
+            lista.addEventListener('wheel', function(e){
+                var enElTope = lista.scrollTop <= 0;
+
+                if(e.deltaY < 0 && enElTope){
+                    intentosArriba++;
+                    if(intentosArriba < UMBRAL_INTENTOS){
+                        e.preventDefault();
+                    }else{
+                        intentosArriba = 0;
+                        lista.style.overscrollBehavior = 'auto';
+                        if(restaurarContencionId){ clearTimeout(restaurarContencionId); }
+                        restaurarContencionId = setTimeout(function(){
+                            lista.style.overscrollBehavior = 'contain';
+                        }, 60);
+                    }
+                }else if(e.deltaY > 0 || !enElTope){
+                    intentosArriba = 0;
+                }
+            }, { passive: false });
+        }
+
+        /*
+        *   Búsqueda "difusa": no exige coincidencia exacta ni contigua.
+        *   Basta con que las letras escritas aparezcan en ese orden dentro
+        *   del nombre del grupo (ignorando acentos y mayúsculas), así las
+        *   opciones van apareciendo a medida que se escribe algo similar.
+        */
+        function normalizarTexto(texto){
+            return (texto || '')
+                .normalize('NFD')
+                .replace(/[̀-ͯ]/g, '')
+                .toLowerCase();
+        }
+
+        function coincideDifuso(termino, texto){
+            if(termino === ''){ return true; }
+            var t = 0;
+            for(var i = 0; i < texto.length && t < termino.length; i++){
+                if(texto[i] === termino[t]){ t++; }
+            }
+            return t === termino.length;
         }
 
         var buscador = document.getElementById('buscarGrupo');
         if(buscador && lista){
             buscador.addEventListener('input', function(){
-                var termino = buscador.value.toLowerCase();
+                var termino = normalizarTexto(buscador.value);
                 var opciones = lista.querySelectorAll('.ecu-group-option');
                 for(var i = 0; i < opciones.length; i++){
-                    var nombre = opciones[i].getAttribute('data-nombre') || '';
-                    opciones[i].style.display = (nombre.indexOf(termino) > -1) ? '' : 'none';
+                    var nombre = normalizarTexto(opciones[i].getAttribute('data-nombre') || '');
+                    opciones[i].style.display = coincideDifuso(termino, nombre) ? '' : 'none';
                 }
             });
         }
