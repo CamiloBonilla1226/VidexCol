@@ -394,6 +394,8 @@ if($PSN1->num_rows() > 0){
     .ecu-wrap .ecu-btn-primary:hover { background: var(--verde-dark); }
     .ecu-wrap .ecu-btn-secondary { background: var(--azul); color: #FFFFFF; border: 1.5px solid var(--azul); }
     .ecu-wrap .ecu-btn-secondary:hover { background: var(--azul-dark); border-color: var(--azul-dark); }
+    .ecu-wrap .ecu-btn-danger { background: var(--danger-text); color: #FFFFFF; }
+    .ecu-wrap .ecu-btn-danger:hover { background: #7E2523; }
 
     .ecu-wrap .ecu-btn-row { display: flex; justify-content: center; margin-top: 4px; }
 
@@ -411,6 +413,66 @@ if($PSN1->num_rows() > 0){
         font-size: 12.5px;
         flex: none;
     }
+
+    /* Panel "Información del grupo": ocupa toda la altura disponible de la
+       ficha; las acciones (eliminar) se empujan al fondo con margin-top:auto */
+    #ecuPanelInfo {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    #ecuPanelInfo .ecu-banner { margin-bottom: 0; }
+    .ecu-wrap .ecu-panel-actions {
+        margin-top: auto;
+        padding-top: 18px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* Campo editable (nombre del grupo) dentro de la tabla de información */
+    .ecu-wrap .ecu-editable-field {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 4px;
+    }
+    .ecu-wrap .ecu-input-mini {
+        font-family: 'Public Sans', sans-serif;
+        font-size: 13.5px;
+        font-weight: 600;
+        text-align: right;
+        padding: 4px 7px;
+        border: 1.5px solid transparent;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--negro);
+        width: auto;
+        max-width: 220px;
+        outline: none;
+    }
+    .ecu-wrap .ecu-input-mini:read-only { cursor: default; }
+    .ecu-wrap .ecu-input-mini:not(:read-only) {
+        border-color: var(--azul);
+        background: #FFFFFF;
+        box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.15);
+    }
+    .ecu-wrap .ecu-icon-btn {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 4px 6px;
+        color: var(--gris-texto);
+        border-radius: 6px;
+        flex: none;
+    }
+    .ecu-wrap .ecu-icon-btn:hover { background: var(--azul-tint); color: var(--azul-dark); }
+    .ecu-wrap .ecu-icon-guardar { color: var(--verde); }
+    .ecu-wrap .ecu-icon-guardar:hover { background: var(--verde-tint); color: var(--verde-dark); }
+    .ecu-wrap .ecu-icon-cancelar { color: var(--danger-text); }
+    .ecu-wrap .ecu-icon-cancelar:hover { background: var(--danger-bg); }
+    .ecu-wrap .oculto { display: none !important; }
 
     .ecu-wrap .ecu-report-stub {
         border: 1.5px dashed var(--line-strong);
@@ -506,7 +568,7 @@ if($PSN1->num_rows() > 0){
                     <select name="grupo_anterior" id="grupo_anterior" class="ecu-select">
                         <option value="">Ninguno (nuevo grupo de generación 2)</option>
                         <?php foreach($gruposDisponibles as $g){ ?>
-                            <option value="<?=$g["id_grupo"]; ?>">
+                            <option value="<?=$g["id_grupo"]; ?>" data-generacion="<?=$g["generacion"]; ?>">
                                 <?=htmlspecialchars($g["nombre_grupo"], ENT_QUOTES, "UTF-8"); ?> (Generación <?=$g["generacion"]; ?>)
                             </option>
                         <?php } ?>
@@ -572,7 +634,14 @@ if($PSN1->num_rows() > 0){
                 <table style="width:100%; border-collapse: collapse; font-size: 14px;">
                     <tr>
                         <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Nombre del grupo</td>
-                        <td style="padding: 9px 0; text-align: right; font-weight: 600; border-bottom: 1px solid var(--line);"><?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?></td>
+                        <td style="padding: 9px 0; border-bottom: 1px solid var(--line);">
+                            <div class="ecu-editable-field">
+                                <input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini" maxlength="150" readonly value="<?=htmlspecialchars($nombreGrupoSeleccionado, ENT_QUOTES, "UTF-8"); ?>" />
+                                <button type="button" class="ecu-icon-btn" data-action="editar-nombre" title="Editar nombre">✎</button>
+                                <button type="button" class="ecu-icon-btn ecu-icon-guardar oculto" data-action="guardar-nombre" title="Guardar">✔</button>
+                                <button type="button" class="ecu-icon-btn ecu-icon-cancelar oculto" data-action="cancelar-nombre" title="Cancelar">✕</button>
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Generación</td>
@@ -591,8 +660,12 @@ if($PSN1->num_rows() > 0){
                         <td style="padding: 9px 0; text-align: right; font-weight: 600;"><?=htmlspecialchars($nombreCreadorGrupo, ENT_QUOTES, "UTF-8"); ?></td>
                     </tr>
                 </table>
+
+                <div class="ecu-panel-actions">
+                    <button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">Eliminar grupo</button>
+                </div>
             <?php }else{ ?>
-                <div class="ecu-banner ecu-warning">Seleccione o cree un grupo para ver su información.</div>
+                <div class="ecu-banner ecu-warning" style="margin: auto 0;">Seleccione o cree un grupo para ver su información.</div>
             <?php } ?>
             </div>
         </div>
@@ -605,6 +678,9 @@ if($PSN1->num_rows() > 0){
         var lista = document.getElementById('ecuGroupList');
         var panelInfo = document.getElementById('ecuPanelInfo');
         var btnReporte = document.getElementById('ecuBtnReporte');
+        var selectGrupoAnterior = document.getElementById('grupo_anterior');
+        var idGrupoActual = <?php echo intval($idGrupoSeleccionado); ?>;
+        var nombreOriginalGrupo = '';
 
         function escaparHtml(texto){
             var div = document.createElement('div');
@@ -620,12 +696,23 @@ if($PSN1->num_rows() > 0){
 
         function construirHtmlInfo(data){
             var html = '<table style="width:100%; border-collapse: collapse; font-size: 14px;">';
-            html += filaTabla('Nombre del grupo', escaparHtml(data.nombre_grupo));
+            html += '<tr><td style="padding: 9px 0; color: var(--gris-texto); border-bottom: 1px solid var(--line);">Nombre del grupo</td>' +
+                    '<td style="padding: 9px 0; border-bottom: 1px solid var(--line);">' +
+                        '<div class="ecu-editable-field">' +
+                            '<input type="text" id="ecuInputNombreGrupo" class="ecu-input-mini" maxlength="150" readonly value="' + escaparHtml(data.nombre_grupo) + '" />' +
+                            '<button type="button" class="ecu-icon-btn" data-action="editar-nombre" title="Editar nombre">✎</button>' +
+                            '<button type="button" class="ecu-icon-btn ecu-icon-guardar oculto" data-action="guardar-nombre" title="Guardar">✔</button>' +
+                            '<button type="button" class="ecu-icon-btn ecu-icon-cancelar oculto" data-action="cancelar-nombre" title="Cancelar">✕</button>' +
+                        '</div>' +
+                    '</td></tr>';
             html += filaTabla('Generación', escaparHtml(data.generacion));
             html += filaTabla('Reportes realizados', escaparHtml(data.total_reportes));
             html += filaTabla('Fecha de creación', escaparHtml(data.fecha_creacion));
             html += filaTabla('Creado por', escaparHtml(data.creado_por), true);
             html += '</table>';
+            html += '<div class="ecu-panel-actions">' +
+                        '<button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">Eliminar grupo</button>' +
+                    '</div>';
             return html;
         }
 
@@ -641,6 +728,7 @@ if($PSN1->num_rows() > 0){
 
         function cargarInfoGrupo(idGrupo){
             if(!panelInfo){ return; }
+            idGrupoActual = parseInt(idGrupo, 10) || 0;
             panelInfo.innerHTML = '<div class="ecu-banner ecu-info">Cargando información del grupo...</div>';
             actualizarBotonReporte(null);
             fetch('ajax_info_grupo.php?idgrupo=' + encodeURIComponent(idGrupo), { credentials: 'same-origin' })
@@ -656,6 +744,141 @@ if($PSN1->num_rows() > 0){
                 .catch(function(){
                     panelInfo.innerHTML = '<div class="ecu-banner ecu-error">Ocurrió un error al consultar el grupo.</div>';
                 });
+        }
+
+        /*
+        *   Editar el nombre del grupo (único campo editable) y eliminar el
+        *   grupo. Se usa delegación de eventos sobre panelInfo porque su
+        *   contenido se reemplaza tanto por PHP (carga inicial) como por
+        *   fetch (cargarInfoGrupo), y así los botones funcionan en ambos
+        *   casos sin tener que volver a engancharlos.
+        */
+        function actualizarNombreEnListaYSelect(idGrupo, nombreNuevo){
+            if(lista){
+                var radio = lista.querySelector('input[type="radio"][value="' + idGrupo + '"]');
+                if(radio){
+                    var opcion = radio.closest('.ecu-group-option');
+                    if(opcion){
+                        var parrafoNombre = opcion.querySelector('.ecu-group-name');
+                        if(parrafoNombre){ parrafoNombre.textContent = nombreNuevo; }
+                        opcion.setAttribute('data-nombre', nombreNuevo.toLowerCase());
+                    }
+                }
+            }
+            if(selectGrupoAnterior){
+                var opcionSelect = selectGrupoAnterior.querySelector('option[value="' + idGrupo + '"]');
+                if(opcionSelect){
+                    var generacionTxt = opcionSelect.getAttribute('data-generacion') || '';
+                    opcionSelect.textContent = nombreNuevo + (generacionTxt ? ' (Generación ' + generacionTxt + ')' : '');
+                }
+            }
+        }
+
+        function quitarGrupoDeListaYSelect(idGrupo){
+            if(lista){
+                var radio = lista.querySelector('input[type="radio"][value="' + idGrupo + '"]');
+                if(radio){
+                    var opcion = radio.closest('.ecu-group-option');
+                    if(opcion){ opcion.remove(); }
+                }
+                ajustarAlturaLista();
+            }
+            if(selectGrupoAnterior){
+                var opcionSelect = selectGrupoAnterior.querySelector('option[value="' + idGrupo + '"]');
+                if(opcionSelect){ opcionSelect.remove(); }
+            }
+        }
+
+        if(panelInfo){
+            panelInfo.addEventListener('click', function(e){
+                var boton = e.target.closest('[data-action]');
+                if(!boton){ return; }
+                var accion = boton.getAttribute('data-action');
+                var input = panelInfo.querySelector('#ecuInputNombreGrupo');
+
+                if(accion === 'editar-nombre'){
+                    if(!input){ return; }
+                    nombreOriginalGrupo = input.value;
+                    input.readOnly = false;
+                    input.focus();
+                    input.select();
+                    boton.classList.add('oculto');
+                    panelInfo.querySelector('[data-action="guardar-nombre"]').classList.remove('oculto');
+                    panelInfo.querySelector('[data-action="cancelar-nombre"]').classList.remove('oculto');
+
+                }else if(accion === 'cancelar-nombre'){
+                    if(!input){ return; }
+                    input.value = nombreOriginalGrupo;
+                    input.readOnly = true;
+                    panelInfo.querySelector('[data-action="editar-nombre"]').classList.remove('oculto');
+                    boton.classList.add('oculto');
+                    var btnGuardar = panelInfo.querySelector('[data-action="guardar-nombre"]');
+                    if(btnGuardar){ btnGuardar.classList.add('oculto'); }
+
+                }else if(accion === 'guardar-nombre'){
+                    if(!input){ return; }
+                    var nombreNuevo = input.value.trim();
+                    if(nombreNuevo === ''){
+                        alert('El nombre del grupo es obligatorio.');
+                        return;
+                    }
+                    boton.disabled = true;
+
+                    var datos = new URLSearchParams();
+                    datos.set('accion', 'editar_nombre');
+                    datos.set('idgrupo', idGrupoActual);
+                    datos.set('nombre_grupo', nombreNuevo);
+
+                    fetch('ajax_grupo_accion.php', { method: 'POST', credentials: 'same-origin', body: datos })
+                        .then(function(resp){ return resp.json(); })
+                        .then(function(data){
+                            boton.disabled = false;
+                            if(!data.ok){
+                                alert(data.mensaje || 'No se pudo guardar el nombre del grupo.');
+                                return;
+                            }
+                            input.value = data.nombre_grupo;
+                            input.readOnly = true;
+                            panelInfo.querySelector('[data-action="editar-nombre"]').classList.remove('oculto');
+                            boton.classList.add('oculto');
+                            var btnCancelar = panelInfo.querySelector('[data-action="cancelar-nombre"]');
+                            if(btnCancelar){ btnCancelar.classList.add('oculto'); }
+                            actualizarNombreEnListaYSelect(data.id_grupo, data.nombre_grupo);
+                        })
+                        .catch(function(){
+                            boton.disabled = false;
+                            alert('Ocurrió un error al guardar el nombre del grupo.');
+                        });
+
+                }else if(accion === 'eliminar-grupo'){
+                    if(!confirm('¿Está seguro que desea eliminar este grupo? Esta acción no se puede deshacer.')){
+                        return;
+                    }
+                    boton.disabled = true;
+
+                    var datosEliminar = new URLSearchParams();
+                    datosEliminar.set('accion', 'eliminar');
+                    datosEliminar.set('idgrupo', idGrupoActual);
+
+                    fetch('ajax_grupo_accion.php', { method: 'POST', credentials: 'same-origin', body: datosEliminar })
+                        .then(function(resp){ return resp.json(); })
+                        .then(function(data){
+                            if(!data.ok){
+                                boton.disabled = false;
+                                alert(data.mensaje || 'No se pudo eliminar el grupo.');
+                                return;
+                            }
+                            quitarGrupoDeListaYSelect(idGrupoActual);
+                            idGrupoActual = 0;
+                            panelInfo.innerHTML = '<div class="ecu-banner ecu-warning" style="margin: auto 0;">Seleccione o cree un grupo para ver su información.</div>';
+                            actualizarBotonReporte(null);
+                        })
+                        .catch(function(){
+                            boton.disabled = false;
+                            alert('Ocurrió un error al eliminar el grupo.');
+                        });
+                }
+            });
         }
 
         /*
