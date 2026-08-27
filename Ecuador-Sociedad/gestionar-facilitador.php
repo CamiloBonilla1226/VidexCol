@@ -234,7 +234,7 @@ if($nombreCreadorGrupo !== ""){
         font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         max-width: 720px;
         margin: 0 auto;
-        padding: 32px 16px 64px;
+        padding: 32px 16px 24px;
     }
     .ecu-wrap * { box-sizing: border-box; }
 
@@ -682,7 +682,7 @@ if($nombreCreadorGrupo !== ""){
     @media (min-width: 900px) {
         .ecu-wrap {
             max-width: 1180px;
-            padding: 48px 32px 96px;
+            padding: 48px 32px 32px;
         }
         .ecu-wrap h3.ecu-title { font-size: 30px; }
         .ecu-wrap h5.ecu-subtitle { font-size: 15.5px; }
