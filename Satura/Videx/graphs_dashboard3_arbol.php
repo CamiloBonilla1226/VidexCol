@@ -872,7 +872,7 @@ function dbComboSeleccionarActivo(){
 var ETIQUETAS_ACTIVIDAD = {
   1: 'Coach', 2: 'Ninguna', 5: 'Otra actividad', 8: 'Gran Celebración',
   10: 'Siembra abundante', 11: 'Caminata de oración', 12: 'Identificar al hijo de paz',
-  13: 'Oración Exp y Ferviente', 14: 'Taller', 77: 'Evangelismo', 99: 'Bautizo', 100: 'Capacitación'
+  13: 'Oración Exp y Ferviente', 14: 'Taller', 77: 'Evangelismo', 99: 'Bautizo', 100: 'Capacitación', 101: 'HOPE'
 };
 
 function dbAbrirReportes(idGrupo, nombreGrupo){
