@@ -723,9 +723,6 @@ if($nombreCreadorGrupo !== ""){
     <?php if($errorGrupo != ""){ ?>
         <div class="ecu-banner ecu-error"><?=htmlspecialchars($errorGrupo, ENT_QUOTES, "UTF-8"); ?></div>
     <?php } ?>
-    <?php if($exitoGrupo != ""){ ?>
-        <div class="ecu-banner ecu-success"><?=htmlspecialchars($exitoGrupo, ENT_QUOTES, "UTF-8"); ?></div>
-    <?php } ?>
 
     <div class="ecu-card">
         <h4 class="ecu-section-title">Crear grupo nuevo</h4>
@@ -1009,6 +1006,10 @@ if($nombreCreadorGrupo !== ""){
             ]);
         }
 
+        <?php if($exitoGrupo != ""){ ?>
+        mostrarAviso(<?=json_encode($exitoGrupo, JSON_UNESCAPED_UNICODE); ?>, 'Grupo creado con éxito');
+        <?php } ?>
+
         function mostrarError(mensaje, titulo){
             mostrarModal(titulo || 'No fue posible completar la acción', mensaje, 'error', [
                 { texto: 'Entendido', clase: 'ecu-btn-secondary' }
@@ -1193,6 +1194,7 @@ if($nombreCreadorGrupo !== ""){
                                     idGrupoActual = 0;
                                     panelInfo.innerHTML = '<div class="ecu-banner ecu-warning" style="margin: auto 0;">Seleccione o cree un grupo para ver su información.</div>';
                                     actualizarBotonReporte(null);
+                                    mostrarAviso('El grupo se eliminó con éxito.', 'Grupo eliminado con éxito');
                                 })
                                 .catch(function(){
                                     boton.disabled = false;
