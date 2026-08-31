@@ -226,11 +226,224 @@ SELECT * FROM categorias WHERE idSec = 38 ORDER BY descripcion asc
 - `empresa_direccion`, `empresa_url` — dirección y página web.
 - `empresa_paisid`, `empresa_pais` — país (fijo: Ecuador, id `282`).
 - `empresa_sitio_cor` — zona (`categorias.idSec = 85`).
-- `empresa_socio`, `empresa_pd`, `empresa_sitio`, `empresa_rm`,
+- `empresa_socio`, `empresa_sitio`, `empresa_rm`,
   `empresa_circuito` — otros datos organizacionales/financieros.
+- **`empresa_pd`** ⚠️ **campo clave, verificado el 31-ago-2026** — funciona
+  como el **código de la regional** a la que pertenece el usuario. No es un
+  id único por usuario: varios usuarios de la misma zona comparten el mismo
+  valor (ej. 8 usuarios distintos con `empresa_pd = 282`). Este código es el
+  que enlaza con `tbl_regional_ubicacion.reub_reg_fk` (ver sección dedicada
+  más abajo) y es el que usa el sistema para filtrar qué cárceles/ubicaciones
+  puede ver cada usuario según su zona.
+- `empresa_paisid` — normalmente fijo en `282` (Ecuador) para todos los
+  usuarios de este sistema. **No confundir con `empresa_pd`**: ambos pueden
+  coincidir en `282` para algunos usuarios por pura casualidad numérica (el
+  código de la regional "282" y el id de país "282" son cosas distintas que
+  comparten número), pero `empresa_paisid` no varía entre usuarios de zonas
+  distintas mientras que `empresa_pd` sí.
 - ⚠️ **Mismo riesgo de seguridad** que en `tbl_adjuntos`: el `INSERT`/`UPDATE`
   concatena directamente las variables (ya pasadas por `eliminarInvalidos()`)
   dentro del SQL en vez de usar sentencias preparadas.
+
+============================================================
+## TABLA: dane_departamentos
+============================================================
+
+Catálogo de departamentos/provincias (nomenclatura DANE, aunque el sistema
+opera en Ecuador — el nombre de la tabla viene de un origen colombiano
+reutilizado).
+
+| Campo             | Tipo         | Null | Key | Extra |
+|--------------------|--------------|------|-----|-------|
+| `id_departamento`  | int(11)      | NO   | PRI |       |
+| `departamento`     | varchar(255) | NO   |     |       |
+
+`ENGINE=MyISAM`, `CHARSET=latin1`.
+
+============================================================
+## TABLA: dane_municipios
+============================================================
+
+Catálogo de municipios/cantones, cada uno perteneciente a un departamento.
+
+| Campo              | Tipo         | Null | Key | Extra |
+|---------------------|--------------|------|-----|-------|
+| `id_municipio`      | int(11)      | NO   | PRI |       |
+| `municipio`         | varchar(255) | NO   |     |       |
+| `estado`            | tinyint(4)   | NO   |     |       |
+| `departamento_id`   | int(11)      | NO   | MUL |       |
+
+`ENGINE=MyISAM`, `CHARSET=latin1`.
+
+- `departamento_id` → FK (lógica, no declarada en el motor) hacia
+  `dane_departamentos.id_departamento`.
+- `usuario.usua_muni` también referencia `dane_municipios.id_municipio`
+  (municipio donde está ubicado el usuario).
+
+```sql
+-- Municipio + departamento de un usuario
+SELECT u.id, u.nombre, m.municipio, d.departamento
+FROM usuario u
+LEFT JOIN dane_municipios m ON m.id_municipio = u.usua_muni
+LEFT JOIN dane_departamentos d ON d.id_departamento = m.departamento_id;
+```
+
+============================================================
+## TABLA: tbl_regional_ubicacion
+============================================================
+
+Catálogo de **ubicaciones/cárceles** ("CPL", "CRS", "CAI", etc. — puntos de
+atención a población privada de libertad), cada una asociada a un municipio
+y a una **regional** (zona administrativa). Es la tabla de la que se llena
+el `<select name="car_id[]" id="rep_carcel">` en el formulario de
+Evangelistas (ver `gestionar-sub-programa-evangelistas.php`).
+
+| Campo         | Tipo         | Null | Key | Extra          |
+|---------------|--------------|------|-----|----------------|
+| `reub_id`     | int(11)      | NO   | PRI | auto_increment |
+| `reub_nom`    | varchar(150) | NO   |     |                |
+| `reub_des`    | varchar(150) | YES  |     |                |
+| `reub_dir`    | varchar(50)  | YES  |     |                |
+| `reub_reg_fk` | int(11)      | NO   | MUL |                |
+| `reub_mun_fk` | int(11)      | NO   | MUL |                |
+
+`ENGINE=MyISAM`, `CHARSET=utf8mb3`, `AUTO_INCREMENT=216` (aunque a la fecha
+de esta verificación solo había 47 filas reales, ids no consecutivos).
+
+### Significado de cada campo
+
+- `reub_id` — identificador de la cárcel/ubicación (el que guarda el
+  `<select name="car_id[]">`, no un texto libre).
+- `reub_nom` — nombre visible de la ubicación (ej. "CPL CARCHI Nº 1", "CAI
+  MASCULINO - QUITO Zona 9").
+- `reub_dir` — dirección física.
+- `reub_mun_fk` → FK (lógica) hacia `dane_municipios.id_municipio`.
+  **Verificado por join:** los datos coinciden correctamente (municipio +
+  departamento se resuelven bien).
+- `reub_reg_fk` → **código de la regional a la que pertenece la ubicación.**
+  Ver explicación completa abajo — es el campo que más costó identificar.
+
+### ⚠️ `reub_reg_fk`: a qué apunta realmente (verificado 31-ago-2026)
+
+`reub_reg_fk` **no es una FK de libro de texto hacia una sola tabla con PK
+propia**. Es un **código de regional** que se originó como el `usuario.id`
+de la persona que en su momento fue registrada como responsable de esa
+zona (ej. `282` = Avelino Atupaña, `284` = Pst. Manuel Cepeda Yumailla),
+pero que conceptualmente ya no representa "ese usuario" sino "esa
+regional/zona".
+
+Ese mismo código se usa en `usuario_empresa.empresa_pd` para indicar a qué
+regional pertenece **cada usuario del sistema** (muchos usuarios distintos
+comparten el mismo valor de `empresa_pd` porque pertenecen a la misma
+zona). Es decir, ambas columnas son "etiquetas de regional" compartidas
+entre dos tablas distintas — no hay una tabla catálogo de "regionales"
+como tal en la base de datos.
+
+**Analogía:** piensa en el código (ej. `282`) como el nombre de un equipo
+de fútbol, no el nombre de una persona. `usuario_empresa.empresa_pd`
+responde "¿en qué equipo juega este jugador (usuario)?" y
+`tbl_regional_ubicacion.reub_reg_fk` responde "¿a qué equipo pertenece
+esta cancha (ubicación)?". Ambas tablas usan el mismo número para
+referirse al mismo equipo/regional.
+
+**Relación real, confirmada con datos (no solo por nombre de columna):**
+
+```
+tbl_regional_ubicacion.reub_reg_fk  →  usuario_empresa.empresa_pd
+```
+
+Esto también coincide con la lógica real del código de producción
+(`gestionar-sub-programa-evangelistas.php`, filtro actualmente comentado):
+
+```php
+/*if($_SESSION['empresa_sitio_cor'] != null){
+    ... WHERE CA.idSec = ...
+}else{
+    if($_SESSION['empresa_pd'] != 0){
+        $sql.=" WHERE reub_reg_fk = ".$_SESSION['empresa_pd'];
+    }
+}*/
+```
+
+Es decir: cuando un usuario inicia sesión, su `$_SESSION['empresa_pd']`
+(código de su regional) se usa para filtrar y mostrarle solo las
+ubicaciones de `tbl_regional_ubicacion` que pertenecen a esa misma
+regional.
+
+### Proceso de verificación (para referencia futura)
+
+Se probaron varios candidatos antes de confirmar `empresa_pd`, comparando
+cuántos de los 47 registros de `tbl_regional_ubicacion` hacían match limpio
+contra cada uno:
+
+| Candidato probado | Resultado |
+|---|---|
+| `usuario.id` | 35/47 coinciden (12 huérfanos) |
+| `usuario_empresa.empresa_paisid` | Descartado — siempre vale `282` (id de país Ecuador), no varía junto con `reub_reg_fk` |
+| `usuario_empresa.empresa_pd` (join directo `reub_reg_fk = empresa_pd`) | **39/47 coinciden** ✅ mejor resultado, y coincide con el código PHP real |
+
+Comparando registro por registro (`match_usuario_id` vs `match_empresa_pd`):
+nunca hubo un caso donde `usuario.id` encontrara match y `empresa_pd` no,
+pero sí hubo 4 casos donde `empresa_pd` rescataba registros que `usuario.id`
+no encontraba. Esto confirma que `empresa_pd` es la relación correcta y más
+completa.
+
+### ⚠️ Registros con `reub_reg_fk` huérfano (sin match contra `empresa_pd`)
+
+De los 47 registros totales, **8 tienen un código de regional que no existe
+en ningún `usuario_empresa.empresa_pd`** — nunca aparecerán en el filtro por
+zona para ningún usuario normal (solo un usuario `tipo = 2`, que ve todo sin
+filtro, podría verlos). Códigos huérfanos confirmados:
+**352, 354, 355, 358, 359, 363, 366** (este último se repite en 2 filas,
+"Zona 9" masculino y femenino).
+
+Antes de dar esta lista por definitiva en producción, re-ejecutar y
+confirmar (los ids de fila pueden variar si se editan datos):
+
+```sql
+SELECT r.reub_id, r.reub_nom, r.reub_reg_fk
+FROM tbl_regional_ubicacion r
+WHERE NOT EXISTS (
+    SELECT 1 FROM usuario_empresa ue WHERE ue.empresa_pd = r.reub_reg_fk
+);
+```
+
+### Consultas de referencia para implementación (filtro de cárceles por zona)
+
+Pendiente de implementar (a cargo de Codex): reactivar/reemplazar el filtro
+comentado en `gestionar-sub-programa-evangelistas.php` usando estas
+consultas.
+
+**1. Listado de cárceles filtrado por la regional del usuario logueado**
+(usuarios `usuario.tipo = 2` ven todas, sin filtro de zona):
+
+```sql
+SELECT reub_id, reub_nom
+FROM tbl_regional_ubicacion
+WHERE (
+    :usuario_tipo = 2
+    OR reub_reg_fk = :empresa_pd
+)
+ORDER BY reub_nom;
+```
+
+**2. Datos a mostrar al seleccionar una cárcel** (`reub_dir`, municipio,
+departamento):
+
+```sql
+SELECT
+    r.reub_id, r.reub_nom, r.reub_dir,
+    m.municipio, d.departamento
+FROM tbl_regional_ubicacion r
+LEFT JOIN dane_municipios m ON m.id_municipio = r.reub_mun_fk
+LEFT JOIN dane_departamentos d ON d.id_departamento = m.departamento_id
+WHERE r.reub_id = :reub_id;
+```
+
+⚠️ Usar siempre sentencias preparadas (bind params) para `:empresa_pd`,
+`:usuario_tipo` y `:reub_id` — no concatenar directo `$_SESSION`/`$_REQUEST`
+en el SQL, mismo riesgo de inyección señalado en otras secciones de este
+documento.
 
 ============================================================
 ## FORMULARIO: gestionar-sub-programa-evangelistas.php
@@ -283,6 +496,11 @@ valores conocidos de `adj_tip`: `1` = graduados, `4` = cárceles). `adj_nom` y
 `adj_url` guardan el mismo `id` de `tbl_regional_ubicacion` en ambas
 columnas (parece redundante/copiado del bloque de graduados, donde esas dos
 columnas sí tenían usos distintos).
+
+> Ver sección **`TABLA: tbl_regional_ubicacion`** (arriba) para el detalle
+> completo de cómo funciona `reub_id`, `reub_mun_fk` y `reub_reg_fk`, y las
+> consultas de referencia para filtrar el `<select>` de cárceles por la
+> regional del usuario logueado.
 
 ### Datos que se guardan pero NO aparecen en el formulario de inserción
 
@@ -947,3 +1165,105 @@ Se evaluaron tres líneas de nombres antes de decidir:
   cualquier reporte).
 - Migración/convivencia con `sat_reportes` existente: si los reportes
   viejos se migran a `ecu_reportes` o quedan como histórico separado.
+
+============================================================
+## APÉNDICE: Inventario completo de tablas de la base de datos
+============================================================
+
+Base de datos: `satukhvt_sme_db`. Listado completo obtenido con `SHOW TABLES;`
+el 31-ago-2026 (37 tablas). Las marcadas con ✅ ya están documentadas en
+detalle en este archivo; el resto queda pendiente de explorar en próximas
+sesiones.
+
+```
+LPP
+abonos
+campana
+categorias                 ✅
+cliente
+cotizacion
+dane_departamentos         ✅
+dane_municipios            ✅
+ecu_grupos                 ✅
+ecu_reportes                ✅
+gastos
+login
+mail_config
+mail_historico
+mail_log
+mail_workqueue
+menu
+menu_graphs
+sat_grupos
+sat_pdfs
+sat_reportes                ✅
+seguimiento
+sistema_documentos
+sms_asociacion
+sms_grupos
+sms_historico
+sms_usuarios
+tbl_adjuntos                 ✅
+tbl_regional_ubicacion       ✅
+usuario                      ✅
+usuario_cliente
+usuario_documentos
+usuario_documentos_add
+usuario_empresa              ✅
+usuario_metas
+usuario_obs
+usuario_relacion
+usuario_servicios
+usuarios_menu
+usuarios_menu_graphs
+```
+
+### Tabla `actividad` (catálogo aparte, relacionado con `sat_reportes.id_actividad`)
+
+No aparece en el `SHOW TABLES` de arriba porque pertenece a otro contexto de
+trabajo dentro del mismo sistema (tabla de catálogo de actividades de
+reportes, distinta de `categorias`/`rep_tip`). Estructura:
+
+| Campo               | Tipo         | Null | Key | Extra          |
+|----------------------|--------------|------|-----|----------------|
+| `id_actividad`       | int(11)      | NO   | PRI | auto_increment |
+| `nombre_actividad`   | varchar(100) | NO   | UNI |                |
+
+Datos vigentes (incluye `HOPE`, agregada el 31-ago-2026):
+
+| id_actividad | nombre_actividad |
+|---|---|
+| 1 | Coach |
+| 2 | Ninguna |
+| 5 | Otra actividad |
+| 8 | Gran Celebración |
+| 10 | Siembra abundante |
+| 11 | Caminata de oración |
+| 12 | Identificar al hijo de paz |
+| 13 | Oración Exp y Ferviente |
+| 14 | Taller |
+| 77 | Evangelismo |
+| 99 | Bautizo |
+| 100 | Capacitación |
+| *(auto)* | HOPE |
+
+```sql
+INSERT INTO actividad (nombre_actividad) VALUES ('HOPE');
+```
+
+`sat_reportes.id_actividad` referencia esta tabla; los reportes de Coach
+(1), Gran Celebración (8), Bautizo (99) y Evangelismo (77) tienen campos
+específicos documentados en la sección `TABLA: sat_reportes` /
+`gestionar-sub-programa-evangelistas.php` de este archivo.
+
+### Notas generales sobre el motor de las tablas
+
+- La mayoría de tablas "de catálogo" y las tablas legadas (`usuario`,
+  `usuario_empresa`, `dane_*`, `tbl_regional_ubicacion`, `sat_reportes`,
+  `categorias`, `tbl_adjuntos`) usan `ENGINE=MyISAM`, que **no soporta
+  llaves foráneas reales**. Todas las relaciones documentadas en este
+  archivo (`→ FK lógica`) son relaciones de negocio validadas por consultas,
+  no restricciones declaradas en la base de datos — por eso es posible tener
+  registros "huérfanos" como los 8 casos de `tbl_regional_ubicacion.reub_reg_fk`.
+- Las tablas nuevas del proyecto de unificación (`ecu_grupos`, `ecu_reportes`)
+  sí usan `ENGINE=InnoDB` con `FOREIGN KEY` reales entre ellas.
