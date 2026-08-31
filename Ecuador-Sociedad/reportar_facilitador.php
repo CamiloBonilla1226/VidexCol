@@ -44,6 +44,19 @@ if($idGrupo > 0){
     }
 }
 
+/*
+*   Datos informativos de cabecera (solo lectura, nunca editables): el
+*   usuario que reporta, el grupo, su generación y la fecha del reporte.
+*/
+$nombreUsuarioReporta = "";
+$PSN8 = new DBbase_Sql;
+$PSN8->query("SELECT nombre FROM usuario WHERE id = ".$idUsuarioSesion." LIMIT 1");
+if($PSN8->num_rows() > 0){
+    $PSN8->next_record();
+    $nombreUsuarioReporta = $PSN8->f("nombre");
+}
+$fechaReporteHoy = date("d/m/Y");
+
 if(!$grupoValido){
     ?>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
@@ -172,6 +185,7 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
     $nombre_lider = trim($_POST["nombre_lider"]);
     $ubicacion = trim($_POST["ubicacion"]);
+    $carcelUbicacionIdPostulada = isset($_POST["carcel_ubicacion_id"]) ? intval($_POST["carcel_ubicacion_id"]) : 0;
 
     $valoresMapeo = array();
     foreach($camposMapeo as $campo => $etiqueta){
@@ -184,8 +198,8 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
     if($nombre_lider == ""){
         $errorReporte = "El nombre del líder es obligatorio.";
-    }else if($ubicacion == ""){
-        $errorReporte = "La ubicación es obligatoria.";
+    }else if($carcelUbicacionIdPostulada <= 0){
+        $errorReporte = "Debe seleccionar una cárcel.";
     }
 
     $extFoto = "";
@@ -394,16 +408,40 @@ function valorPrevio($nombre, $default = ""){
     .ecu-wrap .ecu-banner.ecu-info { background: var(--azul-tint); color: var(--azul-dark); }
 
     .ecu-wrap .ecu-grupo-actual {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 10px;
         background: var(--azul-tint);
         border: 1px solid var(--azul);
         border-radius: var(--radius-card);
         padding: 14px 18px;
         margin-bottom: 22px;
+    }
+    .ecu-wrap .ecu-grupo-actual-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .ecu-wrap .ecu-resumen-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(29, 95, 166, 0.25);
+    }
+    .ecu-wrap .ecu-resumen-item { display: flex; flex-direction: column; gap: 2px; }
+    .ecu-wrap .ecu-resumen-label {
+        font-size: 11.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--azul-dark);
+        opacity: 0.75;
+    }
+    .ecu-wrap .ecu-resumen-valor {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--negro);
     }
     .ecu-wrap .ecu-grupo-actual-nombre {
         font-family: 'Fraunces', Georgia, serif;
@@ -625,6 +663,7 @@ function valorPrevio($nombre, $default = ""){
     @media (max-width: 640px) {
         .ecu-wrap .ecu-grid-2 { grid-template-columns: 1fr; }
         .ecu-wrap .ecu-grid-4 { grid-template-columns: 1fr 1fr; }
+        .ecu-wrap .ecu-resumen-grid { grid-template-columns: 1fr; }
     }
 </style>
 
@@ -639,11 +678,27 @@ function valorPrevio($nombre, $default = ""){
     <?php } ?>
 
     <div class="ecu-grupo-actual">
-        <div>
-            <p class="ecu-grupo-actual-nombre"><?=htmlspecialchars($nombreGrupo, ENT_QUOTES, "UTF-8"); ?></p>
-            <p class="ecu-grupo-actual-gen">Generación <?=$generacionGrupo; ?></p>
+        <div class="ecu-grupo-actual-top">
+            <div>
+                <p class="ecu-grupo-actual-nombre"><?=htmlspecialchars($nombreGrupo, ENT_QUOTES, "UTF-8"); ?></p>
+                <p class="ecu-grupo-actual-gen">Generación <?=$generacionGrupo; ?></p>
+            </div>
+            <a href="index.php?doc=gestionar-facilitador">Cambiar de grupo</a>
         </div>
-        <a href="index.php?doc=gestionar-facilitador">Cambiar de grupo</a>
+        <div class="ecu-resumen-grid">
+            <div class="ecu-resumen-item">
+                <span class="ecu-resumen-label">ID de grupo</span>
+                <span class="ecu-resumen-valor"><?=$idGrupo; ?></span>
+            </div>
+            <div class="ecu-resumen-item">
+                <span class="ecu-resumen-label">Usuario que reporta</span>
+                <span class="ecu-resumen-valor"><?=htmlspecialchars($nombreUsuarioReporta, ENT_QUOTES, "UTF-8"); ?></span>
+            </div>
+            <div class="ecu-resumen-item">
+                <span class="ecu-resumen-label">Fecha del reporte</span>
+                <span class="ecu-resumen-valor"><?=$fechaReporteHoy; ?></span>
+            </div>
+        </div>
     </div>
 
     <form method="post" id="formReporte" name="formReporte" enctype="multipart/form-data">
@@ -656,13 +711,6 @@ function valorPrevio($nombre, $default = ""){
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Nombre del líder <span class="ecu-req">*</span></label>
                     <input type="text" name="nombre_lider" class="ecu-input" maxlength="150" required value="<?=valorPrevio('nombre_lider'); ?>" />
-                </div>
-            </div>
-
-            <div class="ecu-seccion">
-                <div class="ecu-field" style="margin-bottom:0;">
-                    <label class="ecu-label">Ubicación <span class="ecu-req">*</span></label>
-                    <input type="text" name="ubicacion" class="ecu-input" maxlength="200" required value="<?=valorPrevio('ubicacion'); ?>" />
                 </div>
             </div>
 
@@ -734,9 +782,9 @@ function valorPrevio($nombre, $default = ""){
 
                 <div class="ecu-grid-2">
                     <div class="ecu-field">
-                        <label class="ecu-label">Cárcel / ubicación <span class="ecu-opt">(opcional)</span></label>
-                        <select name="carcel_ubicacion_id" id="carcelUbicacionSelect" class="ecu-select">
-                            <option value="">Sin especificar</option>
+                        <label class="ecu-label">Cárcel / ubicación <span class="ecu-req">*</span></label>
+                        <select name="carcel_ubicacion_id" id="carcelUbicacionSelect" class="ecu-select" required>
+                            <option value="">Seleccione una cárcel</option>
                             <?php
                             $carcelSeleccionadaId = isset($_POST["carcel_ubicacion_id"]) ? intval($_POST["carcel_ubicacion_id"]) : 0;
                             foreach($listaCarceles as $carcel){ ?>
@@ -752,15 +800,15 @@ function valorPrevio($nombre, $default = ""){
                     </div>
                 </div>
 
-                <div class="ecu-grid-2">
-                    <div class="ecu-field" style="margin-bottom:0;">
-                        <label class="ecu-label">Departamento</label>
-                        <input type="text" id="carcelDepartamento" class="ecu-input" readonly value="" style="background: var(--gris-claro);" />
-                    </div>
-                    <div class="ecu-field" style="margin-bottom:0;">
-                        <label class="ecu-label">Dirección</label>
-                        <input type="text" id="carcelDireccion" class="ecu-input" readonly value="" style="background: var(--gris-claro);" />
-                    </div>
+                <!--
+                <div class="ecu-field" style="margin-bottom:0;">
+                    <label class="ecu-label">Departamento</label>
+                    <input type="text" id="carcelDepartamento" class="ecu-input" readonly value="" style="background: var(--gris-claro);" />
+                </div>
+                -->
+                <div class="ecu-field" style="margin-bottom:0;">
+                    <label class="ecu-label">Ubicación</label>
+                    <input type="text" name="ubicacion" id="carcelDireccion" class="ecu-input" readonly value="<?=valorPrevio('ubicacion'); ?>" style="background: var(--gris-claro);" />
                 </div>
             </div>
 
