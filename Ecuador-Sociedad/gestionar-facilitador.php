@@ -1006,7 +1006,7 @@ if($nombreCreadorGrupo !== ""){
         *   completar ("error"). Los demás tipos (ej. confirmación) no
         *   llevan ícono.
         */
-        var ICONOS_MODAL = { aviso: '✅', error: '❌' };
+        var ICONOS_MODAL = { aviso: '✅', error: '❌', confirmar: '⚠️' };
 
         function cerrarModal(){
             if(modalOverlay){ modalOverlay.classList.add('oculto'); }
