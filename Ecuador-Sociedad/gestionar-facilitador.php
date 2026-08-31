@@ -619,6 +619,13 @@ if($nombreCreadorGrupo !== ""){
         width: 100%;
         box-shadow: 0 16px 48px rgba(0,0,0,0.2);
     }
+    .ecu-wrap .ecu-modal-icono {
+        display: none;
+        font-size: 34px;
+        line-height: 1;
+        margin: 0 0 10px;
+    }
+    .ecu-wrap .ecu-modal-icono.ecu-modal-icono-visible { display: block; }
     .ecu-wrap .ecu-modal-titulo {
         font-family: 'Fraunces', Georgia, serif;
         font-weight: 500;
@@ -873,6 +880,7 @@ if($nombreCreadorGrupo !== ""){
 
     <div class="ecu-modal-overlay oculto" id="ecuModalOverlay">
         <div class="ecu-modal-card" id="ecuModalCard">
+            <div class="ecu-modal-icono" id="ecuModalIcono"></div>
             <h4 class="ecu-modal-titulo" id="ecuModalTitulo">Aviso</h4>
             <p class="ecu-modal-mensaje" id="ecuModalMensaje"></p>
             <div class="ecu-modal-botones" id="ecuModalBotones"></div>
@@ -972,9 +980,18 @@ if($nombreCreadorGrupo !== ""){
         */
         var modalOverlay = document.getElementById('ecuModalOverlay');
         var modalCard = document.getElementById('ecuModalCard');
+        var modalIcono = document.getElementById('ecuModalIcono');
         var modalTitulo = document.getElementById('ecuModalTitulo');
         var modalMensaje = document.getElementById('ecuModalMensaje');
         var modalBotones = document.getElementById('ecuModalBotones');
+
+        /*
+        *   Ícono del modal: chulo verde para acciones que se completaron
+        *   con éxito ("aviso"), X roja para las que no se pudieron
+        *   completar ("error"). Los demás tipos (ej. confirmación) no
+        *   llevan ícono.
+        */
+        var ICONOS_MODAL = { aviso: '✅', error: '❌' };
 
         function cerrarModal(){
             if(modalOverlay){ modalOverlay.classList.add('oculto'); }
@@ -985,6 +1002,11 @@ if($nombreCreadorGrupo !== ""){
             modalTitulo.textContent = titulo;
             modalMensaje.textContent = mensaje;
             modalCard.className = 'ecu-modal-card' + (tipo ? ' ecu-modal-' + tipo : '');
+            if(modalIcono){
+                var icono = ICONOS_MODAL[tipo] || '';
+                modalIcono.textContent = icono;
+                modalIcono.classList.toggle('ecu-modal-icono-visible', icono !== '');
+            }
             modalBotones.innerHTML = '';
             botones.forEach(function(b){
                 var btn = document.createElement('button');
