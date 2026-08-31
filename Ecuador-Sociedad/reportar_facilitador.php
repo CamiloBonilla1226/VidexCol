@@ -449,6 +449,7 @@ function valorPrevio($nombre, $default = ""){
     .ecu-wrap .ecu-field { margin-bottom: 18px; }
     .ecu-wrap .ecu-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .ecu-wrap .ecu-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .ecu-wrap .ecu-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
 
     .ecu-wrap input[type="text"].ecu-input,
     .ecu-wrap input[type="number"].ecu-input,
@@ -607,6 +608,7 @@ function valorPrevio($nombre, $default = ""){
     @media (max-width: 640px) {
         .ecu-wrap .ecu-grid-2 { grid-template-columns: 1fr; }
         .ecu-wrap .ecu-grid-4 { grid-template-columns: 1fr 1fr; }
+        .ecu-wrap .ecu-grid-3 { grid-template-columns: 1fr; }
     }
 </style>
 
@@ -727,11 +729,25 @@ function valorPrevio($nombre, $default = ""){
                                 </option>
                             <?php } ?>
                         </select>
-                        <input type="text" id="carcelInfoTexto" class="ecu-input" readonly value="" placeholder="Dirección, municipio y departamento" style="margin-top:10px; background: var(--gris-claro); display:none;" />
                     </div>
                     <div class="ecu-field">
                         <label class="ecu-label">Pabellón <span class="ecu-opt">(opcional)</span></label>
                         <input type="text" name="pabellon" class="ecu-input" maxlength="150" value="<?=valorPrevio('pabellon'); ?>" />
+                    </div>
+                </div>
+
+                <div class="ecu-grid-3">
+                    <div class="ecu-field" style="margin-bottom:0;">
+                        <label class="ecu-label">Departamento</label>
+                        <input type="text" id="carcelDepartamento" class="ecu-input" readonly value="" style="background: var(--gris-claro);" />
+                    </div>
+                    <div class="ecu-field" style="margin-bottom:0;">
+                        <label class="ecu-label">Municipio</label>
+                        <input type="text" id="carcelMunicipio" class="ecu-input" readonly value="" style="background: var(--gris-claro);" />
+                    </div>
+                    <div class="ecu-field" style="margin-bottom:0;">
+                        <label class="ecu-label">Dirección</label>
+                        <input type="text" id="carcelDireccion" class="ecu-input" readonly value="" style="background: var(--gris-claro);" />
                     </div>
                 </div>
             </div>
@@ -901,28 +917,42 @@ function valorPrevio($nombre, $default = ""){
 
         /*
         *   Al elegir una cárcel del <select> (ya filtrado por zona en el
-        *   servidor), se consulta su dirección/municipio/departamento y se
-        *   muestra en un campo de solo lectura.
+        *   servidor), se consulta su departamento, municipio y dirección,
+        *   y se muestran en tres campos de solo lectura separados.
         */
         var carcelSelect = document.getElementById('carcelUbicacionSelect');
-        var carcelInfoTexto = document.getElementById('carcelInfoTexto');
+        var carcelDepartamento = document.getElementById('carcelDepartamento');
+        var carcelMunicipio = document.getElementById('carcelMunicipio');
+        var carcelDireccion = document.getElementById('carcelDireccion');
+
+        function limpiarInfoCarcel(){
+            if(carcelDepartamento){ carcelDepartamento.value = ''; }
+            if(carcelMunicipio){ carcelMunicipio.value = ''; }
+            if(carcelDireccion){ carcelDireccion.value = ''; }
+        }
 
         function cargarInfoCarcel(idCarcel){
-            if(!carcelInfoTexto){ return; }
             if(!idCarcel){
-                carcelInfoTexto.style.display = 'none';
-                carcelInfoTexto.value = '';
+                limpiarInfoCarcel();
                 return;
             }
-            carcelInfoTexto.style.display = 'block';
-            carcelInfoTexto.value = 'Cargando...';
+            if(carcelDepartamento){ carcelDepartamento.value = 'Cargando...'; }
+            if(carcelMunicipio){ carcelMunicipio.value = 'Cargando...'; }
+            if(carcelDireccion){ carcelDireccion.value = 'Cargando...'; }
             fetch('ajax_info_carcel.php?id_carcel=' + encodeURIComponent(idCarcel), { credentials: 'same-origin' })
                 .then(function(resp){ return resp.json(); })
                 .then(function(data){
-                    carcelInfoTexto.value = (data.ok && data.texto) ? data.texto : 'Sin datos de ubicación registrados para esta cárcel.';
+                    if(!data.ok){
+                        limpiarInfoCarcel();
+                        return;
+                    }
+                    if(carcelDepartamento){ carcelDepartamento.value = data.departamento || ''; }
+                    if(carcelMunicipio){ carcelMunicipio.value = data.municipio || ''; }
+                    if(carcelDireccion){ carcelDireccion.value = data.reub_dir || ''; }
                 })
                 .catch(function(){
-                    carcelInfoTexto.value = 'No se pudo consultar la información de la cárcel.';
+                    limpiarInfoCarcel();
+                    mostrarError('No se pudo consultar la información de la cárcel.');
                 });
         }
 
