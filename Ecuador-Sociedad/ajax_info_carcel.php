@@ -2,8 +2,8 @@
 /*
  * ajax_info_carcel.php
  * Endpoint JSON usado por reportar_facilitador.php: al seleccionar una
- * cárcel (tbl_regional_ubicacion) devuelve su dirección, municipio y
- * departamento, para mostrarlos en un campo informativo de solo lectura.
+ * cárcel (tbl_regional_ubicacion) devuelve su dirección y departamento,
+ * para mostrarlos en campos informativos de solo lectura.
  */
 session_start();
 include_once('funciones.php');
@@ -33,10 +33,12 @@ $PSN1 = new DBbase_Sql;
 $PSN1->connect();
 
 /*
-*   Misma regla de zona que reportar_facilitador.php: un usuario.tipo = 2
-*   ve todas las cárceles; cualquier otro solo las de su propia regional
-*   (usuario_empresa.empresa_pd). Se revalida aquí para no exponer datos de
-*   cárceles de otras zonas aunque alguien manipule el id a mano.
+*   PENDIENTE POR IMPLEMENTAR: filtro de zona (usuario.tipo = 2 ve todas
+*   las cárceles; cualquier otro solo las de su propia regional, comparando
+*   tbl_regional_ubicacion.reub_reg_fk con usuario_empresa.empresa_pd). Ver
+*   el comentario en reportar_facilitador.php donde se arma $listaCarceles:
+*   queda pendiente por los 8 registros con reub_reg_fk huérfano que no
+*   coinciden con ningún empresa_pd.
 */
 $usuarioTipo = 0;
 $PSN2 = new DBbase_Sql;
@@ -54,14 +56,20 @@ if($PSN3->num_rows() > 0){
     $empresaPd = intval($PSN3->f("empresa_pd"));
 }
 
-$sql = "SELECT r.reub_id, r.reub_nom, r.reub_dir, m.municipio, d.departamento
+/*
+*   El departamento se obtiene vía el municipio (dane_municipios.departamento_id),
+*   aunque el municipio en sí ya no se muestra en el formulario.
+*/
+$sql = "SELECT r.reub_id, r.reub_nom, r.reub_dir, d.departamento
         FROM tbl_regional_ubicacion r
         LEFT JOIN dane_municipios m ON m.id_municipio = r.reub_mun_fk
         LEFT JOIN dane_departamentos d ON d.id_departamento = m.departamento_id
         WHERE r.reub_id = ".$idCarcel;
+/*
 if($usuarioTipo != 2){
     $sql .= " AND r.reub_reg_fk = ".$empresaPd;
 }
+*/
 $sql .= " LIMIT 1";
 
 $PSN1->query($sql);
@@ -76,14 +84,10 @@ if($PSN1->num_rows() == 0){
 $PSN1->next_record();
 
 /*
-*   Formato solicitado: "reub_dir, municipio - departamento", omitiendo
-*   con cuidado las partes que vengan vacías (por ejemplo si la cárcel no
-*   tiene municipio asignado en dane_municipios).
+*   Formato: "reub_dir - departamento", omitiendo con cuidado la parte que
+*   venga vacía.
 */
 $texto = trim($PSN1->f("reub_dir"));
-if($PSN1->f("municipio") != ""){
-    $texto .= ($texto != "" ? ", " : "").$PSN1->f("municipio");
-}
 if($PSN1->f("departamento") != ""){
     $texto .= ($texto != "" ? " - " : "").$PSN1->f("departamento");
 }
@@ -92,7 +96,6 @@ $respuesta["ok"] = true;
 $respuesta["reub_id"] = $idCarcel;
 $respuesta["reub_nom"] = $PSN1->f("reub_nom");
 $respuesta["reub_dir"] = $PSN1->f("reub_dir");
-$respuesta["municipio"] = $PSN1->f("municipio");
 $respuesta["departamento"] = $PSN1->f("departamento");
 $respuesta["texto"] = $texto;
 

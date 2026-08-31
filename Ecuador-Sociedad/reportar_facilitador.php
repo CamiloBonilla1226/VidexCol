@@ -117,12 +117,20 @@ $escalaMapeo = array(
 /*
 *   Catálogo de cárceles: mismo select usado en
 *   gestionar-sub-programa-evangelistas.php ("Cárcel ubicación", tabla
-*   tbl_regional_ubicacion), pero aquí SÍ se filtra por la regional del
-*   usuario (tbl_regional_ubicacion.reub_reg_fk = usuario_empresa.empresa_pd),
-*   salvo que sea usuario.tipo = 2 (ve todas, sin filtro de zona).
-*   El <select> guarda el reub_id; el NOMBRE (reub_nom) es lo que
-*   finalmente se persiste en ecu_reportes.carcel_ubicacion (columna de
-*   texto libre, no una relación con tbl_regional_ubicacion).
+*   tbl_regional_ubicacion). El <select> guarda el reub_id; el NOMBRE
+*   (reub_nom) es lo que finalmente se persiste en
+*   ecu_reportes.carcel_ubicacion (columna de texto libre, no una relación
+*   con tbl_regional_ubicacion).
+*
+*   PENDIENTE POR IMPLEMENTAR: filtro por regional del usuario. La idea es
+*   que solo vea las cárceles de su propia zona
+*   (tbl_regional_ubicacion.reub_reg_fk = usuario_empresa.empresa_pd),
+*   salvo que sea usuario.tipo = 2 (ese sí vería todas, sin filtro). Se deja
+*   comentado porque hay 8 registros en tbl_regional_ubicacion cuyo
+*   reub_reg_fk no coincide con ningún empresa_pd (códigos huérfanos: 352,
+*   354, 355, 358, 359, 363, 366) — hay que corregir esos datos antes de
+*   activar el filtro, o esas cárceles quedarían invisibles para todos los
+*   usuarios normales. Por ahora se muestran TODAS las cárceles, sin filtrar.
 */
 $usuarioTipo = 0;
 $PSN4 = new DBbase_Sql;
@@ -142,9 +150,11 @@ if($PSN5->num_rows() > 0){
 
 $listaCarceles = array();
 $sqlCarceles = "SELECT reub_id, reub_nom FROM tbl_regional_ubicacion";
+/*
 if($usuarioTipo != 2){
     $sqlCarceles .= " WHERE reub_reg_fk = ".$empresaPd;
 }
+*/
 $sqlCarceles .= " ORDER BY reub_nom ASC";
 $PSN6 = new DBbase_Sql;
 $PSN6->query($sqlCarceles);
@@ -225,18 +235,26 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
             /*
             *   Se recibe el reub_id del <select>, pero se guarda el NOMBRE
-            *   (columna de texto libre). Se vuelve a validar contra la
-            *   regional del usuario en el servidor (no basta con que el
-            *   <select> del navegador ya venga filtrado) para que nadie
-            *   pueda enviar a mano el id de una cárcel de otra zona.
+            *   (columna de texto libre).
+            *
+            *   PENDIENTE POR IMPLEMENTAR: junto con el filtro de zona del
+            *   <select> (ver comentario más arriba, donde se arma
+            *   $listaCarceles), aquí debería revalidarse que el reub_id
+            *   recibido pertenezca a la regional del usuario
+            *   (reub_reg_fk = empresa_pd), para que nadie pueda enviar a
+            *   mano el id de una cárcel de otra zona aunque el <select> del
+            *   navegador ya venga filtrado. Queda comentado por la misma
+            *   razón: los 8 registros con reub_reg_fk huérfano.
             */
             $carcel_ubicacion = "";
             $carcelUbicacionId = isset($_POST["carcel_ubicacion_id"]) ? intval($_POST["carcel_ubicacion_id"]) : 0;
             if($carcelUbicacionId > 0){
                 $sqlNombreCarcel = "SELECT reub_nom FROM tbl_regional_ubicacion WHERE reub_id = ".$carcelUbicacionId;
+                /*
                 if($usuarioTipo != 2){
                     $sqlNombreCarcel .= " AND reub_reg_fk = ".$empresaPd;
                 }
+                */
                 $sqlNombreCarcel .= " LIMIT 1";
                 $PSN7 = new DBbase_Sql;
                 $PSN7->query($sqlNombreCarcel);
@@ -332,7 +350,7 @@ function valorPrevio($nombre, $default = ""){
         background: #FFFFFF;
         color: var(--negro);
         font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-        max-width: 820px;
+        max-width: 980px;
         margin: 0 auto;
         padding: 32px 16px 24px;
     }
@@ -449,7 +467,6 @@ function valorPrevio($nombre, $default = ""){
     .ecu-wrap .ecu-field { margin-bottom: 18px; }
     .ecu-wrap .ecu-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .ecu-wrap .ecu-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-    .ecu-wrap .ecu-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px; }
 
     .ecu-wrap input[type="text"].ecu-input,
     .ecu-wrap input[type="number"].ecu-input,
@@ -608,7 +625,6 @@ function valorPrevio($nombre, $default = ""){
     @media (max-width: 640px) {
         .ecu-wrap .ecu-grid-2 { grid-template-columns: 1fr; }
         .ecu-wrap .ecu-grid-4 { grid-template-columns: 1fr 1fr; }
-        .ecu-wrap .ecu-grid-3 { grid-template-columns: 1fr; }
     }
 </style>
 
@@ -736,14 +752,10 @@ function valorPrevio($nombre, $default = ""){
                     </div>
                 </div>
 
-                <div class="ecu-grid-3">
+                <div class="ecu-grid-2">
                     <div class="ecu-field" style="margin-bottom:0;">
                         <label class="ecu-label">Departamento</label>
                         <input type="text" id="carcelDepartamento" class="ecu-input" readonly value="" style="background: var(--gris-claro);" />
-                    </div>
-                    <div class="ecu-field" style="margin-bottom:0;">
-                        <label class="ecu-label">Municipio</label>
-                        <input type="text" id="carcelMunicipio" class="ecu-input" readonly value="" style="background: var(--gris-claro);" />
                     </div>
                     <div class="ecu-field" style="margin-bottom:0;">
                         <label class="ecu-label">Dirección</label>
@@ -916,18 +928,15 @@ function valorPrevio($nombre, $default = ""){
         }
 
         /*
-        *   Al elegir una cárcel del <select> (ya filtrado por zona en el
-        *   servidor), se consulta su departamento, municipio y dirección,
-        *   y se muestran en tres campos de solo lectura separados.
+        *   Al elegir una cárcel del <select>, se consulta su departamento y
+        *   dirección, y se muestran en dos campos de solo lectura.
         */
         var carcelSelect = document.getElementById('carcelUbicacionSelect');
         var carcelDepartamento = document.getElementById('carcelDepartamento');
-        var carcelMunicipio = document.getElementById('carcelMunicipio');
         var carcelDireccion = document.getElementById('carcelDireccion');
 
         function limpiarInfoCarcel(){
             if(carcelDepartamento){ carcelDepartamento.value = ''; }
-            if(carcelMunicipio){ carcelMunicipio.value = ''; }
             if(carcelDireccion){ carcelDireccion.value = ''; }
         }
 
@@ -937,7 +946,6 @@ function valorPrevio($nombre, $default = ""){
                 return;
             }
             if(carcelDepartamento){ carcelDepartamento.value = 'Cargando...'; }
-            if(carcelMunicipio){ carcelMunicipio.value = 'Cargando...'; }
             if(carcelDireccion){ carcelDireccion.value = 'Cargando...'; }
             fetch('ajax_info_carcel.php?id_carcel=' + encodeURIComponent(idCarcel), { credentials: 'same-origin' })
                 .then(function(resp){ return resp.json(); })
@@ -947,7 +955,6 @@ function valorPrevio($nombre, $default = ""){
                         return;
                     }
                     if(carcelDepartamento){ carcelDepartamento.value = data.departamento || ''; }
-                    if(carcelMunicipio){ carcelMunicipio.value = data.municipio || ''; }
                     if(carcelDireccion){ carcelDireccion.value = data.reub_dir || ''; }
                 })
                 .catch(function(){
