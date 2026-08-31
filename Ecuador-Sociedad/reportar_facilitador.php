@@ -117,17 +117,41 @@ $escalaMapeo = array(
 /*
 *   Catálogo de cárceles: mismo select usado en
 *   gestionar-sub-programa-evangelistas.php ("Cárcel ubicación", tabla
-*   tbl_regional_ubicacion). Se guarda el NOMBRE (reub_nom) en
-*   ecu_reportes.carcel_ubicacion, ya que esa columna es texto libre
-*   (VARCHAR), no una relación con tbl_regional_ubicacion.
+*   tbl_regional_ubicacion), pero aquí SÍ se filtra por la regional del
+*   usuario (tbl_regional_ubicacion.reub_reg_fk = usuario_empresa.empresa_pd),
+*   salvo que sea usuario.tipo = 2 (ve todas, sin filtro de zona).
+*   El <select> guarda el reub_id; el NOMBRE (reub_nom) es lo que
+*   finalmente se persiste en ecu_reportes.carcel_ubicacion (columna de
+*   texto libre, no una relación con tbl_regional_ubicacion).
 */
-$listaCarceles = array();
+$usuarioTipo = 0;
 $PSN4 = new DBbase_Sql;
-$PSN4->query("SELECT reub_id, reub_nom FROM tbl_regional_ubicacion ORDER BY reub_nom ASC");
-while($PSN4->next_record()){
+$PSN4->query("SELECT tipo FROM usuario WHERE id = ".$idUsuarioSesion." LIMIT 1");
+if($PSN4->num_rows() > 0){
+    $PSN4->next_record();
+    $usuarioTipo = intval($PSN4->f("tipo"));
+}
+
+$empresaPd = 0;
+$PSN5 = new DBbase_Sql;
+$PSN5->query("SELECT empresa_pd FROM usuario_empresa WHERE idUsuario = ".$idUsuarioSesion." LIMIT 1");
+if($PSN5->num_rows() > 0){
+    $PSN5->next_record();
+    $empresaPd = intval($PSN5->f("empresa_pd"));
+}
+
+$listaCarceles = array();
+$sqlCarceles = "SELECT reub_id, reub_nom FROM tbl_regional_ubicacion";
+if($usuarioTipo != 2){
+    $sqlCarceles .= " WHERE reub_reg_fk = ".$empresaPd;
+}
+$sqlCarceles .= " ORDER BY reub_nom ASC";
+$PSN6 = new DBbase_Sql;
+$PSN6->query($sqlCarceles);
+while($PSN6->next_record()){
     $listaCarceles[] = array(
-        "id"     => $PSN4->f("reub_id"),
-        "nombre" => $PSN4->f("reub_nom"),
+        "id"     => intval($PSN6->f("reub_id")),
+        "nombre" => $PSN6->f("reub_nom"),
     );
 }
 
@@ -199,7 +223,28 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
         if($errorReporte == ""){
 
-            $carcel_ubicacion = trim($_POST["carcel_ubicacion"]);
+            /*
+            *   Se recibe el reub_id del <select>, pero se guarda el NOMBRE
+            *   (columna de texto libre). Se vuelve a validar contra la
+            *   regional del usuario en el servidor (no basta con que el
+            *   <select> del navegador ya venga filtrado) para que nadie
+            *   pueda enviar a mano el id de una cárcel de otra zona.
+            */
+            $carcel_ubicacion = "";
+            $carcelUbicacionId = isset($_POST["carcel_ubicacion_id"]) ? intval($_POST["carcel_ubicacion_id"]) : 0;
+            if($carcelUbicacionId > 0){
+                $sqlNombreCarcel = "SELECT reub_nom FROM tbl_regional_ubicacion WHERE reub_id = ".$carcelUbicacionId;
+                if($usuarioTipo != 2){
+                    $sqlNombreCarcel .= " AND reub_reg_fk = ".$empresaPd;
+                }
+                $sqlNombreCarcel .= " LIMIT 1";
+                $PSN7 = new DBbase_Sql;
+                $PSN7->query($sqlNombreCarcel);
+                if($PSN7->num_rows() > 0){
+                    $PSN7->next_record();
+                    $carcel_ubicacion = $PSN7->f("reub_nom");
+                }
+            }
             $pabellon = trim($_POST["pabellon"]);
             $comentario = trim($_POST["comentario"]);
 
@@ -672,16 +717,17 @@ function valorPrevio($nombre, $default = ""){
                 <div class="ecu-grid-2">
                     <div class="ecu-field">
                         <label class="ecu-label">Cárcel / ubicación <span class="ecu-opt">(opcional)</span></label>
-                        <select name="carcel_ubicacion" class="ecu-select">
+                        <select name="carcel_ubicacion_id" id="carcelUbicacionSelect" class="ecu-select">
                             <option value="">Sin especificar</option>
                             <?php
-                            $carcelSeleccionada = isset($_POST["carcel_ubicacion"]) ? trim($_POST["carcel_ubicacion"]) : "";
+                            $carcelSeleccionadaId = isset($_POST["carcel_ubicacion_id"]) ? intval($_POST["carcel_ubicacion_id"]) : 0;
                             foreach($listaCarceles as $carcel){ ?>
-                                <option value="<?=htmlspecialchars($carcel["nombre"], ENT_QUOTES, "UTF-8"); ?>" <?php if($carcelSeleccionada == $carcel["nombre"]){ ?>selected="selected"<?php } ?>>
+                                <option value="<?=$carcel["id"]; ?>" <?php if($carcelSeleccionadaId == $carcel["id"]){ ?>selected="selected"<?php } ?>>
                                     <?=htmlspecialchars($carcel["nombre"], ENT_QUOTES, "UTF-8"); ?>
                                 </option>
                             <?php } ?>
                         </select>
+                        <input type="text" id="carcelInfoTexto" class="ecu-input" readonly value="" placeholder="Dirección, municipio y departamento" style="margin-top:10px; background: var(--gris-claro); display:none;" />
                     </div>
                     <div class="ecu-field">
                         <label class="ecu-label">Pabellón <span class="ecu-opt">(opcional)</span></label>
@@ -851,6 +897,40 @@ function valorPrevio($nombre, $default = ""){
                     mostrarError('La suma del crecimiento del grupo no puede ser mayor que la asistencia total. Revise los valores antes de guardar.', 'Datos inconsistentes');
                 }
             });
+        }
+
+        /*
+        *   Al elegir una cárcel del <select> (ya filtrado por zona en el
+        *   servidor), se consulta su dirección/municipio/departamento y se
+        *   muestra en un campo de solo lectura.
+        */
+        var carcelSelect = document.getElementById('carcelUbicacionSelect');
+        var carcelInfoTexto = document.getElementById('carcelInfoTexto');
+
+        function cargarInfoCarcel(idCarcel){
+            if(!carcelInfoTexto){ return; }
+            if(!idCarcel){
+                carcelInfoTexto.style.display = 'none';
+                carcelInfoTexto.value = '';
+                return;
+            }
+            carcelInfoTexto.style.display = 'block';
+            carcelInfoTexto.value = 'Cargando...';
+            fetch('ajax_info_carcel.php?id_carcel=' + encodeURIComponent(idCarcel), { credentials: 'same-origin' })
+                .then(function(resp){ return resp.json(); })
+                .then(function(data){
+                    carcelInfoTexto.value = (data.ok && data.texto) ? data.texto : 'Sin datos de ubicación registrados para esta cárcel.';
+                })
+                .catch(function(){
+                    carcelInfoTexto.value = 'No se pudo consultar la información de la cárcel.';
+                });
+        }
+
+        if(carcelSelect){
+            carcelSelect.addEventListener('change', function(){
+                cargarInfoCarcel(carcelSelect.value);
+            });
+            if(carcelSelect.value){ cargarInfoCarcel(carcelSelect.value); }
         }
 
         <?php if($exitoReporte != ""){ ?>
