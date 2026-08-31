@@ -286,9 +286,9 @@ if($nombreCreadorGrupo !== ""){
     }
 
     .ecu-wrap .ecu-section-title {
-        font-family: 'Fraunces', Georgia, serif;
-        font-weight: 500;
-        font-size: 17px;
+        font-family: 'Public Sans', sans-serif;
+        font-weight: 700;
+        font-size: 16px;
         margin: 0 0 4px;
         color: var(--negro);
         text-align: left;
@@ -505,9 +505,9 @@ if($nombreCreadorGrupo !== ""){
         box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.15);
     }
     .ecu-wrap .ecu-input-mini.ecu-input-nombre-grande {
-        font-family: 'Fraunces', Georgia, serif;
-        font-size: 18px;
-        font-weight: 500;
+        font-family: 'Public Sans', sans-serif;
+        font-size: 17px;
+        font-weight: 700;
         width: 100%;
         max-width: 100%;
         padding: 2px 6px;
@@ -537,10 +537,10 @@ if($nombreCreadorGrupo !== ""){
     }
     .ecu-wrap .ecu-info-tile-value {
         font-size: 15px;
-        font-weight: 600;
+        font-weight: 700;
         color: var(--negro);
         margin: 0;
-        font-family: 'Fraunces', Georgia, serif;
+        font-family: 'Public Sans', sans-serif;
     }
     .ecu-wrap .ecu-info-creador {
         font-size: 13px;
