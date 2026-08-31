@@ -527,19 +527,10 @@ function valorPrevio($nombre, $default = ""){
 
     /*
     *   La foto es obligatoria y antes casi no se notaba junto a los demás
-    *   campos; se le da un recuadro propio, más alto y llamativo.
+    *   campos; se le da un poco más de tamaño, sin recuadro llamativo.
     */
-    .ecu-wrap .ecu-foto-dropzone {
-        border: 2px dashed var(--azul);
-        border-radius: var(--radius-card);
-        background: var(--azul-tint);
-        padding: 20px;
-        text-align: center;
-    }
     .ecu-wrap .ecu-foto-input.ecu-input {
-        border: none;
-        background: transparent;
-        padding: 14px 10px;
+        padding: 14px 13px;
         font-size: 14px;
         font-weight: 600;
         cursor: pointer;
@@ -834,10 +825,8 @@ function valorPrevio($nombre, $default = ""){
 
                 <div class="ecu-field">
                     <label class="ecu-label">Foto <span class="ecu-req">*</span></label>
-                    <div class="ecu-foto-dropzone">
-                        <input type="file" name="foto" id="fotoInput" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" required />
-                        <p class="ecu-foto-ayuda">Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
-                    </div>
+                    <input type="file" name="foto" id="fotoInput" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" required />
+                    <p class="ecu-foto-ayuda">Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
                 </div>
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Comentario <span class="ecu-opt">(opcional)</span></label>
