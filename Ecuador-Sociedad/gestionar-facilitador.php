@@ -816,7 +816,7 @@ if($nombreCreadorGrupo !== ""){
         <div class="ecu-card ecu-panel-reporte">
             <div class="ecu-panel-header">
                 <h4 class="ecu-section-title">Información del grupo</h4>
-                <a href="<?php echo ($idGrupoSeleccionado > 0) ? 'reportar_facilitador.php?idgrupo='.$idGrupoSeleccionado : '#'; ?>"
+                <a href="<?php echo ($idGrupoSeleccionado > 0) ? 'index.php?doc=reportar_facilitador&idgrupo='.$idGrupoSeleccionado : '#'; ?>"
                    id="ecuBtnReporte"
                    class="ecu-btn ecu-btn-primary ecu-btn-slim"
                    style="text-decoration:none; display:<?php echo ($idGrupoSeleccionado > 0) ? 'inline-block' : 'none'; ?>;">Generar reporte</a>
@@ -1086,7 +1086,7 @@ if($nombreCreadorGrupo !== ""){
         function actualizarBotonReporte(idGrupo){
             if(!btnReporte){ return; }
             if(idGrupo){
-                btnReporte.href = 'reportar_facilitador.php?idgrupo=' + encodeURIComponent(idGrupo);
+                btnReporte.href = 'index.php?doc=reportar_facilitador&idgrupo=' + encodeURIComponent(idGrupo);
                 btnReporte.style.display = 'inline-block';
             }else{
                 btnReporte.style.display = 'none';
