@@ -105,9 +105,9 @@ if(isset($_GET["creado"]) && $_GET["creado"] == "1"){
 
 /*
 *   Ítems del "Método de verificación" (mapeo_*). Mismo set de 9 campos que
-*   sat_reportes / gestionar-sub-programa-evangelistas.php, pero aquí con
-*   una escala de 1 a 4 (ver CLAUDE.md, CHECK constraint de ecu_reportes),
-*   en vez del checkbox binario del sistema viejo.
+*   sat_reportes / gestionar-sub-programa-evangelistas.php: mismo checkbox
+*   Sí/No (1 = Sí, 0 = No), mismos íconos (mapeo_img/{campo}2.png) y mismo
+*   switch visual (.check, definido globalmente en estilos_chart.css).
 */
 $camposMapeo = array(
     "mapeo_oracion"      => "Orar",
@@ -119,12 +119,6 @@ $camposMapeo = array(
     "mapeo_dar"          => "Dar",
     "mapeo_bautizar"     => "Bautizar",
     "mapeo_trabajadores" => "Entrenar nuevos líderes",
-);
-$escalaMapeo = array(
-    1 => "No realiza la tarea",
-    2 => "La realiza con el facilitador",
-    3 => "La realiza, pero este mes no lo hizo",
-    4 => "La realiza de manera autónoma",
 );
 
 /*
@@ -187,13 +181,14 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
     $ubicacion = trim($_POST["ubicacion"]);
     $carcelUbicacionIdPostulada = isset($_POST["carcel_ubicacion_id"]) ? intval($_POST["carcel_ubicacion_id"]) : 0;
 
+    /*
+    *   Checkbox Sí/No: igual que en gestionar-sub-programa-evangelistas.php,
+    *   si el checkbox no viene marcado el navegador simplemente no envía el
+    *   campo — se guarda 0 (No) en ese caso.
+    */
     $valoresMapeo = array();
     foreach($camposMapeo as $campo => $etiqueta){
-        $valor = isset($_POST[$campo]) ? intval($_POST[$campo]) : 0;
-        if($valor < 1 || $valor > 4){
-            $errorReporte = "Debe seleccionar una opción (1 a 4) en todos los ítems del método de verificación.";
-        }
-        $valoresMapeo[$campo] = $valor;
+        $valoresMapeo[$campo] = (isset($_POST[$campo]) && $_POST[$campo] == "1") ? 1 : 0;
     }
 
     if($nombre_lider == ""){
@@ -240,10 +235,6 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
         */
         $asistencia_total = $asistencia_hom + $asistencia_muj + $asistencia_jov + $asistencia_nin;
         $asistencia_grupo = $total_creyentes_grupo + $nuevos_creyentes_grupo + $total_bautizados_grupo + $nuevos_bautizados_grupo;
-
-        if($asistencia_grupo > $asistencia_total){
-            $errorReporte = "La suma del crecimiento del grupo (".$asistencia_grupo.") no puede ser mayor que la asistencia total (".$asistencia_total.").";
-        }
 
         if($errorReporte == ""){
 
@@ -532,64 +523,12 @@ function valorPrevio($nombre, $default = ""){
     }
     .ecu-wrap input[type="file"].ecu-input { padding: 9px 10px; font-size: 13px; }
 
-    .ecu-wrap .ecu-escala-ayuda {
-        background: var(--gris-claro);
-        border-radius: var(--radius-control);
-        padding: 12px 14px;
-        margin-bottom: 18px;
-        font-size: 12.5px;
-        color: var(--gris-texto);
-        line-height: 1.6;
-    }
-    .ecu-wrap .ecu-escala-ayuda strong { color: var(--negro); }
-
-    .ecu-wrap .ecu-mapeo-item {
-        border: 1px solid var(--line);
-        border-radius: var(--radius-control);
-        padding: 14px 16px;
-        margin-bottom: 12px;
-    }
-    .ecu-wrap .ecu-mapeo-item:last-child { margin-bottom: 0; }
-    .ecu-wrap .ecu-mapeo-titulo {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--negro);
-        margin: 0 0 10px;
-    }
-    .ecu-wrap .ecu-escala {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-    .ecu-wrap .ecu-escala-opcion {
-        position: relative;
-        cursor: pointer;
-    }
-    .ecu-wrap .ecu-escala-opcion input {
-        position: absolute;
-        opacity: 0;
-        width: 1px;
-        height: 1px;
-    }
-    .ecu-wrap .ecu-escala-opcion span {
-        display: block;
-        font-size: 12.5px;
-        font-weight: 500;
-        color: var(--gris-texto);
-        background: var(--gris-claro);
-        border: 1.5px solid var(--line);
-        border-radius: 999px;
-        padding: 7px 13px;
-        transition: all 0.15s ease;
-    }
-    .ecu-wrap .ecu-escala-opcion input:checked + span {
-        background: var(--azul);
-        border-color: var(--azul);
-        color: #FFFFFF;
-    }
-    .ecu-wrap .ecu-escala-opcion input:focus-visible + span {
-        box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.25);
-    }
+    /*
+    *   El toggle Sí/No del "Método de verificación" (.check) y las clases
+    *   de layout (cont-flex-2, vl-cent, fl-sbet, row, col-sm-*) son las
+    *   mismas de gestionar-sub-programa-evangelistas.php, ya cargadas
+    *   globalmente por estilos_chart.css / Bootstrap — no se redefinen aquí.
+    */
 
     .ecu-wrap .ecu-btn {
         font-family: 'Public Sans', sans-serif;
@@ -753,25 +692,27 @@ function valorPrevio($nombre, $default = ""){
 
                 <div class="ecu-grid-4">
                     <div class="ecu-field">
-                        <label class="ecu-label">Total de creyentes</label>
-                        <input type="number" name="total_creyentes_grupo" id="total_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_creyentes_grupo', '0'); ?>" />
-                    </div>
-                    <div class="ecu-field">
                         <label class="ecu-label">Nuevos creyentes</label>
                         <input type="number" name="nuevos_creyentes_grupo" id="nuevos_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_creyentes_grupo', '0'); ?>" />
                     </div>
                     <div class="ecu-field">
-                        <label class="ecu-label">Total bautizados</label>
-                        <input type="number" name="total_bautizados_grupo" id="total_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_bautizados_grupo', '0'); ?>" />
+                        <label class="ecu-label">Total de creyentes</label>
+                        <input type="number" name="total_creyentes_grupo" id="total_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_creyentes_grupo', '0'); ?>" />
                     </div>
                     <div class="ecu-field">
                         <label class="ecu-label">Nuevos bautizados</label>
                         <input type="number" name="nuevos_bautizados_grupo" id="nuevos_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_bautizados_grupo', '0'); ?>" />
                     </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Total bautizados</label>
+                        <input type="number" name="total_bautizados_grupo" id="total_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_bautizados_grupo', '0'); ?>" />
+                    </div>
                 </div>
-                <p class="ecu-section-sub" id="mensajeLimiteCrecimiento" style="margin: 12px 0 0; color: var(--danger-text); display:none;">
-                    La suma del crecimiento del grupo no puede ser mayor que la asistencia total.
-                </p>
+
+                <div class="ecu-field" style="margin-bottom:0;">
+                    <label class="ecu-label">Asistencia del grupo</label>
+                    <input type="text" id="asistencia_grupo_mostrar" class="ecu-input" readonly value="0" style="background: var(--gris-claro); font-weight:600;" />
+                </div>
             </div>
 
             <hr class="ecu-divider" />
@@ -816,30 +757,28 @@ function valorPrevio($nombre, $default = ""){
 
             <div class="ecu-seccion">
                 <h4 class="ecu-section-title">Método de verificación</h4>
-                <p class="ecu-section-sub">Seleccione una opción para cada actividad.</p>
+                <p class="ecu-section-sub">Active la actividad si el grupo la realizó.</p>
 
-                <div class="ecu-escala-ayuda">
-                    <strong>1</strong> No realiza la tarea &nbsp;·&nbsp;
-                    <strong>2</strong> La realiza con el facilitador &nbsp;·&nbsp;
-                    <strong>3</strong> La realiza, pero este mes no lo hizo &nbsp;·&nbsp;
-                    <strong>4</strong> La realiza de manera autónoma
-                </div>
-
-                <?php foreach($camposMapeo as $campo => $etiqueta){
-                    $valorGuardado = isset($_POST[$campo]) ? intval($_POST[$campo]) : 0;
-                ?>
-                    <div class="ecu-mapeo-item">
-                        <p class="ecu-mapeo-titulo"><?=htmlspecialchars($etiqueta, ENT_QUOTES, "UTF-8"); ?></p>
-                        <div class="ecu-escala">
-                            <?php foreach($escalaMapeo as $valor => $descripcion){ ?>
-                                <label class="ecu-escala-opcion" title="<?=htmlspecialchars($descripcion, ENT_QUOTES, "UTF-8"); ?>">
-                                    <input type="radio" name="<?=$campo; ?>" value="<?=$valor; ?>" required <?php if($valorGuardado == $valor){ ?>checked="checked"<?php } ?> />
-                                    <span><?=$valor; ?></span>
-                                </label>
-                            <?php } ?>
+                <div class="row">
+                    <?php foreach($camposMapeo as $campo => $etiqueta){
+                        $marcado = isset($_POST[$campo]) && $_POST[$campo] == "1";
+                    ?>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <div class="col-sm-12 cont-flex-2 vl-cent fl-sbet">
+                                    <div class="cont-flex-2 vl-cent">
+                                        <img style="margin-right: 15px" width="35px" src="mapeo_img/<?=$campo; ?>2.png" class="img-responsive" />
+                                        <h5><?=htmlspecialchars($etiqueta, ENT_QUOTES, "UTF-8"); ?></h5>
+                                    </div>
+                                    <label>
+                                        <input type="checkbox" name="<?=$campo; ?>" value="1" <?php if($marcado){ ?>checked="checked"<?php } ?> />
+                                        <span class="check"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                <?php } ?>
+                    <?php } ?>
+                </div>
             </div>
 
             <hr class="ecu-divider" />
@@ -927,14 +866,14 @@ function valorPrevio($nombre, $default = ""){
         }
 
         /*
-        *   Asistencia total: se muestra en vivo (solo lectura, no editable
-        *   por el usuario) y sirve además como tope para validar que el
-        *   crecimiento del grupo no la supere.
+        *   Asistencia total y Asistencia del grupo: se muestran en vivo,
+        *   son de solo lectura (no editables por el usuario) y no se
+        *   validan entre sí (no hay tope de una sobre la otra).
         */
         var camposAsistencia = ['asistencia_hom', 'asistencia_muj', 'asistencia_jov', 'asistencia_nin'];
-        var camposCrecimiento = ['total_creyentes_grupo', 'nuevos_creyentes_grupo', 'total_bautizados_grupo', 'nuevos_bautizados_grupo'];
+        var camposCrecimiento = ['nuevos_creyentes_grupo', 'total_creyentes_grupo', 'nuevos_bautizados_grupo', 'total_bautizados_grupo'];
         var asistenciaTotalMostrar = document.getElementById('asistencia_total_mostrar');
-        var mensajeLimiteCrecimiento = document.getElementById('mensajeLimiteCrecimiento');
+        var asistenciaGrupoMostrar = document.getElementById('asistencia_grupo_mostrar');
 
         function sumarCampos(nombres){
             var total = 0;
@@ -946,34 +885,23 @@ function valorPrevio($nombre, $default = ""){
         }
 
         function actualizarAsistenciaTotal(){
-            var total = sumarCampos(camposAsistencia);
-            if(asistenciaTotalMostrar){ asistenciaTotalMostrar.value = total; }
-            return total;
+            if(asistenciaTotalMostrar){ asistenciaTotalMostrar.value = sumarCampos(camposAsistencia); }
         }
 
-        function crecimientoExcedeAsistencia(){
-            var total = actualizarAsistenciaTotal();
-            var crecimiento = sumarCampos(camposCrecimiento);
-            var excede = crecimiento > total;
-            if(mensajeLimiteCrecimiento){ mensajeLimiteCrecimiento.style.display = excede ? 'block' : 'none'; }
-            return excede;
+        function actualizarAsistenciaGrupo(){
+            if(asistenciaGrupoMostrar){ asistenciaGrupoMostrar.value = sumarCampos(camposCrecimiento); }
         }
 
-        camposAsistencia.concat(camposCrecimiento).forEach(function(nombre){
+        camposAsistencia.forEach(function(nombre){
             var input = document.getElementById(nombre);
-            if(input){ input.addEventListener('input', crecimientoExcedeAsistencia); }
+            if(input){ input.addEventListener('input', actualizarAsistenciaTotal); }
         });
-        crecimientoExcedeAsistencia();
-
-        var formReporte = document.getElementById('formReporte');
-        if(formReporte){
-            formReporte.addEventListener('submit', function(e){
-                if(crecimientoExcedeAsistencia()){
-                    e.preventDefault();
-                    mostrarError('La suma del crecimiento del grupo no puede ser mayor que la asistencia total. Revise los valores antes de guardar.', 'Datos inconsistentes');
-                }
-            });
-        }
+        camposCrecimiento.forEach(function(nombre){
+            var input = document.getElementById(nombre);
+            if(input){ input.addEventListener('input', actualizarAsistenciaGrupo); }
+        });
+        actualizarAsistenciaTotal();
+        actualizarAsistenciaGrupo();
 
         /*
         *   Al elegir una cárcel del <select>, se consulta su departamento y

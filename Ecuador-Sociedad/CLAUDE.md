@@ -998,7 +998,7 @@ necesidad de tener formularios/tablas separados por programa:
 | `carcel_ubicacion` | texto | Solo aplica si `tipo_reporte = 318` (Facilitadores) |
 | `pabellon` | texto | Solo aplica si `tipo_reporte = 318` (Facilitadores) |
 | `foto` | archivo | Extensión guardada en la columna; archivo físico en disco |
-| `mapeo_oracion` … `mapeo_trabajadores` | 9 campos, escala 1–4 | Igual que en `sat_reportes` actual |
+| `mapeo_oracion` … `mapeo_trabajadores` | 9 campos, Sí/No (checkbox) | Mismo toggle visual e íconos que `gestionar-sub-programa-evangelistas.php` (`mapeo_img/{campo}2.png` + switch `.check`); se guarda `1` = Sí, `0` = No |
 | `comentario` | texto, opcional | Para ambos tipos de reporte |
 
 ### Campos automáticos (calculados en servidor, NO los llena el usuario)
@@ -1060,7 +1060,7 @@ CREATE TABLE ecu_reportes (
     nuevos_bautizados_grupo     INT UNSIGNED     NOT NULL DEFAULT 0,
     asistencia_grupo            INT UNSIGNED     NOT NULL DEFAULT 0,  -- automático = suma de las 4 anteriores
 
-    mapeo_oracion               TINYINT UNSIGNED NOT NULL,   -- escala 1-4
+    mapeo_oracion               TINYINT UNSIGNED NOT NULL,   -- Sí/No: 1 = Sí, 0 = No
     mapeo_companerismo          TINYINT UNSIGNED NOT NULL,
     mapeo_adoracion             TINYINT UNSIGNED NOT NULL,
     mapeo_biblia                 TINYINT UNSIGNED NOT NULL,
@@ -1087,11 +1087,11 @@ CREATE TABLE ecu_reportes (
 
     CONSTRAINT chk_ecu_reportes_mapeo
         CHECK (
-            mapeo_oracion BETWEEN 1 AND 4 AND mapeo_companerismo BETWEEN 1 AND 4 AND
-            mapeo_adoracion BETWEEN 1 AND 4 AND mapeo_biblia BETWEEN 1 AND 4 AND
-            mapeo_evangelizar BETWEEN 1 AND 4 AND mapeo_cena BETWEEN 1 AND 4 AND
-            mapeo_dar BETWEEN 1 AND 4 AND mapeo_bautizar BETWEEN 1 AND 4 AND
-            mapeo_trabajadores BETWEEN 1 AND 4
+            mapeo_oracion BETWEEN 0 AND 1 AND mapeo_companerismo BETWEEN 0 AND 1 AND
+            mapeo_adoracion BETWEEN 0 AND 1 AND mapeo_biblia BETWEEN 0 AND 1 AND
+            mapeo_evangelizar BETWEEN 0 AND 1 AND mapeo_cena BETWEEN 0 AND 1 AND
+            mapeo_dar BETWEEN 0 AND 1 AND mapeo_bautizar BETWEEN 0 AND 1 AND
+            mapeo_trabajadores BETWEEN 0 AND 1
         ),
 
     INDEX idx_ecu_reportes_grupo (idgrupo),
@@ -1104,6 +1104,26 @@ CREATE TABLE ecu_reportes (
 Estado: **ejecutado y verificado en producción** (tabla creada
 correctamente, tras corregir el error inicial — ver "Decisiones técnicas y
 correcciones" abajo).
+
+⚠️ **Migración pendiente en producción**: el `CHECK` de `mapeo_*` se creó
+originalmente como `BETWEEN 1 AND 4` (escala de 4 niveles). Se cambió el
+diseño del formulario a Sí/No (ver `reportar_facilitador.php`), por lo que
+la tabla en producción necesita este `ALTER TABLE` antes de que el
+formulario pueda guardar reportes (MySQL 8.0.16+; en versiones anteriores
+el `CHECK` no se aplica y no haría falta el `ALTER`, pero tampoco hay nada
+que migrar):
+
+```sql
+ALTER TABLE ecu_reportes DROP CHECK chk_ecu_reportes_mapeo;
+
+ALTER TABLE ecu_reportes ADD CONSTRAINT chk_ecu_reportes_mapeo CHECK (
+    mapeo_oracion BETWEEN 0 AND 1 AND mapeo_companerismo BETWEEN 0 AND 1 AND
+    mapeo_adoracion BETWEEN 0 AND 1 AND mapeo_biblia BETWEEN 0 AND 1 AND
+    mapeo_evangelizar BETWEEN 0 AND 1 AND mapeo_cena BETWEEN 0 AND 1 AND
+    mapeo_dar BETWEEN 0 AND 1 AND mapeo_bautizar BETWEEN 0 AND 1 AND
+    mapeo_trabajadores BETWEEN 0 AND 1
+);
+```
 
 ## Decisiones técnicas y correcciones aplicadas
 
