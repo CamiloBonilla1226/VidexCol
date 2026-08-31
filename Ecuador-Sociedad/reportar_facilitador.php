@@ -115,6 +115,23 @@ $escalaMapeo = array(
 );
 
 /*
+*   Catálogo de cárceles: mismo select usado en
+*   gestionar-sub-programa-evangelistas.php ("Cárcel ubicación", tabla
+*   tbl_regional_ubicacion). Se guarda el NOMBRE (reub_nom) en
+*   ecu_reportes.carcel_ubicacion, ya que esa columna es texto libre
+*   (VARCHAR), no una relación con tbl_regional_ubicacion.
+*/
+$listaCarceles = array();
+$PSN4 = new DBbase_Sql;
+$PSN4->query("SELECT reub_id, reub_nom FROM tbl_regional_ubicacion ORDER BY reub_nom ASC");
+while($PSN4->next_record()){
+    $listaCarceles[] = array(
+        "id"     => $PSN4->f("reub_id"),
+        "nombre" => $PSN4->f("reub_nom"),
+    );
+}
+
+/*
 *   GUARDAR REPORTE
 */
 if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
@@ -366,6 +383,14 @@ function valorPrevio($nombre, $default = ""){
         margin: 0 0 18px;
     }
 
+    .ecu-wrap .ecu-seccion { margin-bottom: 26px; }
+    .ecu-wrap .ecu-seccion:last-child { margin-bottom: 0; }
+    .ecu-wrap .ecu-divider {
+        border: none;
+        border-top: 1px solid var(--line);
+        margin: 26px 0;
+    }
+
     .ecu-wrap label.ecu-label {
         display: block;
         font-size: 13px;
@@ -383,7 +408,8 @@ function valorPrevio($nombre, $default = ""){
     .ecu-wrap input[type="text"].ecu-input,
     .ecu-wrap input[type="number"].ecu-input,
     .ecu-wrap input[type="file"].ecu-input,
-    .ecu-wrap textarea.ecu-input {
+    .ecu-wrap textarea.ecu-input,
+    .ecu-wrap select.ecu-select {
         width: 100%;
         font-family: 'Public Sans', sans-serif;
         font-size: 14px;
@@ -398,7 +424,8 @@ function valorPrevio($nombre, $default = ""){
     .ecu-wrap textarea.ecu-input { resize: vertical; min-height: 90px; font-family: inherit; }
     .ecu-wrap input[type="text"].ecu-input:focus,
     .ecu-wrap input[type="number"].ecu-input:focus,
-    .ecu-wrap textarea.ecu-input:focus {
+    .ecu-wrap textarea.ecu-input:focus,
+    .ecu-wrap select.ecu-select:focus {
         border-color: var(--azul);
         box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.15);
     }
@@ -561,134 +588,153 @@ function valorPrevio($nombre, $default = ""){
         <input type="hidden" name="idgrupo" value="<?=$idGrupo; ?>" />
 
         <div class="ecu-card">
-            <h4 class="ecu-section-title">Datos del líder</h4>
 
-            <div class="ecu-field" style="margin-bottom:0;">
-                <label class="ecu-label">Nombre del líder <span class="ecu-req">*</span></label>
-                <input type="text" name="nombre_lider" class="ecu-input" maxlength="150" required value="<?=valorPrevio('nombre_lider'); ?>" />
-            </div>
-        </div>
-
-        <div class="ecu-card">
-            <h4 class="ecu-section-title">Ubicación</h4>
-
-            <div class="ecu-field" style="margin-bottom:0;">
-                <label class="ecu-label">Ubicación <span class="ecu-req">*</span></label>
-                <input type="text" name="ubicacion" class="ecu-input" maxlength="200" required value="<?=valorPrevio('ubicacion'); ?>" />
-            </div>
-        </div>
-
-        <div class="ecu-card">
-            <h4 class="ecu-section-title">Asistencia</h4>
-            <p class="ecu-section-sub">Personas que asistieron este mes.</p>
-
-            <div class="ecu-grid-4">
-                <div class="ecu-field">
-                    <label class="ecu-label">Hombres</label>
-                    <input type="number" name="asistencia_hom" id="asistencia_hom" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_hom', '0'); ?>" />
-                </div>
-                <div class="ecu-field">
-                    <label class="ecu-label">Mujeres</label>
-                    <input type="number" name="asistencia_muj" id="asistencia_muj" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_muj', '0'); ?>" />
-                </div>
-                <div class="ecu-field">
-                    <label class="ecu-label">Jóvenes</label>
-                    <input type="number" name="asistencia_jov" id="asistencia_jov" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_jov', '0'); ?>" />
-                </div>
-                <div class="ecu-field">
-                    <label class="ecu-label">Niños</label>
-                    <input type="number" name="asistencia_nin" id="asistencia_nin" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_nin', '0'); ?>" />
+            <div class="ecu-seccion">
+                <div class="ecu-field" style="margin-bottom:0;">
+                    <label class="ecu-label">Nombre del líder <span class="ecu-req">*</span></label>
+                    <input type="text" name="nombre_lider" class="ecu-input" maxlength="150" required value="<?=valorPrevio('nombre_lider'); ?>" />
                 </div>
             </div>
 
-            <div class="ecu-field" style="margin-bottom:0;">
-                <label class="ecu-label">Asistencia total</label>
-                <input type="text" id="asistencia_total_mostrar" class="ecu-input" readonly value="0" style="background: var(--gris-claro); font-weight:600;" />
-            </div>
-        </div>
-
-        <div class="ecu-card">
-            <h4 class="ecu-section-title">Crecimiento del grupo</h4>
-            <p class="ecu-section-sub">Cifras acumuladas del grupo en el mes reportado.</p>
-
-            <div class="ecu-grid-4">
-                <div class="ecu-field">
-                    <label class="ecu-label">Total de creyentes</label>
-                    <input type="number" name="total_creyentes_grupo" id="total_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_creyentes_grupo', '0'); ?>" />
-                </div>
-                <div class="ecu-field">
-                    <label class="ecu-label">Nuevos creyentes</label>
-                    <input type="number" name="nuevos_creyentes_grupo" id="nuevos_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_creyentes_grupo', '0'); ?>" />
-                </div>
-                <div class="ecu-field">
-                    <label class="ecu-label">Total bautizados</label>
-                    <input type="number" name="total_bautizados_grupo" id="total_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_bautizados_grupo', '0'); ?>" />
-                </div>
-                <div class="ecu-field">
-                    <label class="ecu-label">Nuevos bautizados</label>
-                    <input type="number" name="nuevos_bautizados_grupo" id="nuevos_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_bautizados_grupo', '0'); ?>" />
+            <div class="ecu-seccion">
+                <div class="ecu-field" style="margin-bottom:0;">
+                    <label class="ecu-label">Ubicación <span class="ecu-req">*</span></label>
+                    <input type="text" name="ubicacion" class="ecu-input" maxlength="200" required value="<?=valorPrevio('ubicacion'); ?>" />
                 </div>
             </div>
-            <p class="ecu-section-sub" id="mensajeLimiteCrecimiento" style="margin: 12px 0 0; color: var(--danger-text); display:none;">
-                La suma del crecimiento del grupo no puede ser mayor que la asistencia total.
-            </p>
-        </div>
 
-        <div class="ecu-card">
-            <h4 class="ecu-section-title">Información de la cárcel</h4>
-            <p class="ecu-section-sub">Campos exclusivos del reporte de Facilitadores.</p>
+            <hr class="ecu-divider" />
 
-            <div class="ecu-grid-2">
-                <div class="ecu-field">
-                    <label class="ecu-label">Cárcel / ubicación <span class="ecu-opt">(opcional)</span></label>
-                    <input type="text" name="carcel_ubicacion" class="ecu-input" maxlength="150" value="<?=valorPrevio('carcel_ubicacion'); ?>" />
-                </div>
-                <div class="ecu-field">
-                    <label class="ecu-label">Pabellón <span class="ecu-opt">(opcional)</span></label>
-                    <input type="text" name="pabellon" class="ecu-input" maxlength="150" value="<?=valorPrevio('pabellon'); ?>" />
-                </div>
-            </div>
-        </div>
+            <div class="ecu-seccion">
+                <h4 class="ecu-section-title">Asistencia</h4>
+                <p class="ecu-section-sub">Personas que asistieron este mes.</p>
 
-        <div class="ecu-card">
-            <h4 class="ecu-section-title">Método de verificación</h4>
-            <p class="ecu-section-sub">Seleccione una opción para cada actividad.</p>
-
-            <div class="ecu-escala-ayuda">
-                <strong>1</strong> No realiza la tarea &nbsp;·&nbsp;
-                <strong>2</strong> La realiza con el facilitador &nbsp;·&nbsp;
-                <strong>3</strong> La realiza, pero este mes no lo hizo &nbsp;·&nbsp;
-                <strong>4</strong> La realiza de manera autónoma
-            </div>
-
-            <?php foreach($camposMapeo as $campo => $etiqueta){
-                $valorGuardado = isset($_POST[$campo]) ? intval($_POST[$campo]) : 0;
-            ?>
-                <div class="ecu-mapeo-item">
-                    <p class="ecu-mapeo-titulo"><?=htmlspecialchars($etiqueta, ENT_QUOTES, "UTF-8"); ?></p>
-                    <div class="ecu-escala">
-                        <?php foreach($escalaMapeo as $valor => $descripcion){ ?>
-                            <label class="ecu-escala-opcion" title="<?=htmlspecialchars($descripcion, ENT_QUOTES, "UTF-8"); ?>">
-                                <input type="radio" name="<?=$campo; ?>" value="<?=$valor; ?>" required <?php if($valorGuardado == $valor){ ?>checked="checked"<?php } ?> />
-                                <span><?=$valor; ?></span>
-                            </label>
-                        <?php } ?>
+                <div class="ecu-grid-4">
+                    <div class="ecu-field">
+                        <label class="ecu-label">Hombres</label>
+                        <input type="number" name="asistencia_hom" id="asistencia_hom" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_hom', '0'); ?>" />
+                    </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Mujeres</label>
+                        <input type="number" name="asistencia_muj" id="asistencia_muj" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_muj', '0'); ?>" />
+                    </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Jóvenes</label>
+                        <input type="number" name="asistencia_jov" id="asistencia_jov" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_jov', '0'); ?>" />
+                    </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Niños</label>
+                        <input type="number" name="asistencia_nin" id="asistencia_nin" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_nin', '0'); ?>" />
                     </div>
                 </div>
-            <?php } ?>
-        </div>
 
-        <div class="ecu-card">
-            <h4 class="ecu-section-title">Foto y comentario</h4>
+                <div class="ecu-field" style="margin-bottom:0;">
+                    <label class="ecu-label">Asistencia total</label>
+                    <input type="text" id="asistencia_total_mostrar" class="ecu-input" readonly value="0" style="background: var(--gris-claro); font-weight:600;" />
+                </div>
+            </div>
 
-            <div class="ecu-field">
-                <label class="ecu-label">Foto <span class="ecu-opt">(opcional)</span></label>
-                <input type="file" name="foto" class="ecu-input" accept=".jpg,.jpeg,.png,.gif,.webp" />
+            <hr class="ecu-divider" />
+
+            <div class="ecu-seccion">
+                <h4 class="ecu-section-title">Crecimiento del grupo</h4>
+                <p class="ecu-section-sub">Cifras acumuladas del grupo en el mes reportado.</p>
+
+                <div class="ecu-grid-4">
+                    <div class="ecu-field">
+                        <label class="ecu-label">Total de creyentes</label>
+                        <input type="number" name="total_creyentes_grupo" id="total_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_creyentes_grupo', '0'); ?>" />
+                    </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Nuevos creyentes</label>
+                        <input type="number" name="nuevos_creyentes_grupo" id="nuevos_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_creyentes_grupo', '0'); ?>" />
+                    </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Total bautizados</label>
+                        <input type="number" name="total_bautizados_grupo" id="total_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_bautizados_grupo', '0'); ?>" />
+                    </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Nuevos bautizados</label>
+                        <input type="number" name="nuevos_bautizados_grupo" id="nuevos_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_bautizados_grupo', '0'); ?>" />
+                    </div>
+                </div>
+                <p class="ecu-section-sub" id="mensajeLimiteCrecimiento" style="margin: 12px 0 0; color: var(--danger-text); display:none;">
+                    La suma del crecimiento del grupo no puede ser mayor que la asistencia total.
+                </p>
             </div>
-            <div class="ecu-field" style="margin-bottom:0;">
-                <label class="ecu-label">Comentario <span class="ecu-opt">(opcional)</span></label>
-                <textarea name="comentario" class="ecu-input"><?=valorPrevio('comentario'); ?></textarea>
+
+            <hr class="ecu-divider" />
+
+            <div class="ecu-seccion">
+                <h4 class="ecu-section-title">Información de la cárcel</h4>
+                <p class="ecu-section-sub">Campos exclusivos del reporte de Facilitadores.</p>
+
+                <div class="ecu-grid-2">
+                    <div class="ecu-field">
+                        <label class="ecu-label">Cárcel / ubicación <span class="ecu-opt">(opcional)</span></label>
+                        <select name="carcel_ubicacion" class="ecu-select">
+                            <option value="">Sin especificar</option>
+                            <?php
+                            $carcelSeleccionada = isset($_POST["carcel_ubicacion"]) ? trim($_POST["carcel_ubicacion"]) : "";
+                            foreach($listaCarceles as $carcel){ ?>
+                                <option value="<?=htmlspecialchars($carcel["nombre"], ENT_QUOTES, "UTF-8"); ?>" <?php if($carcelSeleccionada == $carcel["nombre"]){ ?>selected="selected"<?php } ?>>
+                                    <?=htmlspecialchars($carcel["nombre"], ENT_QUOTES, "UTF-8"); ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Pabellón <span class="ecu-opt">(opcional)</span></label>
+                        <input type="text" name="pabellon" class="ecu-input" maxlength="150" value="<?=valorPrevio('pabellon'); ?>" />
+                    </div>
+                </div>
             </div>
+
+            <hr class="ecu-divider" />
+
+            <div class="ecu-seccion">
+                <h4 class="ecu-section-title">Método de verificación</h4>
+                <p class="ecu-section-sub">Seleccione una opción para cada actividad.</p>
+
+                <div class="ecu-escala-ayuda">
+                    <strong>1</strong> No realiza la tarea &nbsp;·&nbsp;
+                    <strong>2</strong> La realiza con el facilitador &nbsp;·&nbsp;
+                    <strong>3</strong> La realiza, pero este mes no lo hizo &nbsp;·&nbsp;
+                    <strong>4</strong> La realiza de manera autónoma
+                </div>
+
+                <?php foreach($camposMapeo as $campo => $etiqueta){
+                    $valorGuardado = isset($_POST[$campo]) ? intval($_POST[$campo]) : 0;
+                ?>
+                    <div class="ecu-mapeo-item">
+                        <p class="ecu-mapeo-titulo"><?=htmlspecialchars($etiqueta, ENT_QUOTES, "UTF-8"); ?></p>
+                        <div class="ecu-escala">
+                            <?php foreach($escalaMapeo as $valor => $descripcion){ ?>
+                                <label class="ecu-escala-opcion" title="<?=htmlspecialchars($descripcion, ENT_QUOTES, "UTF-8"); ?>">
+                                    <input type="radio" name="<?=$campo; ?>" value="<?=$valor; ?>" required <?php if($valorGuardado == $valor){ ?>checked="checked"<?php } ?> />
+                                    <span><?=$valor; ?></span>
+                                </label>
+                            <?php } ?>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+
+            <hr class="ecu-divider" />
+
+            <div class="ecu-seccion">
+                <h4 class="ecu-section-title">Foto y comentario</h4>
+
+                <div class="ecu-field">
+                    <label class="ecu-label">Foto <span class="ecu-opt">(opcional)</span></label>
+                    <input type="file" name="foto" class="ecu-input" accept=".jpg,.jpeg,.png,.gif,.webp" />
+                </div>
+                <div class="ecu-field" style="margin-bottom:0;">
+                    <label class="ecu-label">Comentario <span class="ecu-opt">(opcional)</span></label>
+                    <textarea name="comentario" class="ecu-input"><?=valorPrevio('comentario'); ?></textarea>
+                </div>
+            </div>
+
         </div>
 
         <div class="ecu-btn-row">
