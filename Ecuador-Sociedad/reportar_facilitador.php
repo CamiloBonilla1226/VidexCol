@@ -195,6 +195,8 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
         $errorReporte = "El nombre del líder es obligatorio.";
     }else if($carcelUbicacionIdPostulada <= 0){
         $errorReporte = "Debe seleccionar una cárcel.";
+    }else if(!isset($_FILES["foto"]) || $_FILES["foto"]["error"] != UPLOAD_ERR_OK || $_FILES["foto"]["name"] == ""){
+        $errorReporte = "La foto es obligatoria.";
     }
 
     $extFoto = "";
@@ -524,6 +526,31 @@ function valorPrevio($nombre, $default = ""){
     .ecu-wrap input[type="file"].ecu-input { padding: 9px 10px; font-size: 13px; }
 
     /*
+    *   La foto es obligatoria y antes casi no se notaba junto a los demás
+    *   campos; se le da un recuadro propio, más alto y llamativo.
+    */
+    .ecu-wrap .ecu-foto-dropzone {
+        border: 2px dashed var(--azul);
+        border-radius: var(--radius-card);
+        background: var(--azul-tint);
+        padding: 20px;
+        text-align: center;
+    }
+    .ecu-wrap .ecu-foto-input.ecu-input {
+        border: none;
+        background: transparent;
+        padding: 14px 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .ecu-wrap .ecu-foto-ayuda {
+        font-size: 12.5px;
+        color: var(--gris-texto);
+        margin: 8px 0 0;
+    }
+
+    /*
     *   El toggle Sí/No del "Método de verificación" (.check) y las clases
     *   de layout (cont-flex-2, vl-cent, fl-sbet, row, col-sm-*) son las
     *   mismas de gestionar-sub-programa-evangelistas.php, ya cargadas
@@ -537,7 +564,16 @@ function valorPrevio($nombre, $default = ""){
         padding: 14px 16px;
         border: 1px solid var(--line);
         border-radius: var(--radius-control);
+        background: #FFFFFF;
+        /* .col-sm-12 de adentro flota (grid de Bootstrap); sin este
+           clearfix la tarjeta colapsaba a 0px de alto y el borde/fondo
+           quedaba desalineado del contenido real. */
+        overflow: hidden;
     }
+    /* El .col-sm-12 interno ya no necesita su padding lateral: lo
+       reemplaza el padding de .ecu-mapeo-toggle, para que el contenido
+       quede centrado dentro del recuadro y no descuadrado hacia un lado. */
+    .ecu-wrap .ecu-mapeo-toggle > .col-sm-12 { padding-left: 0; padding-right: 0; }
     .ecu-wrap .ecu-mapeo-toggle h5 { margin: 0; font-size: 14px; }
 
     .ecu-wrap .ecu-btn {
@@ -797,8 +833,11 @@ function valorPrevio($nombre, $default = ""){
                 <h4 class="ecu-section-title">Foto y comentario</h4>
 
                 <div class="ecu-field">
-                    <label class="ecu-label">Foto <span class="ecu-opt">(opcional)</span></label>
-                    <input type="file" name="foto" class="ecu-input" accept=".jpg,.jpeg,.png,.gif,.webp" />
+                    <label class="ecu-label">Foto <span class="ecu-req">*</span></label>
+                    <div class="ecu-foto-dropzone">
+                        <input type="file" name="foto" id="fotoInput" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" required />
+                        <p class="ecu-foto-ayuda">Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
+                    </div>
                 </div>
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Comentario <span class="ecu-opt">(opcional)</span></label>
