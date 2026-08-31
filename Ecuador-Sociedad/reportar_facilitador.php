@@ -527,8 +527,18 @@ function valorPrevio($nombre, $default = ""){
     *   El toggle Sí/No del "Método de verificación" (.check) y las clases
     *   de layout (cont-flex-2, vl-cent, fl-sbet, row, col-sm-*) son las
     *   mismas de gestionar-sub-programa-evangelistas.php, ya cargadas
-    *   globalmente por estilos_chart.css / Bootstrap — no se redefinen aquí.
+    *   globalmente por estilos_chart.css / Bootstrap. Aquí solo se les da
+    *   más aire vertical y una tarjeta propia por ítem.
     */
+    .ecu-wrap .ecu-mapeo-fila { margin-top: 4px; }
+    .ecu-wrap .ecu-mapeo-fila > div { margin-bottom: 16px; }
+    .ecu-wrap .ecu-mapeo-toggle {
+        margin-bottom: 0;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-control);
+    }
+    .ecu-wrap .ecu-mapeo-toggle h5 { margin: 0; font-size: 14px; }
 
     .ecu-wrap .ecu-btn {
         font-family: 'Public Sans', sans-serif;
@@ -759,12 +769,12 @@ function valorPrevio($nombre, $default = ""){
                 <h4 class="ecu-section-title">Método de verificación</h4>
                 <p class="ecu-section-sub">Active la actividad si el grupo la realizó.</p>
 
-                <div class="row">
+                <div class="row ecu-mapeo-fila">
                     <?php foreach($camposMapeo as $campo => $etiqueta){
                         $marcado = isset($_POST[$campo]) && $_POST[$campo] == "1";
                     ?>
                         <div class="col-sm-4">
-                            <div class="form-group">
+                            <div class="form-group ecu-mapeo-toggle">
                                 <div class="col-sm-12 cont-flex-2 vl-cent fl-sbet">
                                     <div class="cont-flex-2 vl-cent">
                                         <img style="margin-right: 15px" width="35px" src="mapeo_img/<?=$campo; ?>2.png" class="img-responsive" />
