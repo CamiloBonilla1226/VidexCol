@@ -1047,6 +1047,19 @@ if($nombreCreadorGrupo !== ""){
         mostrarAviso(<?=json_encode($exitoGrupo, JSON_UNESCAPED_UNICODE); ?>, 'Grupo creado con éxito');
         <?php } ?>
 
+        /*
+        *   El "?creado=1" de la URL solo debe disparar el modal una vez.
+        *   Se limpia de la barra de direcciones (sin recargar la página)
+        *   para que un F5 posterior no vuelva a mostrar el aviso de éxito.
+        */
+        (function(){
+            var url = new URL(window.location.href);
+            if(url.searchParams.has('creado')){
+                url.searchParams.delete('creado');
+                window.history.replaceState({}, '', url.toString());
+            }
+        })();
+
         function mostrarError(mensaje, titulo){
             mostrarModal(titulo || 'No fue posible completar la acción', mensaje, 'error', [
                 { texto: 'Entendido', clase: 'ecu-btn-secondary' }
