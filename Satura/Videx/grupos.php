@@ -1108,13 +1108,15 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 <h1>📊 IPG </h1>
                 <p>Visualiza y gestiona todos tus grupos con sus datos actuales.</p>
             </div>
-            <button class="btn btn-primary" onclick="openCreateGroupModal()" title="Crear un nuevo grupo" style="white-space: nowrap;">
+            <button class="btn btn-primary" onclick="openCreateGroupModal()" title="Crear un nuevo grupo"
+                style="white-space: nowrap;">
                 ➕ Crear Nuevo IPG
             </button>
         </div>
         <div class="info-box">
             <strong>ℹ️ Información:</strong>
-            Este panel muestra todos los IPG que has registrado. Puedes ver información detallada de cada IPG incluyendo nombre, ubicación, dirección, grupo madre y líderes.
+            Este panel muestra todos los IPG que has registrado. Puedes ver información detallada de cada IPG incluyendo
+            nombre, ubicación, dirección, grupo madre y líderes.
         </div>
     </div>
 
@@ -1137,13 +1139,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 📋 Mis IPG (${gruposCount})
             </div>
             <div class="search-container">
-                <input
-                    type="text"
-                    id="searchFilter"
-                    placeholder="🔍 Buscar grupo..."
-                    class="search-input-left"
-                    onkeyup="filterGroups()"
-                />
+                <input type="text" id="searchFilter" placeholder="🔍 Buscar grupo..." class="search-input-left"
+                    onkeyup="filterGroups()" />
             </div>
             <div class="groups-list" id="groupsList">
                 <!-- Los grupos se cargarán aquí -->
@@ -1205,7 +1202,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             <div class="form-field-error form-general-error" id="editFormError"></div>
             <div class="edit-form-group">
                 <label class="edit-form-label">Nombre del Grupo</label>
-                <input type="text" id="editNombre" class="edit-form-input" placeholder="Nombre del grupo" oninput="clearFormError('editNombre', 'editNombreError')">
+                <input type="text" id="editNombre" class="edit-form-input" placeholder="Nombre del grupo"
+                    oninput="clearFormError('editNombre', 'editNombreError')">
                 <div class="form-field-error" id="editNombreError"></div>
             </div>
 
@@ -1228,11 +1226,13 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 <label class="edit-form-label">¿Tiene Grupo Madre?</label>
                 <div style="display: flex; gap: 20px; margin-top: 10px;">
                     <label style="display: flex; align-items: center; gap: 8px;">
-                        <input type="radio" name="editTieneGrupoMadre" value="no" checked onchange="toggleEditGrupoMadreSelect()">
+                        <input type="radio" name="editTieneGrupoMadre" value="no" checked
+                            onchange="toggleEditGrupoMadreSelect()">
                         No (será Generación 0)
                     </label>
                     <label style="display: flex; align-items: center; gap: 8px;">
-                        <input type="radio" name="editTieneGrupoMadre" value="si" onchange="toggleEditGrupoMadreSelect()">
+                        <input type="radio" name="editTieneGrupoMadre" value="si"
+                            onchange="toggleEditGrupoMadreSelect()">
                         Sí
                     </label>
                 </div>
@@ -1243,21 +1243,24 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 <select id="editGrupoMadreDropdown" class="edit-form-input">
                     <option value="">-- Cargando grupos --</option>
                 </select>
-                <div id="editGeneracionInfo" style="margin-top: 10px; padding: 10px; background: #e8f4f8; border-radius: 4px; display: none;">
+                <div id="editGeneracionInfo"
+                    style="margin-top: 10px; padding: 10px; background: #e8f4f8; border-radius: 4px; display: none;">
                     <small>La nueva generación será: <strong id="editGeneracionDisplay">-</strong></small>
                 </div>
             </div>
 
             <div class="edit-form-group">
                 <label class="edit-form-label">Generación</label>
-                <input type="number" id="editGeneracion" class="edit-form-input" placeholder="Generación" min="0" max="5" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+                <input type="number" id="editGeneracion" class="edit-form-input" placeholder="Generación" min="0"
+                    max="5" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
             </div>
 
             <div class="edit-form-group">
                 <label class="edit-form-label">Líderes</label>
                 <div class="edit-lideres-container" id="lideresContainer"></div>
                 <div class="edit-lider-input-group">
-                    <input type="text" id="liderInput" class="edit-form-input edit-lider-input" placeholder="Agregar nuevo líder" oninput="clearFormError('liderInput', 'liderInputError')">
+                    <input type="text" id="liderInput" class="edit-form-input edit-lider-input"
+                        placeholder="Agregar nuevo líder" oninput="clearFormError('liderInput', 'liderInputError')">
                     <button type="button" class="edit-lider-add-btn" onclick="addLider()">Agregar</button>
                 </div>
                 <div class="form-field-error" id="liderInputError"></div>
@@ -1286,20 +1289,23 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 
             <div class="edit-modal-section">
                 <label>Nombre del Grupo *</label>
-                <input type="text" id="newGroupName" name="nombre" required placeholder="Ej: Grupo de Jóvenes" oninput="clearFormError('newGroupName', 'newGroupNameError')">
+                <input type="text" id="newGroupName" name="nombre" required placeholder="Ej: Grupo de Jóvenes"
+                    oninput="clearFormError('newGroupName', 'newGroupNameError')">
                 <div class="form-field-error" id="newGroupNameError"></div>
             </div>
 
             <div class="edit-modal-section">
                 <label>Descripción</label>
-                <textarea id="newGroupDescription" name="descripcion" placeholder="Descripción del grupo" rows="3"></textarea>
+                <textarea id="newGroupDescription" name="descripcion" placeholder="Descripción del grupo"
+                    rows="3"></textarea>
             </div>
 
             <div class="edit-modal-section">
                 <label>¿Tiene Grupo Madre?</label>
                 <div style="display: flex; gap: 20px; margin-top: 10px;">
                     <label style="display: flex; align-items: center; gap: 8px;">
-                        <input type="radio" name="tieneGrupoMadre" value="no" checked onchange="toggleGrupoMadreSelect()">
+                        <input type="radio" name="tieneGrupoMadre" value="no" checked
+                            onchange="toggleGrupoMadreSelect()">
                         No (será Generación 0)
                     </label>
                     <label style="display: flex; align-items: center; gap: 8px;">
@@ -1311,10 +1317,12 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 
             <div class="edit-modal-section" id="grupoMadreSelect" style="display: none;">
                 <label>Seleccionar Grupo Madre *</label>
-                <select id="grupoMadreDropdown" name="grupoMadre" onchange="clearFormError('grupoMadreDropdown', 'grupoMadreError')">
+                <select id="grupoMadreDropdown" name="grupoMadre"
+                    onchange="clearFormError('grupoMadreDropdown', 'grupoMadreError')">
                     <option value="">-- Cargando grupos --</option>
                 </select>
-                <div id="generacionInfo" style="margin-top: 10px; padding: 10px; background: #e8f4f8; border-radius: 4px; display: none;">
+                <div id="generacionInfo"
+                    style="margin-top: 10px; padding: 10px; background: #e8f4f8; border-radius: 4px; display: none;">
                     <small>La nueva generación será: <strong id="generacionDisplay">-</strong></small>
                 </div>
                 <div class="form-field-error" id="grupoMadreError"></div>
@@ -1324,11 +1332,13 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 <label>Ubicación (Ciudad, Barrio) *</label>
                 <div style="display: flex; gap: 10px;">
                     <div style="flex: 1;">
-                        <input type="text" id="newGroupCiudad" name="ciudad" placeholder="Ciudad" style="width: 100%;" oninput="clearFormError('newGroupCiudad', 'newGroupCiudadError')">
+                        <input type="text" id="newGroupCiudad" name="ciudad" placeholder="Ciudad" style="width: 100%;"
+                            oninput="clearFormError('newGroupCiudad', 'newGroupCiudadError')">
                         <div class="form-field-error" id="newGroupCiudadError"></div>
                     </div>
                     <div style="flex: 1;">
-                        <input type="text" id="newGroupBarrio" name="barrio" placeholder="Barrio" style="width: 100%;" oninput="clearFormError('newGroupBarrio', 'newGroupBarrioError')">
+                        <input type="text" id="newGroupBarrio" name="barrio" placeholder="Barrio" style="width: 100%;"
+                            oninput="clearFormError('newGroupBarrio', 'newGroupBarrioError')">
                         <div class="form-field-error" id="newGroupBarrioError"></div>
                     </div>
                 </div>
@@ -1336,18 +1346,22 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 
             <div class="edit-modal-section">
                 <label>Dirección *</label>
-                <input type="text" id="newGroupDireccion" name="direccion" placeholder="Dirección del lugar de reunión" oninput="clearFormError('newGroupDireccion', 'newGroupDireccionError')">
+                <input type="text" id="newGroupDireccion" name="direccion" placeholder="Dirección del lugar de reunión"
+                    oninput="clearFormError('newGroupDireccion', 'newGroupDireccionError')">
                 <div class="form-field-error" id="newGroupDireccionError"></div>
             </div>
 
             <div class="edit-modal-section">
                 <label>Líder del Grupo *</label>
-                <input type="text" id="newGroupLider" name="lider" placeholder="Nombre del líder" oninput="clearFormError('newGroupLider', 'newGroupLiderError')">
+                <input type="text" id="newGroupLider" name="lider" placeholder="Nombre del líder"
+                    oninput="clearFormError('newGroupLider', 'newGroupLiderError')">
                 <div class="form-field-error" id="newGroupLiderError"></div>
                 <div id="newGroupLideresUi" style="margin-top: 10px;">
                     <div class="edit-lideres-container" id="newGroupLideresContainer"></div>
                     <div class="edit-lider-input-group">
-                        <input type="text" id="newGroupLiderInput" class="edit-form-input edit-lider-input" placeholder="Agregar nuevo líder" oninput="clearFormError('newGroupLiderInput', 'newGroupLiderError')">
+                        <input type="text" id="newGroupLiderInput" class="edit-form-input edit-lider-input"
+                            placeholder="Agregar nuevo líder"
+                            oninput="clearFormError('newGroupLiderInput', 'newGroupLiderError')">
                         <button type="button" class="edit-lider-add-btn" onclick="addNewGroupLider()">Agregar</button>
                     </div>
                 </div>
@@ -1360,7 +1374,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 
             <div class="edit-modal-section">
                 <label>Fecha del Primer Encuentro *</label>
-                <input type="date" id="newGroupFecha" name="fecha" required onchange="clearFormError('newGroupFecha', 'newGroupFechaError')">
+                <input type="date" id="newGroupFecha" name="fecha" required
+                    onchange="clearFormError('newGroupFecha', 'newGroupFechaError')">
                 <div class="form-field-error" id="newGroupFechaError"></div>
             </div>
 
@@ -1369,19 +1384,23 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div>
                         <label style="font-size: 13px;">👨 Hombres</label>
-                        <input type="number" id="newGroupAsisHom" name="asistencia_hom" min="0" value="0" onchange="calculateTotalAsistencia()" oninput="calculateTotalAsistencia()">
+                        <input type="number" id="newGroupAsisHom" name="asistencia_hom" min="0" value="0"
+                            onchange="calculateTotalAsistencia()" oninput="calculateTotalAsistencia()">
                     </div>
                     <div>
                         <label style="font-size: 13px;">👩 Mujeres</label>
-                        <input type="number" id="newGroupAsisMuj" name="asistencia_muj" min="0" value="0" onchange="calculateTotalAsistencia()" oninput="calculateTotalAsistencia()">
+                        <input type="number" id="newGroupAsisMuj" name="asistencia_muj" min="0" value="0"
+                            onchange="calculateTotalAsistencia()" oninput="calculateTotalAsistencia()">
                     </div>
                     <div>
                         <label style="font-size: 13px;">👦 Jóvenes</label>
-                        <input type="number" id="newGroupAsisJov" name="asistencia_jov" min="0" value="0" onchange="calculateTotalAsistencia()" oninput="calculateTotalAsistencia()">
+                        <input type="number" id="newGroupAsisJov" name="asistencia_jov" min="0" value="0"
+                            onchange="calculateTotalAsistencia()" oninput="calculateTotalAsistencia()">
                     </div>
                     <div>
                         <label style="font-size: 13px;">🧒 Niños</label>
-                        <input type="number" id="newGroupAsisNin" name="asistencia_nin" min="0" value="0" onchange="calculateTotalAsistencia()" oninput="calculateTotalAsistencia()">
+                        <input type="number" id="newGroupAsisNin" name="asistencia_nin" min="0" value="0"
+                            onchange="calculateTotalAsistencia()" oninput="calculateTotalAsistencia()">
                     </div>
                 </div>
                 <div style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px;">
@@ -1391,7 +1410,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             </div>
 
             <div class="edit-modal-buttons">
-                <button type="button" class="edit-modal-button cancel" onclick="closeCreateGroupModal()">Cancelar</button>
+                <button type="button" class="edit-modal-button cancel"
+                    onclick="closeCreateGroupModal()">Cancelar</button>
                 <button type="submit" class="edit-modal-button save">Crear Grupo</button>
             </div>
         </form>
@@ -1416,7 +1436,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                     <span>Actividad de evangelización realizada</span>
                 </button>
 
-                <button type="button" class="activity-button gran-celebracion" onclick="selectActivity('gran_celebracion')">
+                <button type="button" class="activity-button gran-celebracion"
+                    onclick="selectActivity('gran_celebracion')">
                     <strong>🎉 Gran Celebración</strong>
                     <span>Evento especial de celebración</span>
                 </button>
@@ -1439,6 +1460,11 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 <button type="button" class="activity-button otra" onclick="selectActivity('taller')">
                     <strong>🛠️ Taller</strong>
                     <span>Taller de capacitación</span>
+                </button>
+
+                <button type="button" class="activity-button otra" onclick="selectActivity('hope')">
+                    <strong>✝️ HOPE</strong>
+                    <span>Actividad HOPE</span>
                 </button>
 
                 <button type="button" class="activity-button otra" onclick="selectActivity('otra_actividad')">
@@ -1535,22 +1561,31 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 <!-- Sección de Evidencia Fotográfica -->
                 <div class="form-group">
                     <label>Evidencia Fotográfica (Mínimo 1 - Máximo 3 imágenes)</label>
-                    <div id="fotosInputsContainer" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+                    <div id="fotosInputsContainer"
+                        style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
                         <div class="foto-evidencia-item" data-slot="1">
                             <label style="font-size: 12px;">Foto 1</label>
-                            <input type="file" class="fotos-evidencia-input" accept="image/jpeg,image/png,image/jpg,image/webp" style="display: block; margin-top: 6px;">
+                            <input type="file" class="fotos-evidencia-input"
+                                accept="image/jpeg,image/png,image/jpg,image/webp"
+                                style="display: block; margin-top: 6px;">
                         </div>
                     </div>
-                    <button type="button" id="addOtraFotoBtn" class="modal-button secondary" style="width: 100%; margin-top: 10px;">Agregar otra foto</button>
-                    <small style="color: #666; display: block; margin-top: 8px;">Debe cargar al menos una imagen. Máximo 3 imágenes, 5 MB por imagen. Formatos: JPG, PNG, WebP</small>
-                    <div id="fotosPreview" style="margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px;"></div>
+                    <button type="button" id="addOtraFotoBtn" class="modal-button secondary"
+                        style="width: 100%; margin-top: 10px;">Agregar otra foto</button>
+                    <small style="color: #666; display: block; margin-top: 8px;">Debe cargar al menos una imagen. Máximo
+                        3 imágenes, 5 MB por imagen. Formatos: JPG, PNG, WebP</small>
+                    <div id="fotosPreview"
+                        style="margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px;">
+                    </div>
                     <div id="fotosCountMsg" style="margin-top: 8px; font-size: 12px; color: #666;"></div>
                     <div class="form-field-error" id="reportFotosError"></div>
                 </div>
 
                 <!-- Sección de Mapeos (solo para Coach) -->
                 <div id="mapeosSection" style="display: none;">
-                    <h4 style="margin: 20px 0 15px 0; color: #333; border-bottom: 2px solid #2c3e50; padding-bottom: 10px;">Funciones Realizadas</h4>
+                    <h4
+                        style="margin: 20px 0 15px 0; color: #333; border-bottom: 2px solid #2c3e50; padding-bottom: 10px;">
+                        Funciones Realizadas</h4>
 
                     <div class="form-group">
                         <label>Este grupo esta comprometido como iglesia?</label>
@@ -1662,8 +1697,10 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 
                     <!-- Gráfica de Mapeo en tiempo real -->
                     <div id="mapeoChartContainer" style="margin-top: 20px; text-align: center;">
-                        <h4 style="color: #333; border-bottom: 2px solid #2c3e50; padding-bottom: 10px;">Imagen del Mapeo</h4>
-                        <canvas id="mapeoCanvas" width="550" height="550" style="max-width: 100%; border: 1px solid #ddd; border-radius: 8px; background: #fff;"></canvas>
+                        <h4 style="color: #333; border-bottom: 2px solid #2c3e50; padding-bottom: 10px;">Imagen del
+                            Mapeo</h4>
+                        <canvas id="mapeoCanvas" width="550" height="550"
+                            style="max-width: 100%; border: 1px solid #ddd; border-radius: 8px; background: #fff;"></canvas>
                     </div>
                     <div class="form-field-error" id="reportMapeosError"></div>
                 </div>
@@ -1672,7 +1709,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 <input type="hidden" id="reporteIds">
 
                 <div class="modal-button-group">
-                    <button type="button" class="modal-button secondary" onclick="backToActivitySelection()">Atrás</button>
+                    <button type="button" class="modal-button secondary"
+                        onclick="backToActivitySelection()">Atrás</button>
                     <button type="submit" class="modal-button primary">Guardar Reporte</button>
                 </div>
             </form>
@@ -1927,7 +1965,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             14: 'Taller',
             77: 'Evangelismo',
             99: 'Bautizo',
-            100: 'Capacitacion'
+            100: 'Capacitacion',
+            101: 'HOPE'
         };
 
         if (etiquetasActividad[idActividad]) {
@@ -2279,7 +2318,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         }).join('');
 
         container.querySelectorAll('.image-item').forEach((item, idx) => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function () {
                 openImageModal(idx, imagenes.map(i => i.ruta));
             });
         });
@@ -2297,22 +2336,22 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 reporteIds: reporteIds
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Datos recibidos en loadImagesInInfoSection:', data);
+            .then(response => response.json())
+            .then(data => {
+                console.log('Datos recibidos en loadImagesInInfoSection:', data);
 
-            const container = document.getElementById('imagesContainer');
-            if (!container) {
-                console.warn('Contenedor imagesContainer no encontrado');
-                return;
-            }
+                const container = document.getElementById('imagesContainer');
+                if (!container) {
+                    console.warn('Contenedor imagesContainer no encontrado');
+                    return;
+                }
 
-            if (data.success && data.imagenes && data.imagenes.length > 0) {
-                console.log('Imágenes recibidas:', data.imagenes);
+                if (data.success && data.imagenes && data.imagenes.length > 0) {
+                    console.log('Imágenes recibidas:', data.imagenes);
 
-                const imagesHTML = data.imagenes.map((img, index) => {
-                    const thumbnail = img.rutaThumbnail || img.ruta;
-                    return `
+                    const imagesHTML = data.imagenes.map((img, index) => {
+                        const thumbnail = img.rutaThumbnail || img.ruta;
+                        return `
                         <div class="image-item" style="position: relative; width: 100%; aspect-ratio: 1; border-radius: 4px; overflow: hidden; cursor: pointer; border: 1px solid #ddd; background: #f5f5f5;">
                             <img src="${thumbnail}" alt="${img.nombre}"
                                  style="width: 100%; height: 100%; object-fit: cover;"
@@ -2322,30 +2361,30 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                                  onmouseout="this.style.background='rgba(0,0,0,0)'"></div>
                         </div>
                     `;
-                }).join('');
+                    }).join('');
 
-                container.innerHTML = imagesHTML;
+                    container.innerHTML = imagesHTML;
 
-                // Agregar event listeners para abrir modal
-                container.querySelectorAll('.image-item').forEach((item, idx) => {
-                    item.addEventListener('click', function() {
-                        const allImages = data.imagenes.map(i => i.ruta);
-                        openImageModal(idx, allImages);
+                    // Agregar event listeners para abrir modal
+                    container.querySelectorAll('.image-item').forEach((item, idx) => {
+                        item.addEventListener('click', function () {
+                            const allImages = data.imagenes.map(i => i.ruta);
+                            openImageModal(idx, allImages);
+                        });
                     });
-                });
 
-                console.log('Imágenes cargadas en info section');
-            } else {
-                container.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No hay imágenes disponibles</div>';
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar imágenes en info section:', error);
-            const container = document.getElementById('imagesContainer');
-            if (container) {
-                container.innerHTML = '<div style="text-align: center; color: #f44; padding: 20px;">Error al cargar imágenes</div>';
-            }
-        });
+                    console.log('Imágenes cargadas en info section');
+                } else {
+                    container.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">No hay imágenes disponibles</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar imágenes en info section:', error);
+                const container = document.getElementById('imagesContainer');
+                if (container) {
+                    container.innerHTML = '<div style="text-align: center; color: #f44; padding: 20px;">Error al cargar imágenes</div>';
+                }
+            });
     }
 
     function loadReportImagesAndInfo(reporteIds) {
@@ -2361,37 +2400,37 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 reporteIds: reporteIds
             })
         })
-        .then(response => {
-            console.log('Response status:', response.status);
-            return response.json();
-        })
-        .then(data => {
-            console.log('Datos recibidos de obtener_imagenes_reportes.php:', data);
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Datos recibidos de obtener_imagenes_reportes.php:', data);
 
-            if (data.success && data.imagenes) {
-                console.log('Imágenes recibidas:', data.imagenes);
+                if (data.success && data.imagenes) {
+                    console.log('Imágenes recibidas:', data.imagenes);
 
-                // Agrupar imágenes por reporte
-                const imagesByReport = {};
-                data.imagenes.forEach(img => {
-                    if (!imagesByReport[img.reporte_id]) {
-                        imagesByReport[img.reporte_id] = [];
-                    }
-                    imagesByReport[img.reporte_id].push(img);
-                });
+                    // Agrupar imágenes por reporte
+                    const imagesByReport = {};
+                    data.imagenes.forEach(img => {
+                        if (!imagesByReport[img.reporte_id]) {
+                            imagesByReport[img.reporte_id] = [];
+                        }
+                        imagesByReport[img.reporte_id].push(img);
+                    });
 
-                console.log('Imágenes agrupadas por reporte:', imagesByReport);
+                    console.log('Imágenes agrupadas por reporte:', imagesByReport);
 
-                // Llenar los contenedores de cada reporte
-                Object.keys(imagesByReport).forEach(reporteId => {
-                    console.log(`Buscando contenedor para reporte ${reporteId}`);
-                    const container = document.getElementById(`images-${reporteId}`);
-                    if (container) {
-                        console.log(`Contenedor encontrado para reporte ${reporteId}`);
-                        const imagesArray = imagesByReport[reporteId].map(i => i.ruta);
-                        const imagesHTML = imagesByReport[reporteId].map((img, index) => {
-                            const thumbnail = img.rutaThumbnail || img.ruta;
-                            return `
+                    // Llenar los contenedores de cada reporte
+                    Object.keys(imagesByReport).forEach(reporteId => {
+                        console.log(`Buscando contenedor para reporte ${reporteId}`);
+                        const container = document.getElementById(`images-${reporteId}`);
+                        if (container) {
+                            console.log(`Contenedor encontrado para reporte ${reporteId}`);
+                            const imagesArray = imagesByReport[reporteId].map(i => i.ruta);
+                            const imagesHTML = imagesByReport[reporteId].map((img, index) => {
+                                const thumbnail = img.rutaThumbnail || img.ruta;
+                                return `
                                 <div class="image-thumbnail" data-index="${index}" data-report="${reporteId}" style="position: relative; width: 100%; aspect-ratio: 1; border-radius: 4px; overflow: hidden; cursor: pointer; border: 1px solid #ddd; background: #f5f5f5;">
                                     <img src="${thumbnail}" alt="${img.nombre}"
                                          style="width: 100%; height: 100%; object-fit: cover;"
@@ -2401,95 +2440,96 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                                          onmouseout="this.style.background='rgba(0,0,0,0)'"></div>
                                 </div>
                             `;
-                        }).join('');
-                        container.innerHTML = imagesHTML;
-                        console.log(`Imágenes HTML insertadas en contenedor ${reporteId}`);
+                            }).join('');
+                            container.innerHTML = imagesHTML;
+                            console.log(`Imágenes HTML insertadas en contenedor ${reporteId}`);
 
-                        // Agregar event listeners a las miniaturas
-                        container.querySelectorAll('.image-thumbnail').forEach((thumb, idx) => {
-                            thumb.addEventListener('click', function() {
-                                openImageModal(idx, imagesArray);
+                            // Agregar event listeners a las miniaturas
+                            container.querySelectorAll('.image-thumbnail').forEach((thumb, idx) => {
+                                thumb.addEventListener('click', function () {
+                                    openImageModal(idx, imagesArray);
+                                });
                             });
-                        });
-                    } else {
-                        console.warn(`Contenedor no encontrado para reporte ${reporteId}`);
-                    }
-                });
-
-                // Cargar información de los reportes desde la BD
-                if (data.reportes) {
-                    console.log('Reportes recibidos:', data.reportes);
-                    data.reportes.forEach(reporte => {
-                        console.log(`Procesando reporte ${reporte.id}`);
-                        const infoContainer = document.getElementById(`report-info-${reporte.id}`);
-                        if (infoContainer) {
-                            console.log(`Contenedor info encontrado para reporte ${reporte.id}`);
-                            const tiposActividad = {
-                                '77': '🌍 Evangelismo',
-                                '8': '🎉 Gran Celebración',
-                                '99': '💧 Bautizo',
-                                '1': '🤝 Coach (1)',
-                                '2': '🤝 Coach (2)',
-                                '3': '🤝 Coach (3)',
-                                '4': '🤝 Coach (4)',
-                                '5': '🤝 Coach (5)'
-                            };
-                            const tiposIdActividad = {
-                                '1': 'Coach',
-                                '2': 'Ninguna',
-                                '5': 'Otra actividad',
-                                '8': 'Gran Celebracion',
-                                '10': 'Siembra abundante',
-                                '11': 'Caminata de oracion',
-                                '12': 'Identificar al hijo de paz',
-                                '13': 'Oracion Exp y Ferviente',
-                                '14': 'Taller',
-                                '77': 'Evangelismo',
-                                '99': 'Bautizo',
-                                '100': 'Capacitacion'
-                            };
-                            const idActividad = parseInt(reporte.id_actividad || 0, 10);
-                            const tipo = tiposIdActividad[idActividad] || tiposActividad[reporte.generacionNumero] || 'Desconocido';
-                            const fecha = new Date(reporte.fechaInicio).toLocaleDateString('es-CO', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                            });
-                            infoContainer.innerHTML = `<strong>${tipo}</strong> • ${fecha} • Asistencia: ${reporte.asistencia_total}`;
-
-                            // Agregar botón "Ver Mapeo" para reportes de Coach (generación 1-5)
-                            if (idActividad === 1) {
-                                const btnContainer = document.getElementById(`mapeo-btn-${reporte.id}`);
-                                if (btnContainer) {
-                                    btnContainer.innerHTML = `<button onclick="toggleMapeoChart(${reporte.id})" class="btn btn-sm btn-info" style="margin-top: 8px; font-size: 11px; padding: 4px 10px; border-radius: 4px;">📊 Ver Mapeo</button>`;
-                                    // Guardar datos de mapeo en el botón para usarlos al renderizar
-                                    btnContainer.dataset.mapeo = JSON.stringify({
-                                        mapeo_oracion: parseInt(reporte.mapeo_oracion) || 0,
-                                        mapeo_companerismo: parseInt(reporte.mapeo_companerismo) || 0,
-                                        mapeo_adoracion: parseInt(reporte.mapeo_adoracion) || 0,
-                                        mapeo_biblia: parseInt(reporte.mapeo_biblia) || 0,
-                                        mapeo_evangelizar: parseInt(reporte.mapeo_evangelizar) || 0,
-                                        mapeo_cena: parseInt(reporte.mapeo_cena) || 0,
-                                        mapeo_dar: parseInt(reporte.mapeo_dar) || 0,
-                                        mapeo_bautizar: parseInt(reporte.mapeo_bautizar) || 0,
-                                        mapeo_trabajadores: parseInt(reporte.mapeo_trabajadores) || 0
-                                    });
-                                }
-                            }
                         } else {
-                            console.warn(`Contenedor info no encontrado para reporte ${reporte.id}`);
+                            console.warn(`Contenedor no encontrado para reporte ${reporteId}`);
                         }
                     });
+
+                    // Cargar información de los reportes desde la BD
+                    if (data.reportes) {
+                        console.log('Reportes recibidos:', data.reportes);
+                        data.reportes.forEach(reporte => {
+                            console.log(`Procesando reporte ${reporte.id}`);
+                            const infoContainer = document.getElementById(`report-info-${reporte.id}`);
+                            if (infoContainer) {
+                                console.log(`Contenedor info encontrado para reporte ${reporte.id}`);
+                                const tiposActividad = {
+                                    '77': '🌍 Evangelismo',
+                                    '8': '🎉 Gran Celebración',
+                                    '99': '💧 Bautizo',
+                                    '1': '🤝 Coach (1)',
+                                    '2': '🤝 Coach (2)',
+                                    '3': '🤝 Coach (3)',
+                                    '4': '🤝 Coach (4)',
+                                    '5': '🤝 Coach (5)'
+                                };
+                                const tiposIdActividad = {
+                                    '1': 'Coach',
+                                    '2': 'Ninguna',
+                                    '5': 'Otra actividad',
+                                    '8': 'Gran Celebracion',
+                                    '10': 'Siembra abundante',
+                                    '11': 'Caminata de oracion',
+                                    '12': 'Identificar al hijo de paz',
+                                    '13': 'Oracion Exp y Ferviente',
+                                    '14': 'Taller',
+                                    '77': 'Evangelismo',
+                                    '99': 'Bautizo',
+                                    '100': 'Capacitacion',
+                                    '101': 'HOPE'
+                                };
+                                const idActividad = parseInt(reporte.id_actividad || 0, 10);
+                                const tipo = tiposIdActividad[idActividad] || tiposActividad[reporte.generacionNumero] || 'Desconocido';
+                                const fecha = new Date(reporte.fechaInicio).toLocaleDateString('es-CO', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                });
+                                infoContainer.innerHTML = `<strong>${tipo}</strong> • ${fecha} • Asistencia: ${reporte.asistencia_total}`;
+
+                                // Agregar botón "Ver Mapeo" para reportes de Coach (generación 1-5)
+                                if (idActividad === 1) {
+                                    const btnContainer = document.getElementById(`mapeo-btn-${reporte.id}`);
+                                    if (btnContainer) {
+                                        btnContainer.innerHTML = `<button onclick="toggleMapeoChart(${reporte.id})" class="btn btn-sm btn-info" style="margin-top: 8px; font-size: 11px; padding: 4px 10px; border-radius: 4px;">📊 Ver Mapeo</button>`;
+                                        // Guardar datos de mapeo en el botón para usarlos al renderizar
+                                        btnContainer.dataset.mapeo = JSON.stringify({
+                                            mapeo_oracion: parseInt(reporte.mapeo_oracion) || 0,
+                                            mapeo_companerismo: parseInt(reporte.mapeo_companerismo) || 0,
+                                            mapeo_adoracion: parseInt(reporte.mapeo_adoracion) || 0,
+                                            mapeo_biblia: parseInt(reporte.mapeo_biblia) || 0,
+                                            mapeo_evangelizar: parseInt(reporte.mapeo_evangelizar) || 0,
+                                            mapeo_cena: parseInt(reporte.mapeo_cena) || 0,
+                                            mapeo_dar: parseInt(reporte.mapeo_dar) || 0,
+                                            mapeo_bautizar: parseInt(reporte.mapeo_bautizar) || 0,
+                                            mapeo_trabajadores: parseInt(reporte.mapeo_trabajadores) || 0
+                                        });
+                                    }
+                                }
+                            } else {
+                                console.warn(`Contenedor info no encontrado para reporte ${reporte.id}`);
+                            }
+                        });
+                    } else {
+                        console.warn('No se recibieron reportes en data.reportes');
+                    }
                 } else {
-                    console.warn('No se recibieron reportes en data.reportes');
+                    console.warn('Data no es success o imagenes vacío:', data);
                 }
-            } else {
-                console.warn('Data no es success o imagenes vacío:', data);
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar imágenes:', error);
-        });
+            })
+            .catch(error => {
+                console.error('Error al cargar imágenes:', error);
+            });
     }
 
     function loadReportImages(reporteIds) {
@@ -2579,7 +2619,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         modal.querySelector('.btn-close').addEventListener('click', closeModal);
 
         // Cerrar al hacer clic fuera de la imagen
-        modal.addEventListener('click', function(e) {
+        modal.addEventListener('click', function (e) {
             if (e.target === this) closeModal();
         });
 
@@ -2627,15 +2667,15 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             tabReports.innerHTML = reportsHTML;
 
             tabReports.querySelectorAll('.report-item').forEach(item => {
-                item.addEventListener('mouseenter', function() {
+                item.addEventListener('mouseenter', function () {
                     this.style.backgroundColor = '#f0f6ff';
                     this.style.borderColor = '#b9d4f5';
                 });
-                item.addEventListener('mouseleave', function() {
+                item.addEventListener('mouseleave', function () {
                     this.style.backgroundColor = '#fafafa';
                     this.style.borderColor = '#e0e0e0';
                 });
-                item.addEventListener('click', function(e) {
+                item.addEventListener('click', function (e) {
                     if (e.target.closest('.image-thumbnail, button, canvas, a')) {
                         return;
                     }
@@ -2784,15 +2824,15 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         }).join('');
 
         tabReports.querySelectorAll('.report-item').forEach(item => {
-            item.addEventListener('mouseenter', function() {
+            item.addEventListener('mouseenter', function () {
                 this.style.backgroundColor = '#f0f6ff';
                 this.style.borderColor = '#b9d4f5';
             });
-            item.addEventListener('mouseleave', function() {
+            item.addEventListener('mouseleave', function () {
                 this.style.backgroundColor = '#fafafa';
                 this.style.borderColor = '#e0e0e0';
             });
-            item.addEventListener('click', function(e) {
+            item.addEventListener('click', function (e) {
                 if (e.target.closest('.image-thumbnail, button, canvas, a')) {
                     return;
                 }
@@ -2804,7 +2844,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         });
 
         tabReports.querySelectorAll('.image-thumbnail').forEach(thumb => {
-            thumb.addEventListener('click', function() {
+            thumb.addEventListener('click', function () {
                 const reporteId = parseInt(this.dataset.report, 10);
                 const images = (imagesByReport[reporteId] || []).map(i => i.ruta);
                 const index = parseInt(this.dataset.index, 10) || 0;
@@ -2840,32 +2880,32 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 idGrupo: idGrupo
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const reportesIds = normalizarReportesIds(data.reportes_ids || []);
-                grupoData.reportes_ids = reportesIds;
-                grupoData.reportes_mostrados_ids = reportesIds;
-                grupoData.reportes = reportesIds.length;
-                updateInfoTab(grupoData, document.getElementById('tab-info'), data.imagenes || [], false);
-                renderReportsListFast(grupoData, tabReports, data.reportes || [], data.imagenes || []);
-            } else {
-                console.error('Error al cargar reportes del grupo:', data.message);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const reportesIds = normalizarReportesIds(data.reportes_ids || []);
+                    grupoData.reportes_ids = reportesIds;
+                    grupoData.reportes_mostrados_ids = reportesIds;
+                    grupoData.reportes = reportesIds.length;
+                    updateInfoTab(grupoData, document.getElementById('tab-info'), data.imagenes || [], false);
+                    renderReportsListFast(grupoData, tabReports, data.reportes || [], data.imagenes || []);
+                } else {
+                    console.error('Error al cargar reportes del grupo:', data.message);
+                    grupoData.reportes_ids = [];
+                    grupoData.reportes_mostrados_ids = [];
+                    grupoData.reportes = 0;
+                    updateInfoTab(grupoData, document.getElementById('tab-info'), [], false);
+                    renderReportsListFast(grupoData, tabReports, [], []);
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar reportes del grupo:', error);
                 grupoData.reportes_ids = [];
                 grupoData.reportes_mostrados_ids = [];
                 grupoData.reportes = 0;
                 updateInfoTab(grupoData, document.getElementById('tab-info'), [], false);
                 renderReportsListFast(grupoData, tabReports, [], []);
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar reportes del grupo:', error);
-            grupoData.reportes_ids = [];
-            grupoData.reportes_mostrados_ids = [];
-            grupoData.reportes = 0;
-            updateInfoTab(grupoData, document.getElementById('tab-info'), [], false);
-            renderReportsListFast(grupoData, tabReports, [], []);
-        });
+            });
     }
 
     function renderGroups() {
@@ -2899,7 +2939,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 
         // Agregar listeners de click a los items
         document.querySelectorAll('.group-item').forEach((item, index) => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function () {
                 selectGrupo(filteredGrupos[index], this);
             });
         });
@@ -3021,6 +3061,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             'evangelismo',
             'identificar_hijo_paz',
             'taller',
+            'hope',
             'otra_actividad',
             'capacitacion'
         ].includes(tipoActividad)) {
@@ -3052,6 +3093,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             'reunion_cotidiana': '🤝 Nuevo Reporte - Coach',
             'identificar_hijo_paz': '🕊️ Nuevo Reporte - Identificar al Hijo de Paz',
             'taller': '🛠️ Nuevo Reporte - Taller',
+            'hope': '✝️ Nuevo Reporte - HOPE',
             'otra_actividad': '➕ Nuevo Reporte - Otra Actividad',
             'capacitacion': '🎓 Nuevo Reporte - Capacitación'
         };
@@ -3197,7 +3239,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 
         fotosValidas.forEach((file, index) => {
             const reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = function (event) {
                 const preview = document.createElement('div');
                 preview.style.cssText = `
                     position: relative;
@@ -3315,10 +3357,10 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         actualizarEstadoBotonAgregarFoto();
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const addFotoBtn = document.getElementById('addOtraFotoBtn');
 
-        ['asistencia_hom', 'asistencia_muj', 'asistencia_jov', 'asistencia_nin'].forEach(function(id) {
+        ['asistencia_hom', 'asistencia_muj', 'asistencia_jov', 'asistencia_nin'].forEach(function (id) {
             const input = document.getElementById(id);
             if (input) {
                 input.addEventListener('input', actualizarAsistenciaReporte);
@@ -3326,17 +3368,17 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             }
         });
 
-        ['bautizados', 'desiciones', 'discipulado', 'desiciones_extra', 'preparandose'].forEach(function(id) {
+        ['bautizados', 'desiciones', 'discipulado', 'desiciones_extra', 'preparandose'].forEach(function (id) {
             const input = document.getElementById(id);
             if (input) {
-                input.addEventListener('input', function() {
+                input.addEventListener('input', function () {
                     if (obtenerAsistenciaTotalReporte() > 0) {
                         validarMetricasContraAsistencia(false);
                     } else {
                         clearReportMetricasError();
                     }
                 });
-                input.addEventListener('change', function() {
+                input.addEventListener('change', function () {
                     if (obtenerAsistenciaTotalReporte() > 0) {
                         validarMetricasContraAsistencia(false);
                     } else {
@@ -3487,85 +3529,85 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             },
             body: JSON.stringify(datosReporte)
         })
-        .then(response => response.text().then(text => {
-            console.log('Response status:', response.status);
-            console.log('Response text:', text);
-            try {
-                return JSON.parse(text);
-            } catch (e) {
-                console.error('JSON parse error:', e);
-                throw new Error('Invalid JSON response: ' + text.substring(0, 100));
-            }
-        }))
-        .then(data => {
-            btnSubmit.textContent = textOriginal;
-            btnSubmit.disabled = false;
-
-            if (data.success) {
-                // Reporte creado exitosamente
-                const nuevoReporteId = data.nuevoReporteId;
-                if (selectedGrupo && nuevoReporteId) {
-                    const reportesActuales = normalizarReportesIds(selectedGrupo.reportes_mostrados_ids || []);
-                    reportesActuales.push(parseInt(nuevoReporteId, 10));
-                    selectedGrupo.reportes_mostrados_ids = normalizarReportesIds(reportesActuales);
-                    selectedGrupo.reportes = selectedGrupo.reportes_mostrados_ids.length;
+            .then(response => response.text().then(text => {
+                console.log('Response status:', response.status);
+                console.log('Response text:', text);
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    throw new Error('Invalid JSON response: ' + text.substring(0, 100));
                 }
+            }))
+            .then(data => {
+                btnSubmit.textContent = textOriginal;
+                btnSubmit.disabled = false;
 
-                // Procesar imágenes si existen
-                const fotosValidas = obtenerFotosEvidenciaValidas();
-                if (fotosValidas.length > 0) {
-                    btnSubmit.textContent = 'Guardando imágenes...';
-                    btnSubmit.disabled = true;
-                    uploadReportImages(nuevoReporteId, fotosValidas, btnSubmit, textOriginal);
+                if (data.success) {
+                    // Reporte creado exitosamente
+                    const nuevoReporteId = data.nuevoReporteId;
+                    if (selectedGrupo && nuevoReporteId) {
+                        const reportesActuales = normalizarReportesIds(selectedGrupo.reportes_mostrados_ids || []);
+                        reportesActuales.push(parseInt(nuevoReporteId, 10));
+                        selectedGrupo.reportes_mostrados_ids = normalizarReportesIds(reportesActuales);
+                        selectedGrupo.reportes = selectedGrupo.reportes_mostrados_ids.length;
+                    }
+
+                    // Procesar imágenes si existen
+                    const fotosValidas = obtenerFotosEvidenciaValidas();
+                    if (fotosValidas.length > 0) {
+                        btnSubmit.textContent = 'Guardando imágenes...';
+                        btnSubmit.disabled = true;
+                        uploadReportImages(nuevoReporteId, fotosValidas, btnSubmit, textOriginal);
+                    } else {
+                        showStatusMessage(`✅ Reporte creado correctamente`, 'success');
+                        closeActivityModal();
+
+                        // Recargar reportes del grupo
+                        if (selectedGrupo) {
+                            updateGroupPanel(selectedGrupo);
+                        }
+                    }
                 } else {
-                    showStatusMessage(`✅ Reporte creado correctamente`, 'success');
-                    closeActivityModal();
-
-                    // Recargar reportes del grupo
-                    if (selectedGrupo) {
-                        updateGroupPanel(selectedGrupo);
+                    const mensajeError = data.message || 'No se pudo crear el reporte';
+                    const mensajeNormalizado = mensajeError.toLowerCase();
+                    if (mensajeNormalizado.includes('asistencia')) {
+                        showReportAsistenciaError(mensajeError.replace(/^Error:\s*/i, ''));
+                        document.getElementById('asistencia_hom').focus();
+                    } else if (mensajeNormalizado.includes('bautizados')) {
+                        showReportMetricasError('bautizados', mensajeError.replace(/^Error:\s*/i, ''));
+                        document.getElementById('bautizados').focus();
+                    } else if (mensajeNormalizado.includes('discipulado')) {
+                        showReportMetricasError('discipulado', mensajeError.replace(/^Error:\s*/i, ''));
+                        document.getElementById('discipulado').focus();
+                    } else if (mensajeNormalizado.includes('decisiones')) {
+                        const campoDecisionesId = document.getElementById('decisionesSection').style.display !== 'none'
+                            ? 'desiciones'
+                            : 'desiciones_extra';
+                        showReportMetricasError(campoDecisionesId, mensajeError.replace(/^Error:\s*/i, ''));
+                        document.getElementById(campoDecisionesId).focus();
+                    } else if (mensajeNormalizado.includes('preparandose')) {
+                        showReportMetricasError('preparandose', mensajeError.replace(/^Error:\s*/i, ''));
+                        document.getElementById('preparandose').focus();
+                    } else if (mensajeNormalizado.includes('mapeo') || mensajeNormalizado.includes('comprometido como iglesia')) {
+                        showReportMapeosError('mapeo_comprometido', mensajeError.replace(/^Error:\s*/i, ''));
+                        const compromisoSelect = document.getElementById('mapeo_comprometido');
+                        if (compromisoSelect) {
+                            compromisoSelect.focus();
+                        }
+                    } else if (mensajeNormalizado.includes('imagen') || mensajeNormalizado.includes('foto')) {
+                        showReportFotosError(mensajeError.replace(/^Error:\s*/i, ''));
+                    } else {
+                        showReportFormError(mensajeError.replace(/^Error:\s*/i, ''));
                     }
                 }
-            } else {
-                const mensajeError = data.message || 'No se pudo crear el reporte';
-                const mensajeNormalizado = mensajeError.toLowerCase();
-                if (mensajeNormalizado.includes('asistencia')) {
-                    showReportAsistenciaError(mensajeError.replace(/^Error:\s*/i, ''));
-                    document.getElementById('asistencia_hom').focus();
-                } else if (mensajeNormalizado.includes('bautizados')) {
-                    showReportMetricasError('bautizados', mensajeError.replace(/^Error:\s*/i, ''));
-                    document.getElementById('bautizados').focus();
-                } else if (mensajeNormalizado.includes('discipulado')) {
-                    showReportMetricasError('discipulado', mensajeError.replace(/^Error:\s*/i, ''));
-                    document.getElementById('discipulado').focus();
-                } else if (mensajeNormalizado.includes('decisiones')) {
-                    const campoDecisionesId = document.getElementById('decisionesSection').style.display !== 'none'
-                        ? 'desiciones'
-                        : 'desiciones_extra';
-                    showReportMetricasError(campoDecisionesId, mensajeError.replace(/^Error:\s*/i, ''));
-                    document.getElementById(campoDecisionesId).focus();
-                } else if (mensajeNormalizado.includes('preparandose')) {
-                    showReportMetricasError('preparandose', mensajeError.replace(/^Error:\s*/i, ''));
-                    document.getElementById('preparandose').focus();
-                } else if (mensajeNormalizado.includes('mapeo') || mensajeNormalizado.includes('comprometido como iglesia')) {
-                    showReportMapeosError('mapeo_comprometido', mensajeError.replace(/^Error:\s*/i, ''));
-                    const compromisoSelect = document.getElementById('mapeo_comprometido');
-                    if (compromisoSelect) {
-                        compromisoSelect.focus();
-                    }
-                } else if (mensajeNormalizado.includes('imagen') || mensajeNormalizado.includes('foto')) {
-                    showReportFotosError(mensajeError.replace(/^Error:\s*/i, ''));
-                } else {
-                    showReportFormError(mensajeError.replace(/^Error:\s*/i, ''));
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            btnSubmit.textContent = textOriginal;
-            btnSubmit.disabled = false;
-            showReportFormError('Error de conexión al guardar el reporte: ' + error.message);
-        });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btnSubmit.textContent = textOriginal;
+                btnSubmit.disabled = false;
+                showReportFormError('Error de conexión al guardar el reporte: ' + error.message);
+            });
     }
 
     function uploadReportImages(reporteId, files, btnSubmit, textOriginal) {
@@ -3599,43 +3641,43 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             method: 'POST',
             body: formData
         })
-        .then(response => {
-            console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
-            return response.text().then(text => {
-                console.log('Response text:', text);
-                try {
-                    return JSON.parse(text);
-                } catch (e) {
-                    console.error('JSON parse error:', e);
-                    console.error('Raw response:', text);
-                    throw new Error('Invalid JSON response: ' + text.substring(0, 200));
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                return response.text().then(text => {
+                    console.log('Response text:', text);
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON parse error:', e);
+                        console.error('Raw response:', text);
+                        throw new Error('Invalid JSON response: ' + text.substring(0, 200));
+                    }
+                });
+            })
+            .then(data => {
+                btnSubmit.textContent = textOriginal;
+                btnSubmit.disabled = false;
+
+                if (data.success) {
+                    showStatusMessage(`✅ Reporte creado con ${data.imagesCount} imagen(s)`, 'success');
+                    closeActivityModal();
+
+                    // Recargar reportes del grupo
+                    if (selectedGrupo) {
+                        updateGroupPanel(selectedGrupo);
+                    }
+                } else {
+                    showReportFotosError(data.message || 'Error al guardar imágenes');
                 }
+            })
+            .catch(error => {
+                console.error('Error al subir imágenes:', error);
+                console.error('Error details:', error.message);
+                btnSubmit.textContent = textOriginal;
+                btnSubmit.disabled = false;
+                showReportFotosError('Error al guardar imágenes: ' + error.message);
             });
-        })
-        .then(data => {
-            btnSubmit.textContent = textOriginal;
-            btnSubmit.disabled = false;
-
-            if (data.success) {
-                showStatusMessage(`✅ Reporte creado con ${data.imagesCount} imagen(s)`, 'success');
-                closeActivityModal();
-
-                // Recargar reportes del grupo
-                if (selectedGrupo) {
-                    updateGroupPanel(selectedGrupo);
-                }
-            } else {
-                showReportFotosError(data.message || 'Error al guardar imágenes');
-            }
-        })
-        .catch(error => {
-            console.error('Error al subir imágenes:', error);
-            console.error('Error details:', error.message);
-            btnSubmit.textContent = textOriginal;
-            btnSubmit.disabled = false;
-            showReportFotosError('Error al guardar imágenes: ' + error.message);
-        });
     }
 
     function loadGrupos() {
@@ -3650,33 +3692,33 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 idFacilitador: <?php echo $idFacilitador; ?>
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('✅ Datos recibidos:', data);
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Datos recibidos:', data);
 
-            if (data.success) {
-                // Traer todos los grupos del facilitador
-                grupos = data.grupos || [];
-                filteredGrupos = [...grupos];
+                if (data.success) {
+                    // Traer todos los grupos del facilitador
+                    grupos = data.grupos || [];
+                    filteredGrupos = [...grupos];
 
-                console.log(`📊 Se encontraron ${grupos.length} grupos`);
+                    console.log(`📊 Se encontraron ${grupos.length} grupos`);
 
-                if (grupos.length === 0) {
-                    showStatusMessage('No hay grupos para mostrar.', 'info');
+                    if (grupos.length === 0) {
+                        showStatusMessage('No hay grupos para mostrar.', 'info');
+                    } else {
+                        showStatusMessage(`Se cargaron ${grupos.length} grupos correctamente`, 'success');
+                    }
+
+                    renderGroups();
                 } else {
-                    showStatusMessage(`Se cargaron ${grupos.length} grupos correctamente`, 'success');
+                    showStatusMessage('Error: ' + (data.message || 'No se pudieron cargar los grupos'), 'error');
+                    console.error('Error:', data.message);
                 }
-
-                renderGroups();
-            } else {
-                showStatusMessage('Error: ' + (data.message || 'No se pudieron cargar los grupos'), 'error');
-                console.error('Error:', data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar grupos:', error);
-            showStatusMessage('Error al conectar con el servidor', 'error');
-        });
+            })
+            .catch(error => {
+                console.error('Error al cargar grupos:', error);
+                showStatusMessage('Error al conectar con el servidor', 'error');
+            });
     }
 
     // Cargar grupos al iniciar
@@ -3893,37 +3935,37 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 idFacilitador: <?php echo $idFacilitador; ?>
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Grupos recibidos:', data);
+            .then(response => response.json())
+            .then(data => {
+                console.log('Grupos recibidos:', data);
 
-            if (data.success && data.grupos) {
-                // Filtrar grupos que NO sean generación 5
-                const gruposValidos = data.grupos.filter(g => g.generacion < 5);
+                if (data.success && data.grupos) {
+                    // Filtrar grupos que NO sean generación 5
+                    const gruposValidos = data.grupos.filter(g => g.generacion < 5);
 
-                const dropdown = document.getElementById('grupoMadreDropdown');
-                dropdown.innerHTML = '<option value="">-- Seleccionar grupo madre --</option>';
+                    const dropdown = document.getElementById('grupoMadreDropdown');
+                    dropdown.innerHTML = '<option value="">-- Seleccionar grupo madre --</option>';
 
-                gruposValidos.forEach(grupo => {
-                    const option = document.createElement('option');
-                    option.value = grupo.id_unico;
-                    const idGrupoMadre = grupo.id_grupo_base || grupo.id_unico;
-                    if (idGrupoMadre) {
-                        option.dataset.idGrupoMadre = idGrupoMadre;
-                    }
-                    const grupoMadreInfo = grupo.grupo_madre ? ` (${grupo.grupo_madre})` : ' (Raíz)';
-                    option.textContent = `${grupo.nombre_exacto} (Gen ${grupo.generacion})${grupoMadreInfo} - ${grupo.lider}`;
-                    option.dataset.generacion = grupo.generacion;
-                    dropdown.appendChild(option);
-                });
+                    gruposValidos.forEach(grupo => {
+                        const option = document.createElement('option');
+                        option.value = grupo.id_unico;
+                        const idGrupoMadre = grupo.id_grupo_base || grupo.id_unico;
+                        if (idGrupoMadre) {
+                            option.dataset.idGrupoMadre = idGrupoMadre;
+                        }
+                        const grupoMadreInfo = grupo.grupo_madre ? ` (${grupo.grupo_madre})` : ' (Raíz)';
+                        option.textContent = `${grupo.nombre_exacto} (Gen ${grupo.generacion})${grupoMadreInfo} - ${grupo.lider}`;
+                        option.dataset.generacion = grupo.generacion;
+                        dropdown.appendChild(option);
+                    });
 
-                // Agregar event listener para actualizar generación
-                dropdown.addEventListener('change', function() {
-                    updateGeneracionDisplay();
-                });
-            }
-        })
-        .catch(error => console.error('Error al cargar grupos madre:', error));
+                    // Agregar event listener para actualizar generación
+                    dropdown.addEventListener('change', function () {
+                        updateGeneracionDisplay();
+                    });
+                }
+            })
+            .catch(error => console.error('Error al cargar grupos madre:', error));
     }
 
     function updateGeneracionDisplay() {
@@ -3980,50 +4022,50 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 idFacilitador: <?php echo $idFacilitador; ?>
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Grupos recibidos para edición:', data);
+            .then(response => response.json())
+            .then(data => {
+                console.log('Grupos recibidos para edición:', data);
 
-            if (data.success && data.grupos) {
-                // Un grupo no puede tener como madre a un descendiente suyo (formaria un ciclo).
-                const descendientes = new Set();
-                let cambio = true;
-                while (cambio) {
-                    cambio = false;
-                    data.grupos.forEach(g => {
-                        const idMadre = parseInt(g.id_grupo_madre, 10) || 0;
-                        if ((idMadre === currentGroupId || descendientes.has(idMadre)) && !descendientes.has(g.id_unico)) {
-                            descendientes.add(g.id_unico);
-                            cambio = true;
-                        }
+                if (data.success && data.grupos) {
+                    // Un grupo no puede tener como madre a un descendiente suyo (formaria un ciclo).
+                    const descendientes = new Set();
+                    let cambio = true;
+                    while (cambio) {
+                        cambio = false;
+                        data.grupos.forEach(g => {
+                            const idMadre = parseInt(g.id_grupo_madre, 10) || 0;
+                            if ((idMadre === currentGroupId || descendientes.has(idMadre)) && !descendientes.has(g.id_unico)) {
+                                descendientes.add(g.id_unico);
+                                cambio = true;
+                            }
+                        });
+                    }
+
+                    // Filtrar grupos que NO sean generación 5, que NO sean el grupo actual
+                    // y que NO sean descendientes del grupo actual.
+                    const gruposValidos = data.grupos.filter(g =>
+                        g.generacion < 5 && g.id_unico !== currentGroupId && !descendientes.has(g.id_unico)
+                    );
+
+                    const dropdown = document.getElementById('editGrupoMadreDropdown');
+                    dropdown.innerHTML = '<option value="">-- Seleccionar grupo madre --</option>';
+
+                    gruposValidos.forEach(grupo => {
+                        const option = document.createElement('option');
+                        option.value = grupo.id_unico;
+                        const grupoMadreInfo = grupo.grupo_madre ? ` (${grupo.grupo_madre})` : ' (Raíz)';
+                        option.textContent = `${grupo.nombre_exacto} (Gen ${grupo.generacion})${grupoMadreInfo} - ${grupo.lider}`;
+                        option.dataset.generacion = grupo.generacion;
+                        dropdown.appendChild(option);
+                    });
+
+                    // Agregar event listener para actualizar generación
+                    dropdown.addEventListener('change', function () {
+                        updateEditGeneracionDisplay();
                     });
                 }
-
-                // Filtrar grupos que NO sean generación 5, que NO sean el grupo actual
-                // y que NO sean descendientes del grupo actual.
-                const gruposValidos = data.grupos.filter(g =>
-                    g.generacion < 5 && g.id_unico !== currentGroupId && !descendientes.has(g.id_unico)
-                );
-
-                const dropdown = document.getElementById('editGrupoMadreDropdown');
-                dropdown.innerHTML = '<option value="">-- Seleccionar grupo madre --</option>';
-
-                gruposValidos.forEach(grupo => {
-                    const option = document.createElement('option');
-                    option.value = grupo.id_unico;
-                    const grupoMadreInfo = grupo.grupo_madre ? ` (${grupo.grupo_madre})` : ' (Raíz)';
-                    option.textContent = `${grupo.nombre_exacto} (Gen ${grupo.generacion})${grupoMadreInfo} - ${grupo.lider}`;
-                    option.dataset.generacion = grupo.generacion;
-                    dropdown.appendChild(option);
-                });
-
-                // Agregar event listener para actualizar generación
-                dropdown.addEventListener('change', function() {
-                    updateEditGeneracionDisplay();
-                });
-            }
-        })
-        .catch(error => console.error('Error al cargar grupos madre para edición:', error));
+            })
+            .catch(error => console.error('Error al cargar grupos madre para edición:', error));
     }
 
     function updateEditGeneracionDisplay() {
@@ -4183,69 +4225,69 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             },
             body: JSON.stringify(datosNuevoGrupo)
         })
-        .then(response => {
-            console.log('Response status:', response.status);
-            return response.text();
-        })
-        .then(text => {
-            console.log('Response text raw:', text);
-            console.log('Response text length:', text.length);
-            console.log('First 500 chars:', text.substring(0, 500));
-            try {
-                const data = JSON.parse(text);
-                console.log('Respuesta de crear_grupo.php:', data);
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text();
+            })
+            .then(text => {
+                console.log('Response text raw:', text);
+                console.log('Response text length:', text.length);
+                console.log('First 500 chars:', text.substring(0, 500));
+                try {
+                    const data = JSON.parse(text);
+                    console.log('Respuesta de crear_grupo.php:', data);
 
-                if (data.success) {
-                    showStatusMessage('Grupo creado exitosamente', 'success');
-                    closeCreateGroupModal();
+                    if (data.success) {
+                        showStatusMessage('Grupo creado exitosamente', 'success');
+                        closeCreateGroupModal();
 
-                    // Recargar lista de grupos
-                    setTimeout(() => {
-                        loadGrupos();
-                    }, 500);
-                } else {
-                    const mensajeError = data.message || 'No se pudo crear el grupo';
-                    const mensajeNormalizado = mensajeError.toLowerCase();
-
-                    if (mensajeNormalizado.includes('lider')) {
-                        showFormError('newGroupLiderInput', 'newGroupLiderError', mensajeError.replace(/^Error:\s*/i, ''));
-                        document.getElementById('newGroupLiderInput').focus();
-                    } else if (mensajeNormalizado.includes('madre')) {
-                        showFormError('grupoMadreDropdown', 'grupoMadreError', mensajeError.replace(/^Error:\s*/i, ''));
-                        document.getElementById('grupoMadreDropdown').focus();
-                    } else if (mensajeNormalizado.includes('ciudad')) {
-                        showFormError('newGroupCiudad', 'newGroupCiudadError', mensajeError.replace(/^Error:\s*/i, ''));
-                        document.getElementById('newGroupCiudad').focus();
-                    } else if (mensajeNormalizado.includes('barrio')) {
-                        showFormError('newGroupBarrio', 'newGroupBarrioError', mensajeError.replace(/^Error:\s*/i, ''));
-                        document.getElementById('newGroupBarrio').focus();
-                    } else if (mensajeNormalizado.includes('direcci') || mensajeNormalizado.includes('direccion')) {
-                        showFormError('newGroupDireccion', 'newGroupDireccionError', mensajeError.replace(/^Error:\s*/i, ''));
-                        document.getElementById('newGroupDireccion').focus();
-                    } else if (mensajeNormalizado.includes('fecha')) {
-                        showFormError('newGroupFecha', 'newGroupFechaError', mensajeError.replace(/^Error:\s*/i, ''));
-                        document.getElementById('newGroupFecha').focus();
-                    } else if (mensajeNormalizado.includes('grupo') || mensajeNormalizado.includes('nombre')) {
-                        showFormError('newGroupName', 'newGroupNameError', mensajeError.replace(/^Error:\s*/i, ''));
-                        document.getElementById('newGroupName').focus();
-                    } else if (mensajeNormalizado.includes('asistencia')) {
-                        showAsistenciaError(mensajeError.replace(/^Error:\s*/i, ''));
-                        document.getElementById('newGroupAsisHom').focus();
+                        // Recargar lista de grupos
+                        setTimeout(() => {
+                            loadGrupos();
+                        }, 500);
                     } else {
-                        showCreateGroupFormError(mensajeError.replace(/^Error:\s*/i, ''));
+                        const mensajeError = data.message || 'No se pudo crear el grupo';
+                        const mensajeNormalizado = mensajeError.toLowerCase();
+
+                        if (mensajeNormalizado.includes('lider')) {
+                            showFormError('newGroupLiderInput', 'newGroupLiderError', mensajeError.replace(/^Error:\s*/i, ''));
+                            document.getElementById('newGroupLiderInput').focus();
+                        } else if (mensajeNormalizado.includes('madre')) {
+                            showFormError('grupoMadreDropdown', 'grupoMadreError', mensajeError.replace(/^Error:\s*/i, ''));
+                            document.getElementById('grupoMadreDropdown').focus();
+                        } else if (mensajeNormalizado.includes('ciudad')) {
+                            showFormError('newGroupCiudad', 'newGroupCiudadError', mensajeError.replace(/^Error:\s*/i, ''));
+                            document.getElementById('newGroupCiudad').focus();
+                        } else if (mensajeNormalizado.includes('barrio')) {
+                            showFormError('newGroupBarrio', 'newGroupBarrioError', mensajeError.replace(/^Error:\s*/i, ''));
+                            document.getElementById('newGroupBarrio').focus();
+                        } else if (mensajeNormalizado.includes('direcci') || mensajeNormalizado.includes('direccion')) {
+                            showFormError('newGroupDireccion', 'newGroupDireccionError', mensajeError.replace(/^Error:\s*/i, ''));
+                            document.getElementById('newGroupDireccion').focus();
+                        } else if (mensajeNormalizado.includes('fecha')) {
+                            showFormError('newGroupFecha', 'newGroupFechaError', mensajeError.replace(/^Error:\s*/i, ''));
+                            document.getElementById('newGroupFecha').focus();
+                        } else if (mensajeNormalizado.includes('grupo') || mensajeNormalizado.includes('nombre')) {
+                            showFormError('newGroupName', 'newGroupNameError', mensajeError.replace(/^Error:\s*/i, ''));
+                            document.getElementById('newGroupName').focus();
+                        } else if (mensajeNormalizado.includes('asistencia')) {
+                            showAsistenciaError(mensajeError.replace(/^Error:\s*/i, ''));
+                            document.getElementById('newGroupAsisHom').focus();
+                        } else {
+                            showCreateGroupFormError(mensajeError.replace(/^Error:\s*/i, ''));
+                        }
                     }
+                } catch (parseError) {
+                    console.error('Error al parsear JSON:', parseError);
+                    console.error('Respuesta cruda completa:', text);
+                    console.error('Empieza con:', text.charAt(0));
+                    showCreateGroupFormError('Error del servidor. Intenta guardar nuevamente.');
                 }
-            } catch (parseError) {
-                console.error('Error al parsear JSON:', parseError);
-                console.error('Respuesta cruda completa:', text);
-                console.error('Empieza con:', text.charAt(0));
-                showCreateGroupFormError('Error del servidor. Intenta guardar nuevamente.');
-            }
-        })
-        .catch(error => {
-            console.error('Error al crear grupo:', error);
-            showCreateGroupFormError('Error al crear el grupo: ' + error.message);
-        });
+            })
+            .catch(error => {
+                console.error('Error al crear grupo:', error);
+                showCreateGroupFormError('Error al crear el grupo: ' + error.message);
+            });
     }
 
     function saveGroupChanges(event) {
@@ -4315,74 +4357,74 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             },
             body: JSON.stringify(datosActualizacion)
         })
-        .then(response => {
-            console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
-            return response.text().then(text => {
-                console.log('Response text:', text);
-                try {
-                    return JSON.parse(text);
-                } catch (e) {
-                    console.error('JSON parse error:', e);
-                    console.error('Raw response:', text);
-                    throw new Error('Invalid JSON response: ' + text.substring(0, 100));
-                }
-            });
-        })
-        .then(data => {
-            btnSave.textContent = textOriginal;
-            btnSave.disabled = false;
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                return response.text().then(text => {
+                    console.log('Response text:', text);
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON parse error:', e);
+                        console.error('Raw response:', text);
+                        throw new Error('Invalid JSON response: ' + text.substring(0, 100));
+                    }
+                });
+            })
+            .then(data => {
+                btnSave.textContent = textOriginal;
+                btnSave.disabled = false;
 
-            if (data.success) {
-                showStatusMessage(`✅ Grupo actualizado correctamente. ${data.reportes_actualizados} reportes fueron actualizados.`, 'success');
+                if (data.success) {
+                    showStatusMessage(`✅ Grupo actualizado correctamente. ${data.reportes_actualizados} reportes fueron actualizados.`, 'success');
 
-                // El cambio puede afectar la generacion/madre de este grupo y de su
-                // descendencia, asi que se recarga la lista completa desde el servidor
-                // en vez de parchear selectedGrupo a mano.
-                loadGrupos();
+                    // El cambio puede afectar la generacion/madre de este grupo y de su
+                    // descendencia, asi que se recarga la lista completa desde el servidor
+                    // en vez de parchear selectedGrupo a mano.
+                    loadGrupos();
 
-                // Cerrar modal
-                closeEditModal();
-            } else {
-                const mensajeError = data.message || 'No se pudo actualizar el grupo';
-                if (mensajeError.toLowerCase().includes('grupo') || mensajeError.toLowerCase().includes('nombre')) {
-                    showFormError('editNombre', 'editNombreError', mensajeError.replace(/^Error:\s*/i, ''));
-                    document.getElementById('editNombre').focus();
-                } else if (mensajeError.toLowerCase().includes('lider')) {
-                    showFormError('liderInput', 'liderInputError', mensajeError.replace(/^Error:\s*/i, ''));
-                    document.getElementById('liderInput').focus();
+                    // Cerrar modal
+                    closeEditModal();
                 } else {
-                    showEditFormError(mensajeError.replace(/^Error:\s*/i, ''));
+                    const mensajeError = data.message || 'No se pudo actualizar el grupo';
+                    if (mensajeError.toLowerCase().includes('grupo') || mensajeError.toLowerCase().includes('nombre')) {
+                        showFormError('editNombre', 'editNombreError', mensajeError.replace(/^Error:\s*/i, ''));
+                        document.getElementById('editNombre').focus();
+                    } else if (mensajeError.toLowerCase().includes('lider')) {
+                        showFormError('liderInput', 'liderInputError', mensajeError.replace(/^Error:\s*/i, ''));
+                        document.getElementById('liderInput').focus();
+                    } else {
+                        showEditFormError(mensajeError.replace(/^Error:\s*/i, ''));
+                    }
                 }
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            btnSave.textContent = textOriginal;
-            btnSave.disabled = false;
-            showEditFormError('Error de conexión al guardar cambios: ' + error.message);
-        });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btnSave.textContent = textOriginal;
+                btnSave.disabled = false;
+                showEditFormError('Error de conexión al guardar cambios: ' + error.message);
+            });
     }
 
     // ========== GRÁFICA DE MAPEO ==========
     const _mapeoImageCache = {};
     const _mapeoPositions = [
-        { id: 'mapeo_evangelizar',   x: 430, y: 35  },
-        { id: 'mapeo_biblia',        x: 200, y: 185 },
-        { id: 'mapeo_cena',          x: 650, y: 185 },
-        { id: 'mapeo_adoracion',     x: 50,  y: 355 },
-        { id: 'mapeo_trabajadores',  x: 430, y: 355 },
-        { id: 'mapeo_dar',           x: 800, y: 355 },
-        { id: 'mapeo_companerismo',  x: 200, y: 520 },
-        { id: 'mapeo_bautizar',      x: 650, y: 520 },
-        { id: 'mapeo_oracion',       x: 430, y: 670 }
+        { id: 'mapeo_evangelizar', x: 430, y: 35 },
+        { id: 'mapeo_biblia', x: 200, y: 185 },
+        { id: 'mapeo_cena', x: 650, y: 185 },
+        { id: 'mapeo_adoracion', x: 50, y: 355 },
+        { id: 'mapeo_trabajadores', x: 430, y: 355 },
+        { id: 'mapeo_dar', x: 800, y: 355 },
+        { id: 'mapeo_companerismo', x: 200, y: 520 },
+        { id: 'mapeo_bautizar', x: 650, y: 520 },
+        { id: 'mapeo_oracion', x: 430, y: 670 }
     ];
 
     function _loadMapeoImage(src) {
         return new Promise((resolve, reject) => {
             if (_mapeoImageCache[src]) { resolve(_mapeoImageCache[src]); return; }
             const img = new Image();
-            img.onload = function() { _mapeoImageCache[src] = img; resolve(img); };
+            img.onload = function () { _mapeoImageCache[src] = img; resolve(img); };
             img.onerror = reject;
             img.src = src;
         });
@@ -4405,9 +4447,9 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         try {
             const bgImg = await _loadMapeoImage('mapeo_img/compromiso_si.png');
             ctx.drawImage(bgImg, 0, 0, size, size);
-        } catch(e) {
+        } catch (e) {
             ctx.beginPath();
-            ctx.arc(size/2, size/2, size/2 - 10, 0, Math.PI * 2);
+            ctx.arc(size / 2, size / 2, size / 2 - 10, 0, Math.PI * 2);
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -4422,7 +4464,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
                 const x = Math.round(field.x * scale);
                 const y = Math.round(field.y * scale) + yInicial;
                 ctx.drawImage(img, x, y, iconSize, iconSize);
-            } catch(e) {
+            } catch (e) {
                 console.warn('No se pudo cargar:', imgSrc);
             }
         }
@@ -4431,7 +4473,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
     // Renderiza la gráfica del formulario leyendo los selects
     function renderMapeoChart() {
         const valores = {};
-        _mapeoPositions.forEach(function(f) {
+        _mapeoPositions.forEach(function (f) {
             const sel = document.getElementById(f.id);
             valores[f.id] = sel ? parseInt(sel.value) || 0 : 0;
         });
@@ -4457,9 +4499,9 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
     }
 
     // Escuchar cambios en selects del formulario
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.mapeo-select').forEach(function(select) {
-            select.addEventListener('change', function() {
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.mapeo-select').forEach(function (select) {
+            select.addEventListener('change', function () {
                 clearReportMapeosError();
                 renderMapeoChart();
             });
@@ -4468,8 +4510,8 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         if (compromisoSelect) {
             compromisoSelect.addEventListener('change', clearReportMapeosError);
         }
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(m) {
+        const observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
                 if (m.attributeName === 'style') {
                     const section = document.getElementById('mapeosSection');
                     if (section && section.style.display !== 'none') {
