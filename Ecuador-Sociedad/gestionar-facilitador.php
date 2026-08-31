@@ -1066,10 +1066,11 @@ if($nombreCreadorGrupo !== ""){
             ]);
         }
 
-        function mostrarConfirmacion(mensaje, onConfirmar, titulo){
+        function mostrarConfirmacion(mensaje, onConfirmar, titulo, opciones){
+            opciones = opciones || {};
             mostrarModal(titulo || 'Confirmar acción', mensaje, 'confirmar', [
-                { texto: 'Cancelar', clase: 'ecu-btn-secondary' },
-                { texto: 'Eliminar', clase: 'ecu-btn-danger', onClick: onConfirmar }
+                { texto: opciones.textoNo || 'Cancelar', clase: 'ecu-btn-secondary', onClick: opciones.onCancelar },
+                { texto: opciones.textoSi || 'Eliminar', clase: opciones.claseSi || 'ecu-btn-danger', onClick: onConfirmar }
             ]);
         }
 
@@ -1370,6 +1371,38 @@ if($nombreCreadorGrupo !== ""){
                 for(var i = 0; i < opciones.length; i++){
                     var nombre = normalizarTexto(opciones[i].getAttribute('data-nombre') || '');
                     opciones[i].style.display = coincideDifuso(termino, nombre) ? '' : 'none';
+                }
+            });
+        }
+
+        /*
+        *   Antes de crear un grupo con un nombre que ya existe (entre los
+        *   grupos del usuario), se pide confirmación explícita en vez de
+        *   crearlo directo. Comparación sin distinguir mayúsculas/acentos
+        *   ni espacios de sobra.
+        */
+        var NOMBRES_GRUPOS_EXISTENTES = <?php echo json_encode(array_map(function($g){
+            return mb_strtolower(trim($g["nombre_grupo"]), "UTF-8");
+        }, $gruposDisponibles), JSON_UNESCAPED_UNICODE); ?>;
+
+        var formCrearGrupo = document.getElementById('formCrearGrupo');
+        var inputNombreNuevoGrupo = document.getElementById('nombre_grupo');
+        if(formCrearGrupo && inputNombreNuevoGrupo){
+            var forzarCreacionGrupo = false;
+            formCrearGrupo.addEventListener('submit', function(e){
+                if(forzarCreacionGrupo){ return; }
+                var nombreIngresado = inputNombreNuevoGrupo.value.trim().toLowerCase();
+                if(nombreIngresado !== '' && NOMBRES_GRUPOS_EXISTENTES.indexOf(nombreIngresado) !== -1){
+                    e.preventDefault();
+                    mostrarConfirmacion(
+                        'Ya existe un grupo con este nombre. ¿Está seguro que quiere crear otro igual?',
+                        function(){
+                            forzarCreacionGrupo = true;
+                            formCrearGrupo.submit();
+                        },
+                        'Nombre de grupo repetido',
+                        { textoSi: 'Sí', textoNo: 'No', claseSi: 'ecu-btn-secondary' }
+                    );
                 }
             });
         }
