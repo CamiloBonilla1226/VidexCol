@@ -176,56 +176,63 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
         $asistencia_total = $asistencia_hom + $asistencia_muj + $asistencia_jov + $asistencia_nin;
         $asistencia_grupo = $total_creyentes_grupo + $nuevos_creyentes_grupo + $total_bautizados_grupo + $nuevos_bautizados_grupo;
 
-        $carcel_ubicacion = trim($_POST["carcel_ubicacion"]);
-        $pabellon = trim($_POST["pabellon"]);
-        $comentario = trim($_POST["comentario"]);
-
-        $nombreLiderEscapado = mysqli_real_escape_string($PSN1->Link_ID, $nombre_lider);
-        $ubicacionEscapada = mysqli_real_escape_string($PSN1->Link_ID, $ubicacion);
-        $nombreGrupoEscapado = mysqli_real_escape_string($PSN1->Link_ID, $nombreGrupo);
-        $grupoMadreSql = ($grupoMadre === null) ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $grupoMadre)."'";
-        $carcelUbicacionSql = ($carcel_ubicacion == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $carcel_ubicacion)."'";
-        $pabellonSql = ($pabellon == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $pabellon)."'";
-        $comentarioSql = ($comentario == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $comentario)."'";
-        $fotoSql = ($extFoto == "") ? "NULL" : "'".$extFoto."'";
-
-        $sqlInsert = "INSERT INTO ecu_reportes (
-            idgrupo, idusuario, tipo_reporte, nombre_lider, nombre_grupo, fecha_inicio,
-            generacion, grupo_madre, ubicacion,
-            asistencia_hom, asistencia_muj, asistencia_jov, asistencia_nin, asistencia_total,
-            total_creyentes_grupo, nuevos_creyentes_grupo, total_bautizados_grupo, nuevos_bautizados_grupo, asistencia_grupo,
-            mapeo_oracion, mapeo_companerismo, mapeo_adoracion, mapeo_biblia, mapeo_evangelizar,
-            mapeo_cena, mapeo_dar, mapeo_bautizar, mapeo_trabajadores,
-            comentario, carcel_ubicacion, pabellon, foto
-        ) VALUES (
-            ".$idGrupo.", ".$idUsuarioSesion.", 318, '".$nombreLiderEscapado."', '".$nombreGrupoEscapado."', CURDATE(),
-            ".$generacionGrupo.", ".$grupoMadreSql.", '".$ubicacionEscapada."',
-            ".$asistencia_hom.", ".$asistencia_muj.", ".$asistencia_jov.", ".$asistencia_nin.", ".$asistencia_total.",
-            ".$total_creyentes_grupo.", ".$nuevos_creyentes_grupo.", ".$total_bautizados_grupo.", ".$nuevos_bautizados_grupo.", ".$asistencia_grupo.",
-            ".$valoresMapeo["mapeo_oracion"].", ".$valoresMapeo["mapeo_companerismo"].", ".$valoresMapeo["mapeo_adoracion"].", ".$valoresMapeo["mapeo_biblia"].", ".$valoresMapeo["mapeo_evangelizar"].",
-            ".$valoresMapeo["mapeo_cena"].", ".$valoresMapeo["mapeo_dar"].", ".$valoresMapeo["mapeo_bautizar"].", ".$valoresMapeo["mapeo_trabajadores"].",
-            ".$comentarioSql.", ".$carcelUbicacionSql.", ".$pabellonSql.", ".$fotoSql."
-        )";
-        $PSN1->query($sqlInsert);
-
-        $idReporteNuevo = $PSN1->ultimoId();
-
-        if($extFoto != ""){
-            if(!is_dir("archivos")){
-                mkdir("archivos", 0755, true);
-            }
-            move_uploaded_file($_FILES["foto"]["tmp_name"], "archivos/facilitador_".$idReporteNuevo.".".$extFoto);
+        if($asistencia_grupo > $asistencia_total){
+            $errorReporte = "La suma del crecimiento del grupo (".$asistencia_grupo.") no puede ser mayor que la asistencia total (".$asistencia_total.").";
         }
 
-        /*
-        *   Patrón POST/Redirect/GET (igual que en gestionar-facilitador.php):
-        *   ya se envió HTML antes de llegar a este include, así que
-        *   header() no serviría. Se redirige desde el cliente para que un
-        *   F5 posterior sea un GET y no repita el INSERT.
-        */
-        $urlRedirect = "index.php?doc=".urlencode($_GET["doc"])."&idgrupo=".$idGrupo."&creado=1";
-        ?><script>window.location.replace(<?=json_encode($urlRedirect); ?>);</script><?php
-        return;
+        if($errorReporte == ""){
+
+            $carcel_ubicacion = trim($_POST["carcel_ubicacion"]);
+            $pabellon = trim($_POST["pabellon"]);
+            $comentario = trim($_POST["comentario"]);
+
+            $nombreLiderEscapado = mysqli_real_escape_string($PSN1->Link_ID, $nombre_lider);
+            $ubicacionEscapada = mysqli_real_escape_string($PSN1->Link_ID, $ubicacion);
+            $nombreGrupoEscapado = mysqli_real_escape_string($PSN1->Link_ID, $nombreGrupo);
+            $grupoMadreSql = ($grupoMadre === null) ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $grupoMadre)."'";
+            $carcelUbicacionSql = ($carcel_ubicacion == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $carcel_ubicacion)."'";
+            $pabellonSql = ($pabellon == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $pabellon)."'";
+            $comentarioSql = ($comentario == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $comentario)."'";
+            $fotoSql = ($extFoto == "") ? "NULL" : "'".$extFoto."'";
+
+            $sqlInsert = "INSERT INTO ecu_reportes (
+                idgrupo, idusuario, tipo_reporte, nombre_lider, nombre_grupo, fecha_inicio,
+                generacion, grupo_madre, ubicacion,
+                asistencia_hom, asistencia_muj, asistencia_jov, asistencia_nin, asistencia_total,
+                total_creyentes_grupo, nuevos_creyentes_grupo, total_bautizados_grupo, nuevos_bautizados_grupo, asistencia_grupo,
+                mapeo_oracion, mapeo_companerismo, mapeo_adoracion, mapeo_biblia, mapeo_evangelizar,
+                mapeo_cena, mapeo_dar, mapeo_bautizar, mapeo_trabajadores,
+                comentario, carcel_ubicacion, pabellon, foto
+            ) VALUES (
+                ".$idGrupo.", ".$idUsuarioSesion.", 318, '".$nombreLiderEscapado."', '".$nombreGrupoEscapado."', CURDATE(),
+                ".$generacionGrupo.", ".$grupoMadreSql.", '".$ubicacionEscapada."',
+                ".$asistencia_hom.", ".$asistencia_muj.", ".$asistencia_jov.", ".$asistencia_nin.", ".$asistencia_total.",
+                ".$total_creyentes_grupo.", ".$nuevos_creyentes_grupo.", ".$total_bautizados_grupo.", ".$nuevos_bautizados_grupo.", ".$asistencia_grupo.",
+                ".$valoresMapeo["mapeo_oracion"].", ".$valoresMapeo["mapeo_companerismo"].", ".$valoresMapeo["mapeo_adoracion"].", ".$valoresMapeo["mapeo_biblia"].", ".$valoresMapeo["mapeo_evangelizar"].",
+                ".$valoresMapeo["mapeo_cena"].", ".$valoresMapeo["mapeo_dar"].", ".$valoresMapeo["mapeo_bautizar"].", ".$valoresMapeo["mapeo_trabajadores"].",
+                ".$comentarioSql.", ".$carcelUbicacionSql.", ".$pabellonSql.", ".$fotoSql."
+            )";
+            $PSN1->query($sqlInsert);
+
+            $idReporteNuevo = $PSN1->ultimoId();
+
+            if($extFoto != ""){
+                if(!is_dir("archivos")){
+                    mkdir("archivos", 0755, true);
+                }
+                move_uploaded_file($_FILES["foto"]["tmp_name"], "archivos/facilitador_".$idReporteNuevo.".".$extFoto);
+            }
+
+            /*
+            *   Patrón POST/Redirect/GET (igual que en gestionar-facilitador.php):
+            *   ya se envió HTML antes de llegar a este include, así que
+            *   header() no serviría. Se redirige desde el cliente para que un
+            *   F5 posterior sea un GET y no repita el INSERT.
+            */
+            $urlRedirect = "index.php?doc=".urlencode($_GET["doc"])."&idgrupo=".$idGrupo."&creado=1";
+            ?><script>window.location.replace(<?=json_encode($urlRedirect); ?>);</script><?php
+            return;
+        }
     }
 }
 
@@ -554,18 +561,20 @@ function valorPrevio($nombre, $default = ""){
         <input type="hidden" name="idgrupo" value="<?=$idGrupo; ?>" />
 
         <div class="ecu-card">
-            <h4 class="ecu-section-title">Datos del líder y del grupo</h4>
-            <p class="ecu-section-sub">El líder es un nombre escrito a mano, no tiene que ser un usuario del sistema.</p>
+            <h4 class="ecu-section-title">Datos del líder</h4>
 
-            <div class="ecu-grid-2">
-                <div class="ecu-field">
-                    <label class="ecu-label">Nombre del líder <span class="ecu-req">*</span></label>
-                    <input type="text" name="nombre_lider" class="ecu-input" maxlength="150" required value="<?=valorPrevio('nombre_lider'); ?>" />
-                </div>
-                <div class="ecu-field">
-                    <label class="ecu-label">Ubicación <span class="ecu-req">*</span></label>
-                    <input type="text" name="ubicacion" class="ecu-input" maxlength="200" required value="<?=valorPrevio('ubicacion'); ?>" />
-                </div>
+            <div class="ecu-field" style="margin-bottom:0;">
+                <label class="ecu-label">Nombre del líder <span class="ecu-req">*</span></label>
+                <input type="text" name="nombre_lider" class="ecu-input" maxlength="150" required value="<?=valorPrevio('nombre_lider'); ?>" />
+            </div>
+        </div>
+
+        <div class="ecu-card">
+            <h4 class="ecu-section-title">Ubicación</h4>
+
+            <div class="ecu-field" style="margin-bottom:0;">
+                <label class="ecu-label">Ubicación <span class="ecu-req">*</span></label>
+                <input type="text" name="ubicacion" class="ecu-input" maxlength="200" required value="<?=valorPrevio('ubicacion'); ?>" />
             </div>
         </div>
 
@@ -576,20 +585,25 @@ function valorPrevio($nombre, $default = ""){
             <div class="ecu-grid-4">
                 <div class="ecu-field">
                     <label class="ecu-label">Hombres</label>
-                    <input type="number" name="asistencia_hom" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_hom', '0'); ?>" />
+                    <input type="number" name="asistencia_hom" id="asistencia_hom" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_hom', '0'); ?>" />
                 </div>
                 <div class="ecu-field">
                     <label class="ecu-label">Mujeres</label>
-                    <input type="number" name="asistencia_muj" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_muj', '0'); ?>" />
+                    <input type="number" name="asistencia_muj" id="asistencia_muj" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_muj', '0'); ?>" />
                 </div>
                 <div class="ecu-field">
                     <label class="ecu-label">Jóvenes</label>
-                    <input type="number" name="asistencia_jov" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_jov', '0'); ?>" />
+                    <input type="number" name="asistencia_jov" id="asistencia_jov" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_jov', '0'); ?>" />
                 </div>
                 <div class="ecu-field">
                     <label class="ecu-label">Niños</label>
-                    <input type="number" name="asistencia_nin" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_nin', '0'); ?>" />
+                    <input type="number" name="asistencia_nin" id="asistencia_nin" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_nin', '0'); ?>" />
                 </div>
+            </div>
+
+            <div class="ecu-field" style="margin-bottom:0;">
+                <label class="ecu-label">Asistencia total</label>
+                <input type="text" id="asistencia_total_mostrar" class="ecu-input" readonly value="0" style="background: var(--gris-claro); font-weight:600;" />
             </div>
         </div>
 
@@ -600,21 +614,24 @@ function valorPrevio($nombre, $default = ""){
             <div class="ecu-grid-4">
                 <div class="ecu-field">
                     <label class="ecu-label">Total de creyentes</label>
-                    <input type="number" name="total_creyentes_grupo" class="ecu-input" min="0" value="<?=valorPrevio('total_creyentes_grupo', '0'); ?>" />
+                    <input type="number" name="total_creyentes_grupo" id="total_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_creyentes_grupo', '0'); ?>" />
                 </div>
                 <div class="ecu-field">
                     <label class="ecu-label">Nuevos creyentes</label>
-                    <input type="number" name="nuevos_creyentes_grupo" class="ecu-input" min="0" value="<?=valorPrevio('nuevos_creyentes_grupo', '0'); ?>" />
+                    <input type="number" name="nuevos_creyentes_grupo" id="nuevos_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_creyentes_grupo', '0'); ?>" />
                 </div>
                 <div class="ecu-field">
                     <label class="ecu-label">Total bautizados</label>
-                    <input type="number" name="total_bautizados_grupo" class="ecu-input" min="0" value="<?=valorPrevio('total_bautizados_grupo', '0'); ?>" />
+                    <input type="number" name="total_bautizados_grupo" id="total_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_bautizados_grupo', '0'); ?>" />
                 </div>
                 <div class="ecu-field">
                     <label class="ecu-label">Nuevos bautizados</label>
-                    <input type="number" name="nuevos_bautizados_grupo" class="ecu-input" min="0" value="<?=valorPrevio('nuevos_bautizados_grupo', '0'); ?>" />
+                    <input type="number" name="nuevos_bautizados_grupo" id="nuevos_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_bautizados_grupo', '0'); ?>" />
                 </div>
             </div>
+            <p class="ecu-section-sub" id="mensajeLimiteCrecimiento" style="margin: 12px 0 0; color: var(--danger-text); display:none;">
+                La suma del crecimiento del grupo no puede ser mayor que la asistencia total.
+            </p>
         </div>
 
         <div class="ecu-card">
@@ -733,6 +750,61 @@ function valorPrevio($nombre, $default = ""){
             mostrarModal(titulo || 'Aviso', mensaje, 'aviso', [
                 { texto: 'Entendido', clase: 'ecu-btn-secondary' }
             ]);
+        }
+
+        function mostrarError(mensaje, titulo){
+            mostrarModal(titulo || 'No fue posible completar la acción', mensaje, 'error', [
+                { texto: 'Entendido', clase: 'ecu-btn-secondary' }
+            ]);
+        }
+
+        /*
+        *   Asistencia total: se muestra en vivo (solo lectura, no editable
+        *   por el usuario) y sirve además como tope para validar que el
+        *   crecimiento del grupo no la supere.
+        */
+        var camposAsistencia = ['asistencia_hom', 'asistencia_muj', 'asistencia_jov', 'asistencia_nin'];
+        var camposCrecimiento = ['total_creyentes_grupo', 'nuevos_creyentes_grupo', 'total_bautizados_grupo', 'nuevos_bautizados_grupo'];
+        var asistenciaTotalMostrar = document.getElementById('asistencia_total_mostrar');
+        var mensajeLimiteCrecimiento = document.getElementById('mensajeLimiteCrecimiento');
+
+        function sumarCampos(nombres){
+            var total = 0;
+            nombres.forEach(function(nombre){
+                var input = document.getElementById(nombre);
+                total += input ? (parseInt(input.value, 10) || 0) : 0;
+            });
+            return total;
+        }
+
+        function actualizarAsistenciaTotal(){
+            var total = sumarCampos(camposAsistencia);
+            if(asistenciaTotalMostrar){ asistenciaTotalMostrar.value = total; }
+            return total;
+        }
+
+        function crecimientoExcedeAsistencia(){
+            var total = actualizarAsistenciaTotal();
+            var crecimiento = sumarCampos(camposCrecimiento);
+            var excede = crecimiento > total;
+            if(mensajeLimiteCrecimiento){ mensajeLimiteCrecimiento.style.display = excede ? 'block' : 'none'; }
+            return excede;
+        }
+
+        camposAsistencia.concat(camposCrecimiento).forEach(function(nombre){
+            var input = document.getElementById(nombre);
+            if(input){ input.addEventListener('input', crecimientoExcedeAsistencia); }
+        });
+        crecimientoExcedeAsistencia();
+
+        var formReporte = document.getElementById('formReporte');
+        if(formReporte){
+            formReporte.addEventListener('submit', function(e){
+                if(crecimientoExcedeAsistencia()){
+                    e.preventDefault();
+                    mostrarError('La suma del crecimiento del grupo no puede ser mayor que la asistencia total. Revise los valores antes de guardar.', 'Datos inconsistentes');
+                }
+            });
         }
 
         <?php if($exitoReporte != ""){ ?>
