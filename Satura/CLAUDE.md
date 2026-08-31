@@ -48,6 +48,7 @@ Los reportes pueden tener las siguientes actividades. Son **independientes al gr
 | `77` | Evangelismo |
 | `99` | Bautizo |
 | `100` | Capacitación |
+| `101` | HOPE |
 
 ---
 
