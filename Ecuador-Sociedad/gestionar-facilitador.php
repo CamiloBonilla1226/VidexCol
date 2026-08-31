@@ -27,6 +27,10 @@ $errorGrupo = "";
 $exitoGrupo = "";
 $idGrupoSeleccionado = isset($_REQUEST["idgrupo"]) ? intval($_REQUEST["idgrupo"]) : 0;
 
+if(isset($_GET["creado"]) && $_GET["creado"] == "1"){
+    $exitoGrupo = "Grupo creado correctamente.";
+}
+
 /*
 *   CREAR GRUPO NUEVO
 */
@@ -67,7 +71,18 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "crear_grupo"){
             $PSN1->query($sqlInsert);
 
             $idGrupoSeleccionado = $PSN1->ultimoId();
-            $exitoGrupo = "Grupo creado correctamente.";
+
+            /*
+            *   Patrón POST/Redirect/GET: en este punto ya no se puede usar
+            *   header() para redirigir porque index.php ya envió HTML antes
+            *   de llegar a este include. Se fuerza la redirección desde el
+            *   cliente para que un F5 (recargar) en la página resultante
+            *   sea un GET y no repita el INSERT (el aviso del navegador
+            *   "¿quieres reenviar el formulario?" desaparece).
+            */
+            $urlRedirect = "index.php?doc=".urlencode($_GET["doc"])."&idgrupo=".intval($idGrupoSeleccionado)."&creado=1";
+            ?><script>window.location.replace(<?=json_encode($urlRedirect); ?>);</script><?php
+            return;
         }
     }
 }
