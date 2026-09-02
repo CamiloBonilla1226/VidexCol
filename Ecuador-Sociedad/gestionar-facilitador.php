@@ -293,8 +293,8 @@ if($nombreCreadorGrupo !== ""){
     .ecu-wrap .ecu-banner.ecu-info { background: var(--azul-tint); color: var(--azul-dark); }
 
     .ecu-wrap .ecu-card {
-        background: #FFFFFF;
-        border: 1px solid var(--line);
+        background: var(--gris-claro);
+        border: 1px solid var(--line-strong);
         border-radius: var(--radius-card);
         padding: 24px;
         margin-bottom: 20px;
