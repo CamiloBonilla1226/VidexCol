@@ -508,11 +508,12 @@ function valorCampo($nombre, $reporte, $default = ""){
     .ecu-wrap .ecu-grupo-actual a:hover { text-decoration: underline; }
 
     .ecu-wrap .ecu-card {
-        background: #FFFFFF;
-        border: 1px solid var(--line);
+        background: var(--gris-claro);
+        border: 1px solid var(--line-strong);
         border-radius: var(--radius-card);
         padding: 24px;
         margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(26, 26, 26, 0.06);
     }
     .ecu-wrap .ecu-section-title {
         font-family: 'Public Sans', sans-serif;
@@ -574,6 +575,17 @@ function valorCampo($nombre, $reporte, $default = ""){
         box-shadow: 0 0 0 3px rgba(29, 95, 166, 0.15);
     }
     .ecu-wrap input[type="file"].ecu-input { padding: 9px 10px; font-size: 13px; }
+    .ecu-wrap input.ecu-input[readonly] {
+        background: #FFFFFF;
+        border-style: dashed;
+    }
+    .ecu-wrap input.ecu-input[disabled],
+    .ecu-wrap select.ecu-select[disabled],
+    .ecu-wrap textarea.ecu-input[disabled] {
+        background: #FFFFFF;
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
 
     .ecu-wrap .ecu-foto-input.ecu-input {
         padding: 14px 13px;
@@ -796,7 +808,7 @@ function valorCampo($nombre, $reporte, $default = ""){
 
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Asistencia total</label>
-                    <input type="text" id="asistencia_total_mostrar" class="ecu-input" readonly value="0" style="background: var(--gris-claro); font-weight:600;" />
+                    <input type="text" id="asistencia_total_mostrar" class="ecu-input" readonly value="0" style="font-weight:600;" />
                 </div>
             </div>
 
@@ -827,7 +839,7 @@ function valorCampo($nombre, $reporte, $default = ""){
 
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Asistencia del grupo</label>
-                    <input type="text" id="asistencia_grupo_mostrar" class="ecu-input" readonly value="0" style="background: var(--gris-claro); font-weight:600;" />
+                    <input type="text" id="asistencia_grupo_mostrar" class="ecu-input" readonly value="0" style="font-weight:600;" />
                 </div>
             </div>
 
@@ -859,7 +871,7 @@ function valorCampo($nombre, $reporte, $default = ""){
 
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Ubicación</label>
-                    <input type="text" name="ubicacion" id="carcelDireccion" class="ecu-input" readonly value="<?=valorCampo('ubicacion', $reporte); ?>" style="background: var(--gris-claro);" />
+                    <input type="text" name="ubicacion" id="carcelDireccion" class="ecu-input" readonly value="<?=valorCampo('ubicacion', $reporte); ?>" />
                 </div>
             </div>
 

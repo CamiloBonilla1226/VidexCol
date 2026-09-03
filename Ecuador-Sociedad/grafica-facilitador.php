@@ -208,6 +208,7 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
         border-radius: var(--radius-card);
         padding: 24px;
         margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(26, 26, 26, 0.06);
     }
     .ecu-wrap .ecu-section-title {
         font-family: 'Public Sans', sans-serif;
