@@ -93,7 +93,7 @@ if($PSN1->num_rows() > 0){
 $totalPaginas = ceil($totalRegistros / $registros);
 
 $sqlLista = "SELECT r.idreporte, r.carcel_ubicacion, r.asistencia_hom, r.asistencia_muj, ";
-$sqlLista .= "r.asistencia_jov, r.asistencia_nin, r.asistencia_total, r.foto, r.fecha_inicio, ";
+$sqlLista .= "r.asistencia_jov, r.asistencia_nin, r.asistencia_total, r.foto, r.foto2, r.fecha_inicio, ";
 $sqlLista .= "u.nombre AS nombre_usuario ";
 $sqlLista .= "FROM ecu_reportes r LEFT JOIN usuario u ON u.id = r.idusuario ";
 $sqlLista .= "WHERE 1 ".$sqlFiltro." ORDER BY r.idreporte DESC ";
@@ -102,14 +102,16 @@ $PSN1->query($sqlLista);
 
 /*
 *   Combo "Miembro de la regional": solo se llena para el administrador,
-*   con los usuarios que efectivamente tienen reportes de Facilitadores.
+*   con la misma lógica que consultar-sub-programa-evangelistas.php (lista
+*   TODOS los usuarios con esos roles, hayan reportado o no — no solo los
+*   que ya tienen reportes en ecu_reportes).
 */
 $listaUsuarios = array();
 if($esAdmin){
-    $PSN2->query("SELECT DISTINCT u.id, u.nombre FROM usuario u
-                  INNER JOIN ecu_reportes r ON r.idusuario = u.id
-                  WHERE r.tipo_reporte = 318
-                  ORDER BY u.nombre ASC");
+    $PSN2->query("SELECT U.id, U.nombre FROM usuario AS U
+                  LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = U.id
+                  WHERE U.tipo IN (162, 163, 167)
+                  ORDER BY U.nombre ASC");
     while($PSN2->next_record()){
         $listaUsuarios[] = array(
             "id"     => intval($PSN2->f("id")),
@@ -173,6 +175,10 @@ if($esAdmin){
     color:#000;
 }
 
+.clickable-row {
+    cursor: pointer;
+}
+
 .table thead tr{
     background-color: #C7C7C7;
 }
@@ -225,9 +231,9 @@ if($esAdmin){
             <tbody>
                 <?php if($totalRegistros > 0){
                     while($PSN1->next_record()){
-                        $foto = $PSN1->f("foto");
+                        $tieneFoto = ($PSN1->f("foto") != "" || $PSN1->f("foto2") != "");
                 ?>
-                    <tr>
+                    <tr class="clickable-row" data-href="index.php?doc=editar_facilitador&idreporte=<?=$PSN1->f("idreporte"); ?>">
                         <td><?=str_pad($PSN1->f("idreporte"), 6, "0", STR_PAD_LEFT); ?></td>
                         <td><?=htmlspecialchars($PSN1->f("nombre_usuario"), ENT_QUOTES, "UTF-8"); ?></td>
                         <td><?=htmlspecialchars($PSN1->f("carcel_ubicacion"), ENT_QUOTES, "UTF-8"); ?></td>
@@ -237,7 +243,7 @@ if($esAdmin){
                         <td><?=$PSN1->f("asistencia_nin"); ?></td>
                         <td><strong><?=$PSN1->f("asistencia_total"); ?></strong></td>
                         <td align="center">
-                            <?php if($foto != ""){ ?>
+                            <?php if($tieneFoto){ ?>
                                 <i class="fas fa-thumbs-up ico-lik" title="Con foto"></i>
                             <?php }else{ ?>
                                 <i class="fas fa-thumbs-down ico-dli" title="Sin foto"></i>
@@ -285,3 +291,11 @@ if($esAdmin){
     </ul>
 </div>
 </center>
+
+<script>
+jQuery(document).ready(function($) {
+    $(".clickable-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});
+</script>
