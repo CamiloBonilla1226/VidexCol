@@ -318,7 +318,7 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
     <div class="ecu-card">
         <h4 class="ecu-section-title">Filtros</h4>
         <form method="get" id="formFiltrosGrafica">
-            <input type="hidden" name="doc" value="grafica-consolidado-facilitadores" />
+            <input type="hidden" name="doc" value="grafica-facilitador" />
             <div class="ecu-filtros-grid">
                 <?php if($esAdmin){ ?>
                     <div>
