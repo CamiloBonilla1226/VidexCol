@@ -40,7 +40,7 @@ if($PSN1->num_rows() > 0){
 }
 $esAdmin = ($usuarioTipo == 2);
 
-$sqlReporte = "SELECT foto, foto2 FROM ecu_reportes WHERE idreporte = ".$idReporte." AND tipo_reporte = 318 LIMIT 1";
+$sqlReporte = "SELECT foto FROM ecu_reportes WHERE idreporte = ".$idReporte." AND tipo_reporte = 318 LIMIT 1";
 $PSN1->query($sqlReporte);
 
 if($PSN1->num_rows() == 0){
@@ -52,7 +52,6 @@ if($PSN1->num_rows() == 0){
 
 $PSN1->next_record();
 $foto = $PSN1->f("foto");
-$foto2 = $PSN1->f("foto2");
 
 /*
 *   Solo el administrador puede eliminar reportes, sin importar de quién
@@ -72,12 +71,6 @@ if($foto != ""){
     $rutaFoto = "archivos/facilitador_".$idReporte.".".$foto;
     if(file_exists($rutaFoto)){
         unlink($rutaFoto);
-    }
-}
-if($foto2 != ""){
-    $rutaFoto2 = "archivos/facilitador_".$idReporte."_2.".$foto2;
-    if(file_exists($rutaFoto2)){
-        unlink($rutaFoto2);
     }
 }
 

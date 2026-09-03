@@ -77,7 +77,6 @@ if($idReporte > 0){
                 "pabellon"                => $PSN1->f("pabellon"),
                 "comentario"              => $PSN1->f("comentario"),
                 "foto"                    => $PSN1->f("foto"),
-                "foto2"                   => $PSN1->f("foto2"),
                 "mapeo_oracion"           => intval($PSN1->f("mapeo_oracion")),
                 "mapeo_companerismo"      => intval($PSN1->f("mapeo_companerismo")),
                 "mapeo_adoracion"         => intval($PSN1->f("mapeo_adoracion")),
@@ -210,26 +209,18 @@ if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_
     }
 
     /*
-    *   Las fotos son opcionales al editar: solo se sube a un slot que esté
-    *   vacío (el formulario únicamente muestra el input del slot libre; ver
-    *   más abajo dónde se renderiza). Si no se sube nada, se conservan las
-    *   que ya tenía el reporte.
+    *   La foto es opcional al editar: si no se sube una nueva, se
+    *   conserva la que ya tenía el reporte.
     */
-    $extensionesPermitidas = array("jpg", "jpeg", "png", "gif", "webp");
     $extFoto = "";
-    $extFoto2 = "";
-    if($errorReporte == "" && isset($_FILES["foto"]) && $_FILES["foto"]["error"] == UPLOAD_ERR_OK && $_FILES["foto"]["name"] != ""){
-        $extFoto = strtolower(pathinfo($_FILES["foto"]["name"], PATHINFO_EXTENSION));
-        if(!in_array($extFoto, $extensionesPermitidas)){
-            $errorReporte = "La foto debe ser una imagen (jpg, jpeg, png, gif o webp).";
-            $extFoto = "";
-        }
-    }
-    if($errorReporte == "" && isset($_FILES["foto2"]) && $_FILES["foto2"]["error"] == UPLOAD_ERR_OK && $_FILES["foto2"]["name"] != ""){
-        $extFoto2 = strtolower(pathinfo($_FILES["foto2"]["name"], PATHINFO_EXTENSION));
-        if(!in_array($extFoto2, $extensionesPermitidas)){
-            $errorReporte = "La segunda foto debe ser una imagen (jpg, jpeg, png, gif o webp).";
-            $extFoto2 = "";
+    if($errorReporte == ""){
+        $extensionesPermitidas = array("jpg", "jpeg", "png", "gif", "webp");
+        if(isset($_FILES["foto"]) && $_FILES["foto"]["error"] == UPLOAD_ERR_OK && $_FILES["foto"]["name"] != ""){
+            $extFoto = strtolower(pathinfo($_FILES["foto"]["name"], PATHINFO_EXTENSION));
+            if(!in_array($extFoto, $extensionesPermitidas)){
+                $errorReporte = "La foto debe ser una imagen (jpg, jpeg, png, gif o webp).";
+                $extFoto = "";
+            }
         }
     }
 
@@ -291,21 +282,15 @@ if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_
             $comentarioSql = ($comentario == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $comentario)."'";
 
             /*
-            *   Fotos (hasta 2): si se subió alguna, se reemplaza el archivo
-            *   físico de ese slot (y se borra el anterior si tenía una
-            *   extensión distinta); si no, se deja la columna tal cual
-            *   estaba. El formulario solo ofrece el input del slot vacío,
-            *   así que en la práctica esto solo rellena, nunca reemplaza en
-            *   el mismo envío (para reemplazar hay que eliminar y volver a
-            *   subir).
+            *   Foto: si se subió una nueva, se reemplaza el archivo físico
+            *   (y se borra el anterior si tenía una extensión distinta);
+            *   si no, se deja la columna `foto` tal cual estaba.
             */
             $fotoSqlSet = "";
-            if($extFoto != "" || $extFoto2 != ""){
+            if($extFoto != ""){
                 if(!is_dir("archivos")){
                     mkdir("archivos", 0755, true);
                 }
-            }
-            if($extFoto != ""){
                 if($reporte["foto"] != "" && $reporte["foto"] != $extFoto){
                     $rutaAnterior = "archivos/facilitador_".$idReporte.".".$reporte["foto"];
                     if(file_exists($rutaAnterior)){
@@ -313,17 +298,7 @@ if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_
                     }
                 }
                 move_uploaded_file($_FILES["foto"]["tmp_name"], "archivos/facilitador_".$idReporte.".".$extFoto);
-                $fotoSqlSet .= ", foto = '".$extFoto."'";
-            }
-            if($extFoto2 != ""){
-                if($reporte["foto2"] != "" && $reporte["foto2"] != $extFoto2){
-                    $rutaAnterior2 = "archivos/facilitador_".$idReporte."_2.".$reporte["foto2"];
-                    if(file_exists($rutaAnterior2)){
-                        unlink($rutaAnterior2);
-                    }
-                }
-                move_uploaded_file($_FILES["foto2"]["tmp_name"], "archivos/facilitador_".$idReporte."_2.".$extFoto2);
-                $fotoSqlSet .= ", foto2 = '".$extFoto2."'";
+                $fotoSqlSet = ", foto = '".$extFoto."'";
             }
 
             /*
@@ -921,54 +896,26 @@ function valorCampo($nombre, $reporte, $default = ""){
             <div class="ecu-seccion">
                 <h4 class="ecu-section-title">Foto y comentario</h4>
 
-                <?php
-                $fotosExistentes = array();
-                if($reporte["foto"] != ""){
-                    $fotosExistentes[] = array(
-                        "slot" => 1,
-                        "src"  => "archivos/facilitador_".$reporte["idreporte"].".".$reporte["foto"],
-                    );
-                }
-                if($reporte["foto2"] != ""){
-                    $fotosExistentes[] = array(
-                        "slot" => 2,
-                        "src"  => "archivos/facilitador_".$reporte["idreporte"]."_2.".$reporte["foto2"],
-                    );
-                }
-                $totalFotos = count($fotosExistentes);
-                ?>
                 <div class="ecu-field">
-                    <label class="ecu-label">Fotos <span class="ecu-opt">(máximo 2, opcional al editar)</span></label>
-
-                    <?php if($totalFotos > 0){ ?>
+                    <label class="ecu-label">Foto <span class="ecu-opt">(opcional al editar)</span></label>
+                    <?php if($reporte["foto"] != ""){
+                        $rutaFotoActual = "archivos/facilitador_".$reporte["idreporte"].".".$reporte["foto"];
+                    ?>
                         <div class="ecu-fotos-grid">
-                            <?php foreach($fotosExistentes as $fotoItem){ ?>
-                                <div class="ecu-foto-item">
-                                    <a href="<?=htmlspecialchars($fotoItem['src'], ENT_QUOTES, "UTF-8"); ?>" target="_blank" rel="noopener">
-                                        <img src="<?=htmlspecialchars($fotoItem['src'], ENT_QUOTES, "UTF-8"); ?>" alt="Foto del reporte" />
-                                    </a>
-                                    <?php if($puedeEditar && $totalFotos > 1){ ?>
-                                        <button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim ecu-btn-eliminar-foto" data-slot="<?=$fotoItem['slot']; ?>">Eliminar esta foto</button>
-                                    <?php } ?>
-                                </div>
-                            <?php } ?>
+                            <div class="ecu-foto-item">
+                                <a href="<?=htmlspecialchars($rutaFotoActual, ENT_QUOTES, "UTF-8"); ?>" target="_blank" rel="noopener">
+                                    <img src="<?=htmlspecialchars($rutaFotoActual, ENT_QUOTES, "UTF-8"); ?>" alt="Foto del reporte" />
+                                </a>
+                            </div>
                         </div>
-                        <p class="ecu-foto-ayuda" style="text-align:center;">Clic en una foto para verla en tamaño completo.</p>
+                        <p class="ecu-foto-ayuda" style="text-align:center;">Clic en la foto para verla en tamaño completo. Suba un archivo nuevo solo si desea reemplazarla.</p>
                     <?php }else{ ?>
-                        <p class="ecu-foto-ayuda" style="margin-top:0;">Este reporte no tiene fotos todavía.</p>
+                        <p class="ecu-foto-ayuda" style="margin-top:0;">Este reporte no tiene foto todavía.</p>
                     <?php } ?>
-
-                    <?php if($puedeEditar){
-                        if($reporte["foto"] == ""){ ?>
-                            <input type="file" name="foto" id="fotoInput" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" />
-                            <p class="ecu-foto-ayuda">Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
-                        <?php }else if($reporte["foto2"] == ""){ ?>
-                            <input type="file" name="foto2" id="foto2Input" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" />
-                            <p class="ecu-foto-ayuda">Agregar segunda foto. Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
-                        <?php }else{ ?>
-                            <p class="ecu-foto-ayuda" style="margin-top:0;">Ya tiene el máximo de 2 fotos. Elimine una para poder subir otra.</p>
-                        <?php }
-                    } ?>
+                    <?php if($puedeEditar){ ?>
+                        <input type="file" name="foto" id="fotoInput" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" />
+                        <p class="ecu-foto-ayuda">Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
+                    <?php } ?>
                 </div>
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Comentario <span class="ecu-opt">(opcional)</span></label>
@@ -1090,43 +1037,6 @@ function valorCampo($nombre, $reporte, $default = ""){
                 );
             });
         }
-
-        /*
-        *   Eliminar una de las (hasta 2) fotos del reporte. Solo aparece
-        *   el botón cuando ya hay 2 fotos, así nunca se puede quedar en 0
-        *   desde aquí (el servidor lo revalida de todas formas).
-        */
-        document.querySelectorAll('.ecu-btn-eliminar-foto').forEach(function(boton){
-            boton.addEventListener('click', function(){
-                var slot = boton.getAttribute('data-slot');
-                mostrarConfirmacion(
-                    '¿Está seguro que desea eliminar esta foto? Esta acción no se puede deshacer.',
-                    function(){
-                        boton.disabled = true;
-
-                        var datos = new URLSearchParams();
-                        datos.set('idreporte', <?=$reporte["idreporte"]; ?>);
-                        datos.set('slot', slot);
-
-                        fetch('ajax_eliminar_foto_reporte.php', { method: 'POST', credentials: 'same-origin', body: datos })
-                            .then(function(resp){ return resp.json(); })
-                            .then(function(data){
-                                if(!data.ok){
-                                    boton.disabled = false;
-                                    mostrarError(data.mensaje || 'No se pudo eliminar la foto.');
-                                    return;
-                                }
-                                window.location.reload();
-                            })
-                            .catch(function(){
-                                boton.disabled = false;
-                                mostrarError('Ocurrió un error de conexión al eliminar la foto. Intenta de nuevo.');
-                            });
-                    },
-                    'Eliminar foto'
-                );
-            });
-        });
 
         var camposAsistencia = ['asistencia_hom', 'asistencia_muj', 'asistencia_jov', 'asistencia_nin'];
         var camposCrecimiento = ['nuevos_creyentes_grupo', 'total_creyentes_grupo', 'nuevos_bautizados_grupo', 'total_bautizados_grupo'];

@@ -199,32 +199,22 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
         $errorReporte = "La foto es obligatoria.";
     }
 
-    /*
-    *   Fotos: se permiten hasta 2 (la primera obligatoria, la segunda
-    *   opcional). Solo se guarda la extensión en cada columna (`foto`,
-    *   `foto2`); el archivo físico se mueve después del INSERT, usando el
-    *   id recién generado en el nombre (misma convención de
-    *   gestionar-sub-programa-evangelistas.php: "archivos/evi_{id}_1.{ext}",
-    *   adaptada aquí como "archivos/facilitador_{id}.{ext}" para la primera
-    *   y "archivos/facilitador_{id}_2.{ext}" para la segunda).
-    */
-    $extensionesPermitidas = array("jpg", "jpeg", "png", "gif", "webp");
     $extFoto = "";
-    $extFoto2 = "";
     if($errorReporte == ""){
+        /*
+        *   Foto: solo se guarda la extensión en la columna `foto`; el
+        *   archivo físico se mueve después del INSERT, usando el id recién
+        *   generado en el nombre (misma convención de
+        *   gestionar-sub-programa-evangelistas.php: "archivos/evi_{id}_1.{ext}",
+        *   adaptada aquí como "archivos/facilitador_{id}.{ext}").
+        */
+        $extensionesPermitidas = array("jpg", "jpeg", "png", "gif", "webp");
         if(isset($_FILES["foto"]) && $_FILES["foto"]["error"] == UPLOAD_ERR_OK && $_FILES["foto"]["name"] != ""){
             $extFoto = strtolower(pathinfo($_FILES["foto"]["name"], PATHINFO_EXTENSION));
             if(!in_array($extFoto, $extensionesPermitidas)){
                 $errorReporte = "La foto debe ser una imagen (jpg, jpeg, png, gif o webp).";
                 $extFoto = "";
             }
-        }
-    }
-    if($errorReporte == "" && isset($_FILES["foto2"]) && $_FILES["foto2"]["error"] == UPLOAD_ERR_OK && $_FILES["foto2"]["name"] != ""){
-        $extFoto2 = strtolower(pathinfo($_FILES["foto2"]["name"], PATHINFO_EXTENSION));
-        if(!in_array($extFoto2, $extensionesPermitidas)){
-            $errorReporte = "La segunda foto debe ser una imagen (jpg, jpeg, png, gif o webp).";
-            $extFoto2 = "";
         }
     }
 
@@ -303,7 +293,6 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
             $pabellonSql = ($pabellon == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $pabellon)."'";
             $comentarioSql = ($comentario == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $comentario)."'";
             $fotoSql = ($extFoto == "") ? "NULL" : "'".$extFoto."'";
-            $foto2Sql = ($extFoto2 == "") ? "NULL" : "'".$extFoto2."'";
 
             $sqlInsert = "INSERT INTO ecu_reportes (
                 idgrupo, idusuario, tipo_reporte, nombre_lider, nombre_grupo, fecha_inicio,
@@ -312,7 +301,7 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
                 total_creyentes_grupo, nuevos_creyentes_grupo, total_bautizados_grupo, nuevos_bautizados_grupo, asistencia_grupo,
                 mapeo_oracion, mapeo_companerismo, mapeo_adoracion, mapeo_biblia, mapeo_evangelizar,
                 mapeo_cena, mapeo_dar, mapeo_bautizar, mapeo_trabajadores,
-                comentario, carcel_ubicacion, pabellon, foto, foto2
+                comentario, carcel_ubicacion, pabellon, foto
             ) VALUES (
                 ".$idGrupo.", ".$idUsuarioSesion.", 318, '".$nombreLiderEscapado."', '".$nombreGrupoEscapado."', CURDATE(),
                 ".$generacionGrupo.", ".$grupoMadreSql.", '".$ubicacionEscapada."',
@@ -320,22 +309,17 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
                 ".$total_creyentes_grupo.", ".$nuevos_creyentes_grupo.", ".$total_bautizados_grupo.", ".$nuevos_bautizados_grupo.", ".$asistencia_grupo.",
                 ".$valoresMapeo["mapeo_oracion"].", ".$valoresMapeo["mapeo_companerismo"].", ".$valoresMapeo["mapeo_adoracion"].", ".$valoresMapeo["mapeo_biblia"].", ".$valoresMapeo["mapeo_evangelizar"].",
                 ".$valoresMapeo["mapeo_cena"].", ".$valoresMapeo["mapeo_dar"].", ".$valoresMapeo["mapeo_bautizar"].", ".$valoresMapeo["mapeo_trabajadores"].",
-                ".$comentarioSql.", ".$carcelUbicacionSql.", ".$pabellonSql.", ".$fotoSql.", ".$foto2Sql."
+                ".$comentarioSql.", ".$carcelUbicacionSql.", ".$pabellonSql.", ".$fotoSql."
             )";
             $PSN1->query($sqlInsert);
 
             $idReporteNuevo = $PSN1->ultimoId();
 
-            if($extFoto != "" || $extFoto2 != ""){
+            if($extFoto != ""){
                 if(!is_dir("archivos")){
                     mkdir("archivos", 0755, true);
                 }
-            }
-            if($extFoto != ""){
                 move_uploaded_file($_FILES["foto"]["tmp_name"], "archivos/facilitador_".$idReporteNuevo.".".$extFoto);
-            }
-            if($extFoto2 != ""){
-                move_uploaded_file($_FILES["foto2"]["tmp_name"], "archivos/facilitador_".$idReporteNuevo."_2.".$extFoto2);
             }
 
             /*
@@ -854,11 +838,6 @@ function valorPrevio($nombre, $default = ""){
                 <div class="ecu-field">
                     <label class="ecu-label">Foto <span class="ecu-req">*</span></label>
                     <input type="file" name="foto" id="fotoInput" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" required />
-                    <p class="ecu-foto-ayuda">Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
-                </div>
-                <div class="ecu-field">
-                    <label class="ecu-label">Segunda foto <span class="ecu-opt">(opcional, máximo 2 en total)</span></label>
-                    <input type="file" name="foto2" id="foto2Input" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" />
                     <p class="ecu-foto-ayuda">Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
                 </div>
                 <div class="ecu-field" style="margin-bottom:0;">

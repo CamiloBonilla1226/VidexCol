@@ -997,7 +997,7 @@ necesidad de tener formularios/tablas separados por programa:
 | `nuevos_bautizados_grupo` | número | |
 | `carcel_ubicacion` | texto | Solo aplica si `tipo_reporte = 318` (Facilitadores) |
 | `pabellon` | texto | Solo aplica si `tipo_reporte = 318` (Facilitadores) |
-| `foto` / `foto2` | archivo (hasta 2) | La primera es obligatoria al crear; la segunda es opcional. Extensión guardada en cada columna; archivo físico en disco |
+| `foto` | archivo | Obligatoria al crear. Extensión guardada en la columna; archivo físico en disco |
 | `mapeo_oracion` … `mapeo_trabajadores` | 9 campos, Sí/No (checkbox) | Mismo toggle visual e íconos que `gestionar-sub-programa-evangelistas.php` (`mapeo_img/{campo}2.png` + switch `.check`); se guarda `1` = Sí, `0` = No |
 | `comentario` | texto, opcional | Para ambos tipos de reporte |
 
@@ -1075,8 +1075,7 @@ CREATE TABLE ecu_reportes (
     carcel_ubicacion             VARCHAR(150)     NULL,       -- solo tipo_reporte = 318
     pabellon                      VARCHAR(150)     NULL,       -- solo tipo_reporte = 318
 
-    foto                          VARCHAR(10)      NULL,       -- extensión del archivo (jpg, png, etc.) — foto 1 de 2
-    foto2                          VARCHAR(10)      NULL,       -- extensión del archivo (jpg, png, etc.) — foto 2 de 2, opcional
+    foto                          VARCHAR(10)      NULL,       -- extensión del archivo (jpg, png, etc.)
 
     fecha_registro                TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- cuándo se insertó la fila
 
@@ -1124,15 +1123,6 @@ ALTER TABLE ecu_reportes ADD CONSTRAINT chk_ecu_reportes_mapeo CHECK (
     mapeo_dar BETWEEN 0 AND 1 AND mapeo_bautizar BETWEEN 0 AND 1 AND
     mapeo_trabajadores BETWEEN 0 AND 1
 );
-```
-
-⚠️ **Segunda migración pendiente en producción**: se agregó soporte para una
-segunda foto opcional por reporte (máximo 2), así que la tabla en
-producción necesita esta columna nueva antes de que
-`reportar_facilitador.php`/`editar_facilitador.php` puedan guardarla:
-
-```sql
-ALTER TABLE ecu_reportes ADD COLUMN foto2 VARCHAR(10) NULL AFTER foto;
 ```
 
 ## Decisiones técnicas y correcciones aplicadas

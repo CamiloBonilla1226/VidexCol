@@ -93,7 +93,7 @@ if($PSN1->num_rows() > 0){
 $totalPaginas = ceil($totalRegistros / $registros);
 
 $sqlLista = "SELECT r.idreporte, r.carcel_ubicacion, r.asistencia_hom, r.asistencia_muj, ";
-$sqlLista .= "r.asistencia_jov, r.asistencia_nin, r.asistencia_total, r.foto, r.foto2, r.fecha_inicio, ";
+$sqlLista .= "r.asistencia_jov, r.asistencia_nin, r.asistencia_total, r.foto, r.fecha_inicio, ";
 $sqlLista .= "u.nombre AS nombre_usuario ";
 $sqlLista .= "FROM ecu_reportes r LEFT JOIN usuario u ON u.id = r.idusuario ";
 $sqlLista .= "WHERE 1 ".$sqlFiltro." ORDER BY r.idreporte DESC ";
@@ -231,7 +231,7 @@ if($esAdmin){
             <tbody>
                 <?php if($totalRegistros > 0){
                     while($PSN1->next_record()){
-                        $tieneFoto = ($PSN1->f("foto") != "" || $PSN1->f("foto2") != "");
+                        $foto = $PSN1->f("foto");
                 ?>
                     <tr class="clickable-row" data-href="index.php?doc=editar_facilitador&idreporte=<?=$PSN1->f("idreporte"); ?>">
                         <td><?=str_pad($PSN1->f("idreporte"), 6, "0", STR_PAD_LEFT); ?></td>
@@ -243,7 +243,7 @@ if($esAdmin){
                         <td><?=$PSN1->f("asistencia_nin"); ?></td>
                         <td><strong><?=$PSN1->f("asistencia_total"); ?></strong></td>
                         <td align="center">
-                            <?php if($tieneFoto){ ?>
+                            <?php if($foto != ""){ ?>
                                 <i class="fas fa-thumbs-up ico-lik" title="Con foto"></i>
                             <?php }else{ ?>
                                 <i class="fas fa-thumbs-down ico-dli" title="Sin foto"></i>
