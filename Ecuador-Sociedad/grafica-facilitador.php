@@ -141,46 +141,6 @@ if($PSN1->num_rows() > 0){
 
 $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $totalReportes) : 0;
 
-/*
-*   Tendencia mensual: asistencia total por mes dentro del rango filtrado,
-*   para el gráfico de línea.
-*/
-$tendenciaMeses = array();
-if($totalReportes > 0){
-    $sqlTendencia = "SELECT DATE_FORMAT(fecha_inicio, '%Y-%m') AS mes, COALESCE(SUM(asistencia_total), 0) AS asistencia
-                      FROM ecu_reportes r
-                      WHERE 1 ".$sqlFiltro."
-                      GROUP BY mes ORDER BY mes ASC";
-    $PSN2->query($sqlTendencia);
-    while($PSN2->next_record()){
-        $tendenciaMeses[] = array(
-            "mes"        => $PSN2->f("mes"),
-            "asistencia" => intval($PSN2->f("asistencia")),
-        );
-    }
-}
-
-/*
-*   Ranking de facilitadores por asistencia total: solo tiene sentido para
-*   el admin (para un usuario normal siempre sería una sola barra, la suya).
-*/
-$rankingFacilitadores = array();
-if($esAdmin && $totalReportes > 0){
-    $sqlRanking = "SELECT u.nombre, COALESCE(SUM(r.asistencia_total), 0) AS asistencia
-                    FROM ecu_reportes r
-                    LEFT JOIN usuario u ON u.id = r.idusuario
-                    WHERE 1 ".$sqlFiltro."
-                    GROUP BY r.idusuario
-                    ORDER BY asistencia DESC
-                    LIMIT 10";
-    $PSN2->query($sqlRanking);
-    while($PSN2->next_record()){
-        $rankingFacilitadores[] = array(
-            "nombre"     => $PSN2->f("nombre"),
-            "asistencia" => intval($PSN2->f("asistencia")),
-        );
-    }
-}
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
 <style>
@@ -423,14 +383,6 @@ if($esAdmin && $totalReportes > 0){
             <div id="graficaAsistencia" class="ecu-grafica-box" style="height: 320px;"></div>
         </div>
 
-        <?php if(count($tendenciaMeses) > 1){ ?>
-            <div class="ecu-card">
-                <h4 class="ecu-section-title">Tendencia mensual</h4>
-                <p class="ecu-section-sub">Asistencia total reportada mes a mes.</p>
-                <div id="graficaTendencia" class="ecu-grafica-box" style="height: 320px;"></div>
-            </div>
-        <?php } ?>
-
         <div class="ecu-card">
             <h4 class="ecu-section-title">Crecimiento del grupo</h4>
             <p class="ecu-section-sub">Nuevos vs. totales acumulados, en creyentes y bautizados.</p>
@@ -442,14 +394,6 @@ if($esAdmin && $totalReportes > 0){
             <p class="ecu-section-sub">De <?=$totalReportes; ?> reportes, cuántos marcaron Sí en cada actividad.</p>
             <div id="graficaMapeo" class="ecu-grafica-box" style="height: 380px;"></div>
         </div>
-
-        <?php if($esAdmin && count($rankingFacilitadores) > 0){ ?>
-            <div class="ecu-card">
-                <h4 class="ecu-section-title">Top facilitadores por asistencia</h4>
-                <p class="ecu-section-sub">Los 10 con mayor asistencia acumulada en el rango filtrado.</p>
-                <div id="graficaRanking" class="ecu-grafica-box" style="height: 360px;"></div>
-            </div>
-        <?php } ?>
 
     <?php } ?>
 
@@ -483,25 +427,6 @@ if($esAdmin && $totalReportes > 0){
             chartArea: { width: "75%", height: "75%" }
         });
 
-        <?php if(count($tendenciaMeses) > 1){ ?>
-        var dataTendencia = google.visualization.arrayToDataTable([
-            ["Mes", "Asistencia total"],
-            <?php
-            $filasTendencia = array();
-            foreach($tendenciaMeses as $punto){
-                $filasTendencia[] = "['".$punto['mes']."', ".$punto['asistencia']."]";
-            }
-            echo implode(",\n            ", $filasTendencia);
-            ?>
-        ]);
-        new google.visualization.LineChart(document.getElementById("graficaTendencia")).draw(dataTendencia, {
-            legend: { position: "none" },
-            colors: [colorAzul],
-            pointSize: 6,
-            chartArea: { width: "85%", height: "70%" }
-        });
-        <?php } ?>
-
         var dataCrecimiento = google.visualization.arrayToDataTable([
             ["Indicador", "Nuevos", "Total acumulado"],
             ["Creyentes", <?=$totNuevosCreyentes; ?>, <?=$totCreyentes; ?>],
@@ -533,23 +458,6 @@ if($esAdmin && $totalReportes > 0){
             chartArea: { width: "60%", height: "85%" }
         });
 
-        <?php if($esAdmin && count($rankingFacilitadores) > 0){ ?>
-        var dataRanking = google.visualization.arrayToDataTable([
-            ["Facilitador", "Asistencia"],
-            <?php
-            $filasRanking = array();
-            foreach($rankingFacilitadores as $fila){
-                $filasRanking[] = "['".addslashes($fila['nombre'])."', ".$fila['asistencia']."]";
-            }
-            echo implode(",\n            ", $filasRanking);
-            ?>
-        ]);
-        new google.visualization.BarChart(document.getElementById("graficaRanking")).draw(dataRanking, {
-            legend: { position: "none" },
-            colors: [colorAzul],
-            chartArea: { width: "60%", height: "85%" }
-        });
-        <?php } ?>
     }
 </script>
 <?php } ?>
