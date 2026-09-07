@@ -178,7 +178,7 @@ while($PSN2->next_record()){
                 </div>
             <?php } ?>
             <div class="col-sm-3">
-                <strong>Dirección:</strong>
+                <strong>Ubicación:</strong>
                 <select name="direccionCarcel" onchange="this.form.submit()" class="form-control">
                     <option value="">Ver todas</option>
                     <?php foreach($listaDirecciones as $direccionItem){ ?>
