@@ -258,7 +258,7 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
     */
     .ecu-wrap .ecu-kpi-grid {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 14px;
         margin-bottom: 20px;
     }
@@ -269,6 +269,11 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
         padding: 16px;
         text-align: center;
     }
+    .ecu-wrap .ecu-kpi-card-grande {
+        border: 1.5px solid var(--azul);
+        background: var(--azul-tint);
+        padding: 20px 16px;
+    }
     .ecu-wrap .ecu-kpi-valor {
         font-family: 'Fraunces', Georgia, serif;
         font-weight: 500;
@@ -276,6 +281,9 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
         color: var(--azul-dark);
         margin: 0;
         line-height: 1.1;
+    }
+    .ecu-wrap .ecu-kpi-valor-grande {
+        font-size: 40px;
     }
     .ecu-wrap .ecu-kpi-label {
         font-size: 12px;
@@ -350,13 +358,9 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
                 <p class="ecu-kpi-valor"><?=$totalReportes; ?></p>
                 <p class="ecu-kpi-label">Reportes</p>
             </div>
-            <div class="ecu-kpi-card">
-                <p class="ecu-kpi-valor"><?=$totAsistenciaGrupo; ?></p>
+            <div class="ecu-kpi-card ecu-kpi-card-grande">
+                <p class="ecu-kpi-valor ecu-kpi-valor-grande"><?=$totAsistenciaGrupo; ?></p>
                 <p class="ecu-kpi-label">Asistencia del grupo (acumulada)</p>
-            </div>
-            <div class="ecu-kpi-card">
-                <p class="ecu-kpi-valor"><?=$totNuevosCreyentes; ?></p>
-                <p class="ecu-kpi-label">Nuevos creyentes</p>
             </div>
             <div class="ecu-kpi-card">
                 <p class="ecu-kpi-valor"><?=$carcelesAtendidas; ?></p>
