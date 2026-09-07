@@ -754,22 +754,24 @@ function valorPrevio($nombre, $default = ""){
                 <h4 class="ecu-section-title">Crecimiento del grupo</h4>
                 <p class="ecu-section-sub">Cifras acumuladas del grupo en el mes reportado.</p>
 
-                <div class="ecu-grid-4">
+                <div class="ecu-grid-2">
                     <div class="ecu-field">
-                        <label class="ecu-label">Porfavor ingrese los nuevos creyente</label>
-                        <input type="number" name="nuevos_creyentes_grupo" id="nuevos_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_creyentes_grupo', '0'); ?>" />
-                    </div>
-                    <div class="ecu-field">
-                        <label class="ecu-label">Porfavor ingrese el total de creyente</label>
+                        <label class="ecu-label">Por favor ingrese el total de creyentes:</label>
                         <input type="number" name="total_creyentes_grupo" id="total_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_creyentes_grupo', '0'); ?>" />
                     </div>
                     <div class="ecu-field">
-                        <label class="ecu-label">Porfavor ingrese los nuevos bautizados</label>
-                        <input type="number" name="nuevos_bautizados_grupo" id="nuevos_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_bautizados_grupo', '0'); ?>" />
+                        <label class="ecu-label">Por favor ingrese los nuevos creyentes:</label>
+                        <input type="number" name="nuevos_creyentes_grupo" id="nuevos_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_creyentes_grupo', '0'); ?>" />
+                    </div>
+                </div>
+                <div class="ecu-grid-2">
+                    <div class="ecu-field">
+                        <label class="ecu-label">Por favor ingrese el total de bautizados:</label>
+                        <input type="number" name="total_bautizados_grupo" id="total_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_bautizados_grupo', '0'); ?>" />
                     </div>
                     <div class="ecu-field">
-                        <label class="ecu-label">Porfavor ingrese el total de bautizados</label>
-                        <input type="number" name="total_bautizados_grupo" id="total_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_bautizados_grupo', '0'); ?>" />
+                        <label class="ecu-label">Por favor ingrese los nuevos bautizados:</label>
+                        <input type="number" name="nuevos_bautizados_grupo" id="nuevos_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_bautizados_grupo', '0'); ?>" />
                     </div>
                 </div>
 
