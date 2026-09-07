@@ -220,17 +220,24 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
     if($errorReporte == ""){
 
-        $asistencia_hom = intval($_POST["asistencia_hom"]);
-        $asistencia_muj = intval($_POST["asistencia_muj"]);
-        $asistencia_jov = intval($_POST["asistencia_jov"]);
-        $asistencia_nin = intval($_POST["asistencia_nin"]);
+        /*
+        *   Sección "Asistencia" comentada (ver HTML más abajo): mientras
+        *   esté oculta del formulario, estos 4 campos siempre quedan en 0.
+        */
+        // $asistencia_hom = intval($_POST["asistencia_hom"]);
+        // $asistencia_muj = intval($_POST["asistencia_muj"]);
+        // $asistencia_jov = intval($_POST["asistencia_jov"]);
+        // $asistencia_nin = intval($_POST["asistencia_nin"]);
+        $asistencia_hom = 0;
+        $asistencia_muj = 0;
+        $asistencia_jov = 0;
+        $asistencia_nin = 0;
         $total_creyentes_grupo = intval($_POST["total_creyentes_grupo"]);
         $nuevos_creyentes_grupo = intval($_POST["nuevos_creyentes_grupo"]);
         $total_bautizados_grupo = intval($_POST["total_bautizados_grupo"]);
         $nuevos_bautizados_grupo = intval($_POST["nuevos_bautizados_grupo"]);
 
         if(
-            $asistencia_hom < 0 || $asistencia_muj < 0 || $asistencia_jov < 0 || $asistencia_nin < 0 ||
             $total_creyentes_grupo < 0 || $nuevos_creyentes_grupo < 0 ||
             $total_bautizados_grupo < 0 || $nuevos_bautizados_grupo < 0
         ){
@@ -246,9 +253,10 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
         $asistencia_total = $asistencia_hom + $asistencia_muj + $asistencia_jov + $asistencia_nin;
         $asistencia_grupo = $total_creyentes_grupo + $nuevos_creyentes_grupo + $total_bautizados_grupo + $nuevos_bautizados_grupo;
 
-        if($errorReporte == "" && $asistencia_total <= 0){
-            $errorReporte = "La asistencia total debe ser mayor a 0.";
-        }
+        // Validación de asistencia total > 0 deshabilitada junto con la sección "Asistencia".
+        // if($errorReporte == "" && $asistencia_total <= 0){
+        //     $errorReporte = "La asistencia total debe ser mayor a 0.";
+        // }
 
         if($errorReporte == ""){
 
@@ -709,6 +717,7 @@ function valorPrevio($nombre, $default = ""){
 
             <hr class="ecu-divider" />
 
+            <?php /*
             <div class="ecu-seccion">
                 <h4 class="ecu-section-title">Asistencia</h4>
                 <p class="ecu-section-sub">Personas que asistieron este mes.</p>
@@ -739,6 +748,7 @@ function valorPrevio($nombre, $default = ""){
             </div>
 
             <hr class="ecu-divider" />
+            */ ?>
 
             <div class="ecu-seccion">
                 <h4 class="ecu-section-title">Crecimiento del grupo</h4>
@@ -921,13 +931,16 @@ function valorPrevio($nombre, $default = ""){
         }
 
         /*
-        *   Asistencia total y Asistencia del grupo: se muestran en vivo,
-        *   son de solo lectura (no editables por el usuario) y no se
-        *   validan entre sí (no hay tope de una sobre la otra).
+        *   Asistencia del grupo: se muestra en vivo, es de solo lectura
+        *   (no editable por el usuario).
+        *
+        *   La sección "Asistencia" (hom/muj/jov/nin) está comentada junto
+        *   con su HTML; se deja "camposAsistencia" y "actualizarAsistenciaTotal"
+        *   comentados para reactivarlos fácilmente si la sección vuelve.
         */
-        var camposAsistencia = ['asistencia_hom', 'asistencia_muj', 'asistencia_jov', 'asistencia_nin'];
+        // var camposAsistencia = ['asistencia_hom', 'asistencia_muj', 'asistencia_jov', 'asistencia_nin'];
         var camposCrecimiento = ['nuevos_creyentes_grupo', 'total_creyentes_grupo', 'nuevos_bautizados_grupo', 'total_bautizados_grupo'];
-        var asistenciaTotalMostrar = document.getElementById('asistencia_total_mostrar');
+        // var asistenciaTotalMostrar = document.getElementById('asistencia_total_mostrar');
         var asistenciaGrupoMostrar = document.getElementById('asistencia_grupo_mostrar');
 
         function sumarCampos(nombres){
@@ -948,30 +961,30 @@ function valorPrevio($nombre, $default = ""){
         *   nativo — igual que hace con cualquier otro campo requerido, sin
         *   modal propio.
         */
-        var asistenciaHomInput = document.getElementById('asistencia_hom');
+        // var asistenciaHomInput = document.getElementById('asistencia_hom');
 
-        function actualizarAsistenciaTotal(){
-            var total = sumarCampos(camposAsistencia);
-            if(asistenciaTotalMostrar){ asistenciaTotalMostrar.value = total; }
-            if(asistenciaHomInput){
-                asistenciaHomInput.setCustomValidity(total <= 0 ? 'La asistencia total debe ser mayor a 0.' : '');
-            }
-            return total;
-        }
+        // function actualizarAsistenciaTotal(){
+        //     var total = sumarCampos(camposAsistencia);
+        //     if(asistenciaTotalMostrar){ asistenciaTotalMostrar.value = total; }
+        //     if(asistenciaHomInput){
+        //         asistenciaHomInput.setCustomValidity(total <= 0 ? 'La asistencia total debe ser mayor a 0.' : '');
+        //     }
+        //     return total;
+        // }
 
         function actualizarAsistenciaGrupo(){
             if(asistenciaGrupoMostrar){ asistenciaGrupoMostrar.value = sumarCampos(camposCrecimiento); }
         }
 
-        camposAsistencia.forEach(function(nombre){
-            var input = document.getElementById(nombre);
-            if(input){ input.addEventListener('input', actualizarAsistenciaTotal); }
-        });
+        // camposAsistencia.forEach(function(nombre){
+        //     var input = document.getElementById(nombre);
+        //     if(input){ input.addEventListener('input', actualizarAsistenciaTotal); }
+        // });
         camposCrecimiento.forEach(function(nombre){
             var input = document.getElementById(nombre);
             if(input){ input.addEventListener('input', actualizarAsistenciaGrupo); }
         });
-        actualizarAsistenciaTotal();
+        // actualizarAsistenciaTotal();
         actualizarAsistenciaGrupo();
 
         /*
