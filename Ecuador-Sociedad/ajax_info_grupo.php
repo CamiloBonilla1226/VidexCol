@@ -32,11 +32,13 @@ $PSN1 = new DBbase_Sql;
 $PSN1->connect();
 
 /*
-*   El grupo debe pertenecer al usuario de sesión y no ser generación 0 ni 1
-*   (misma regla aplicada en gestionar-facilitador.php).
+*   El grupo debe pertenecer al usuario de sesión y ser tipo_actividad = 318
+*   (Facilitadores), salvo que sea el grupo OMS (generación 0), disponible
+*   para todos (misma regla aplicada en gestionar-facilitador.php).
 */
 $sql = "SELECT id_grupo, nombre_grupo, generacion, grupo_anterior, fecha_creacion, id_usuario FROM ecu_grupos ";
-$sql .= "WHERE id_grupo = ".$idGrupo." AND id_usuario = ".$idUsuarioSesion." AND generacion NOT IN (0,1) LIMIT 1";
+$sql .= "WHERE id_grupo = ".$idGrupo." AND (id_usuario = ".$idUsuarioSesion." OR generacion = 0) ";
+$sql .= "AND (tipo_actividad = 318 OR generacion = 0) LIMIT 1";
 $PSN1->query($sql);
 
 if($PSN1->num_rows() == 0){

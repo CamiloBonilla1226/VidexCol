@@ -23,6 +23,15 @@ if($idUsuarioSesion == 0){
 // Se abre la conexión para poder escapar cadenas de forma segura más abajo.
 $PSN1->connect();
 
+/*
+*   tipo_actividad: mismo código que ecu_reportes.tipo_reporte (318 =
+*   Facilitadores, 308 = ECC). Este archivo solo crea grupos de
+*   Facilitadores, así que queda fijo en 318 — el usuario nunca lo escribe
+*   a mano. El grupo OMS (generación 0) es la única excepción: su
+*   tipo_actividad es NULL porque es compartido por ambas actividades.
+*/
+$tipoActividadFormulario = 318;
+
 $errorGrupo = "";
 $exitoGrupo = "";
 $idGrupoSeleccionado = isset($_REQUEST["idgrupo"]) ? intval($_REQUEST["idgrupo"]) : 0;
@@ -48,16 +57,34 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "crear_grupo"){
 
         if($grupo_anterior > 0){
             /*
-            *   El grupo "padre" debe pertenecer al usuario de sesión.
-            *   Generación 0 y 1 nunca aparecen aquí (no viven en ecu_grupos
-            *   con id_usuario de un facilitador, ver documentación).
+            *   El grupo "padre" debe pertenecer al usuario de sesión, salvo
+            *   que sea el grupo OMS (generación 0, compartido por todos y
+            *   con id_usuario del admin/sistema, no del facilitador).
             */
-            $sqlPadre = "SELECT generacion FROM ecu_grupos WHERE id_grupo = ".$grupo_anterior." AND id_usuario = ".$idUsuarioSesion." LIMIT 1";
+            $sqlPadre = "SELECT generacion, tipo_actividad FROM ecu_grupos ";
+            $sqlPadre .= "WHERE id_grupo = ".$grupo_anterior." AND (id_usuario = ".$idUsuarioSesion." OR generacion = 0) LIMIT 1";
             $PSN2->query($sqlPadre);
             if($PSN2->num_rows() > 0){
                 $PSN2->next_record();
-                $generacion = intval($PSN2->f("generacion")) + 1;
-                $grupoAnteriorSql = $grupo_anterior;
+                $generacionPadre = intval($PSN2->f("generacion"));
+                $tipoActividadPadre = $PSN2->f("tipo_actividad");
+
+                if($generacionPadre == 0){
+                    /*
+                    *   Padre = OMS: cualquier tipo_actividad es válido para
+                    *   el hijo. La generación sigue siendo 2 (no 1) porque
+                    *   la generación 1 es virtual y nunca vive en esta
+                    *   tabla — elegir OMS como antecesor es equivalente a
+                    *   no elegir ninguno.
+                    */
+                    $generacion = 2;
+                    $grupoAnteriorSql = $grupo_anterior;
+                }else if(intval($tipoActividadPadre) != $tipoActividadFormulario){
+                    $errorGrupo = "El tipo de actividad del grupo no coincide con el de su grupo antecesor.";
+                }else{
+                    $generacion = $generacionPadre + 1;
+                    $grupoAnteriorSql = $grupo_anterior;
+                }
             }else{
                 $errorGrupo = "El grupo seleccionado como antecesor no es válido.";
             }
@@ -66,8 +93,8 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "crear_grupo"){
         if($errorGrupo == ""){
             $nombreGrupoEscapado = mysqli_real_escape_string($PSN1->Link_ID, $nombre_grupo);
 
-            $sqlInsert = "INSERT INTO ecu_grupos (nombre_grupo, id_usuario, generacion, grupo_anterior, fecha_creacion) ";
-            $sqlInsert .= "VALUES ('".$nombreGrupoEscapado."', ".$idUsuarioSesion.", ".$generacion.", ".$grupoAnteriorSql.", CURDATE())";
+            $sqlInsert = "INSERT INTO ecu_grupos (nombre_grupo, id_usuario, generacion, grupo_anterior, tipo_actividad, fecha_creacion) ";
+            $sqlInsert .= "VALUES ('".$nombreGrupoEscapado."', ".$idUsuarioSesion.", ".$generacion.", ".$grupoAnteriorSql.", ".$tipoActividadFormulario.", CURDATE())";
             $PSN1->query($sqlInsert);
 
             $idGrupoSeleccionado = $PSN1->ultimoId();
@@ -99,7 +126,9 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "seleccionar_grupo"){
 
 /*
 *   VALIDACIÓN: el grupo seleccionado (venga de crear o de elegir) debe
-*   pertenecer al usuario de sesión y no ser generación 0 ni 1.
+*   pertenecer al usuario de sesión y ser de tipo_actividad = 318
+*   (Facilitadores) — salvo que sea el grupo OMS (generación 0), que
+*   siempre está disponible para todos los usuarios y actividades.
 */
 $nombreCreadorGrupo = "";
 $totalReportesGrupo = 0;
@@ -109,7 +138,8 @@ $generacionAnteriorMensaje = null;
 
 if($idGrupoSeleccionado > 0){
     $sqlValida = "SELECT id_grupo, nombre_grupo, generacion, grupo_anterior, fecha_creacion, id_usuario FROM ecu_grupos ";
-    $sqlValida .= "WHERE id_grupo = ".$idGrupoSeleccionado." AND id_usuario = ".$idUsuarioSesion." AND generacion NOT IN (0,1) LIMIT 1";
+    $sqlValida .= "WHERE id_grupo = ".$idGrupoSeleccionado." AND (id_usuario = ".$idUsuarioSesion." OR generacion = 0) ";
+    $sqlValida .= "AND (tipo_actividad = ".$tipoActividadFormulario." OR generacion = 0) LIMIT 1";
     $PSN1->query($sqlValida);
     if($PSN1->num_rows() > 0){
         $PSN1->next_record();
@@ -187,12 +217,16 @@ if($idGrupoSeleccionado > 0){
 
 /*
 *   LISTADO DE GRUPOS DISPONIBLES PARA EL USUARIO DE SESIÓN
-*   (excluye generación 0 y 1; sirve tanto para elegir grupo como para
-*   ofrecer las opciones de "grupo_anterior" al crear uno nuevo)
+*   (tipo_actividad = 318 (Facilitadores) o generación 0 — el grupo OMS
+*   siempre está disponible, para todos los usuarios y actividades; la
+*   generación 1 nunca aparece porque no vive en esta tabla. Sirve tanto
+*   para elegir grupo como para ofrecer las opciones de "grupo_anterior"
+*   al crear uno nuevo.)
 */
 $gruposDisponibles = array();
 $sqlGrupos = "SELECT id_grupo, nombre_grupo, generacion, grupo_anterior, fecha_creacion ";
-$sqlGrupos .= "FROM ecu_grupos WHERE id_usuario = ".$idUsuarioSesion." AND generacion NOT IN (0,1) ";
+$sqlGrupos .= "FROM ecu_grupos WHERE (id_usuario = ".$idUsuarioSesion." OR generacion = 0) ";
+$sqlGrupos .= "AND (tipo_actividad = ".$tipoActividadFormulario." OR generacion = 0) ";
 $sqlGrupos .= "ORDER BY fecha_creacion DESC, id_grupo DESC";
 $PSN1->query($sqlGrupos);
 if($PSN1->num_rows() > 0){
@@ -816,10 +850,11 @@ if($nombreCreadorGrupo !== ""){
         <div class="ecu-card ecu-panel-reporte">
             <div class="ecu-panel-header">
                 <h4 class="ecu-section-title">Información del grupo</h4>
-                <a href="<?php echo ($idGrupoSeleccionado > 0) ? 'index.php?doc=reportar_facilitador&idgrupo='.$idGrupoSeleccionado : '#'; ?>"
+                <?php $puedeGenerarReporte = ($idGrupoSeleccionado > 0 && intval($generacionGrupoSeleccionado) != 0); ?>
+                <a href="<?php echo $puedeGenerarReporte ? 'index.php?doc=reportar_facilitador&idgrupo='.$idGrupoSeleccionado : '#'; ?>"
                    id="ecuBtnReporte"
                    class="ecu-btn ecu-btn-primary ecu-btn-slim"
-                   style="text-decoration:none; display:<?php echo ($idGrupoSeleccionado > 0) ? 'inline-block' : 'none'; ?>;">Generar reporte</a>
+                   style="text-decoration:none; display:<?php echo $puedeGenerarReporte ? 'inline-block' : 'none'; ?>;">Generar reporte</a>
             </div>
 
             <div id="ecuPanelInfo">
@@ -874,18 +909,22 @@ if($nombreCreadorGrupo !== ""){
                     </div>
                 </div>
 
-                <div class="ecu-panel-actions">
-                    <button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim" data-action="iniciar-edicion">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-                        Editar
-                    </button>
-                    <button type="button" class="ecu-btn ecu-btn-primary ecu-btn-slim oculto" data-action="guardar-nombre">Guardar</button>
-                    <button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>
-                    <button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
-                        Eliminar grupo
-                    </button>
-                </div>
+                <?php if(intval($generacionGrupoSeleccionado) != 0){ ?>
+                    <div class="ecu-panel-actions">
+                        <button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim" data-action="iniciar-edicion">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+                            Editar
+                        </button>
+                        <button type="button" class="ecu-btn ecu-btn-primary ecu-btn-slim oculto" data-action="guardar-nombre">Guardar</button>
+                        <button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>
+                        <button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+                            Eliminar grupo
+                        </button>
+                    </div>
+                <?php }else{ ?>
+                    <p class="ecu-section-sub" style="margin-top:auto;">El grupo OMS es la raíz compartida del sistema: no se puede editar ni eliminar.</p>
+                <?php } ?>
             <?php }else{ ?>
                 <div class="ecu-banner ecu-warning" style="margin: auto 0;">Seleccione o cree un grupo para ver su información.</div>
             <?php } ?>
@@ -973,18 +1012,22 @@ if($nombreCreadorGrupo !== ""){
                             '<p class="ecu-meta-value">' + escaparHtml(data.creado_por) + '</p>' +
                         '</div>' +
                     '</div>';
-            html += '<div class="ecu-panel-actions">' +
-                        '<button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim" data-action="iniciar-edicion">' +
-                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>' +
-                            'Editar' +
-                        '</button>' +
-                        '<button type="button" class="ecu-btn ecu-btn-primary ecu-btn-slim oculto" data-action="guardar-nombre">Guardar</button>' +
-                        '<button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>' +
-                        '<button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">' +
-                            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>' +
-                            'Eliminar grupo' +
-                        '</button>' +
-                    '</div>';
+            if(parseInt(data.generacion, 10) !== 0){
+                html += '<div class="ecu-panel-actions">' +
+                            '<button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim" data-action="iniciar-edicion">' +
+                                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>' +
+                                'Editar' +
+                            '</button>' +
+                            '<button type="button" class="ecu-btn ecu-btn-primary ecu-btn-slim oculto" data-action="guardar-nombre">Guardar</button>' +
+                            '<button type="button" class="ecu-btn ecu-btn-azul-outline ecu-btn-slim oculto" data-action="cancelar-nombre">Cancelar</button>' +
+                            '<button type="button" class="ecu-btn ecu-btn-danger ecu-btn-slim" data-action="eliminar-grupo">' +
+                                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>' +
+                                'Eliminar grupo' +
+                            '</button>' +
+                        '</div>';
+            }else{
+                html += '<p class="ecu-section-sub" style="margin-top:auto;">El grupo OMS es la raíz compartida del sistema: no se puede editar ni eliminar.</p>';
+            }
             return html;
         }
 
@@ -1083,9 +1126,9 @@ if($nombreCreadorGrupo !== ""){
             });
         }
 
-        function actualizarBotonReporte(idGrupo){
+        function actualizarBotonReporte(idGrupo, generacion){
             if(!btnReporte){ return; }
-            if(idGrupo){
+            if(idGrupo && parseInt(generacion, 10) !== 0){
                 btnReporte.href = 'index.php?doc=reportar_facilitador&idgrupo=' + encodeURIComponent(idGrupo);
                 btnReporte.style.display = 'inline-block';
             }else{
@@ -1106,7 +1149,7 @@ if($nombreCreadorGrupo !== ""){
                         return;
                     }
                     panelInfo.innerHTML = construirHtmlInfo(data);
-                    actualizarBotonReporte(data.id_grupo);
+                    actualizarBotonReporte(data.id_grupo, data.generacion);
                 })
                 .catch(function(){
                     panelInfo.innerHTML = '<div class="ecu-banner ecu-error">Ocurrió un error al consultar el grupo.</div>';

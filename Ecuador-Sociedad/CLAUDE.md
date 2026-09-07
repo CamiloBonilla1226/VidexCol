@@ -957,6 +957,7 @@ CREATE TABLE ecu_grupos (
     id_usuario      INT(11)          NOT NULL,   -- quién creó el grupo (sin FK, ver nota arriba)
     generacion      TINYINT UNSIGNED NOT NULL DEFAULT 0,
     grupo_anterior  INT UNSIGNED     NULL,        -- NULL = sin antecesor (grupo creado directo desde OMS)
+    tipo_actividad  SMALLINT UNSIGNED NULL,       -- mismo código que ecu_reportes.tipo_reporte (318/308); NULL solo para OMS
     fecha_creacion  DATE             NOT NULL,
 
     CONSTRAINT fk_ecu_grupos_anterior
@@ -968,12 +969,46 @@ CREATE TABLE ecu_grupos (
 
 -- Semilla obligatoria: grupo generación 0 ("OMS"), único para todo el sistema.
 -- Reemplazar el id_usuario (1) por el del usuario admin/sistema real.
-INSERT INTO ecu_grupos (id_grupo, nombre_grupo, id_usuario, generacion, grupo_anterior, fecha_creacion)
-VALUES (1, 'OMS', 1, 0, NULL, CURDATE());
+INSERT INTO ecu_grupos (id_grupo, nombre_grupo, id_usuario, generacion, grupo_anterior, tipo_actividad, fecha_creacion)
+VALUES (1, 'OMS', 1, 0, NULL, NULL, CURDATE());
 ```
 
 Estado: **ejecutado y verificado en producción** (tabla creada, fila OMS
 insertada correctamente).
+
+### Columna `tipo_actividad` (agregada el 07-sep-2026)
+
+Distingue a qué actividad pertenece cada grupo, con el mismo código que
+`ecu_reportes.tipo_reporte`: **318** = Facilitadores, **308** = ECC.
+
+- **Generación 0 (OMS)** → `tipo_actividad = NULL`. Es la raíz única,
+  compartida por ambas actividades — no le pertenece a ninguna en
+  particular.
+- **Generación 1** → no aplica (sigue sin vivir en esta tabla, se calcula al
+  vuelo desde `usuario_empresa.empresa_proceso`).
+- **Generación 2 en adelante** → se asigna automáticamente según el
+  formulario de creación (318 en `gestionar-facilitador.php`, 308 en el
+  formulario equivalente de ECC cuando exista). El usuario nunca lo escribe
+  a mano.
+- **Validación al crear un grupo**: el `tipo_actividad` del grupo nuevo debe
+  coincidir con el de su `grupo_anterior`, **salvo que el padre sea OMS**
+  (generación 0, `tipo_actividad NULL`), caso en el que se acepta cualquier
+  `tipo_actividad` para el hijo — y la generación del hijo sigue siendo 2
+  (no 1), porque elegir OMS como antecesor equivale a no elegir ninguno.
+- **Listado de grupos disponibles** (para seleccionar grupo o para el combo
+  "Crear a partir de"): se filtra por `tipo_actividad = <código de la
+  actividad> OR generacion = 0` — el grupo OMS siempre aparece disponible,
+  para cualquier usuario y cualquier actividad, sea o no su dueño real
+  (`id_usuario`). Implementado en `gestionar-facilitador.php` y replicado en
+  `ajax_info_grupo.php` (misma validación, para la carga por AJAX).
+- **Edición/eliminación de un grupo** (`ajax_grupo_accion.php`) sigue
+  restringida a `id_usuario = sesión`, sin la excepción de OMS — aunque OMS
+  ahora es *seleccionable*, sigue sin ser editable ni eliminable por ningún
+  facilitador (la interfaz oculta esos botones cuando `generacion = 0`).
+- **Generar reporte** sobre OMS sigue bloqueado: `reportar_facilitador.php`
+  mantiene su validación original (`generacion NOT IN (0,1)`), así que el
+  botón "Generar reporte" se oculta en la interfaz cuando el grupo
+  seleccionado es OMS, para no ofrecer una acción que el backend rechazaría.
 
 ## Reportes unificados: `ecu_reportes`
 
