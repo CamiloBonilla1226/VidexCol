@@ -92,8 +92,8 @@ if($PSN1->num_rows() > 0){
 }
 $totalPaginas = ceil($totalRegistros / $registros);
 
-$sqlLista = "SELECT r.idreporte, r.carcel_ubicacion, r.asistencia_hom, r.asistencia_muj, ";
-$sqlLista .= "r.asistencia_jov, r.asistencia_nin, r.asistencia_total, r.foto, r.fecha_inicio, ";
+$sqlLista = "SELECT r.idreporte, r.carcel_ubicacion, r.total_creyentes_grupo, r.nuevos_creyentes_grupo, ";
+$sqlLista .= "r.total_bautizados_grupo, r.nuevos_bautizados_grupo, r.asistencia_grupo, r.foto, r.fecha_inicio, ";
 $sqlLista .= "u.nombre AS nombre_usuario ";
 $sqlLista .= "FROM ecu_reportes r LEFT JOIN usuario u ON u.id = r.idusuario ";
 $sqlLista .= "WHERE 1 ".$sqlFiltro." ORDER BY r.idreporte DESC ";
@@ -220,11 +220,11 @@ if($esAdmin){
                     <th width="80px">ID reporte</th>
                     <th width="220px">Miembro de la Regional</th>
                     <th width="220px">Cárcel</th>
-                    <th width="70px" title="Hombres">Hombres</th>
-                    <th width="70px" title="Mujeres">Mujeres</th>
-                    <th width="70px" title="Jóvenes">Jóvenes</th>
-                    <th width="70px" title="Niños">Niños</th>
-                    <th width="70px" title="Asistencia total">Total</th>
+                    <th width="70px" title="Total creyentes">Total creyentes</th>
+                    <th width="70px" title="Nuevos creyentes">Nuevos creyentes</th>
+                    <th width="70px" title="Total bautizados">Total bautizados</th>
+                    <th width="70px" title="Nuevos bautizados">Nuevos bautizados</th>
+                    <th width="70px" title="Asistencia del grupo">Asistencia del grupo</th>
                     <th width="60px">Foto</th>
                 </tr>
             </thead>
@@ -237,11 +237,11 @@ if($esAdmin){
                         <td><?=str_pad($PSN1->f("idreporte"), 6, "0", STR_PAD_LEFT); ?></td>
                         <td><?=htmlspecialchars($PSN1->f("nombre_usuario"), ENT_QUOTES, "UTF-8"); ?></td>
                         <td><?=htmlspecialchars($PSN1->f("carcel_ubicacion"), ENT_QUOTES, "UTF-8"); ?></td>
-                        <td><?=$PSN1->f("asistencia_hom"); ?></td>
-                        <td><?=$PSN1->f("asistencia_muj"); ?></td>
-                        <td><?=$PSN1->f("asistencia_jov"); ?></td>
-                        <td><?=$PSN1->f("asistencia_nin"); ?></td>
-                        <td><strong><?=$PSN1->f("asistencia_total"); ?></strong></td>
+                        <td><?=$PSN1->f("total_creyentes_grupo"); ?></td>
+                        <td><?=$PSN1->f("nuevos_creyentes_grupo"); ?></td>
+                        <td><?=$PSN1->f("total_bautizados_grupo"); ?></td>
+                        <td><?=$PSN1->f("nuevos_bautizados_grupo"); ?></td>
+                        <td><strong><?=$PSN1->f("asistencia_grupo"); ?></strong></td>
                         <td align="center">
                             <?php if($foto != ""){ ?>
                                 <i class="fas fa-thumbs-up ico-lik" title="Con foto"></i>
