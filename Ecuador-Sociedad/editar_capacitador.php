@@ -1,10 +1,10 @@
 <?php
 /*
-*   Formulario de reporte de un grupo de Capacitadores.
-*   Inserta en ecu_reportes con tipo_reporte = 308 (fijo). Solo es accesible
-*   después de haber seleccionado un grupo en gestionar-capacitador.php
-*   (Punto 1: selección/creación de grupo). Ver CLAUDE.md, sección
-*   "Unificación de Capacitadores y ECC".
+*   Edición de un reporte de Capacitadores (ecu_reportes, tipo_reporte = 308).
+*   Se llega aquí desde consultar-capacitador.php (clic en una fila). Mismo
+*   formulario y estilo que reportar_capacitador.php, pero prediligenciado
+*   y con UPDATE en vez de INSERT. Ver CLAUDE.md, sección "Unificación de
+*   Capacitadores y ECC".
 */
 $PSN1 = new DBbase_Sql;
 $PSN2 = new DBbase_Sql;
@@ -21,51 +21,83 @@ if($idUsuarioSesion == 0){
 
 $PSN1->connect();
 
-$idGrupo = isset($_REQUEST["idgrupo"]) ? intval($_REQUEST["idgrupo"]) : 0;
+/*
+*   Permisos de VISUALIZACIÓN: usuario.tipo = 2 (admin) puede ver cualquier
+*   reporte de Capacitadores; cualquier otro usuario solo puede ver los
+*   suyos (misma regla usada en consultar-capacitador.php). Permisos de
+*   EDICIÓN/ELIMINACIÓN: ver $puedeEditar más abajo — solo el admin.
+*/
+$usuarioTipo = 0;
+$PSN2->query("SELECT tipo FROM usuario WHERE id = ".$idUsuarioSesion." LIMIT 1");
+if($PSN2->num_rows() > 0){
+    $PSN2->next_record();
+    $usuarioTipo = intval($PSN2->f("tipo"));
+}
+$esAdmin = ($usuarioTipo == 2);
 
 /*
-*   El grupo debe pertenecer al usuario de sesión y no ser generación 0 ni 1
-*   (misma regla que en gestionar-capacitador.php: esas generaciones no
-*   viven en ecu_grupos como grupos "reportables" por un capacitador).
+*   Solo el administrador puede editar o eliminar un reporte. Cualquier
+*   otro usuario que sea dueño del reporte puede abrir esta pantalla, pero
+*   únicamente para consultarlo (formulario de solo lectura, sin botones de
+*   guardar/eliminar).
 */
-$nombreGrupo = "";
-$generacionGrupo = 0;
-$grupoValido = false;
+$puedeEditar = $esAdmin;
 
-if($idGrupo > 0){
-    $sqlGrupo = "SELECT id_grupo, nombre_grupo, generacion FROM ecu_grupos ";
-    $sqlGrupo .= "WHERE id_grupo = ".$idGrupo." AND id_usuario = ".$idUsuarioSesion." AND generacion NOT IN (0,1) LIMIT 1";
-    $PSN1->query($sqlGrupo);
+$idReporte = isset($_REQUEST["idreporte"]) ? intval($_REQUEST["idreporte"]) : 0;
+
+$reporte = null;
+if($idReporte > 0){
+    $sqlReporte = "SELECT r.*, u.nombre AS nombre_usuario_reporta FROM ecu_reportes r
+                   LEFT JOIN usuario u ON u.id = r.idusuario
+                   WHERE r.idreporte = ".$idReporte." AND r.tipo_reporte = 308 LIMIT 1";
+    $PSN1->query($sqlReporte);
     if($PSN1->num_rows() > 0){
         $PSN1->next_record();
-        $nombreGrupo = $PSN1->f("nombre_grupo");
-        $generacionGrupo = intval($PSN1->f("generacion"));
-        $grupoValido = true;
+        $idUsuarioDelReporte = intval($PSN1->f("idusuario"));
+        if($esAdmin || $idUsuarioDelReporte == $idUsuarioSesion){
+            $reporte = array(
+                "idreporte"               => intval($PSN1->f("idreporte")),
+                "idgrupo"                 => intval($PSN1->f("idgrupo")),
+                "idusuario"               => $idUsuarioDelReporte,
+                "nombre_usuario_reporta"  => $PSN1->f("nombre_usuario_reporta"),
+                "nombre_grupo"            => $PSN1->f("nombre_grupo"),
+                "generacion"              => intval($PSN1->f("generacion")),
+                "fecha_inicio"            => $PSN1->f("fecha_inicio"),
+                "nombre_lider"            => $PSN1->f("nombre_lider"),
+                "ubicacion"               => $PSN1->f("ubicacion"),
+                "asistencia_hom"          => intval($PSN1->f("asistencia_hom")),
+                "asistencia_muj"          => intval($PSN1->f("asistencia_muj")),
+                "asistencia_jov"          => intval($PSN1->f("asistencia_jov")),
+                "asistencia_nin"          => intval($PSN1->f("asistencia_nin")),
+                "total_creyentes_grupo"   => intval($PSN1->f("total_creyentes_grupo")),
+                "nuevos_creyentes_grupo"  => intval($PSN1->f("nuevos_creyentes_grupo")),
+                "total_bautizados_grupo"  => intval($PSN1->f("total_bautizados_grupo")),
+                "nuevos_bautizados_grupo" => intval($PSN1->f("nuevos_bautizados_grupo")),
+                "comentario"              => $PSN1->f("comentario"),
+                "foto"                    => $PSN1->f("foto"),
+                "mapeo_oracion"           => intval($PSN1->f("mapeo_oracion")),
+                "mapeo_companerismo"      => intval($PSN1->f("mapeo_companerismo")),
+                "mapeo_adoracion"         => intval($PSN1->f("mapeo_adoracion")),
+                "mapeo_biblia"            => intval($PSN1->f("mapeo_biblia")),
+                "mapeo_evangelizar"       => intval($PSN1->f("mapeo_evangelizar")),
+                "mapeo_cena"              => intval($PSN1->f("mapeo_cena")),
+                "mapeo_dar"               => intval($PSN1->f("mapeo_dar")),
+                "mapeo_bautizar"          => intval($PSN1->f("mapeo_bautizar")),
+                "mapeo_trabajadores"      => intval($PSN1->f("mapeo_trabajadores")),
+            );
+        }
     }
 }
 
-/*
-*   Datos informativos de cabecera (solo lectura, nunca editables): el
-*   usuario que reporta, el grupo, su generación y la fecha del reporte.
-*/
-$nombreUsuarioReporta = "";
-$PSN8 = new DBbase_Sql;
-$PSN8->query("SELECT nombre FROM usuario WHERE id = ".$idUsuarioSesion." LIMIT 1");
-if($PSN8->num_rows() > 0){
-    $PSN8->next_record();
-    $nombreUsuarioReporta = $PSN8->f("nombre");
-}
-$fechaReporteHoy = date("d/m/Y");
-
-if(!$grupoValido){
+if($reporte === null){
     ?>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
     <div class="ecu-wrap">
         <p class="ecu-eyebrow">ECU · Reportes</p>
-        <h3 class="ecu-title">Reporte de <?=$temp_letrero; ?></h3>
-        <div class="ecu-banner ecu-error">No se encontró el grupo seleccionado, o no le pertenece a su usuario. Vuelva a la lista de grupos e inténtelo de nuevo.</div>
+        <h3 class="ecu-title">Editar reporte de <?=$temp_letrero; ?></h3>
+        <div class="ecu-banner ecu-error">No se encontró el reporte solicitado, o no tiene permiso para editarlo.</div>
         <div class="ecu-btn-row">
-            <a href="index.php?doc=gestionar-capacitador" class="ecu-btn ecu-btn-secondary" style="text-decoration:none;">Volver a mis grupos</a>
+            <a href="index.php?doc=consultar-capacitador" class="ecu-btn ecu-btn-secondary" style="text-decoration:none;">Volver a consultar reportes</a>
         </div>
     </div>
     <?php
@@ -73,42 +105,40 @@ if(!$grupoValido){
 }
 
 /*
-*   "Grupo madre": grupo de generación 1 del USUARIO QUE REPORTA (no del
-*   creador del grupo seleccionado), calculado a partir de
-*   usuario_empresa.empresa_proceso -> categorias.descripcion. Es una
-*   fotografía en texto tomada al momento de guardar, no una relación (ver
-*   CLAUDE.md, sección "ecu_reportes").
+*   Navegación anterior/siguiente: mismo criterio de visibilidad que el
+*   resto de la pantalla (el admin navega entre todos los reportes de
+*   Capacitadores; cualquier otro usuario solo entre los suyos).
 */
-$grupoMadre = null;
-$sqlProceso = "SELECT empresa_proceso FROM usuario_empresa WHERE idUsuario = ".$idUsuarioSesion." LIMIT 1";
-$PSN2->query($sqlProceso);
+$sqlAmbito = " AND tipo_reporte = 308";
+if(!$esAdmin){
+    $sqlAmbito .= " AND idusuario = ".$idUsuarioSesion;
+}
+
+$idReporteAnterior = 0;
+$PSN2->query("SELECT MAX(idreporte) AS id FROM ecu_reportes WHERE idreporte < ".$idReporte.$sqlAmbito);
 if($PSN2->num_rows() > 0){
     $PSN2->next_record();
-    $empresaProcesoId = intval($PSN2->f("empresa_proceso"));
-    if($empresaProcesoId > 0){
-        $PSN3 = new DBbase_Sql;
-        $sqlCategoria = "SELECT descripcion FROM categorias WHERE id = ".$empresaProcesoId." LIMIT 1";
-        $PSN3->query($sqlCategoria);
-        if($PSN3->num_rows() > 0){
-            $PSN3->next_record();
-            $grupoMadre = $PSN3->f("descripcion");
-        }
-    }
+    $idReporteAnterior = intval($PSN2->f("id"));
+}
+
+$idReporteSiguiente = 0;
+$PSN2->query("SELECT MIN(idreporte) AS id FROM ecu_reportes WHERE idreporte > ".$idReporte.$sqlAmbito);
+if($PSN2->num_rows() > 0){
+    $PSN2->next_record();
+    $idReporteSiguiente = intval($PSN2->f("id"));
 }
 
 $errorReporte = "";
 $exitoReporte = "";
 
-if(isset($_GET["creado"]) && $_GET["creado"] == "1"){
-    $exitoReporte = "Reporte guardado correctamente.";
+if(isset($_GET["actualizado"]) && $_GET["actualizado"] == "1"){
+    $exitoReporte = "Reporte actualizado correctamente.";
 }
 
 /*
-*   Ítems del "Método de verificación" (mapeo_*). Mismo set de 9 campos que
-*   sat_reportes, pero con la escala de 4 niveles de subcategoria-ecc.php
-*   (1 = No realizan la tarea, 2 = En compañía del entrenador,
-*   3 = La realizan pero este mes no lo hicieron, 4 = La realizan
-*   autónomamente), en vez del toggle Sí/No usado en Facilitadores.
+*   Ítems del "Método de verificación" (mapeo_*): mismo checkbox Sí/No,
+*   mismos íconos e igual switch visual que reportar_capacitador.php /
+*   gestionar-sub-programa-evangelistas.php.
 */
 $camposMapeo = array(
     "mapeo_oracion"      => "Orar",
@@ -122,50 +152,35 @@ $camposMapeo = array(
     "mapeo_trabajadores" => "Entrenar nuevos líderes",
 );
 
-$opcionesMapeo = array(
-    1 => "No realizan la tarea",
-    2 => "La realizan en compañía del entrenador",
-    3 => "La realizan, pero este mes no la hicieron",
-    4 => "La realizan autónomamente",
-);
-
 /*
-*   GUARDAR REPORTE
+*   ACTUALIZAR REPORTE
 */
-if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
+if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_reporte"){
 
     $nombre_lider = trim($_POST["nombre_lider"]);
-    $ubicacion = trim($_POST["ubicacion"]);
+    $ubicacionPostulada = trim($_POST["ubicacion"]);
 
     /*
-    *   Escala 1-4 (igual que subcategoria-ecc.php): se valida en el
-    *   servidor que el valor recibido esté dentro del rango, sin confiar en
-    *   que el navegador solo permita esas 4 opciones; si llega algo fuera
-    *   de rango (o nada), se guarda 1 (No realizan la tarea) por defecto.
+    *   Checkbox Sí/No: si no viene marcado, el navegador no envía el
+    *   campo — se guarda 0 (No) en ese caso.
     */
     $valoresMapeo = array();
     foreach($camposMapeo as $campo => $etiqueta){
-        $valorPostulado = isset($_POST[$campo]) ? intval($_POST[$campo]) : 1;
-        $valoresMapeo[$campo] = ($valorPostulado >= 1 && $valorPostulado <= 4) ? $valorPostulado : 1;
+        $valoresMapeo[$campo] = (isset($_POST[$campo]) && $_POST[$campo] == "1") ? 1 : 0;
     }
 
     if($nombre_lider == ""){
         $errorReporte = "El nombre del líder es obligatorio.";
-    }else if($ubicacion == ""){
+    }else if($ubicacionPostulada == ""){
         $errorReporte = "La ubicación es obligatoria.";
-    }else if(!isset($_FILES["foto"]) || $_FILES["foto"]["error"] != UPLOAD_ERR_OK || $_FILES["foto"]["name"] == ""){
-        $errorReporte = "La foto es obligatoria.";
     }
 
+    /*
+    *   La foto es opcional al editar: si no se sube una nueva, se
+    *   conserva la que ya tenía el reporte.
+    */
     $extFoto = "";
     if($errorReporte == ""){
-        /*
-        *   Foto: solo se guarda la extensión en la columna `foto`; el
-        *   archivo físico se mueve después del INSERT, usando el id recién
-        *   generado en el nombre (misma convención de
-        *   gestionar-sub-programa-evangelistas.php: "archivos/evi_{id}_1.{ext}",
-        *   adaptada aquí como "archivos/capacitador_{id}.{ext}").
-        */
         $extensionesPermitidas = array("jpg", "jpeg", "png", "gif", "webp");
         if(isset($_FILES["foto"]) && $_FILES["foto"]["error"] == UPLOAD_ERR_OK && $_FILES["foto"]["name"] != ""){
             $extFoto = strtolower(pathinfo($_FILES["foto"]["name"], PATHINFO_EXTENSION));
@@ -197,9 +212,7 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
         /*
         *   Calculados SIEMPRE en el servidor, nunca confiando en un valor
-        *   que llegue del navegador — corrige de raíz el patrón visto en
-        *   subcategoria-ecc.php (bloque "final_*" calculado en JS y
-        *   guardado tal cual por el servidor).
+        *   que llegue del navegador (mismo criterio de reportar_capacitador.php).
         */
         $asistencia_total = $asistencia_hom + $asistencia_muj + $asistencia_jov + $asistencia_nin;
         $asistencia_grupo = $total_creyentes_grupo + $nuevos_creyentes_grupo + $total_bautizados_grupo + $nuevos_bautizados_grupo;
@@ -210,56 +223,69 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
         if($errorReporte == ""){
 
-            /*
-            *   carcel_ubicacion y pabellon son columnas exclusivas del
-            *   reporte de Facilitadores (tipo_reporte = 318); en Capacitadores
-            *   (308) siempre quedan en NULL — la ubicación se guarda como
-            *   texto libre en la columna genérica "ubicacion".
-            */
             $comentario = trim($_POST["comentario"]);
 
             $nombreLiderEscapado = mysqli_real_escape_string($PSN1->Link_ID, $nombre_lider);
-            $ubicacionEscapada = mysqli_real_escape_string($PSN1->Link_ID, $ubicacion);
-            $nombreGrupoEscapado = mysqli_real_escape_string($PSN1->Link_ID, $nombreGrupo);
-            $grupoMadreSql = ($grupoMadre === null) ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $grupoMadre)."'";
+            $ubicacionEscapada = mysqli_real_escape_string($PSN1->Link_ID, $ubicacionPostulada);
             $comentarioSql = ($comentario == "") ? "NULL" : "'".mysqli_real_escape_string($PSN1->Link_ID, $comentario)."'";
-            $fotoSql = ($extFoto == "") ? "NULL" : "'".$extFoto."'";
 
-            $sqlInsert = "INSERT INTO ecu_reportes (
-                idgrupo, idusuario, tipo_reporte, nombre_lider, nombre_grupo, fecha_inicio,
-                generacion, grupo_madre, ubicacion,
-                asistencia_hom, asistencia_muj, asistencia_jov, asistencia_nin, asistencia_total,
-                total_creyentes_grupo, nuevos_creyentes_grupo, total_bautizados_grupo, nuevos_bautizados_grupo, asistencia_grupo,
-                mapeo_oracion, mapeo_companerismo, mapeo_adoracion, mapeo_biblia, mapeo_evangelizar,
-                mapeo_cena, mapeo_dar, mapeo_bautizar, mapeo_trabajadores,
-                comentario, carcel_ubicacion, pabellon, foto
-            ) VALUES (
-                ".$idGrupo.", ".$idUsuarioSesion.", 308, '".$nombreLiderEscapado."', '".$nombreGrupoEscapado."', CURDATE(),
-                ".$generacionGrupo.", ".$grupoMadreSql.", '".$ubicacionEscapada."',
-                ".$asistencia_hom.", ".$asistencia_muj.", ".$asistencia_jov.", ".$asistencia_nin.", ".$asistencia_total.",
-                ".$total_creyentes_grupo.", ".$nuevos_creyentes_grupo.", ".$total_bautizados_grupo.", ".$nuevos_bautizados_grupo.", ".$asistencia_grupo.",
-                ".$valoresMapeo["mapeo_oracion"].", ".$valoresMapeo["mapeo_companerismo"].", ".$valoresMapeo["mapeo_adoracion"].", ".$valoresMapeo["mapeo_biblia"].", ".$valoresMapeo["mapeo_evangelizar"].",
-                ".$valoresMapeo["mapeo_cena"].", ".$valoresMapeo["mapeo_dar"].", ".$valoresMapeo["mapeo_bautizar"].", ".$valoresMapeo["mapeo_trabajadores"].",
-                ".$comentarioSql.", NULL, NULL, ".$fotoSql."
-            )";
-            $PSN1->query($sqlInsert);
-
-            $idReporteNuevo = $PSN1->ultimoId();
-
+            /*
+            *   Foto: si se subió una nueva, se reemplaza el archivo físico
+            *   (y se borra el anterior si tenía una extensión distinta);
+            *   si no, se deja la columna `foto` tal cual estaba.
+            */
+            $fotoSqlSet = "";
             if($extFoto != ""){
                 if(!is_dir("archivos")){
                     mkdir("archivos", 0755, true);
                 }
-                move_uploaded_file($_FILES["foto"]["tmp_name"], "archivos/capacitador_".$idReporteNuevo.".".$extFoto);
+                if($reporte["foto"] != "" && $reporte["foto"] != $extFoto){
+                    $rutaAnterior = "archivos/capacitador_".$idReporte.".".$reporte["foto"];
+                    if(file_exists($rutaAnterior)){
+                        unlink($rutaAnterior);
+                    }
+                }
+                move_uploaded_file($_FILES["foto"]["tmp_name"], "archivos/capacitador_".$idReporte.".".$extFoto);
+                $fotoSqlSet = ", foto = '".$extFoto."'";
             }
 
             /*
-            *   Patrón POST/Redirect/GET (igual que en gestionar-capacitador.php):
-            *   ya se envió HTML antes de llegar a este include, así que
-            *   header() no serviría. Se redirige desde el cliente para que un
-            *   F5 posterior sea un GET y no repita el INSERT.
+            *   idgrupo, idusuario, tipo_reporte, nombre_grupo, generacion,
+            *   grupo_madre y fecha_inicio NO se tocan: son la fotografía
+            *   histórica del momento en que se creó el reporte.
             */
-            $urlRedirect = "index.php?doc=".urlencode($_GET["doc"])."&idgrupo=".$idGrupo."&creado=1";
+            $sqlUpdate = "UPDATE ecu_reportes SET
+                nombre_lider = '".$nombreLiderEscapado."',
+                ubicacion = '".$ubicacionEscapada."',
+                asistencia_hom = ".$asistencia_hom.",
+                asistencia_muj = ".$asistencia_muj.",
+                asistencia_jov = ".$asistencia_jov.",
+                asistencia_nin = ".$asistencia_nin.",
+                asistencia_total = ".$asistencia_total.",
+                total_creyentes_grupo = ".$total_creyentes_grupo.",
+                nuevos_creyentes_grupo = ".$nuevos_creyentes_grupo.",
+                total_bautizados_grupo = ".$total_bautizados_grupo.",
+                nuevos_bautizados_grupo = ".$nuevos_bautizados_grupo.",
+                asistencia_grupo = ".$asistencia_grupo.",
+                mapeo_oracion = ".$valoresMapeo["mapeo_oracion"].",
+                mapeo_companerismo = ".$valoresMapeo["mapeo_companerismo"].",
+                mapeo_adoracion = ".$valoresMapeo["mapeo_adoracion"].",
+                mapeo_biblia = ".$valoresMapeo["mapeo_biblia"].",
+                mapeo_evangelizar = ".$valoresMapeo["mapeo_evangelizar"].",
+                mapeo_cena = ".$valoresMapeo["mapeo_cena"].",
+                mapeo_dar = ".$valoresMapeo["mapeo_dar"].",
+                mapeo_bautizar = ".$valoresMapeo["mapeo_bautizar"].",
+                mapeo_trabajadores = ".$valoresMapeo["mapeo_trabajadores"].",
+                comentario = ".$comentarioSql.$fotoSqlSet."
+                WHERE idreporte = ".$idReporte;
+            $PSN1->query($sqlUpdate);
+
+            /*
+            *   Patrón POST/Redirect/GET (igual que reportar_capacitador.php):
+            *   se redirige desde el cliente para que un F5 posterior sea un
+            *   GET y no repita el UPDATE.
+            */
+            $urlRedirect = "index.php?doc=".urlencode($_GET["doc"])."&idreporte=".$idReporte."&actualizado=1";
             ?><script>window.location.replace(<?=json_encode($urlRedirect); ?>);</script><?php
             return;
         }
@@ -267,11 +293,20 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 }
 
 /*
-*   Ayuda para repoblar el formulario tal cual quedó tras un error de
-*   validación, sin perder lo que el usuario ya había escrito.
+*   Repobla el formulario: si viene de un error de validación usa lo que el
+*   usuario ya había escrito ($_POST); si no, usa el valor guardado del
+*   reporte ($reporte).
 */
-function valorPrevio($nombre, $default = ""){
-    return isset($_POST[$nombre]) ? htmlspecialchars(trim($_POST[$nombre]), ENT_QUOTES, "UTF-8") : $default;
+$disabled = $puedeEditar ? "" : 'disabled="disabled"';
+
+function valorCampo($nombre, $reporte, $default = ""){
+    if(isset($_POST[$nombre])){
+        return htmlspecialchars(trim($_POST[$nombre]), ENT_QUOTES, "UTF-8");
+    }
+    if(isset($reporte[$nombre]) && $reporte[$nombre] !== null){
+        return htmlspecialchars($reporte[$nombre], ENT_QUOTES, "UTF-8");
+    }
+    return $default;
 }
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
@@ -342,6 +377,24 @@ function valorPrevio($nombre, $default = ""){
     .ecu-wrap .ecu-banner.ecu-success { background: var(--success-bg); color: var(--success-text); }
     .ecu-wrap .ecu-banner.ecu-error { background: var(--danger-bg); color: var(--danger-text); }
     .ecu-wrap .ecu-banner.ecu-info { background: var(--azul-tint); color: var(--azul-dark); }
+
+    .ecu-wrap .ecu-nav-reporte {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    .ecu-wrap .ecu-nav-id {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--gris-texto);
+    }
+    .ecu-wrap .ecu-nav-deshabilitado {
+        opacity: 0.4;
+        pointer-events: none;
+        cursor: default;
+    }
 
     .ecu-wrap .ecu-grupo-actual {
         background: var(--azul-tint);
@@ -472,11 +525,14 @@ function valorPrevio($nombre, $default = ""){
         background: #FFFFFF;
         border-style: dashed;
     }
+    .ecu-wrap input.ecu-input[disabled],
+    .ecu-wrap select.ecu-select[disabled],
+    .ecu-wrap textarea.ecu-input[disabled] {
+        background: #FFFFFF;
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
 
-    /*
-    *   La foto es obligatoria y antes casi no se notaba junto a los demás
-    *   campos; se le da un poco más de tamaño, sin recuadro llamativo.
-    */
     .ecu-wrap .ecu-foto-input.ecu-input {
         padding: 14px 13px;
         font-size: 14px;
@@ -488,14 +544,31 @@ function valorPrevio($nombre, $default = ""){
         color: var(--gris-texto);
         margin: 8px 0 0;
     }
+    .ecu-wrap .ecu-fotos-grid {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 6px;
+    }
+    .ecu-wrap .ecu-foto-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    .ecu-wrap .ecu-foto-item a { display: inline-block; }
+    .ecu-wrap .ecu-foto-item img {
+        display: block;
+        width: 100%;
+        max-width: 300px;
+        max-height: 300px;
+        object-fit: cover;
+        border-radius: var(--radius-card);
+        border: 1px solid var(--line);
+        cursor: zoom-in;
+    }
 
-    /*
-    *   El toggle Sí/No del "Método de verificación" (.check) y las clases
-    *   de layout (cont-flex-2, vl-cent, fl-sbet, row, col-sm-*) son las
-    *   mismas de gestionar-sub-programa-evangelistas.php, ya cargadas
-    *   globalmente por estilos_chart.css / Bootstrap. Aquí solo se les da
-    *   más aire vertical y una tarjeta propia por ítem.
-    */
     .ecu-wrap .ecu-mapeo-fila { margin-top: 4px; }
     .ecu-wrap .ecu-mapeo-fila > div { margin-bottom: 16px; }
     .ecu-wrap .ecu-mapeo-toggle {
@@ -504,14 +577,8 @@ function valorPrevio($nombre, $default = ""){
         border: 1px solid var(--line);
         border-radius: var(--radius-control);
         background: #FFFFFF;
-        /* .col-sm-12 de adentro flota (grid de Bootstrap); sin este
-           clearfix la tarjeta colapsaba a 0px de alto y el borde/fondo
-           quedaba desalineado del contenido real. */
         overflow: hidden;
     }
-    /* El .col-sm-12 interno ya no necesita su padding lateral: lo
-       reemplaza el padding de .ecu-mapeo-toggle, para que el contenido
-       quede centrado dentro del recuadro y no descuadrado hacia un lado. */
     .ecu-wrap .ecu-mapeo-toggle > .col-sm-12 { padding-left: 0; padding-right: 0; }
     .ecu-wrap .ecu-mapeo-toggle h5 { margin: 0; font-size: 14px; }
 
@@ -533,10 +600,12 @@ function valorPrevio($nombre, $default = ""){
     .ecu-wrap .ecu-btn-primary:hover { background: var(--verde-dark); }
     .ecu-wrap .ecu-btn-secondary { background: var(--azul); color: #FFFFFF; border: 1.5px solid var(--azul); }
     .ecu-wrap .ecu-btn-secondary:hover { background: var(--azul-dark); border-color: var(--azul-dark); }
+    .ecu-wrap .ecu-btn-danger { background: var(--danger-text); color: #FFFFFF; }
+    .ecu-wrap .ecu-btn-danger:hover { background: #7E2523; }
     .ecu-wrap .ecu-btn-slim { padding: 8px 16px; font-size: 13px; }
     .ecu-wrap .ecu-btn-row { display: flex; justify-content: center; margin-top: 4px; }
+    .ecu-wrap .ecu-btn-row-split { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
 
-    /* Modal propio (igual convención que gestionar-capacitador.php) */
     .ecu-wrap .ecu-modal-overlay {
         position: fixed;
         inset: 0;
@@ -594,47 +663,67 @@ function valorPrevio($nombre, $default = ""){
 <div class="ecu-wrap">
 
     <p class="ecu-eyebrow">ECU · Reportes</p>
-    <h3 class="ecu-title">Reporte de <?=$temp_letrero; ?></h3>
-    <h5 class="ecu-subtitle">Complete la información del mes para este grupo</h5>
+    <h3 class="ecu-title"><?=$puedeEditar ? "Editar" : "Consultar"; ?> reporte de <?=$temp_letrero; ?></h3>
+    <h5 class="ecu-subtitle"><?=$puedeEditar ? "Modifique la información y guarde los cambios" : "Información del reporte (solo lectura)"; ?></h5>
 
     <?php if($errorReporte != ""){ ?>
         <div class="ecu-banner ecu-error"><?=htmlspecialchars($errorReporte, ENT_QUOTES, "UTF-8"); ?></div>
     <?php } ?>
 
+    <?php if(!$puedeEditar){ ?>
+        <div class="ecu-banner ecu-info">Solo un administrador puede editar o eliminar este reporte. Aquí solo puede consultar la información.</div>
+    <?php } ?>
+
+    <div class="ecu-nav-reporte">
+        <?php if($idReporteAnterior > 0){ ?>
+            <a href="index.php?doc=editar_capacitador&idreporte=<?=$idReporteAnterior; ?>" class="ecu-btn ecu-btn-secondary ecu-btn-slim" style="text-decoration:none;">&laquo; Anterior</a>
+        <?php }else{ ?>
+            <span class="ecu-btn ecu-btn-secondary ecu-btn-slim ecu-nav-deshabilitado">&laquo; Anterior</span>
+        <?php } ?>
+
+        <span class="ecu-nav-id">Reporte #<?=str_pad($reporte["idreporte"], 6, "0", STR_PAD_LEFT); ?></span>
+
+        <?php if($idReporteSiguiente > 0){ ?>
+            <a href="index.php?doc=editar_capacitador&idreporte=<?=$idReporteSiguiente; ?>" class="ecu-btn ecu-btn-secondary ecu-btn-slim" style="text-decoration:none;">Siguiente &raquo;</a>
+        <?php }else{ ?>
+            <span class="ecu-btn ecu-btn-secondary ecu-btn-slim ecu-nav-deshabilitado">Siguiente &raquo;</span>
+        <?php } ?>
+    </div>
+
     <div class="ecu-grupo-actual">
         <div class="ecu-grupo-actual-top">
             <div>
-                <p class="ecu-grupo-actual-nombre"><?=htmlspecialchars($nombreGrupo, ENT_QUOTES, "UTF-8"); ?></p>
-                <p class="ecu-grupo-actual-gen">Generación <?=$generacionGrupo; ?></p>
+                <p class="ecu-grupo-actual-nombre"><?=htmlspecialchars($reporte["nombre_grupo"], ENT_QUOTES, "UTF-8"); ?></p>
+                <p class="ecu-grupo-actual-gen">Generación <?=$reporte["generacion"]; ?></p>
             </div>
-            <a href="index.php?doc=gestionar-capacitador">Cambiar de grupo</a>
+            <a href="index.php?doc=consultar-capacitador">Volver a consultar reportes</a>
         </div>
         <div class="ecu-resumen-grid">
             <div class="ecu-resumen-item">
                 <span class="ecu-resumen-label">ID de grupo</span>
-                <span class="ecu-resumen-valor"><?=$idGrupo; ?></span>
+                <span class="ecu-resumen-valor"><?=$reporte["idgrupo"]; ?></span>
             </div>
             <div class="ecu-resumen-item">
                 <span class="ecu-resumen-label">Usuario que reporta</span>
-                <span class="ecu-resumen-valor"><?=htmlspecialchars($nombreUsuarioReporta, ENT_QUOTES, "UTF-8"); ?></span>
+                <span class="ecu-resumen-valor"><?=htmlspecialchars($reporte["nombre_usuario_reporta"], ENT_QUOTES, "UTF-8"); ?></span>
             </div>
             <div class="ecu-resumen-item">
                 <span class="ecu-resumen-label">Fecha del reporte</span>
-                <span class="ecu-resumen-valor"><?=$fechaReporteHoy; ?></span>
+                <span class="ecu-resumen-valor"><?=date("d/m/Y", strtotime($reporte["fecha_inicio"])); ?></span>
             </div>
         </div>
     </div>
 
     <form method="post" id="formReporte" name="formReporte" enctype="multipart/form-data">
-        <input type="hidden" name="funcion" value="guardar_reporte" />
-        <input type="hidden" name="idgrupo" value="<?=$idGrupo; ?>" />
+        <input type="hidden" name="funcion" value="actualizar_reporte" />
+        <input type="hidden" name="idreporte" value="<?=$reporte["idreporte"]; ?>" />
 
         <div class="ecu-card">
 
             <div class="ecu-seccion">
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Nombre del líder <span class="ecu-req">*</span></label>
-                    <input type="text" name="nombre_lider" class="ecu-input" maxlength="150" required value="<?=valorPrevio('nombre_lider'); ?>" />
+                    <input type="text" name="nombre_lider" class="ecu-input" maxlength="150" required value="<?=valorCampo('nombre_lider', $reporte); ?>" <?=$disabled; ?> />
                 </div>
             </div>
 
@@ -647,19 +736,19 @@ function valorPrevio($nombre, $default = ""){
                 <div class="ecu-grid-4">
                     <div class="ecu-field">
                         <label class="ecu-label">Hombres</label>
-                        <input type="number" name="asistencia_hom" id="asistencia_hom" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_hom', '0'); ?>" />
+                        <input type="number" name="asistencia_hom" id="asistencia_hom" class="ecu-input" min="0" value="<?=valorCampo('asistencia_hom', $reporte, '0'); ?>" <?=$disabled; ?> />
                     </div>
                     <div class="ecu-field">
                         <label class="ecu-label">Mujeres</label>
-                        <input type="number" name="asistencia_muj" id="asistencia_muj" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_muj', '0'); ?>" />
+                        <input type="number" name="asistencia_muj" id="asistencia_muj" class="ecu-input" min="0" value="<?=valorCampo('asistencia_muj', $reporte, '0'); ?>" <?=$disabled; ?> />
                     </div>
                     <div class="ecu-field">
                         <label class="ecu-label">Jóvenes</label>
-                        <input type="number" name="asistencia_jov" id="asistencia_jov" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_jov', '0'); ?>" />
+                        <input type="number" name="asistencia_jov" id="asistencia_jov" class="ecu-input" min="0" value="<?=valorCampo('asistencia_jov', $reporte, '0'); ?>" <?=$disabled; ?> />
                     </div>
                     <div class="ecu-field">
                         <label class="ecu-label">Niños</label>
-                        <input type="number" name="asistencia_nin" id="asistencia_nin" class="ecu-input" min="0" value="<?=valorPrevio('asistencia_nin', '0'); ?>" />
+                        <input type="number" name="asistencia_nin" id="asistencia_nin" class="ecu-input" min="0" value="<?=valorCampo('asistencia_nin', $reporte, '0'); ?>" <?=$disabled; ?> />
                     </div>
                 </div>
 
@@ -675,24 +764,22 @@ function valorPrevio($nombre, $default = ""){
                 <h4 class="ecu-section-title">Crecimiento del grupo</h4>
                 <p class="ecu-section-sub">Cifras acumuladas del grupo en el mes reportado.</p>
 
-                <div class="ecu-grid-2">
+                <div class="ecu-grid-4">
                     <div class="ecu-field">
-                        <label class="ecu-label">Por favor ingrese el total de creyentes:</label>
-                        <input type="number" name="total_creyentes_grupo" id="total_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_creyentes_grupo', '0'); ?>" />
+                        <label class="ecu-label">Nuevos creyentes</label>
+                        <input type="number" name="nuevos_creyentes_grupo" id="nuevos_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorCampo('nuevos_creyentes_grupo', $reporte, '0'); ?>" <?=$disabled; ?> />
                     </div>
                     <div class="ecu-field">
-                        <label class="ecu-label">Por favor ingrese los nuevos creyentes:</label>
-                        <input type="number" name="nuevos_creyentes_grupo" id="nuevos_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_creyentes_grupo', '0'); ?>" />
-                    </div>
-                </div>
-                <div class="ecu-grid-2">
-                    <div class="ecu-field">
-                        <label class="ecu-label">Por favor ingrese el total de bautizados:</label>
-                        <input type="number" name="total_bautizados_grupo" id="total_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('total_bautizados_grupo', '0'); ?>" />
+                        <label class="ecu-label">Total de creyentes</label>
+                        <input type="number" name="total_creyentes_grupo" id="total_creyentes_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorCampo('total_creyentes_grupo', $reporte, '0'); ?>" <?=$disabled; ?> />
                     </div>
                     <div class="ecu-field">
-                        <label class="ecu-label">Por favor ingrese los nuevos bautizados:</label>
-                        <input type="number" name="nuevos_bautizados_grupo" id="nuevos_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorPrevio('nuevos_bautizados_grupo', '0'); ?>" />
+                        <label class="ecu-label">Nuevos bautizados</label>
+                        <input type="number" name="nuevos_bautizados_grupo" id="nuevos_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorCampo('nuevos_bautizados_grupo', $reporte, '0'); ?>" <?=$disabled; ?> />
+                    </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Total bautizados</label>
+                        <input type="number" name="total_bautizados_grupo" id="total_bautizados_grupo" class="ecu-input ecu-input-crecimiento" min="0" value="<?=valorCampo('total_bautizados_grupo', $reporte, '0'); ?>" <?=$disabled; ?> />
                     </div>
                 </div>
 
@@ -710,7 +797,7 @@ function valorPrevio($nombre, $default = ""){
 
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Ubicación <span class="ecu-req">*</span></label>
-                    <input type="text" name="ubicacion" id="ubicacionInput" class="ecu-input" maxlength="200" required value="<?=valorPrevio('ubicacion'); ?>" />
+                    <input type="text" name="ubicacion" class="ecu-input" maxlength="200" required value="<?=valorCampo('ubicacion', $reporte); ?>" <?=$disabled; ?> />
                 </div>
             </div>
 
@@ -718,21 +805,25 @@ function valorPrevio($nombre, $default = ""){
 
             <div class="ecu-seccion">
                 <h4 class="ecu-section-title">Método de verificación</h4>
-                <p class="ecu-section-sub">Para cada actividad, indique el nivel de autonomía con que la realiza el grupo.</p>
+                <p class="ecu-section-sub">Active la actividad si el grupo la realizó.</p>
 
-                <div class="ecu-mapeo-escala-grid">
+                <div class="row ecu-mapeo-fila">
                     <?php foreach($camposMapeo as $campo => $etiqueta){
-                        $valorMapeoActual = isset($_POST[$campo]) ? intval($_POST[$campo]) : 1;
+                        $marcado = isset($_POST[$campo]) ? ($_POST[$campo] == "1") : ($reporte[$campo] == 1);
                     ?>
-                        <div class="ecu-mapeo-escala-card">
-                            <h5 class="ecu-mapeo-escala-titulo"><?=htmlspecialchars($etiqueta, ENT_QUOTES, "UTF-8"); ?></h5>
-                            <?php foreach($opcionesMapeo as $valorOpcion => $textoOpcion){ ?>
-                                <label class="ecu-mapeo-escala-opcion">
-                                    <input type="radio" name="<?=$campo; ?>" value="<?=$valorOpcion; ?>" <?php if($valorMapeoActual == $valorOpcion){ ?>checked="checked"<?php } ?> />
-                                    <img width="30" src="mapeo_img/<?=$campo.$valorOpcion; ?>.png" class="img-responsive" />
-                                    <span><?=htmlspecialchars($textoOpcion, ENT_QUOTES, "UTF-8"); ?></span>
-                                </label>
-                            <?php } ?>
+                        <div class="col-sm-4">
+                            <div class="form-group ecu-mapeo-toggle">
+                                <div class="col-sm-12 cont-flex-2 vl-cent fl-sbet">
+                                    <div class="cont-flex-2 vl-cent">
+                                        <img style="margin-right: 15px" width="35px" src="mapeo_img/<?=$campo; ?>2.png" class="img-responsive" />
+                                        <h5><?=htmlspecialchars($etiqueta, ENT_QUOTES, "UTF-8"); ?></h5>
+                                    </div>
+                                    <label>
+                                        <input type="checkbox" name="<?=$campo; ?>" value="1" <?php if($marcado){ ?>checked="checked"<?php } ?> <?=$disabled; ?> />
+                                        <span class="check"></span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     <?php } ?>
                 </div>
@@ -744,21 +835,40 @@ function valorPrevio($nombre, $default = ""){
                 <h4 class="ecu-section-title">Foto y comentario</h4>
 
                 <div class="ecu-field">
-                    <label class="ecu-label">Foto <span class="ecu-req">*</span></label>
-                    <input type="file" name="foto" id="fotoInput" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" required />
-                    <p class="ecu-foto-ayuda">Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
+                    <label class="ecu-label">Foto <span class="ecu-opt">(opcional al editar)</span></label>
+                    <?php if($reporte["foto"] != ""){
+                        $rutaFotoActual = "archivos/capacitador_".$reporte["idreporte"].".".$reporte["foto"];
+                    ?>
+                        <div class="ecu-fotos-grid">
+                            <div class="ecu-foto-item">
+                                <a href="<?=htmlspecialchars($rutaFotoActual, ENT_QUOTES, "UTF-8"); ?>" target="_blank" rel="noopener">
+                                    <img src="<?=htmlspecialchars($rutaFotoActual, ENT_QUOTES, "UTF-8"); ?>" alt="Foto del reporte" />
+                                </a>
+                            </div>
+                        </div>
+                        <p class="ecu-foto-ayuda" style="text-align:center;">Clic en la foto para verla en tamaño completo. Suba un archivo nuevo solo si desea reemplazarla.</p>
+                    <?php }else{ ?>
+                        <p class="ecu-foto-ayuda" style="margin-top:0;">Este reporte no tiene foto todavía.</p>
+                    <?php } ?>
+                    <?php if($puedeEditar){ ?>
+                        <input type="file" name="foto" id="fotoInput" class="ecu-input ecu-foto-input" accept=".jpg,.jpeg,.png,.gif,.webp" />
+                        <p class="ecu-foto-ayuda">Formatos permitidos: JPG, PNG, GIF o WEBP.</p>
+                    <?php } ?>
                 </div>
                 <div class="ecu-field" style="margin-bottom:0;">
                     <label class="ecu-label">Comentario <span class="ecu-opt">(opcional)</span></label>
-                    <textarea name="comentario" class="ecu-input"><?=valorPrevio('comentario'); ?></textarea>
+                    <textarea name="comentario" class="ecu-input" <?=$disabled; ?>><?=valorCampo('comentario', $reporte); ?></textarea>
                 </div>
             </div>
 
         </div>
 
-        <div class="ecu-btn-row">
-            <button type="submit" class="ecu-btn ecu-btn-primary">Guardar reporte</button>
-        </div>
+        <?php if($puedeEditar){ ?>
+            <div class="ecu-btn-row-split">
+                <button type="button" class="ecu-btn ecu-btn-danger" id="btnEliminarReporte">Eliminar reporte</button>
+                <button type="submit" class="ecu-btn ecu-btn-primary">Guardar cambios</button>
+            </div>
+        <?php } ?>
     </form>
 
     <div class="ecu-modal-overlay oculto" id="ecuModalOverlay">
@@ -823,11 +933,49 @@ function valorPrevio($nombre, $default = ""){
             ]);
         }
 
+        function mostrarConfirmacion(mensaje, onConfirmar, titulo, opciones){
+            opciones = opciones || {};
+            mostrarModal(titulo || 'Confirmar acción', mensaje, 'confirmar', [
+                { texto: opciones.textoNo || 'Cancelar', clase: 'ecu-btn-secondary', onClick: opciones.onCancelar },
+                { texto: opciones.textoSi || 'Eliminar', clase: opciones.claseSi || 'ecu-btn-danger', onClick: onConfirmar }
+            ]);
+        }
+
         /*
-        *   Asistencia total y Asistencia del grupo: se muestran en vivo,
-        *   son de solo lectura (no editables por el usuario) y no se
-        *   validan entre sí (no hay tope de una sobre la otra).
+        *   Eliminar reporte: mismo patrón de confirmación + AJAX que ya
+        *   usa gestionar-capacitador.php para eliminar un grupo.
         */
+        var btnEliminarReporte = document.getElementById('btnEliminarReporte');
+        if(btnEliminarReporte){
+            btnEliminarReporte.addEventListener('click', function(){
+                mostrarConfirmacion(
+                    '¿Está seguro que desea eliminar este reporte? Esta acción no se puede deshacer.',
+                    function(){
+                        btnEliminarReporte.disabled = true;
+
+                        var datos = new URLSearchParams();
+                        datos.set('idreporte', <?=$reporte["idreporte"]; ?>);
+
+                        fetch('ajax_eliminar_reporte_capacitador.php', { method: 'POST', credentials: 'same-origin', body: datos })
+                            .then(function(resp){ return resp.json(); })
+                            .then(function(data){
+                                if(!data.ok){
+                                    btnEliminarReporte.disabled = false;
+                                    mostrarError(data.mensaje || 'No se pudo eliminar el reporte.');
+                                    return;
+                                }
+                                window.location.href = 'index.php?doc=consultar-capacitador';
+                            })
+                            .catch(function(){
+                                btnEliminarReporte.disabled = false;
+                                mostrarError('Ocurrió un error de conexión al eliminar el reporte. Intenta de nuevo.');
+                            });
+                    },
+                    'Eliminar reporte'
+                );
+            });
+        }
+
         var camposAsistencia = ['asistencia_hom', 'asistencia_muj', 'asistencia_jov', 'asistencia_nin'];
         var camposCrecimiento = ['nuevos_creyentes_grupo', 'total_creyentes_grupo', 'nuevos_bautizados_grupo', 'total_bautizados_grupo'];
         var asistenciaTotalMostrar = document.getElementById('asistencia_total_mostrar');
@@ -842,15 +990,6 @@ function valorPrevio($nombre, $default = ""){
             return total;
         }
 
-        /*
-        *   La suma de asistencia > 0 no se puede expresar con atributos
-        *   HTML (min/required), así que se usa la Constraint Validation
-        *   API nativa del navegador: se marca "asistencia_hom" como
-        *   inválido con setCustomValidity(), y al enviar el formulario el
-        *   propio navegador salta a ese campo y muestra su globo de aviso
-        *   nativo — igual que hace con cualquier otro campo requerido, sin
-        *   modal propio.
-        */
         var asistenciaHomInput = document.getElementById('asistencia_hom');
 
         function actualizarAsistenciaTotal(){
@@ -878,7 +1017,7 @@ function valorPrevio($nombre, $default = ""){
         actualizarAsistenciaGrupo();
 
         <?php if($exitoReporte != ""){ ?>
-        mostrarAviso(<?=json_encode($exitoReporte, JSON_UNESCAPED_UNICODE); ?>, 'Reporte guardado con éxito');
+        mostrarAviso(<?=json_encode($exitoReporte, JSON_UNESCAPED_UNICODE); ?>, 'Reporte actualizado con éxito');
         <?php } ?>
 
         if(modalOverlay){
@@ -890,12 +1029,9 @@ function valorPrevio($nombre, $default = ""){
             });
         }
 
-        /*
-        *   El "?creado=1" de la URL solo debe disparar el modal una vez.
-        */
         var url = new URL(window.location.href);
-        if(url.searchParams.has('creado')){
-            url.searchParams.delete('creado');
+        if(url.searchParams.has('actualizado')){
+            url.searchParams.delete('actualizado');
             window.history.replaceState({}, '', url.toString());
         }
     })();
