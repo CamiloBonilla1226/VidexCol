@@ -85,12 +85,7 @@ if($esAdmin){
 */
 $sql = "SELECT
     COUNT(*) AS total_reportes,
-    COALESCE(SUM(asistencia_hom), 0) AS tot_hom,
-    COALESCE(SUM(asistencia_muj), 0) AS tot_muj,
-    COALESCE(SUM(asistencia_jov), 0) AS tot_jov,
-    COALESCE(SUM(asistencia_nin), 0) AS tot_nin,
-    COALESCE(SUM(asistencia_total), 0) AS tot_asistencia,
-    COALESCE(AVG(asistencia_total), 0) AS prom_asistencia,
+    COALESCE(SUM(asistencia_grupo), 0) AS tot_asistencia_grupo,
     COALESCE(SUM(nuevos_creyentes_grupo), 0) AS tot_nuevos_creyentes,
     COALESCE(SUM(total_creyentes_grupo), 0) AS tot_creyentes,
     COALESCE(SUM(nuevos_bautizados_grupo), 0) AS tot_nuevos_bautizados,
@@ -115,12 +110,7 @@ $totalReportes = 0;
 if($PSN1->num_rows() > 0){
     $PSN1->next_record();
     $totalReportes           = intval($PSN1->f("total_reportes"));
-    $totHom                  = intval($PSN1->f("tot_hom"));
-    $totMuj                  = intval($PSN1->f("tot_muj"));
-    $totJov                  = intval($PSN1->f("tot_jov"));
-    $totNin                  = intval($PSN1->f("tot_nin"));
-    $totAsistencia           = intval($PSN1->f("tot_asistencia"));
-    $promAsistencia          = round(floatval($PSN1->f("prom_asistencia")), 1);
+    $totAsistenciaGrupo      = intval($PSN1->f("tot_asistencia_grupo"));
     $totNuevosCreyentes      = intval($PSN1->f("tot_nuevos_creyentes"));
     $totCreyentes            = intval($PSN1->f("tot_creyentes"));
     $totNuevosBautizados     = intval($PSN1->f("tot_nuevos_bautizados"));
@@ -361,12 +351,12 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
                 <p class="ecu-kpi-label">Reportes</p>
             </div>
             <div class="ecu-kpi-card">
-                <p class="ecu-kpi-valor"><?=$totAsistencia; ?></p>
-                <p class="ecu-kpi-label">Asistencia total</p>
+                <p class="ecu-kpi-valor"><?=$totAsistenciaGrupo; ?></p>
+                <p class="ecu-kpi-label">Asistencia del grupo (acumulada)</p>
             </div>
             <div class="ecu-kpi-card">
-                <p class="ecu-kpi-valor"><?=$promAsistencia; ?></p>
-                <p class="ecu-kpi-label">Asistencia promedio / reporte</p>
+                <p class="ecu-kpi-valor"><?=$totNuevosCreyentes; ?></p>
+                <p class="ecu-kpi-label">Nuevos creyentes</p>
             </div>
             <div class="ecu-kpi-card">
                 <p class="ecu-kpi-valor"><?=$carcelesAtendidas; ?></p>
@@ -376,12 +366,6 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
                 <p class="ecu-kpi-valor"><?=$porcentajeConFoto; ?>%</p>
                 <p class="ecu-kpi-label">Reportes con evidencia (foto)</p>
             </div>
-        </div>
-
-        <div class="ecu-card">
-            <h4 class="ecu-section-title">Asistencia por grupo poblacional</h4>
-            <p class="ecu-section-sub">Suma de asistencia registrada en el rango de fechas.</p>
-            <div id="graficaAsistencia" class="ecu-grafica-box" style="height: 320px;"></div>
         </div>
 
         <div class="ecu-card">
@@ -410,23 +394,6 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
         var colorAzul = "#1D5FA6";
         var colorVerde = "#2E8B4F";
         var colorRojo = "#A3302F";
-        var colorAmbar = "#C98A1F";
-
-        var dataAsistencia = google.visualization.arrayToDataTable([
-            ["Grupo", "Personas", { role: "style" }],
-            ["Hombres", <?=$totHom; ?>, colorAzul],
-            ["Mujeres", <?=$totMuj; ?>, colorAmbar],
-            ["Jóvenes", <?=$totJov; ?>, colorVerde],
-            ["Niños", <?=$totNin; ?>, colorRojo]
-        ]);
-        var viewAsistencia = new google.visualization.DataView(dataAsistencia);
-        viewAsistencia.setColumns([0, 1,
-            { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" }, 2]);
-        new google.visualization.BarChart(document.getElementById("graficaAsistencia")).draw(viewAsistencia, {
-            legend: { position: "none" },
-            bar: { groupWidth: "60%" },
-            chartArea: { width: "75%", height: "75%" }
-        });
 
         var dataCrecimiento = google.visualization.arrayToDataTable([
             ["Indicador", "Nuevos", "Total acumulado"],
