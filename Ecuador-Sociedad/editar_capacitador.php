@@ -136,9 +136,9 @@ if(isset($_GET["actualizado"]) && $_GET["actualizado"] == "1"){
 }
 
 /*
-*   Ítems del "Método de verificación" (mapeo_*): mismo checkbox Sí/No,
-*   mismos íconos e igual switch visual que reportar_capacitador.php /
-*   gestionar-sub-programa-evangelistas.php.
+*   Ítems del "Método de verificación" (mapeo_*): escala de 4 niveles
+*   (igual criterio que subcategoria-ecc.php y reportar_capacitador.php),
+*   en vez del toggle Sí/No usado en Facilitadores.
 */
 $camposMapeo = array(
     "mapeo_oracion"      => "Orar",
@@ -152,6 +152,13 @@ $camposMapeo = array(
     "mapeo_trabajadores" => "Entrenar nuevos líderes",
 );
 
+$opcionesMapeo = array(
+    1 => "No realizan la tarea",
+    2 => "La realizan en compañía del entrenador",
+    3 => "La realizan, pero este mes no la hicieron",
+    4 => "La realizan autónomamente",
+);
+
 /*
 *   ACTUALIZAR REPORTE
 */
@@ -161,12 +168,14 @@ if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_
     $ubicacionPostulada = trim($_POST["ubicacion"]);
 
     /*
-    *   Checkbox Sí/No: si no viene marcado, el navegador no envía el
-    *   campo — se guarda 0 (No) en ese caso.
+    *   Escala 1-4: se valida en el servidor que el valor recibido esté
+    *   dentro del rango; si llega algo fuera de rango (o nada), se guarda 1
+    *   (No realizan la tarea) por defecto.
     */
     $valoresMapeo = array();
     foreach($camposMapeo as $campo => $etiqueta){
-        $valoresMapeo[$campo] = (isset($_POST[$campo]) && $_POST[$campo] == "1") ? 1 : 0;
+        $valorPostulado = isset($_POST[$campo]) ? intval($_POST[$campo]) : 1;
+        $valoresMapeo[$campo] = ($valorPostulado >= 1 && $valorPostulado <= 4) ? $valorPostulado : 1;
     }
 
     if($nombre_lider == ""){
@@ -569,18 +578,45 @@ function valorCampo($nombre, $reporte, $default = ""){
         cursor: zoom-in;
     }
 
-    .ecu-wrap .ecu-mapeo-fila { margin-top: 4px; }
-    .ecu-wrap .ecu-mapeo-fila > div { margin-bottom: 16px; }
-    .ecu-wrap .ecu-mapeo-toggle {
-        margin-bottom: 0;
+    .ecu-wrap .ecu-mapeo-escala-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 4px;
+    }
+    .ecu-wrap .ecu-mapeo-escala-card {
         padding: 14px 16px;
         border: 1px solid var(--line);
         border-radius: var(--radius-control);
         background: #FFFFFF;
-        overflow: hidden;
     }
-    .ecu-wrap .ecu-mapeo-toggle > .col-sm-12 { padding-left: 0; padding-right: 0; }
-    .ecu-wrap .ecu-mapeo-toggle h5 { margin: 0; font-size: 14px; }
+    .ecu-wrap .ecu-mapeo-escala-titulo {
+        margin: 0 0 10px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+    .ecu-wrap .ecu-mapeo-escala-opcion {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        font-size: 13px;
+        color: var(--gris-texto);
+        cursor: pointer;
+    }
+    .ecu-wrap .ecu-mapeo-escala-opcion input[type="radio"] {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    .ecu-wrap .ecu-mapeo-escala-opcion img { flex-shrink: 0; }
+    @media (max-width: 900px) {
+        .ecu-wrap .ecu-mapeo-escala-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+        .ecu-wrap .ecu-mapeo-escala-grid { grid-template-columns: 1fr; }
+    }
 
     .ecu-wrap .ecu-btn {
         font-family: 'Public Sans', sans-serif;
@@ -805,25 +841,22 @@ function valorCampo($nombre, $reporte, $default = ""){
 
             <div class="ecu-seccion">
                 <h4 class="ecu-section-title">Método de verificación</h4>
-                <p class="ecu-section-sub">Active la actividad si el grupo la realizó.</p>
+                <p class="ecu-section-sub">Para cada actividad, indique el nivel de autonomía con que la realiza el grupo.</p>
 
-                <div class="row ecu-mapeo-fila">
+                <div class="ecu-mapeo-escala-grid">
                     <?php foreach($camposMapeo as $campo => $etiqueta){
-                        $marcado = isset($_POST[$campo]) ? ($_POST[$campo] == "1") : ($reporte[$campo] == 1);
+                        $valorMapeoActual = isset($_POST[$campo]) ? intval($_POST[$campo]) : intval($reporte[$campo]);
+                        if($valorMapeoActual < 1 || $valorMapeoActual > 4){ $valorMapeoActual = 1; }
                     ?>
-                        <div class="col-sm-4">
-                            <div class="form-group ecu-mapeo-toggle">
-                                <div class="col-sm-12 cont-flex-2 vl-cent fl-sbet">
-                                    <div class="cont-flex-2 vl-cent">
-                                        <img style="margin-right: 15px" width="35px" src="mapeo_img/<?=$campo; ?>2.png" class="img-responsive" />
-                                        <h5><?=htmlspecialchars($etiqueta, ENT_QUOTES, "UTF-8"); ?></h5>
-                                    </div>
-                                    <label>
-                                        <input type="checkbox" name="<?=$campo; ?>" value="1" <?php if($marcado){ ?>checked="checked"<?php } ?> <?=$disabled; ?> />
-                                        <span class="check"></span>
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="ecu-mapeo-escala-card">
+                            <h5 class="ecu-mapeo-escala-titulo"><?=htmlspecialchars($etiqueta, ENT_QUOTES, "UTF-8"); ?></h5>
+                            <?php foreach($opcionesMapeo as $valorOpcion => $textoOpcion){ ?>
+                                <label class="ecu-mapeo-escala-opcion">
+                                    <input type="radio" name="<?=$campo; ?>" value="<?=$valorOpcion; ?>" <?php if($valorMapeoActual == $valorOpcion){ ?>checked="checked"<?php } ?> <?=$disabled; ?> />
+                                    <img width="30" src="mapeo_img/<?=$campo.$valorOpcion; ?>.png" class="img-responsive" />
+                                    <span><?=htmlspecialchars($textoOpcion, ENT_QUOTES, "UTF-8"); ?></span>
+                                </label>
+                            <?php } ?>
                         </div>
                     <?php } ?>
                 </div>

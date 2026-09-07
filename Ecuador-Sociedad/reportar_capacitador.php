@@ -490,30 +490,49 @@ function valorPrevio($nombre, $default = ""){
     }
 
     /*
-    *   El toggle Sí/No del "Método de verificación" (.check) y las clases
-    *   de layout (cont-flex-2, vl-cent, fl-sbet, row, col-sm-*) son las
-    *   mismas de gestionar-sub-programa-evangelistas.php, ya cargadas
-    *   globalmente por estilos_chart.css / Bootstrap. Aquí solo se les da
-    *   más aire vertical y una tarjeta propia por ítem.
+    *   Escala de 4 niveles del "Método de verificación" (igual criterio que
+    *   subcategoria-ecc.php), adaptada al estilo .ecu-wrap: una tarjeta por
+    *   actividad, con sus 4 opciones en radio button.
     */
-    .ecu-wrap .ecu-mapeo-fila { margin-top: 4px; }
-    .ecu-wrap .ecu-mapeo-fila > div { margin-bottom: 16px; }
-    .ecu-wrap .ecu-mapeo-toggle {
-        margin-bottom: 0;
+    .ecu-wrap .ecu-mapeo-escala-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 4px;
+    }
+    .ecu-wrap .ecu-mapeo-escala-card {
         padding: 14px 16px;
         border: 1px solid var(--line);
         border-radius: var(--radius-control);
         background: #FFFFFF;
-        /* .col-sm-12 de adentro flota (grid de Bootstrap); sin este
-           clearfix la tarjeta colapsaba a 0px de alto y el borde/fondo
-           quedaba desalineado del contenido real. */
-        overflow: hidden;
     }
-    /* El .col-sm-12 interno ya no necesita su padding lateral: lo
-       reemplaza el padding de .ecu-mapeo-toggle, para que el contenido
-       quede centrado dentro del recuadro y no descuadrado hacia un lado. */
-    .ecu-wrap .ecu-mapeo-toggle > .col-sm-12 { padding-left: 0; padding-right: 0; }
-    .ecu-wrap .ecu-mapeo-toggle h5 { margin: 0; font-size: 14px; }
+    .ecu-wrap .ecu-mapeo-escala-titulo {
+        margin: 0 0 10px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+    .ecu-wrap .ecu-mapeo-escala-opcion {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 0;
+        font-size: 13px;
+        color: var(--gris-texto);
+        cursor: pointer;
+    }
+    .ecu-wrap .ecu-mapeo-escala-opcion input[type="radio"] {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+    .ecu-wrap .ecu-mapeo-escala-opcion img { flex-shrink: 0; }
+    @media (max-width: 900px) {
+        .ecu-wrap .ecu-mapeo-escala-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+        .ecu-wrap .ecu-mapeo-escala-grid { grid-template-columns: 1fr; }
+    }
 
     .ecu-wrap .ecu-btn {
         font-family: 'Public Sans', sans-serif;

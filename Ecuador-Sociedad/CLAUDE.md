@@ -1033,7 +1033,7 @@ necesidad de tener formularios/tablas separados por programa:
 | `carcel_ubicacion` | texto | Solo aplica si `tipo_reporte = 318` (Facilitadores) |
 | `pabellon` | texto | Solo aplica si `tipo_reporte = 318` (Facilitadores) |
 | `foto` | archivo | Obligatoria al crear. Extensión guardada en la columna; archivo físico en disco |
-| `mapeo_oracion` … `mapeo_trabajadores` | 9 campos, Sí/No (checkbox) | Mismo toggle visual e íconos que `gestionar-sub-programa-evangelistas.php` (`mapeo_img/{campo}2.png` + switch `.check`); se guarda `1` = Sí, `0` = No |
+| `mapeo_oracion` … `mapeo_trabajadores` | 9 campos | **Facilitadores (318)**: Sí/No (checkbox), mismo toggle visual e íconos que `gestionar-sub-programa-evangelistas.php` (`mapeo_img/{campo}2.png` + switch `.check`); se guarda `1` = Sí, `0` = No. **Capacitadores (308)**: escala de 4 niveles (radio, igual criterio que `subcategoria-ecc.php`): `1` = No realizan la tarea, `2` = En compañía del entrenador, `3` = La realizan pero este mes no la hicieron, `4` = La realizan autónomamente (`mapeo_img/{campo}{1..4}.png`) |
 | `comentario` | texto, opcional | Para ambos tipos de reporte |
 
 ### Campos automáticos (calculados en servidor, NO los llena el usuario)
@@ -1122,11 +1122,19 @@ CREATE TABLE ecu_reportes (
 
     CONSTRAINT chk_ecu_reportes_mapeo
         CHECK (
-            mapeo_oracion BETWEEN 0 AND 1 AND mapeo_companerismo BETWEEN 0 AND 1 AND
-            mapeo_adoracion BETWEEN 0 AND 1 AND mapeo_biblia BETWEEN 0 AND 1 AND
-            mapeo_evangelizar BETWEEN 0 AND 1 AND mapeo_cena BETWEEN 0 AND 1 AND
-            mapeo_dar BETWEEN 0 AND 1 AND mapeo_bautizar BETWEEN 0 AND 1 AND
-            mapeo_trabajadores BETWEEN 0 AND 1
+            (tipo_reporte = 318 AND
+                mapeo_oracion BETWEEN 0 AND 1 AND mapeo_companerismo BETWEEN 0 AND 1 AND
+                mapeo_adoracion BETWEEN 0 AND 1 AND mapeo_biblia BETWEEN 0 AND 1 AND
+                mapeo_evangelizar BETWEEN 0 AND 1 AND mapeo_cena BETWEEN 0 AND 1 AND
+                mapeo_dar BETWEEN 0 AND 1 AND mapeo_bautizar BETWEEN 0 AND 1 AND
+                mapeo_trabajadores BETWEEN 0 AND 1)
+            OR
+            (tipo_reporte = 308 AND
+                mapeo_oracion BETWEEN 1 AND 4 AND mapeo_companerismo BETWEEN 1 AND 4 AND
+                mapeo_adoracion BETWEEN 1 AND 4 AND mapeo_biblia BETWEEN 1 AND 4 AND
+                mapeo_evangelizar BETWEEN 1 AND 4 AND mapeo_cena BETWEEN 1 AND 4 AND
+                mapeo_dar BETWEEN 1 AND 4 AND mapeo_bautizar BETWEEN 1 AND 4 AND
+                mapeo_trabajadores BETWEEN 1 AND 4)
         ),
 
     INDEX idx_ecu_reportes_grupo (idgrupo),
@@ -1157,6 +1165,37 @@ ALTER TABLE ecu_reportes ADD CONSTRAINT chk_ecu_reportes_mapeo CHECK (
     mapeo_evangelizar BETWEEN 0 AND 1 AND mapeo_cena BETWEEN 0 AND 1 AND
     mapeo_dar BETWEEN 0 AND 1 AND mapeo_bautizar BETWEEN 0 AND 1 AND
     mapeo_trabajadores BETWEEN 0 AND 1
+);
+```
+
+⚠️ **Segunda migración pendiente en producción (agregada el 07-sep-2026)**:
+`reportar_capacitador.php` / `editar_capacitador.php` (tipo_reporte = 308)
+pasaron a usar la escala de 4 niveles de `subcategoria-ecc.php` (1 = No
+realizan la tarea, 2 = En compañía del entrenador, 3 = La realizan pero
+este mes no la hicieron, 4 = La realizan autónomamente) en vez del toggle
+Sí/No, mientras que Facilitadores (318) se mantiene en Sí/No (0-1). Como
+ambos tipos comparten la misma tabla, el `CHECK` de `mapeo_*` ahora valida
+un rango distinto según `tipo_reporte`. Aplicar antes de que
+`reportar_capacitador.php`/`editar_capacitador.php` puedan guardar valores
+2, 3 o 4 (MySQL 8.0.16+; en versiones anteriores el `CHECK` no se aplica):
+
+```sql
+ALTER TABLE ecu_reportes DROP CHECK chk_ecu_reportes_mapeo;
+
+ALTER TABLE ecu_reportes ADD CONSTRAINT chk_ecu_reportes_mapeo CHECK (
+    (tipo_reporte = 318 AND
+        mapeo_oracion BETWEEN 0 AND 1 AND mapeo_companerismo BETWEEN 0 AND 1 AND
+        mapeo_adoracion BETWEEN 0 AND 1 AND mapeo_biblia BETWEEN 0 AND 1 AND
+        mapeo_evangelizar BETWEEN 0 AND 1 AND mapeo_cena BETWEEN 0 AND 1 AND
+        mapeo_dar BETWEEN 0 AND 1 AND mapeo_bautizar BETWEEN 0 AND 1 AND
+        mapeo_trabajadores BETWEEN 0 AND 1)
+    OR
+    (tipo_reporte = 308 AND
+        mapeo_oracion BETWEEN 1 AND 4 AND mapeo_companerismo BETWEEN 1 AND 4 AND
+        mapeo_adoracion BETWEEN 1 AND 4 AND mapeo_biblia BETWEEN 1 AND 4 AND
+        mapeo_evangelizar BETWEEN 1 AND 4 AND mapeo_cena BETWEEN 1 AND 4 AND
+        mapeo_dar BETWEEN 1 AND 4 AND mapeo_bautizar BETWEEN 1 AND 4 AND
+        mapeo_trabajadores BETWEEN 1 AND 4)
 );
 ```
 
