@@ -68,6 +68,13 @@ if($esAdmin){
 *   Filtro "Dirección": r.carcel_ubicacion guarda el NOMBRE de la cárcel
 *   (reub_nom), no su dirección, así que para filtrar por reub_dir hay que
 *   cruzar contra tbl_regional_ubicacion por nombre.
+*
+*   No se usa una subconsulta (EXISTS/IN con SELECT anidado) porque el
+*   wrapper de BD de este sistema rechaza el SQL cuando trae más de un
+*   SELECT en el mismo texto ("Invalid SQL"). En su lugar se resuelve en
+*   dos pasos: primero se obtienen los nombres de cárcel que coinciden con
+*   la dirección elegida, y luego se arma un IN (...) con esos nombres ya
+*   escapados.
 */
 $direccionFiltro = isset($_REQUEST["direccionCarcel"]) ? trim($_REQUEST["direccionCarcel"]) : "";
 
@@ -79,7 +86,16 @@ if($idUsuarioFiltro > 0){
 }
 if($direccionFiltro != ""){
     $direccionFiltroEscapada = mysqli_real_escape_string($PSN1->Link_ID, $direccionFiltro);
-    $sqlFiltro .= " AND EXISTS (SELECT 1 FROM tbl_regional_ubicacion t WHERE t.reub_nom = r.carcel_ubicacion AND t.reub_dir = '".$direccionFiltroEscapada."')";
+    $PSN2->query("SELECT reub_nom FROM tbl_regional_ubicacion WHERE reub_dir = '".$direccionFiltroEscapada."'");
+    $nombresCarcelFiltro = array();
+    while($PSN2->next_record()){
+        $nombresCarcelFiltro[] = "'".mysqli_real_escape_string($PSN1->Link_ID, $PSN2->f("reub_nom"))."'";
+    }
+    if(count($nombresCarcelFiltro) > 0){
+        $sqlFiltro .= " AND r.carcel_ubicacion IN (".implode(",", $nombresCarcelFiltro).")";
+    }else{
+        $sqlFiltro .= " AND 1 = 0";
+    }
 }
 
 /*
