@@ -64,11 +64,22 @@ if($esAdmin){
     $idUsuarioFiltro = $idUsuarioSesion;
 }
 
+/*
+*   Filtro "Dirección": r.carcel_ubicacion guarda el NOMBRE de la cárcel
+*   (reub_nom), no su dirección, así que para filtrar por reub_dir hay que
+*   cruzar contra tbl_regional_ubicacion por nombre.
+*/
+$direccionFiltro = isset($_REQUEST["direccionCarcel"]) ? trim($_REQUEST["direccionCarcel"]) : "";
+
 $sqlFiltro = " AND r.tipo_reporte = 318";
 $sqlFiltro .= " AND r.fecha_inicio >= '".$fechaInicial."'";
 $sqlFiltro .= " AND r.fecha_inicio <= '".$fechaFinal."'";
 if($idUsuarioFiltro > 0){
     $sqlFiltro .= " AND r.idusuario = ".$idUsuarioFiltro;
+}
+if($direccionFiltro != ""){
+    $direccionFiltroEscapada = mysqli_real_escape_string($PSN1->Link_ID, $direccionFiltro);
+    $sqlFiltro .= " AND EXISTS (SELECT 1 FROM tbl_regional_ubicacion t WHERE t.reub_nom = r.carcel_ubicacion AND t.reub_dir = '".$direccionFiltroEscapada."')";
 }
 
 /*
@@ -119,6 +130,18 @@ if($esAdmin){
         );
     }
 }
+
+/*
+*   Combo "Dirección": opciones = valores distintos de reub_dir existentes
+*   en tbl_regional_ubicacion.
+*/
+$listaDirecciones = array();
+$PSN2->query("SELECT DISTINCT reub_dir FROM tbl_regional_ubicacion
+              WHERE reub_dir IS NOT NULL AND reub_dir != ''
+              ORDER BY reub_dir");
+while($PSN2->next_record()){
+    $listaDirecciones[] = $PSN2->f("reub_dir");
+}
 ?>
 <div class="container">
 
@@ -154,6 +177,17 @@ if($esAdmin){
                     <input type="text" class="form-control" value="Solo tus reportes" disabled="disabled" />
                 </div>
             <?php } ?>
+            <div class="col-sm-3">
+                <strong>Dirección:</strong>
+                <select name="direccionCarcel" onchange="this.form.submit()" class="form-control">
+                    <option value="">Ver todas</option>
+                    <?php foreach($listaDirecciones as $direccionItem){ ?>
+                        <option value="<?=htmlspecialchars($direccionItem, ENT_QUOTES, "UTF-8"); ?>" <?php if($direccionFiltro == $direccionItem){ ?>selected="selected"<?php } ?>>
+                            <?=htmlspecialchars($direccionItem, ENT_QUOTES, "UTF-8"); ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
             <div class="col-sm-2">
                 <strong>Fecha Inicial:</strong>
                 <input type="date" name="fechaInicial" id="fechaInicial" value="<?=htmlspecialchars($fechaInicial, ENT_QUOTES, "UTF-8"); ?>" class="form-control" />
