@@ -242,6 +242,16 @@ if($PSN1->num_rows() > 0){
 }
 
 /*
+*   "Mis grupos" no debe listar el grupo raíz OMS (generación 0): es la
+*   semilla compartida de todo el sistema, no un grupo propio del usuario
+*   al que se le pueda hacer un reporte. $gruposDisponibles sí lo conserva
+*   porque el combo "Crear a partir de" necesita ofrecerlo como antecesor.
+*/
+$misGrupos = array_values(array_filter($gruposDisponibles, function($g){
+    return intval($g["generacion"]) != 0;
+}));
+
+/*
 *   SOLO VISUAL: iniciales del creador del grupo, para el avatar circular
 *   de la ficha de información. No es una consulta ni una regla de
 *   negocio nueva, solo se deriva del nombre que ya se trajo arriba.
@@ -818,12 +828,12 @@ if($nombreCreadorGrupo !== ""){
             <form method="post" id="formGrupo" name="formGrupo">
                 <input type="hidden" name="funcion" value="seleccionar_grupo" />
 
-                <?php if(count($gruposDisponibles) > 0){ ?>
+                <?php if(count($misGrupos) > 0){ ?>
                     <div class="ecu-buscador">
                         <input type="text" id="buscarGrupo" class="ecu-input" placeholder="Buscar grupo por nombre..." />
                     </div>
                     <div class="ecu-group-list" id="ecuGroupList">
-                        <?php foreach($gruposDisponibles as $g){
+                        <?php foreach($misGrupos as $g){
                             $marcado = ($idGrupoSeleccionado == $g["id_grupo"]);
                             $nombreDataAttr = htmlspecialchars(mb_strtolower($g["nombre_grupo"], "UTF-8"), ENT_QUOTES, "UTF-8");
                         ?>
