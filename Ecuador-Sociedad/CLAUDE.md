@@ -1258,9 +1258,10 @@ escala 1-4).
 - Tabla: Miembro, cantidad de reportes, un promedio (1 decimal) por cada
   actividad (ORAC/COMP/ADOR/BIBLI/EVAN/CENA/DAR/BAUT/TRAB), "% GEN"
   (promedio de esos 9 promedios) y "Estado".
-- "Estado" se calcula en PHP redondeando el "% GEN" al entero más cercano
-  (acotado entre 1 y 4): `1` = Por mejorar, `2` = Regular, `3` = Bueno,
-  `4` = Excelente. No es una columna de la base de datos.
+- "Estado" se calcula en PHP a partir de rangos fijos sobre el "% GEN"
+  (no redondeo al entero más cercano): `1.0 - 1.9` = Por mejorar,
+  `2.0 - 2.99` = Regular, `3.0 - 3.49` = Bueno, `3.5 - 4.0` = Excelente.
+  No es una columna de la base de datos.
 - Filtros: fecha inicial/final, Estado (filtra en PHP después de calcular
   los promedios, porque depende del cálculo, no de una columna) y Miembro
   (solo el admin puede elegir a cuál ver, mismo patrón que

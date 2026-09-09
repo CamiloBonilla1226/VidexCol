@@ -115,9 +115,20 @@ while($PSN1->next_record()){
 
     $promedioGeneral = round(array_sum($promediosCampos) / count($promediosCampos), 1);
 
-    $estadoNumero = (int) round($promedioGeneral);
-    if($estadoNumero < 1){ $estadoNumero = 1; }
-    if($estadoNumero > 4){ $estadoNumero = 4; }
+    /*
+    *   Rangos fijos (no redondeo al entero más cercano):
+    *   1 - 1.9 = Por mejorar, 2 - 2.99 = Regular, 3 - 3.49 = Bueno,
+    *   3.5 - 4 = Excelente.
+    */
+    if($promedioGeneral < 2){
+        $estadoNumero = 1;
+    }else if($promedioGeneral < 3){
+        $estadoNumero = 2;
+    }else if($promedioGeneral < 3.5){
+        $estadoNumero = 3;
+    }else{
+        $estadoNumero = 4;
+    }
 
     $filasPromedios[] = array(
         "idusuario"        => intval($PSN1->f("idusuario")),
