@@ -130,12 +130,32 @@ $opcionesMapeo = array(
 );
 
 /*
+*   Ubicación: Provincia (dane_departamentos) + Cantón (dane_municipios),
+*   en vez de un campo de texto libre. El cantón se carga por AJAX según la
+*   provincia elegida (ver ajax_cantones_por_provincia.php). Se guardan los
+*   ids en ecu_reportes.provincia_id / canton_id, y además se compone
+*   ecu_reportes.ubicacion como "Provincia - Cantón" para no romper las
+*   pantallas que ya leen esa columna (consultar-capacitador.php,
+*   grafica-capacitador.php).
+*/
+$listaProvincias = array();
+$PSN9 = new DBbase_Sql;
+$PSN9->query("SELECT id_departamento, departamento FROM dane_departamentos ORDER BY departamento ASC");
+while($PSN9->next_record()){
+    $listaProvincias[] = array(
+        "id"     => intval($PSN9->f("id_departamento")),
+        "nombre" => $PSN9->f("departamento"),
+    );
+}
+
+/*
 *   GUARDAR REPORTE
 */
 if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
     $nombre_lider = trim($_POST["nombre_lider"]);
-    $ubicacion = trim($_POST["ubicacion"]);
+    $provinciaId = isset($_POST["provincia_id"]) ? intval($_POST["provincia_id"]) : 0;
+    $cantonId = isset($_POST["canton_id"]) ? intval($_POST["canton_id"]) : 0;
 
     /*
     *   Escala 1-4 (igual que subcategoria-ecc.php): se valida en el
@@ -151,8 +171,8 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
     if($nombre_lider == ""){
         $errorReporte = "El nombre del líder es obligatorio.";
-    }else if($ubicacion == ""){
-        $errorReporte = "La ubicación es obligatoria.";
+    }else if($provinciaId <= 0 || $cantonId <= 0){
+        $errorReporte = "Debe seleccionar la provincia y el cantón.";
     }else if(!isset($_FILES["foto"]) || $_FILES["foto"]["error"] != UPLOAD_ERR_OK || $_FILES["foto"]["name"] == ""){
         $errorReporte = "La foto es obligatoria.";
     }
@@ -208,14 +228,46 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
             $errorReporte = "La asistencia total debe ser mayor a 0.";
         }
 
+        if($errorReporte == "" && $asistencia_grupo <= 0){
+            $errorReporte = "La asistencia del grupo debe ser mayor a 0.";
+        }
+
         if($errorReporte == ""){
 
             /*
             *   carcel_ubicacion y pabellon son columnas exclusivas del
             *   reporte de Facilitadores (tipo_reporte = 318); en Capacitadores
-            *   (308) siempre quedan en NULL — la ubicación se guarda como
-            *   texto libre en la columna genérica "ubicacion".
+            *   (308) siempre quedan en NULL.
+            *
+            *   Ubicación = Provincia + Cantón (selects, ya no texto libre).
+            *   provincia_id / canton_id guardan los ids; "ubicacion" se
+            *   compone con los nombres para no romper las pantallas que ya
+            *   la leen como texto (consultar-capacitador.php,
+            *   grafica-capacitador.php).
             */
+            $provinciaNombre = "";
+            $PSN10 = new DBbase_Sql;
+            $PSN10->query("SELECT departamento FROM dane_departamentos WHERE id_departamento = ".$provinciaId." LIMIT 1");
+            if($PSN10->num_rows() > 0){
+                $PSN10->next_record();
+                $provinciaNombre = $PSN10->f("departamento");
+            }
+            $cantonNombre = "";
+            $PSN11 = new DBbase_Sql;
+            $PSN11->query("SELECT municipio FROM dane_municipios WHERE id_municipio = ".$cantonId." AND departamento_id = ".$provinciaId." LIMIT 1");
+            if($PSN11->num_rows() > 0){
+                $PSN11->next_record();
+                $cantonNombre = $PSN11->f("municipio");
+            }
+
+            if($provinciaNombre == "" || $cantonNombre == ""){
+                $errorReporte = "La provincia o el cantón seleccionados no son válidos.";
+            }
+        }
+
+        if($errorReporte == ""){
+
+            $ubicacion = trim($provinciaNombre." - ".$cantonNombre);
             $comentario = trim($_POST["comentario"]);
 
             $nombreLiderEscapado = mysqli_real_escape_string($PSN1->Link_ID, $nombre_lider);
@@ -227,7 +279,7 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
 
             $sqlInsert = "INSERT INTO ecu_reportes (
                 idgrupo, idusuario, tipo_reporte, nombre_lider, nombre_grupo, fecha_inicio,
-                generacion, grupo_madre, ubicacion,
+                generacion, grupo_madre, ubicacion, provincia_id, canton_id,
                 asistencia_hom, asistencia_muj, asistencia_jov, asistencia_nin, asistencia_total,
                 total_creyentes_grupo, nuevos_creyentes_grupo, total_bautizados_grupo, nuevos_bautizados_grupo, asistencia_grupo,
                 mapeo_oracion, mapeo_companerismo, mapeo_adoracion, mapeo_biblia, mapeo_evangelizar,
@@ -235,7 +287,7 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
                 comentario, carcel_ubicacion, pabellon, foto
             ) VALUES (
                 ".$idGrupo.", ".$idUsuarioSesion.", 308, '".$nombreLiderEscapado."', '".$nombreGrupoEscapado."', CURDATE(),
-                ".$generacionGrupo.", ".$grupoMadreSql.", '".$ubicacionEscapada."',
+                ".$generacionGrupo.", ".$grupoMadreSql.", '".$ubicacionEscapada."', ".$provinciaId.", ".$cantonId.",
                 ".$asistencia_hom.", ".$asistencia_muj.", ".$asistencia_jov.", ".$asistencia_nin.", ".$asistencia_total.",
                 ".$total_creyentes_grupo.", ".$nuevos_creyentes_grupo.", ".$total_bautizados_grupo.", ".$nuevos_bautizados_grupo.", ".$asistencia_grupo.",
                 ".$valoresMapeo["mapeo_oracion"].", ".$valoresMapeo["mapeo_companerismo"].", ".$valoresMapeo["mapeo_adoracion"].", ".$valoresMapeo["mapeo_biblia"].", ".$valoresMapeo["mapeo_evangelizar"].",
@@ -725,11 +777,28 @@ function valorPrevio($nombre, $default = ""){
 
             <div class="ecu-seccion">
                 <h4 class="ecu-section-title">Ubicación</h4>
-                <p class="ecu-section-sub">Lugar donde se realizó la actividad.</p>
+                <p class="ecu-section-sub">Provincia y cantón donde se realizó la actividad.</p>
 
-                <div class="ecu-field" style="margin-bottom:0;">
-                    <label class="ecu-label">Ubicación <span class="ecu-req">*</span></label>
-                    <input type="text" name="ubicacion" id="ubicacionInput" class="ecu-input" maxlength="200" required value="<?=valorPrevio('ubicacion'); ?>" />
+                <div class="ecu-grid-2">
+                    <div class="ecu-field">
+                        <label class="ecu-label">Provincia <span class="ecu-req">*</span></label>
+                        <select name="provincia_id" id="provinciaSelect" class="ecu-select" required>
+                            <option value="">Seleccione una provincia</option>
+                            <?php
+                            $provinciaSeleccionadaId = isset($_POST["provincia_id"]) ? intval($_POST["provincia_id"]) : 0;
+                            foreach($listaProvincias as $provincia){ ?>
+                                <option value="<?=$provincia["id"]; ?>" <?php if($provinciaSeleccionadaId == $provincia["id"]){ ?>selected="selected"<?php } ?>>
+                                    <?=htmlspecialchars($provincia["nombre"], ENT_QUOTES, "UTF-8"); ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="ecu-field">
+                        <label class="ecu-label">Cantón <span class="ecu-req">*</span></label>
+                        <select name="canton_id" id="cantonSelect" class="ecu-select" required <?php if($provinciaSeleccionadaId <= 0){ ?>disabled="disabled"<?php } ?>>
+                            <option value="">Seleccione primero una provincia</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -871,6 +940,7 @@ function valorPrevio($nombre, $default = ""){
         *   modal propio.
         */
         var asistenciaHomInput = document.getElementById('asistencia_hom');
+        var nuevosCreyentesInput = document.getElementById('nuevos_creyentes_grupo');
 
         function actualizarAsistenciaTotal(){
             var total = sumarCampos(camposAsistencia);
@@ -882,7 +952,12 @@ function valorPrevio($nombre, $default = ""){
         }
 
         function actualizarAsistenciaGrupo(){
-            if(asistenciaGrupoMostrar){ asistenciaGrupoMostrar.value = sumarCampos(camposCrecimiento); }
+            var total = sumarCampos(camposCrecimiento);
+            if(asistenciaGrupoMostrar){ asistenciaGrupoMostrar.value = total; }
+            if(nuevosCreyentesInput){
+                nuevosCreyentesInput.setCustomValidity(total <= 0 ? 'La asistencia del grupo debe ser mayor a 0.' : '');
+            }
+            return total;
         }
 
         camposAsistencia.forEach(function(nombre){
@@ -895,6 +970,48 @@ function valorPrevio($nombre, $default = ""){
         });
         actualizarAsistenciaTotal();
         actualizarAsistenciaGrupo();
+
+        /*
+        *   Cantón: se carga por AJAX según la provincia elegida. Si el
+        *   formulario se repobló tras un error de validación, se conserva
+        *   la provincia y el cantón que el usuario ya había seleccionado.
+        */
+        var provinciaSelect = document.getElementById('provinciaSelect');
+        var cantonSelect = document.getElementById('cantonSelect');
+        var cantonSeleccionadoPrevio = <?=json_encode(isset($_POST["canton_id"]) ? intval($_POST["canton_id"]) : 0); ?>;
+
+        function cargarCantones(idProvincia, idCantonMarcar){
+            if(!cantonSelect){ return; }
+            if(!idProvincia){
+                cantonSelect.innerHTML = '<option value="">Seleccione primero una provincia</option>';
+                cantonSelect.disabled = true;
+                return;
+            }
+            cantonSelect.disabled = true;
+            cantonSelect.innerHTML = '<option value="">Cargando...</option>';
+            fetch('ajax_cantones_por_provincia.php?provincia_id=' + encodeURIComponent(idProvincia), { credentials: 'same-origin' })
+                .then(function(resp){ return resp.json(); })
+                .then(function(lista){
+                    var html = '<option value="">Seleccione un cantón</option>';
+                    lista.forEach(function(item){
+                        var marcado = (idCantonMarcar && parseInt(idCantonMarcar, 10) === item.id) ? ' selected="selected"' : '';
+                        html += '<option value="' + item.id + '"' + marcado + '>' + item.nombre + '</option>';
+                    });
+                    cantonSelect.innerHTML = html;
+                    cantonSelect.disabled = false;
+                })
+                .catch(function(){
+                    cantonSelect.innerHTML = '<option value="">No se pudo cargar los cantones</option>';
+                    mostrarError('No se pudo consultar los cantones de la provincia seleccionada.');
+                });
+        }
+
+        if(provinciaSelect){
+            provinciaSelect.addEventListener('change', function(){
+                cargarCantones(provinciaSelect.value, null);
+            });
+            if(provinciaSelect.value){ cargarCantones(provinciaSelect.value, cantonSeleccionadoPrevio); }
+        }
 
         <?php if($exitoReporte != ""){ ?>
         mostrarAviso(<?=json_encode($exitoReporte, JSON_UNESCAPED_UNICODE); ?>, 'Reporte guardado con éxito');

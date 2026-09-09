@@ -1024,7 +1024,9 @@ necesidad de tener formularios/tablas separados por programa:
 | Campo | Tipo | Nota |
 |---|---|---|
 | `nombre_lider` | texto libre | No es un usuario del sistema — es el líder local del grupo |
-| `ubicacion` | texto | |
+| `provincia_id` | select | FK lógica a `dane_departamentos.id_departamento` (agregada el 09-sep-2026, reemplaza el campo de texto libre) |
+| `canton_id` | select, dependiente de `provincia_id` | FK lógica a `dane_municipios.id_municipio`; se carga por AJAX (`ajax_cantones_por_provincia.php`) filtrando `dane_municipios.departamento_id = provincia_id` |
+| `ubicacion` | automático | Ya no lo llena el usuario: se compone en el servidor como `"{departamento} - {municipio}"` a partir de `provincia_id`/`canton_id`, para no romper las pantallas que ya leen esta columna como texto (`consultar-capacitador.php`, `grafica-capacitador.php`) |
 | `asistencia_hom`, `asistencia_muj`, `asistencia_jov`, `asistencia_nin` | número | |
 | `total_creyentes_grupo` | número | |
 | `nuevos_creyentes_grupo` | número | |
@@ -1081,7 +1083,9 @@ CREATE TABLE ecu_reportes (
     fecha_inicio                DATE             NOT NULL,   -- automático: fecha del reporte
     generacion                 TINYINT UNSIGNED NOT NULL,   -- automático: generación del grupo seleccionado
     grupo_madre                 VARCHAR(150)     NULL,       -- automático: grupo generación 1 del usuario
-    ubicacion                   VARCHAR(200)     NULL,
+    ubicacion                   VARCHAR(200)     NULL,       -- automático: "{provincia} - {canton}" (ver provincia_id/canton_id)
+    provincia_id                 INT(11)          NULL,       -- agregada 09-sep-2026, FK lógica a dane_departamentos.id_departamento
+    canton_id                    INT(11)          NULL,       -- agregada 09-sep-2026, FK lógica a dane_municipios.id_municipio
 
     asistencia_hom              INT UNSIGNED     NOT NULL DEFAULT 0,
     asistencia_muj              INT UNSIGNED     NOT NULL DEFAULT 0,
@@ -1198,6 +1202,29 @@ ALTER TABLE ecu_reportes ADD CONSTRAINT chk_ecu_reportes_mapeo CHECK (
         mapeo_trabajadores BETWEEN 1 AND 4)
 );
 ```
+
+### Ubicación por Provincia/Cantón en Capacitadores (agregado el 09-sep-2026)
+
+En `reportar_capacitador.php` y `editar_capacitador.php` (tipo_reporte =
+308), el campo "Ubicación" dejó de ser texto libre: ahora es un combo
+"Provincia" (`dane_departamentos`) y, dependiente de este, un combo
+"Cantón" (`dane_municipios`, filtrado por `departamento_id`) cargado por
+AJAX mediante `ajax_cantones_por_provincia.php`.
+
+- Se agregaron las columnas `provincia_id` y `canton_id` a `ecu_reportes`
+  (ids de `dane_departamentos`/`dane_municipios`; ya ejecutado en
+  producción).
+- `ecu_reportes.ubicacion` se sigue llenando, pero ahora automáticamente:
+  el servidor resuelve los nombres de la provincia y el cantón elegidos y
+  compone `"{departamento} - {municipio}"`, para que `consultar-capacitador.php`
+  y `grafica-capacitador.php` (que leen `ubicacion` como texto) sigan
+  funcionando sin cambios.
+- Validación: se rechaza el guardado si no se eligió provincia y cantón, o
+  si el cantón recibido no pertenece a la provincia recibida (se
+  revalida en el servidor con `AND departamento_id = :provincia_id`, no
+  solo se confía en lo que el `<select>` del navegador ya filtró).
+- Facilitadores (tipo_reporte = 318) **no se tocó**: sigue con `ubicacion`
+  como texto libre (auto-llenado desde la dirección de la cárcel elegida).
 
 ## Decisiones técnicas y correcciones aplicadas
 
