@@ -1036,6 +1036,7 @@ necesidad de tener formularios/tablas separados por programa:
 | `pabellon` | texto | Solo aplica si `tipo_reporte = 318` (Facilitadores) |
 | `foto` | archivo | Obligatoria al crear. Extensión guardada en la columna; archivo físico en disco |
 | `mapeo_oracion` … `mapeo_trabajadores` | 9 campos | **Facilitadores (318)**: Sí/No (checkbox), mismo toggle visual e íconos que `gestionar-sub-programa-evangelistas.php` (`mapeo_img/{campo}2.png` + switch `.check`); se guarda `1` = Sí, `0` = No. **Capacitadores (308)**: escala de 4 niveles (radio, igual criterio que `subcategoria-ecc.php`): `1` = No realizan la tarea, `2` = En compañía del entrenador, `3` = La realizan pero este mes no la hicieron, `4` = La realizan autónomamente (`mapeo_img/{campo}{1..4}.png`) |
+| `mapeo_iglesia` | radio Sí/No (agregado 09-sep-2026) | Solo `tipo_reporte = 308` (Capacitadores). Pregunta aparte, fuera de la escala 1-4 anterior: "¿Este grupo está comprometido como iglesia?" — `1` = Sí comprometido, `2` = No comprometido. Sin input equivalente en Facilitadores |
 | `comentario` | texto, opcional | Para ambos tipos de reporte |
 
 ### Campos automáticos (calculados en servidor, NO los llena el usuario)
@@ -1108,6 +1109,7 @@ CREATE TABLE ecu_reportes (
     mapeo_dar                    TINYINT UNSIGNED NOT NULL,
     mapeo_bautizar               TINYINT UNSIGNED NOT NULL,
     mapeo_trabajadores          TINYINT UNSIGNED NOT NULL,
+    mapeo_iglesia                 TINYINT UNSIGNED NOT NULL,   -- agregada 09-sep-2026, solo tipo_reporte = 308: 1 = Sí comprometido, 2 = No comprometido
 
     comentario                   TEXT             NULL,       -- opcional, ambos tipos de reporte
 
@@ -1225,6 +1227,24 @@ AJAX mediante `ajax_cantones_por_provincia.php`.
   solo se confía en lo que el `<select>` del navegador ya filtró).
 - Facilitadores (tipo_reporte = 318) **no se tocó**: sigue con `ubicacion`
   como texto libre (auto-llenado desde la dirección de la cárcel elegida).
+
+### Pregunta "¿Comprometido como iglesia?" en Capacitadores (agregado el 09-sep-2026)
+
+Nueva ficha en el "Método de verificación" de `reportar_capacitador.php` /
+`editar_capacitador.php`, aparte de las 9 actividades con escala 1-4:
+"¿Este grupo está comprometido como iglesia?", con dos opciones (`1` = Sí
+comprometido, `2` = No comprometido), guardada en `ecu_reportes.mapeo_iglesia`.
+Solo aplica a Capacitadores (308); Facilitadores (318) no tiene un campo
+equivalente.
+
+⚠️ **Migración pendiente en producción**: si la columna `mapeo_iglesia`
+todavía no existe en `ecu_reportes`, agregarla antes de que
+`reportar_capacitador.php`/`editar_capacitador.php` puedan guardar:
+
+```sql
+ALTER TABLE ecu_reportes
+ADD COLUMN mapeo_iglesia TINYINT UNSIGNED NOT NULL DEFAULT 1 AFTER mapeo_trabajadores;
+```
 
 ## Decisiones técnicas y correcciones aplicadas
 

@@ -86,6 +86,7 @@ if($idReporte > 0){
                 "mapeo_dar"               => intval($PSN1->f("mapeo_dar")),
                 "mapeo_bautizar"          => intval($PSN1->f("mapeo_bautizar")),
                 "mapeo_trabajadores"      => intval($PSN1->f("mapeo_trabajadores")),
+                "mapeo_iglesia"           => intval($PSN1->f("mapeo_iglesia")),
             );
         }
     }
@@ -162,6 +163,15 @@ $opcionesMapeo = array(
 );
 
 /*
+*   "¿Este grupo está comprometido como iglesia?": pregunta Sí/No aparte de
+*   la escala 1-4 anterior, se guarda en ecu_reportes.mapeo_iglesia.
+*/
+$opcionesIglesia = array(
+    1 => "Sí comprometido",
+    2 => "No comprometido",
+);
+
+/*
 *   Ubicación: Provincia (dane_departamentos) + Cantón (dane_municipios),
 *   igual que reportar_capacitador.php. El cantón se carga por AJAX según
 *   la provincia elegida (ver ajax_cantones_por_provincia.php).
@@ -195,6 +205,9 @@ if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_
         $valorPostulado = isset($_POST[$campo]) ? intval($_POST[$campo]) : 1;
         $valoresMapeo[$campo] = ($valorPostulado >= 1 && $valorPostulado <= 4) ? $valorPostulado : 1;
     }
+
+    $valorIglesiaPostulado = isset($_POST["mapeo_iglesia"]) ? intval($_POST["mapeo_iglesia"]) : 1;
+    $mapeo_iglesia = ($valorIglesiaPostulado == 1 || $valorIglesiaPostulado == 2) ? $valorIglesiaPostulado : 1;
 
     if($nombre_lider == ""){
         $errorReporte = "El nombre del líder es obligatorio.";
@@ -337,6 +350,7 @@ if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_
                 mapeo_dar = ".$valoresMapeo["mapeo_dar"].",
                 mapeo_bautizar = ".$valoresMapeo["mapeo_bautizar"].",
                 mapeo_trabajadores = ".$valoresMapeo["mapeo_trabajadores"].",
+                mapeo_iglesia = ".$mapeo_iglesia.",
                 comentario = ".$comentarioSql.$fotoSqlSet."
                 WHERE idreporte = ".$idReporte;
             $PSN1->query($sqlUpdate);
@@ -632,7 +646,7 @@ function valorCampo($nombre, $reporte, $default = ""){
 
     .ecu-wrap .ecu-mapeo-escala-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 16px;
         margin-top: 4px;
     }
@@ -663,9 +677,6 @@ function valorCampo($nombre, $reporte, $default = ""){
         cursor: pointer;
     }
     .ecu-wrap .ecu-mapeo-escala-opcion img { flex-shrink: 0; }
-    @media (max-width: 900px) {
-        .ecu-wrap .ecu-mapeo-escala-grid { grid-template-columns: 1fr 1fr; }
-    }
     @media (max-width: 560px) {
         .ecu-wrap .ecu-mapeo-escala-grid { grid-template-columns: 1fr; }
     }
@@ -928,6 +939,19 @@ function valorCampo($nombre, $reporte, $default = ""){
                             <?php } ?>
                         </div>
                     <?php } ?>
+                    <?php
+                    $valorIglesiaActual = isset($_POST["mapeo_iglesia"]) ? intval($_POST["mapeo_iglesia"]) : intval($reporte["mapeo_iglesia"]);
+                    if($valorIglesiaActual != 1 && $valorIglesiaActual != 2){ $valorIglesiaActual = 1; }
+                    ?>
+                    <div class="ecu-mapeo-escala-card">
+                        <h5 class="ecu-mapeo-escala-titulo">¿Este grupo está comprometido como iglesia?</h5>
+                        <?php foreach($opcionesIglesia as $valorOpcion => $textoOpcion){ ?>
+                            <label class="ecu-mapeo-escala-opcion">
+                                <input type="radio" name="mapeo_iglesia" value="<?=$valorOpcion; ?>" <?php if($valorIglesiaActual == $valorOpcion){ ?>checked="checked"<?php } ?> <?=$disabled; ?> />
+                                <span><?=htmlspecialchars($textoOpcion, ENT_QUOTES, "UTF-8"); ?></span>
+                            </label>
+                        <?php } ?>
+                    </div>
                 </div>
             </div>
 

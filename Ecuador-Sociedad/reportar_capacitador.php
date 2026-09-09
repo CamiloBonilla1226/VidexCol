@@ -130,6 +130,15 @@ $opcionesMapeo = array(
 );
 
 /*
+*   "¿Este grupo está comprometido como iglesia?": pregunta Sí/No aparte de
+*   la escala 1-4 anterior, se guarda en ecu_reportes.mapeo_iglesia.
+*/
+$opcionesIglesia = array(
+    1 => "Sí comprometido",
+    2 => "No comprometido",
+);
+
+/*
 *   Ubicación: Provincia (dane_departamentos) + Cantón (dane_municipios),
 *   en vez de un campo de texto libre. El cantón se carga por AJAX según la
 *   provincia elegida (ver ajax_cantones_por_provincia.php). Se guardan los
@@ -168,6 +177,9 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
         $valorPostulado = isset($_POST[$campo]) ? intval($_POST[$campo]) : 1;
         $valoresMapeo[$campo] = ($valorPostulado >= 1 && $valorPostulado <= 4) ? $valorPostulado : 1;
     }
+
+    $valorIglesiaPostulado = isset($_POST["mapeo_iglesia"]) ? intval($_POST["mapeo_iglesia"]) : 1;
+    $mapeo_iglesia = ($valorIglesiaPostulado == 1 || $valorIglesiaPostulado == 2) ? $valorIglesiaPostulado : 1;
 
     if($nombre_lider == ""){
         $errorReporte = "El nombre del líder es obligatorio.";
@@ -283,7 +295,7 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
                 asistencia_hom, asistencia_muj, asistencia_jov, asistencia_nin, asistencia_total,
                 total_creyentes_grupo, nuevos_creyentes_grupo, total_bautizados_grupo, nuevos_bautizados_grupo, asistencia_grupo,
                 mapeo_oracion, mapeo_companerismo, mapeo_adoracion, mapeo_biblia, mapeo_evangelizar,
-                mapeo_cena, mapeo_dar, mapeo_bautizar, mapeo_trabajadores,
+                mapeo_cena, mapeo_dar, mapeo_bautizar, mapeo_trabajadores, mapeo_iglesia,
                 comentario, carcel_ubicacion, pabellon, foto
             ) VALUES (
                 ".$idGrupo.", ".$idUsuarioSesion.", 308, '".$nombreLiderEscapado."', '".$nombreGrupoEscapado."', CURDATE(),
@@ -291,7 +303,7 @@ if(isset($_POST["funcion"]) && $_POST["funcion"] == "guardar_reporte"){
                 ".$asistencia_hom.", ".$asistencia_muj.", ".$asistencia_jov.", ".$asistencia_nin.", ".$asistencia_total.",
                 ".$total_creyentes_grupo.", ".$nuevos_creyentes_grupo.", ".$total_bautizados_grupo.", ".$nuevos_bautizados_grupo.", ".$asistencia_grupo.",
                 ".$valoresMapeo["mapeo_oracion"].", ".$valoresMapeo["mapeo_companerismo"].", ".$valoresMapeo["mapeo_adoracion"].", ".$valoresMapeo["mapeo_biblia"].", ".$valoresMapeo["mapeo_evangelizar"].",
-                ".$valoresMapeo["mapeo_cena"].", ".$valoresMapeo["mapeo_dar"].", ".$valoresMapeo["mapeo_bautizar"].", ".$valoresMapeo["mapeo_trabajadores"].",
+                ".$valoresMapeo["mapeo_cena"].", ".$valoresMapeo["mapeo_dar"].", ".$valoresMapeo["mapeo_bautizar"].", ".$valoresMapeo["mapeo_trabajadores"].", ".$mapeo_iglesia.",
                 ".$comentarioSql.", NULL, NULL, ".$fotoSql."
             )";
             $PSN1->query($sqlInsert);
@@ -548,7 +560,7 @@ function valorPrevio($nombre, $default = ""){
     */
     .ecu-wrap .ecu-mapeo-escala-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 16px;
         margin-top: 4px;
     }
@@ -579,9 +591,6 @@ function valorPrevio($nombre, $default = ""){
         cursor: pointer;
     }
     .ecu-wrap .ecu-mapeo-escala-opcion img { flex-shrink: 0; }
-    @media (max-width: 900px) {
-        .ecu-wrap .ecu-mapeo-escala-grid { grid-template-columns: 1fr 1fr; }
-    }
     @media (max-width: 560px) {
         .ecu-wrap .ecu-mapeo-escala-grid { grid-template-columns: 1fr; }
     }
@@ -823,6 +832,16 @@ function valorPrevio($nombre, $default = ""){
                             <?php } ?>
                         </div>
                     <?php } ?>
+                    <?php $valorIglesiaActual = isset($_POST["mapeo_iglesia"]) ? intval($_POST["mapeo_iglesia"]) : 1; ?>
+                    <div class="ecu-mapeo-escala-card">
+                        <h5 class="ecu-mapeo-escala-titulo">¿Este grupo está comprometido como iglesia?</h5>
+                        <?php foreach($opcionesIglesia as $valorOpcion => $textoOpcion){ ?>
+                            <label class="ecu-mapeo-escala-opcion">
+                                <input type="radio" name="mapeo_iglesia" value="<?=$valorOpcion; ?>" <?php if($valorIglesiaActual == $valorOpcion){ ?>checked="checked"<?php } ?> />
+                                <span><?=htmlspecialchars($textoOpcion, ENT_QUOTES, "UTF-8"); ?></span>
+                            </label>
+                        <?php } ?>
+                    </div>
                 </div>
             </div>
 
