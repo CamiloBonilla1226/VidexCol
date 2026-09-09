@@ -100,10 +100,11 @@ if($PSN1->num_rows() > 0){
 }
 $totalPaginas = ceil($totalRegistros / $registros);
 
-$sqlLista = "SELECT r.idreporte, r.ubicacion, r.total_creyentes_grupo, r.nuevos_creyentes_grupo, ";
+$sqlLista = "SELECT r.idreporte, r.total_creyentes_grupo, r.nuevos_creyentes_grupo, ";
 $sqlLista .= "r.total_bautizados_grupo, r.nuevos_bautizados_grupo, r.asistencia_grupo, r.foto, r.fecha_inicio, ";
-$sqlLista .= "u.nombre AS nombre_usuario ";
+$sqlLista .= "u.nombre AS nombre_usuario, d.departamento AS nombre_provincia ";
 $sqlLista .= "FROM ecu_reportes r LEFT JOIN usuario u ON u.id = r.idusuario ";
+$sqlLista .= "LEFT JOIN dane_departamentos d ON d.id_departamento = r.provincia_id ";
 $sqlLista .= "WHERE 1 ".$sqlFiltro." ORDER BY r.idreporte DESC ";
 $sqlLista .= "LIMIT ".$inicio.", ".$registros;
 $PSN1->query($sqlLista);
@@ -252,7 +253,7 @@ while($PSN2->next_record()){
                 <tr>
                     <th width="80px">ID reporte</th>
                     <th width="220px">Miembro de la Regional</th>
-                    <th width="220px">Ubicación</th>
+                    <th width="220px">Provincia</th>
                     <th width="70px" title="Total creyentes">Total creyentes</th>
                     <th width="70px" title="Nuevos creyentes">Nuevos creyentes</th>
                     <th width="70px" title="Total bautizados">Total bautizados</th>
@@ -269,7 +270,7 @@ while($PSN2->next_record()){
                     <tr class="clickable-row" data-href="index.php?doc=editar_capacitador&idreporte=<?=$PSN1->f("idreporte"); ?>">
                         <td><?=str_pad($PSN1->f("idreporte"), 6, "0", STR_PAD_LEFT); ?></td>
                         <td><?=htmlspecialchars($PSN1->f("nombre_usuario"), ENT_QUOTES, "UTF-8"); ?></td>
-                        <td><?=htmlspecialchars($PSN1->f("ubicacion"), ENT_QUOTES, "UTF-8"); ?></td>
+                        <td><?=htmlspecialchars($PSN1->f("nombre_provincia"), ENT_QUOTES, "UTF-8"); ?></td>
                         <td><?=$PSN1->f("total_creyentes_grupo"); ?></td>
                         <td><?=$PSN1->f("nuevos_creyentes_grupo"); ?></td>
                         <td><?=$PSN1->f("total_bautizados_grupo"); ?></td>
