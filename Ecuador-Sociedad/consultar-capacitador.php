@@ -160,7 +160,7 @@ while($PSN2->next_record()){
         </div>
         <div class="form-group">
             <?php if($esAdmin){ ?>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <strong>Miembro de la regional:</strong>
                     <select name="idUsuario" onchange="this.form.submit()" class="form-control">
                         <option value="">Ver todos</option>
@@ -172,12 +172,12 @@ while($PSN2->next_record()){
                     </select>
                 </div>
             <?php }else{ ?>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <strong>Miembro de la regional:</strong>
                     <input type="text" class="form-control" value="Solo tus reportes" disabled="disabled" />
                 </div>
             <?php } ?>
-            <div class="col-sm-3">
+            <div class="col-sm-2">
                 <strong>Provincia:</strong>
                 <select name="provinciaId" onchange="this.form.submit()" class="form-control">
                     <option value="">Ver todas</option>
@@ -196,18 +196,26 @@ while($PSN2->next_record()){
                 <strong>Fecha Final:</strong>
                 <input type="date" name="fechaFinal" id="fechaFinal" value="<?=htmlspecialchars($fechaFinal, ENT_QUOTES, "UTF-8"); ?>" class="form-control" />
             </div>
-            <div class="col-sm-1">
+            <div class="col-sm-4 filtro-botones">
                 <br>
                 <input type="submit" value="Filtrar" class="btn btn-success" />
-            </div>
-            <div class="col-sm-1">
-                <br>
-                <a href="index.php?doc=consultar-capacitador" class="btn btn-default">Limpiar filtros</a>
+                <a href="index.php?doc=consultar-capacitador" class="btn btn-primary">Limpiar filtros</a>
             </div>
         </div>
     </form>
 </div>
 <style>
+.filtro-botones {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filtro-botones .btn {
+    margin-top: 0;
+}
+
 .table tbody tr:hover td, .table tbody tr:hover th {
     background-color: #E0EEEE;
     color:#000;
