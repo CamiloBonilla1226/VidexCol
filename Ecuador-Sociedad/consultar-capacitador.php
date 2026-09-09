@@ -200,6 +200,10 @@ while($PSN2->next_record()){
                 <br>
                 <input type="submit" value="Filtrar" class="btn btn-success" />
             </div>
+            <div class="col-sm-1">
+                <br>
+                <a href="index.php?doc=consultar-capacitador" class="btn btn-default">Limpiar filtros</a>
+            </div>
         </div>
     </form>
 </div>
