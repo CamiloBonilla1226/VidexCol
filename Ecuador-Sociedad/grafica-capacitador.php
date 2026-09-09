@@ -85,6 +85,10 @@ if($esAdmin){
 */
 $sql = "SELECT
     COUNT(*) AS total_reportes,
+    COALESCE(SUM(asistencia_hom), 0) AS tot_hom,
+    COALESCE(SUM(asistencia_muj), 0) AS tot_muj,
+    COALESCE(SUM(asistencia_jov), 0) AS tot_jov,
+    COALESCE(SUM(asistencia_nin), 0) AS tot_nin,
     COALESCE(SUM(asistencia_grupo), 0) AS tot_asistencia_grupo,
     COALESCE(SUM(nuevos_creyentes_grupo), 0) AS tot_nuevos_creyentes,
     COALESCE(SUM(total_creyentes_grupo), 0) AS tot_creyentes,
@@ -92,16 +96,7 @@ $sql = "SELECT
     COALESCE(SUM(total_bautizados_grupo), 0) AS tot_bautizados,
     COUNT(DISTINCT NULLIF(ubicacion, '')) AS ubicaciones_atendidas,
     COUNT(DISTINCT idgrupo) AS grupos_reportados,
-    SUM(CASE WHEN foto IS NOT NULL AND foto <> '' THEN 1 ELSE 0 END) AS reportes_con_foto,
-    COALESCE(SUM(mapeo_oracion), 0) AS act_oracion,
-    COALESCE(SUM(mapeo_companerismo), 0) AS act_companerismo,
-    COALESCE(SUM(mapeo_adoracion), 0) AS act_adoracion,
-    COALESCE(SUM(mapeo_biblia), 0) AS act_biblia,
-    COALESCE(SUM(mapeo_evangelizar), 0) AS act_evangelizar,
-    COALESCE(SUM(mapeo_cena), 0) AS act_cena,
-    COALESCE(SUM(mapeo_dar), 0) AS act_dar,
-    COALESCE(SUM(mapeo_bautizar), 0) AS act_bautizar,
-    COALESCE(SUM(mapeo_trabajadores), 0) AS act_trabajadores
+    SUM(CASE WHEN foto IS NOT NULL AND foto <> '' THEN 1 ELSE 0 END) AS reportes_con_foto
     FROM ecu_reportes r
     WHERE 1 ".$sqlFiltro;
 $PSN1->query($sql);
@@ -110,6 +105,10 @@ $totalReportes = 0;
 if($PSN1->num_rows() > 0){
     $PSN1->next_record();
     $totalReportes           = intval($PSN1->f("total_reportes"));
+    $totHom                  = intval($PSN1->f("tot_hom"));
+    $totMuj                  = intval($PSN1->f("tot_muj"));
+    $totJov                  = intval($PSN1->f("tot_jov"));
+    $totNin                  = intval($PSN1->f("tot_nin"));
     $totAsistenciaGrupo      = intval($PSN1->f("tot_asistencia_grupo"));
     $totNuevosCreyentes      = intval($PSN1->f("tot_nuevos_creyentes"));
     $totCreyentes            = intval($PSN1->f("tot_creyentes"));
@@ -118,18 +117,29 @@ if($PSN1->num_rows() > 0){
     $ubicacionesAtendidas       = intval($PSN1->f("ubicaciones_atendidas"));
     $gruposReportados        = intval($PSN1->f("grupos_reportados"));
     $reportesConFoto         = intval($PSN1->f("reportes_con_foto"));
-    $actOracion              = intval($PSN1->f("act_oracion"));
-    $actCompanerismo         = intval($PSN1->f("act_companerismo"));
-    $actAdoracion            = intval($PSN1->f("act_adoracion"));
-    $actBiblia               = intval($PSN1->f("act_biblia"));
-    $actEvangelizar          = intval($PSN1->f("act_evangelizar"));
-    $actCena                 = intval($PSN1->f("act_cena"));
-    $actDar                  = intval($PSN1->f("act_dar"));
-    $actBautizar             = intval($PSN1->f("act_bautizar"));
-    $actTrabajadores         = intval($PSN1->f("act_trabajadores"));
 }
 
 $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $totalReportes) : 0;
+
+/*
+*   "Reportes por provincia": la tercera gráfica pedida, importante y sin
+*   relación con el mapeo — aprovecha provincia_id (agregado el
+*   09-sep-2026) para mostrar dónde se concentran los reportes.
+*/
+$provinciasNombres = array();
+$provinciasConteos = array();
+$sqlProvincias = "SELECT COALESCE(d.departamento, 'Sin provincia') AS provincia, COUNT(*) AS total
+    FROM ecu_reportes r
+    LEFT JOIN dane_departamentos d ON d.id_departamento = r.provincia_id
+    WHERE 1 ".$sqlFiltro."
+    GROUP BY provincia
+    ORDER BY total DESC
+    LIMIT 8";
+$PSN1->query($sqlProvincias);
+while($PSN1->next_record()){
+    $provinciasNombres[] = $PSN1->f("provincia");
+    $provinciasConteos[] = intval($PSN1->f("total"));
+}
 
 ?>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@600&display=swap" rel="stylesheet">
@@ -373,15 +383,21 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
         </div>
 
         <div class="ecu-card">
+            <h4 class="ecu-section-title">Asistencia</h4>
+            <p class="ecu-section-sub">Suma de asistencia registrada por grupo poblacional en el rango filtrado.</p>
+            <div id="graficaAsistencia" class="ecu-grafica-box" style="height: 320px;"></div>
+        </div>
+
+        <div class="ecu-card">
             <h4 class="ecu-section-title">Crecimiento del grupo</h4>
             <p class="ecu-section-sub">Nuevos vs. totales acumulados, en creyentes y bautizados.</p>
             <div id="graficaCrecimiento" class="ecu-grafica-box" style="height: 300px;"></div>
         </div>
 
         <div class="ecu-card">
-            <h4 class="ecu-section-title">Método de verificación</h4>
-            <p class="ecu-section-sub">De <?=$totalReportes; ?> reportes, cuántos marcaron Sí en cada actividad.</p>
-            <div id="graficaMapeo" class="ecu-grafica-box" style="height: 380px;"></div>
+            <h4 class="ecu-section-title">Reportes por provincia</h4>
+            <p class="ecu-section-sub">Dónde se concentran los reportes en el rango filtrado (máx. 8 provincias).</p>
+            <div id="graficaProvincias" class="ecu-grafica-box" style="height: 320px;"></div>
         </div>
 
     <?php } ?>
@@ -398,6 +414,23 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
         var colorAzul = "#1D5FA6";
         var colorVerde = "#2E8B4F";
         var colorRojo = "#A3302F";
+        var colorAmbar = "#C98A1F";
+
+        var dataAsistencia = google.visualization.arrayToDataTable([
+            ["Grupo", "Personas", { role: "style" }],
+            ["Hombres", <?=$totHom; ?>, colorAzul],
+            ["Mujeres", <?=$totMuj; ?>, colorAmbar],
+            ["Jóvenes", <?=$totJov; ?>, colorVerde],
+            ["Niños", <?=$totNin; ?>, colorRojo]
+        ]);
+        var viewAsistencia = new google.visualization.DataView(dataAsistencia);
+        viewAsistencia.setColumns([0, 1,
+            { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" }, 2]);
+        new google.visualization.BarChart(document.getElementById("graficaAsistencia")).draw(viewAsistencia, {
+            legend: { position: "none" },
+            bar: { groupWidth: "60%" },
+            chartArea: { width: "75%", height: "75%" }
+        });
 
         var dataCrecimiento = google.visualization.arrayToDataTable([
             ["Indicador", "Nuevos", "Total acumulado"],
@@ -411,23 +444,21 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
             chartArea: { width: "75%", height: "65%" }
         });
 
-        var dataMapeo = google.visualization.arrayToDataTable([
-            ["Actividad", "Sí la realiza", "No la realiza"],
-            ["Orar", <?=$actOracion; ?>, <?=$totalReportes - $actOracion; ?>],
-            ["Compañerismo", <?=$actCompanerismo; ?>, <?=$totalReportes - $actCompanerismo; ?>],
-            ["Adoración", <?=$actAdoracion; ?>, <?=$totalReportes - $actAdoracion; ?>],
-            ["Aplicar la biblia", <?=$actBiblia; ?>, <?=$totalReportes - $actBiblia; ?>],
-            ["Evangelizar", <?=$actEvangelizar; ?>, <?=$totalReportes - $actEvangelizar; ?>],
-            ["Cena del Señor", <?=$actCena; ?>, <?=$totalReportes - $actCena; ?>],
-            ["Dar", <?=$actDar; ?>, <?=$totalReportes - $actDar; ?>],
-            ["Bautizar", <?=$actBautizar; ?>, <?=$totalReportes - $actBautizar; ?>],
-            ["Entrenar líderes", <?=$actTrabajadores; ?>, <?=$totalReportes - $actTrabajadores; ?>]
+        var dataProvincias = google.visualization.arrayToDataTable([
+            ["Provincia", "Reportes"],
+            <?php
+            $filasProvincias = array();
+            foreach($provinciasNombres as $indice => $nombreProvincia){
+                $filasProvincias[] = "[".json_encode($nombreProvincia, JSON_UNESCAPED_UNICODE).", ".$provinciasConteos[$indice]."]";
+            }
+            echo implode(",\n            ", $filasProvincias);
+            ?>
         ]);
-        new google.visualization.BarChart(document.getElementById("graficaMapeo")).draw(dataMapeo, {
-            isStacked: "percent",
-            legend: { position: "top" },
-            colors: [colorVerde, colorRojo],
-            chartArea: { width: "60%", height: "85%" }
+        new google.visualization.BarChart(document.getElementById("graficaProvincias")).draw(dataProvincias, {
+            legend: { position: "none" },
+            colors: [colorAzul],
+            chartArea: { width: "65%", height: "80%" },
+            hAxis: { minValue: 0 }
         });
 
     }

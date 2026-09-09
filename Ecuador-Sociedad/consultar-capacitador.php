@@ -196,10 +196,12 @@ while($PSN2->next_record()){
                 <strong>Fecha Final:</strong>
                 <input type="date" name="fechaFinal" id="fechaFinal" value="<?=htmlspecialchars($fechaFinal, ENT_QUOTES, "UTF-8"); ?>" class="form-control" />
             </div>
-            <div class="col-sm-4 filtro-botones">
-                <br>
-                <input type="submit" value="Filtrar" class="btn btn-success" />
-                <a href="index.php?doc=consultar-capacitador" class="btn btn-primary">Limpiar filtros</a>
+            <div class="col-sm-4">
+                <strong>&nbsp;</strong>
+                <div class="filtro-botones">
+                    <input type="submit" value="Filtrar" class="btn btn-success" />
+                    <a href="index.php?doc=consultar-capacitador" class="btn btn-primary">Limpiar filtros</a>
+                </div>
             </div>
         </div>
     </form>
