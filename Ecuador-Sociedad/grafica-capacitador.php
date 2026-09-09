@@ -89,7 +89,6 @@ $sql = "SELECT
     COALESCE(SUM(asistencia_muj), 0) AS tot_muj,
     COALESCE(SUM(asistencia_jov), 0) AS tot_jov,
     COALESCE(SUM(asistencia_nin), 0) AS tot_nin,
-    COALESCE(SUM(asistencia_grupo), 0) AS tot_asistencia_grupo,
     COALESCE(SUM(nuevos_creyentes_grupo), 0) AS tot_nuevos_creyentes,
     COALESCE(SUM(total_creyentes_grupo), 0) AS tot_creyentes,
     COALESCE(SUM(nuevos_bautizados_grupo), 0) AS tot_nuevos_bautizados,
@@ -109,7 +108,6 @@ if($PSN1->num_rows() > 0){
     $totMuj                  = intval($PSN1->f("tot_muj"));
     $totJov                  = intval($PSN1->f("tot_jov"));
     $totNin                  = intval($PSN1->f("tot_nin"));
-    $totAsistenciaGrupo      = intval($PSN1->f("tot_asistencia_grupo"));
     $totNuevosCreyentes      = intval($PSN1->f("tot_nuevos_creyentes"));
     $totCreyentes            = intval($PSN1->f("tot_creyentes"));
     $totNuevosBautizados     = intval($PSN1->f("tot_nuevos_bautizados"));
@@ -122,24 +120,26 @@ if($PSN1->num_rows() > 0){
 $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $totalReportes) : 0;
 
 /*
-*   "Reportes por provincia": la tercera gráfica pedida, importante y sin
-*   relación con el mapeo — aprovecha provincia_id (agregado el
-*   09-sep-2026) para mostrar dónde se concentran los reportes.
+*   "Tendencia mensual de reportes": la tercera gráfica pedida, importante y
+*   sin relación con el mapeo. A diferencia de "Reportes por provincia"
+*   (descartada: con muchas provincias se ve saturada), el número de meses
+*   dentro del rango filtrado siempre es una cantidad razonable de barras.
 */
-$provinciasNombres = array();
-$provinciasConteos = array();
-$sqlProvincias = "SELECT r.provincia_id, d.departamento, COUNT(*) AS total
+$mesesNom = array("", "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic");
+$tendenciaMesesEtiquetas = array();
+$tendenciaMesesConteos = array();
+$sqlTendencia = "SELECT DATE_FORMAT(fecha_inicio, '%Y-%m') AS mes, COUNT(*) AS total
     FROM ecu_reportes r
-    LEFT JOIN dane_departamentos d ON d.id_departamento = r.provincia_id
     WHERE 1 ".$sqlFiltro."
-    GROUP BY r.provincia_id, d.departamento
-    ORDER BY total DESC
-    LIMIT 8";
-$PSN1->query($sqlProvincias);
+    GROUP BY mes
+    ORDER BY mes ASC";
+$PSN1->query($sqlTendencia);
 while($PSN1->next_record()){
-    $nombreProvincia = $PSN1->f("departamento");
-    $provinciasNombres[] = ($nombreProvincia == "" || $nombreProvincia === null) ? "Sin provincia" : $nombreProvincia;
-    $provinciasConteos[] = intval($PSN1->f("total"));
+    $mesTexto = $PSN1->f("mes");
+    $anio = substr($mesTexto, 0, 4);
+    $numeroMes = intval(substr($mesTexto, 5, 2));
+    $tendenciaMesesEtiquetas[] = $mesesNom[$numeroMes]." ".$anio;
+    $tendenciaMesesConteos[] = intval($PSN1->f("total"));
 }
 
 ?>
@@ -269,7 +269,7 @@ while($PSN1->next_record()){
     */
     .ecu-wrap .ecu-kpi-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 14px;
         margin-bottom: 20px;
     }
@@ -280,11 +280,6 @@ while($PSN1->next_record()){
         padding: 16px;
         text-align: center;
     }
-    .ecu-wrap .ecu-kpi-card-grande {
-        border: 1.5px solid var(--azul);
-        background: var(--azul-tint);
-        padding: 20px 16px;
-    }
     .ecu-wrap .ecu-kpi-valor {
         font-family: 'Fraunces', Georgia, serif;
         font-weight: 500;
@@ -292,9 +287,6 @@ while($PSN1->next_record()){
         color: var(--azul-dark);
         margin: 0;
         line-height: 1.1;
-    }
-    .ecu-wrap .ecu-kpi-valor-grande {
-        font-size: 40px;
     }
     .ecu-wrap .ecu-kpi-label {
         font-size: 12px;
@@ -369,10 +361,6 @@ while($PSN1->next_record()){
                 <p class="ecu-kpi-valor"><?=$totalReportes; ?></p>
                 <p class="ecu-kpi-label">Reportes</p>
             </div>
-            <div class="ecu-kpi-card ecu-kpi-card-grande">
-                <p class="ecu-kpi-valor ecu-kpi-valor-grande"><?=$totAsistenciaGrupo; ?></p>
-                <p class="ecu-kpi-label">Asistencia del grupo (acumulada)</p>
-            </div>
             <div class="ecu-kpi-card">
                 <p class="ecu-kpi-valor"><?=$ubicacionesAtendidas; ?></p>
                 <p class="ecu-kpi-label">Ubicaciones atendidas</p>
@@ -396,9 +384,9 @@ while($PSN1->next_record()){
         </div>
 
         <div class="ecu-card">
-            <h4 class="ecu-section-title">Reportes por provincia</h4>
-            <p class="ecu-section-sub">Dónde se concentran los reportes en el rango filtrado (máx. 8 provincias).</p>
-            <div id="graficaProvincias" class="ecu-grafica-box" style="height: 320px;"></div>
+            <h4 class="ecu-section-title">Tendencia mensual de reportes</h4>
+            <p class="ecu-section-sub">Cantidad de reportes registrados mes a mes en el rango filtrado.</p>
+            <div id="graficaTendencia" class="ecu-grafica-box" style="height: 320px;"></div>
         </div>
 
     <?php } ?>
@@ -459,20 +447,22 @@ while($PSN1->next_record()){
         }
 
         try{
-            var filasProvincias = <?=json_encode(array_map(function($nombre, $total){
-                return array($nombre, $total);
-            }, $provinciasNombres, $provinciasConteos), JSON_UNESCAPED_UNICODE); ?>;
-            var dataProvincias = google.visualization.arrayToDataTable([
-                ["Provincia", "Reportes"]
-            ].concat(filasProvincias));
-            new google.visualization.BarChart(document.getElementById("graficaProvincias")).draw(dataProvincias, {
+            var filasTendencia = <?=json_encode(array_map(function($etiqueta, $total){
+                return array($etiqueta, $total);
+            }, $tendenciaMesesEtiquetas, $tendenciaMesesConteos), JSON_UNESCAPED_UNICODE); ?>;
+            var dataTendencia = google.visualization.arrayToDataTable([
+                ["Mes", "Reportes"]
+            ].concat(filasTendencia));
+            new google.visualization.LineChart(document.getElementById("graficaTendencia")).draw(dataTendencia, {
                 legend: { position: "none" },
                 colors: [colorAzul],
-                chartArea: { width: "65%", height: "80%" },
-                hAxis: { minValue: 0 }
+                curveType: "function",
+                pointSize: 6,
+                chartArea: { width: "80%", height: "70%" },
+                vAxis: { minValue: 0, format: "0" }
             });
-        }catch(errorProvincias){
-            console.error("Error al dibujar la gráfica de Reportes por provincia:", errorProvincias);
+        }catch(errorTendencia){
+            console.error("Error al dibujar la gráfica de Tendencia mensual:", errorTendencia);
         }
 
     }
