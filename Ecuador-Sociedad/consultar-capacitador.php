@@ -64,11 +64,19 @@ if($esAdmin){
     $idUsuarioFiltro = $idUsuarioSesion;
 }
 
+/*
+*   Filtro "Provincia": r.provincia_id apunta a dane_departamentos.id_departamento.
+*/
+$provinciaFiltro = isset($_REQUEST["provinciaId"]) ? intval($_REQUEST["provinciaId"]) : 0;
+
 $sqlFiltro = " AND r.tipo_reporte = 308";
 $sqlFiltro .= " AND r.fecha_inicio >= '".$fechaInicial."'";
 $sqlFiltro .= " AND r.fecha_inicio <= '".$fechaFinal."'";
 if($idUsuarioFiltro > 0){
     $sqlFiltro .= " AND r.idusuario = ".$idUsuarioFiltro;
+}
+if($provinciaFiltro > 0){
+    $sqlFiltro .= " AND r.provincia_id = ".$provinciaFiltro;
 }
 
 /*
@@ -120,6 +128,19 @@ if($esAdmin){
     }
 }
 
+/*
+*   Combo "Provincia": todas las provincias del catálogo (dane_departamentos),
+*   sin importar si tienen o no reportes registrados.
+*/
+$listaProvincias = array();
+$PSN2->query("SELECT id_departamento, departamento FROM dane_departamentos ORDER BY departamento ASC");
+while($PSN2->next_record()){
+    $listaProvincias[] = array(
+        "id"     => intval($PSN2->f("id_departamento")),
+        "nombre" => $PSN2->f("departamento"),
+    );
+}
+
 ?>
 <div class="container">
 
@@ -155,6 +176,17 @@ if($esAdmin){
                     <input type="text" class="form-control" value="Solo tus reportes" disabled="disabled" />
                 </div>
             <?php } ?>
+            <div class="col-sm-3">
+                <strong>Provincia:</strong>
+                <select name="provinciaId" onchange="this.form.submit()" class="form-control">
+                    <option value="">Ver todas</option>
+                    <?php foreach($listaProvincias as $provinciaItem){ ?>
+                        <option value="<?=$provinciaItem["id"]; ?>" <?php if($provinciaFiltro == $provinciaItem["id"]){ ?>selected="selected"<?php } ?>>
+                            <?=htmlspecialchars($provinciaItem["nombre"], ENT_QUOTES, "UTF-8"); ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
             <div class="col-sm-2">
                 <strong>Fecha Inicial:</strong>
                 <input type="date" name="fechaInicial" id="fechaInicial" value="<?=htmlspecialchars($fechaInicial, ENT_QUOTES, "UTF-8"); ?>" class="form-control" />

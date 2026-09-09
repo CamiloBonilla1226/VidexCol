@@ -571,23 +571,23 @@ function valorPrevio($nombre, $default = ""){
         background: #FFFFFF;
     }
     .ecu-wrap .ecu-mapeo-escala-titulo {
-        margin: 0 0 10px;
-        font-size: 14px;
+        margin: 0 0 12px;
+        font-size: 16px;
         font-weight: 700;
     }
     .ecu-wrap .ecu-mapeo-escala-opcion {
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 6px 0;
-        font-size: 13px;
-        color: var(--gris-texto);
+        gap: 10px;
+        padding: 8px 0;
+        font-size: 16px;
+        color: var(--negro);
         cursor: pointer;
     }
     .ecu-wrap .ecu-mapeo-escala-opcion input[type="radio"] {
         flex-shrink: 0;
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         cursor: pointer;
     }
     .ecu-wrap .ecu-mapeo-escala-opcion img { flex-shrink: 0; }
