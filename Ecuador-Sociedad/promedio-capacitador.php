@@ -391,7 +391,6 @@ $columnas = array(
 
     <p class="ecu-eyebrow">ECU · Reportes</p>
     <h3 class="ecu-title">Promedio de Método de verificación · <?=$temp_letrero; ?></h3>
-    <h5 class="ecu-subtitle">Promedio por miembro de la escala 1-4 (no incluye "¿Comprometido como iglesia?")</h5>
 
     <?php if(!$esAdmin){ ?>
         <div class="ecu-banner">Este dashboard solo incluye tus propios reportes.</div>
