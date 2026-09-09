@@ -128,16 +128,17 @@ $porcentajeConFoto = ($totalReportes > 0) ? round(($reportesConFoto * 100) / $to
 */
 $provinciasNombres = array();
 $provinciasConteos = array();
-$sqlProvincias = "SELECT COALESCE(d.departamento, 'Sin provincia') AS provincia, COUNT(*) AS total
+$sqlProvincias = "SELECT r.provincia_id, d.departamento, COUNT(*) AS total
     FROM ecu_reportes r
     LEFT JOIN dane_departamentos d ON d.id_departamento = r.provincia_id
     WHERE 1 ".$sqlFiltro."
-    GROUP BY provincia
+    GROUP BY r.provincia_id, d.departamento
     ORDER BY total DESC
     LIMIT 8";
 $PSN1->query($sqlProvincias);
 while($PSN1->next_record()){
-    $provinciasNombres[] = $PSN1->f("provincia");
+    $nombreProvincia = $PSN1->f("departamento");
+    $provinciasNombres[] = ($nombreProvincia == "" || $nombreProvincia === null) ? "Sin provincia" : $nombreProvincia;
     $provinciasConteos[] = intval($PSN1->f("total"));
 }
 
@@ -416,50 +417,63 @@ while($PSN1->next_record()){
         var colorRojo = "#A3302F";
         var colorAmbar = "#C98A1F";
 
-        var dataAsistencia = google.visualization.arrayToDataTable([
-            ["Grupo", "Personas", { role: "style" }],
-            ["Hombres", <?=$totHom; ?>, colorAzul],
-            ["Mujeres", <?=$totMuj; ?>, colorAmbar],
-            ["Jóvenes", <?=$totJov; ?>, colorVerde],
-            ["Niños", <?=$totNin; ?>, colorRojo]
-        ]);
-        var viewAsistencia = new google.visualization.DataView(dataAsistencia);
-        viewAsistencia.setColumns([0, 1,
-            { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" }, 2]);
-        new google.visualization.BarChart(document.getElementById("graficaAsistencia")).draw(viewAsistencia, {
-            legend: { position: "none" },
-            bar: { groupWidth: "60%" },
-            chartArea: { width: "75%", height: "75%" }
-        });
+        /*
+        *   Cada gráfica queda en su propio try/catch: si una falla (dato
+        *   raro, elemento no encontrado, etc.) no debe impedir que las
+        *   otras dos se dibujen.
+        */
+        try{
+            var dataAsistencia = google.visualization.arrayToDataTable([
+                ["Grupo", "Personas", { role: "style" }],
+                ["Hombres", <?=$totHom; ?>, colorAzul],
+                ["Mujeres", <?=$totMuj; ?>, colorAmbar],
+                ["Jóvenes", <?=$totJov; ?>, colorVerde],
+                ["Niños", <?=$totNin; ?>, colorRojo]
+            ]);
+            var viewAsistencia = new google.visualization.DataView(dataAsistencia);
+            viewAsistencia.setColumns([0, 1,
+                { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" }, 2]);
+            new google.visualization.BarChart(document.getElementById("graficaAsistencia")).draw(viewAsistencia, {
+                legend: { position: "none" },
+                bar: { groupWidth: "60%" },
+                chartArea: { width: "75%", height: "75%" }
+            });
+        }catch(errorAsistencia){
+            console.error("Error al dibujar la gráfica de Asistencia:", errorAsistencia);
+        }
 
-        var dataCrecimiento = google.visualization.arrayToDataTable([
-            ["Indicador", "Nuevos", "Total acumulado"],
-            ["Creyentes", <?=$totNuevosCreyentes; ?>, <?=$totCreyentes; ?>],
-            ["Bautizados", <?=$totNuevosBautizados; ?>, <?=$totBautizados; ?>]
-        ]);
-        new google.visualization.BarChart(document.getElementById("graficaCrecimiento")).draw(dataCrecimiento, {
-            legend: { position: "top" },
-            colors: [colorVerde, colorAzul],
-            bar: { groupWidth: "50%" },
-            chartArea: { width: "75%", height: "65%" }
-        });
+        try{
+            var dataCrecimiento = google.visualization.arrayToDataTable([
+                ["Indicador", "Nuevos", "Total acumulado"],
+                ["Creyentes", <?=$totNuevosCreyentes; ?>, <?=$totCreyentes; ?>],
+                ["Bautizados", <?=$totNuevosBautizados; ?>, <?=$totBautizados; ?>]
+            ]);
+            new google.visualization.BarChart(document.getElementById("graficaCrecimiento")).draw(dataCrecimiento, {
+                legend: { position: "top" },
+                colors: [colorVerde, colorAzul],
+                bar: { groupWidth: "50%" },
+                chartArea: { width: "75%", height: "65%" }
+            });
+        }catch(errorCrecimiento){
+            console.error("Error al dibujar la gráfica de Crecimiento del grupo:", errorCrecimiento);
+        }
 
-        var dataProvincias = google.visualization.arrayToDataTable([
-            ["Provincia", "Reportes"],
-            <?php
-            $filasProvincias = array();
-            foreach($provinciasNombres as $indice => $nombreProvincia){
-                $filasProvincias[] = "[".json_encode($nombreProvincia, JSON_UNESCAPED_UNICODE).", ".$provinciasConteos[$indice]."]";
-            }
-            echo implode(",\n            ", $filasProvincias);
-            ?>
-        ]);
-        new google.visualization.BarChart(document.getElementById("graficaProvincias")).draw(dataProvincias, {
-            legend: { position: "none" },
-            colors: [colorAzul],
-            chartArea: { width: "65%", height: "80%" },
-            hAxis: { minValue: 0 }
-        });
+        try{
+            var filasProvincias = <?=json_encode(array_map(function($nombre, $total){
+                return array($nombre, $total);
+            }, $provinciasNombres, $provinciasConteos), JSON_UNESCAPED_UNICODE); ?>;
+            var dataProvincias = google.visualization.arrayToDataTable([
+                ["Provincia", "Reportes"]
+            ].concat(filasProvincias));
+            new google.visualization.BarChart(document.getElementById("graficaProvincias")).draw(dataProvincias, {
+                legend: { position: "none" },
+                colors: [colorAzul],
+                chartArea: { width: "65%", height: "80%" },
+                hAxis: { minValue: 0 }
+            });
+        }catch(errorProvincias){
+            console.error("Error al dibujar la gráfica de Reportes por provincia:", errorProvincias);
+        }
 
     }
 </script>
