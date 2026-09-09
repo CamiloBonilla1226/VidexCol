@@ -1246,6 +1246,28 @@ ALTER TABLE ecu_reportes
 ADD COLUMN mapeo_iglesia TINYINT UNSIGNED NOT NULL DEFAULT 1 AFTER mapeo_trabajadores;
 ```
 
+### Dashboard de promedios: `promedio-capacitador.php` (agregado el 09-sep-2026)
+
+Archivo nuevo, independiente de `grafica-capacitador.php`. Muestra, por
+miembro, el promedio de los 9 campos de la escala 1-4 del "Método de
+verificación" (`mapeo_oracion` … `mapeo_trabajadores`) sobre los reportes
+de Capacitadores (tipo_reporte = 308) del rango filtrado — **excluye a
+propósito `mapeo_iglesia`** (esa pregunta es Sí/No, no forma parte de la
+escala 1-4).
+
+- Tabla: Miembro, cantidad de reportes, un promedio (1 decimal) por cada
+  actividad (ORAC/COMP/ADOR/BIBLI/EVAN/CENA/DAR/BAUT/TRAB), "% GEN"
+  (promedio de esos 9 promedios) y "Estado".
+- "Estado" se calcula en PHP redondeando el "% GEN" al entero más cercano
+  (acotado entre 1 y 4): `1` = Por mejorar, `2` = Regular, `3` = Bueno,
+  `4` = Excelente. No es una columna de la base de datos.
+- Filtros: fecha inicial/final, Estado (filtra en PHP después de calcular
+  los promedios, porque depende del cálculo, no de una columna) y Miembro
+  (solo el admin puede elegir a cuál ver, mismo patrón que
+  `consultar-capacitador.php`).
+- Permisos: usuario.tipo = 2 ve el promedio de todos los capacitadores;
+  cualquier otro usuario solo ve el suyo.
+
 ## Decisiones técnicas y correcciones aplicadas
 
 - **`grupo_anterior` usa `NULL`, no `0`, para "sin antecesor".** Es una
