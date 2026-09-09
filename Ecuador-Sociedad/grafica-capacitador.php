@@ -93,7 +93,6 @@ $sql = "SELECT
     COALESCE(SUM(total_creyentes_grupo), 0) AS tot_creyentes,
     COALESCE(SUM(nuevos_bautizados_grupo), 0) AS tot_nuevos_bautizados,
     COALESCE(SUM(total_bautizados_grupo), 0) AS tot_bautizados,
-    COUNT(DISTINCT NULLIF(ubicacion, '')) AS ubicaciones_atendidas,
     COUNT(DISTINCT idgrupo) AS grupos_reportados,
     SUM(CASE WHEN foto IS NOT NULL AND foto <> '' THEN 1 ELSE 0 END) AS reportes_con_foto
     FROM ecu_reportes r
@@ -112,7 +111,6 @@ if($PSN1->num_rows() > 0){
     $totCreyentes            = intval($PSN1->f("tot_creyentes"));
     $totNuevosBautizados     = intval($PSN1->f("tot_nuevos_bautizados"));
     $totBautizados           = intval($PSN1->f("tot_bautizados"));
-    $ubicacionesAtendidas       = intval($PSN1->f("ubicaciones_atendidas"));
     $gruposReportados        = intval($PSN1->f("grupos_reportados"));
     $reportesConFoto         = intval($PSN1->f("reportes_con_foto"));
 }
@@ -269,7 +267,7 @@ while($PSN1->next_record()){
     */
     .ecu-wrap .ecu-kpi-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 14px;
         margin-bottom: 20px;
     }
@@ -296,9 +294,6 @@ while($PSN1->next_record()){
 
     .ecu-wrap .ecu-grafica-box { width: 100%; }
 
-    @media (max-width: 900px) {
-        .ecu-wrap .ecu-kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    }
     @media (max-width: 800px) {
         .ecu-wrap .ecu-filtros-grid { grid-template-columns: 1fr 1fr; }
     }
@@ -360,10 +355,6 @@ while($PSN1->next_record()){
             <div class="ecu-kpi-card">
                 <p class="ecu-kpi-valor"><?=$totalReportes; ?></p>
                 <p class="ecu-kpi-label">Reportes</p>
-            </div>
-            <div class="ecu-kpi-card">
-                <p class="ecu-kpi-valor"><?=$ubicacionesAtendidas; ?></p>
-                <p class="ecu-kpi-label">Ubicaciones atendidas</p>
             </div>
             <div class="ecu-kpi-card">
                 <p class="ecu-kpi-valor"><?=$porcentajeConFoto; ?>%</p>
