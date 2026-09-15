@@ -65,10 +65,6 @@ if($idReporte > 0){
                 "fecha_inicio"            => $PSN1->f("fecha_inicio"),
                 "nombre_lider"            => $PSN1->f("nombre_lider"),
                 "ubicacion"               => $PSN1->f("ubicacion"),
-                "asistencia_hom"          => intval($PSN1->f("asistencia_hom")),
-                "asistencia_muj"          => intval($PSN1->f("asistencia_muj")),
-                "asistencia_jov"          => intval($PSN1->f("asistencia_jov")),
-                "asistencia_nin"          => intval($PSN1->f("asistencia_nin")),
                 "total_creyentes_grupo"   => intval($PSN1->f("total_creyentes_grupo")),
                 "nuevos_creyentes_grupo"  => intval($PSN1->f("nuevos_creyentes_grupo")),
                 "total_bautizados_grupo"  => intval($PSN1->f("total_bautizados_grupo")),
@@ -226,17 +222,19 @@ if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_
 
     if($errorReporte == ""){
 
-        $asistencia_hom = intval($_POST["asistencia_hom"]);
-        $asistencia_muj = intval($_POST["asistencia_muj"]);
-        $asistencia_jov = intval($_POST["asistencia_jov"]);
-        $asistencia_nin = intval($_POST["asistencia_nin"]);
+        /*
+        *   Sección "Asistencia" (hom/muj/jov/nin) eliminada: el formulario
+        *   de creación (reportar_facilitador.php) ya no la pregunta. Al
+        *   editar tampoco se piden ni se tocan esas columnas — quedan
+        *   igual que estaban (fotografía histórica de reportes viejos que
+        *   sí las tenían diligenciadas).
+        */
         $total_creyentes_grupo = intval($_POST["total_creyentes_grupo"]);
         $nuevos_creyentes_grupo = intval($_POST["nuevos_creyentes_grupo"]);
         $total_bautizados_grupo = intval($_POST["total_bautizados_grupo"]);
         $nuevos_bautizados_grupo = intval($_POST["nuevos_bautizados_grupo"]);
 
         if(
-            $asistencia_hom < 0 || $asistencia_muj < 0 || $asistencia_jov < 0 || $asistencia_nin < 0 ||
             $total_creyentes_grupo < 0 || $nuevos_creyentes_grupo < 0 ||
             $total_bautizados_grupo < 0 || $nuevos_bautizados_grupo < 0
         ){
@@ -244,15 +242,10 @@ if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_
         }
 
         /*
-        *   Calculados SIEMPRE en el servidor, nunca confiando en un valor
+        *   Calculado SIEMPRE en el servidor, nunca confiando en un valor
         *   que llegue del navegador (mismo criterio de reportar_facilitador.php).
         */
-        $asistencia_total = $asistencia_hom + $asistencia_muj + $asistencia_jov + $asistencia_nin;
         $asistencia_grupo = $total_creyentes_grupo + $nuevos_creyentes_grupo + $total_bautizados_grupo + $nuevos_bautizados_grupo;
-
-        if($errorReporte == "" && $asistencia_total <= 0){
-            $errorReporte = "La asistencia total debe ser mayor a 0.";
-        }
 
         if($errorReporte == ""){
 
@@ -309,11 +302,6 @@ if($puedeEditar && isset($_POST["funcion"]) && $_POST["funcion"] == "actualizar_
             $sqlUpdate = "UPDATE ecu_reportes SET
                 nombre_lider = '".$nombreLiderEscapado."',
                 ubicacion = '".$ubicacionEscapada."',
-                asistencia_hom = ".$asistencia_hom.",
-                asistencia_muj = ".$asistencia_muj.",
-                asistencia_jov = ".$asistencia_jov.",
-                asistencia_nin = ".$asistencia_nin.",
-                asistencia_total = ".$asistencia_total.",
                 total_creyentes_grupo = ".$total_creyentes_grupo.",
                 nuevos_creyentes_grupo = ".$nuevos_creyentes_grupo.",
                 total_bautizados_grupo = ".$total_bautizados_grupo.",
@@ -784,37 +772,6 @@ function valorCampo($nombre, $reporte, $default = ""){
             <hr class="ecu-divider" />
 
             <div class="ecu-seccion">
-                <h4 class="ecu-section-title">Asistencia</h4>
-                <p class="ecu-section-sub">Personas que asistieron este mes.</p>
-
-                <div class="ecu-grid-4">
-                    <div class="ecu-field">
-                        <label class="ecu-label">Hombres</label>
-                        <input type="number" name="asistencia_hom" id="asistencia_hom" class="ecu-input" min="0" value="<?=valorCampo('asistencia_hom', $reporte, '0'); ?>" <?=$disabled; ?> />
-                    </div>
-                    <div class="ecu-field">
-                        <label class="ecu-label">Mujeres</label>
-                        <input type="number" name="asistencia_muj" id="asistencia_muj" class="ecu-input" min="0" value="<?=valorCampo('asistencia_muj', $reporte, '0'); ?>" <?=$disabled; ?> />
-                    </div>
-                    <div class="ecu-field">
-                        <label class="ecu-label">Jóvenes</label>
-                        <input type="number" name="asistencia_jov" id="asistencia_jov" class="ecu-input" min="0" value="<?=valorCampo('asistencia_jov', $reporte, '0'); ?>" <?=$disabled; ?> />
-                    </div>
-                    <div class="ecu-field">
-                        <label class="ecu-label">Niños</label>
-                        <input type="number" name="asistencia_nin" id="asistencia_nin" class="ecu-input" min="0" value="<?=valorCampo('asistencia_nin', $reporte, '0'); ?>" <?=$disabled; ?> />
-                    </div>
-                </div>
-
-                <div class="ecu-field" style="margin-bottom:0;">
-                    <label class="ecu-label">Asistencia total</label>
-                    <input type="text" id="asistencia_total_mostrar" class="ecu-input" readonly value="0" style="font-weight:600;" />
-                </div>
-            </div>
-
-            <hr class="ecu-divider" />
-
-            <div class="ecu-seccion">
                 <h4 class="ecu-section-title">Crecimiento del grupo</h4>
                 <p class="ecu-section-sub">Cifras acumuladas del grupo en el mes reportado.</p>
 
@@ -1050,9 +1007,7 @@ function valorCampo($nombre, $reporte, $default = ""){
             });
         }
 
-        var camposAsistencia = ['asistencia_hom', 'asistencia_muj', 'asistencia_jov', 'asistencia_nin'];
         var camposCrecimiento = ['nuevos_creyentes_grupo', 'total_creyentes_grupo', 'nuevos_bautizados_grupo', 'total_bautizados_grupo'];
-        var asistenciaTotalMostrar = document.getElementById('asistencia_total_mostrar');
         var asistenciaGrupoMostrar = document.getElementById('asistencia_grupo_mostrar');
 
         function sumarCampos(nombres){
@@ -1064,30 +1019,14 @@ function valorCampo($nombre, $reporte, $default = ""){
             return total;
         }
 
-        var asistenciaHomInput = document.getElementById('asistencia_hom');
-
-        function actualizarAsistenciaTotal(){
-            var total = sumarCampos(camposAsistencia);
-            if(asistenciaTotalMostrar){ asistenciaTotalMostrar.value = total; }
-            if(asistenciaHomInput){
-                asistenciaHomInput.setCustomValidity(total <= 0 ? 'La asistencia total debe ser mayor a 0.' : '');
-            }
-            return total;
-        }
-
         function actualizarAsistenciaGrupo(){
             if(asistenciaGrupoMostrar){ asistenciaGrupoMostrar.value = sumarCampos(camposCrecimiento); }
         }
 
-        camposAsistencia.forEach(function(nombre){
-            var input = document.getElementById(nombre);
-            if(input){ input.addEventListener('input', actualizarAsistenciaTotal); }
-        });
         camposCrecimiento.forEach(function(nombre){
             var input = document.getElementById(nombre);
             if(input){ input.addEventListener('input', actualizarAsistenciaGrupo); }
         });
-        actualizarAsistenciaTotal();
         actualizarAsistenciaGrupo();
 
         var carcelSelect = document.getElementById('carcelUbicacionSelect');
