@@ -20,7 +20,7 @@
             <a href="?doc=informe-coordinador-ecc" class="btn-mar btn btn-success">C&M<br><span class="btn-desc">(CAPACITAR Y MULTIPLICAR)</span></a>
             <a href="?doc=grafica-consolidado-proyecto-felipe" class="btn-mar btn btn-info">PROYECTO<br><span class="btn-desc">FELIPE</span></a>
             <a href="?doc=grafica-consolidado-instituto-biblico" class="btn-mar btn btn-warning">INSTITUTO<br><span class="btn-desc">BIBLICO</span></a>
-            <a href="?doc=consultar-sub-programa-ecop" class="btn-mar btn btn-default">ECOP<br><span class="btn-desc">Reporte</span></a>
+            <a href="?doc=consultar-sub-programa-ecop" class="btn-mar btn" style="background-color:#6f42c1;border-color:#6f42c1;color:#fff;">ECOP<br><span class="btn-desc">Reporte</span></a>
     </div><br><br>
     <input type="hidden" name="funcion" id="funcion" value="" />
     <input type="hidden" name="generacion" id="generacion" value="<?=$idVehiculo; ?>" />
