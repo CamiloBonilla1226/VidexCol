@@ -3879,6 +3879,8 @@ LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk";
 
             </div>
 
+            </div>
+
             <!--MODIFICAR REGISTRO DE VOLUNTARIOS EXTERNOS-->
 
             <div class="cont-tit">
@@ -4173,6 +4175,8 @@ LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk";
 
             </div>
 
+            </div>
+
             <div class="cont-tit">
 
                 <div class="hr">
@@ -4192,8 +4196,6 @@ LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk";
             </div>
 
             <div class="form-group">
-
-                <div class="form-group">
 
                     <div class="col-sm-2"></div>
 
