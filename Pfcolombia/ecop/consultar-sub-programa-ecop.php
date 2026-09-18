@@ -663,9 +663,17 @@ else{
     
     
 
-<div>  
-    <form method="POST" action="create_excel12.php">
-				<button class="btn btn-success pull-right" name="export"><span class="glyphicon glyphicon-print"></span> Participantes 2024-Actual Exportar a Excel</button>
+<div>
+    <form method="GET" action="generaExcel-graduados_ecop.php">
+                <input type="hidden" name="idUsuario" value="<?= $buscar_idUsuario; ?>" />
+                <input type="hidden" name="empresa_sitio_cor" value="<?= $buscar_zona; ?>" />
+                <input type="hidden" name="empresa_pd" value="<?= $buscar_regional; ?>" />
+                <input type="hidden" name="sitioReunion" value="<?= $buscar_prision; ?>" />
+                <input type="hidden" name="rep_qua" value="<?= $buscar_periodo; ?>" />
+                <input type="hidden" name="rep_inex" value="<?= $_REQUEST['rep_inex']; ?>" />
+                <input type="hidden" name="fechaInicial" value="<?= $fechaInicial; ?>" />
+                <input type="hidden" name="fechaFinal" value="<?= $fechaFinal; ?>" />
+				<button class="btn btn-success pull-right" name="export" type="submit"><span class="glyphicon glyphicon-print"></span> Participantes 2024-Actual Exportar a Excel</button>
 			</form>
 
 
