@@ -734,6 +734,80 @@ if($nombreCreadorGrupo !== ""){
     .ecu-wrap .ecu-panel-reporte { min-height: 220px; }
     #ecuPanelInfo { min-height: 0; }
 
+    /* ---------- HAMBURGUESA / DRAWER "MIS GRUPOS" (MÓVIL) ----------
+       En pantallas angostas, la ficha "Mis grupos" deja de mostrarse en
+       línea (no cabe junto al panel de reporte) y se convierte en un
+       panel deslizante ("drawer") que se abre desde un botón flotante
+       fijo en la esquina inferior izquierda. Reutiliza exactamente el
+       mismo formulario/buscador/lista que en escritorio, solo cambia su
+       posición vía CSS. */
+    .ecu-wrap .ecu-hamburger {
+        position: fixed;
+        left: 16px;
+        bottom: 16px;
+        z-index: 999;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--azul);
+        color: #FFFFFF;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.28);
+        cursor: pointer;
+    }
+    .ecu-wrap .ecu-drawer-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(26, 26, 26, 0.5);
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+    .ecu-wrap .ecu-drawer-backdrop.ecu-drawer-open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .ecu-wrap .ecu-drawer-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        background: var(--azul-tint);
+        color: var(--azul-dark);
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+    }
+    .ecu-wrap #ecuGruposPanel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 86%;
+        max-width: 340px;
+        background: #FFFFFF;
+        z-index: 1001;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        padding: 24px 18px;
+        overflow-y: auto;
+        box-shadow: 4px 0 24px rgba(0,0,0,0.22);
+        border-radius: 0;
+    }
+    .ecu-wrap #ecuGruposPanel.ecu-drawer-open {
+        transform: translateX(0);
+    }
+
     /* ---------- ESCRITORIO ---------- */
     @media (min-width: 900px) {
         .ecu-wrap {
@@ -754,6 +828,28 @@ if($nombreCreadorGrupo !== ""){
         .ecu-wrap .ecu-card { padding: 28px; }
         .ecu-wrap .ecu-section-title { font-size: 18.5px; }
         .ecu-wrap .ecu-btn { padding: 12px 28px; }
+
+        /* En escritorio "Mis grupos" vuelve a ser una ficha normal dentro
+           de la cuadrícula, no un drawer; el botón hamburguesa no aplica. */
+        .ecu-wrap .ecu-hamburger,
+        .ecu-wrap .ecu-drawer-backdrop,
+        .ecu-wrap .ecu-drawer-close {
+            display: none;
+        }
+        .ecu-wrap #ecuGruposPanel {
+            position: static;
+            top: auto; left: auto; bottom: auto;
+            width: auto;
+            max-width: none;
+            background: var(--gris-claro);
+            z-index: auto;
+            transform: none;
+            transition: none;
+            padding: 28px;
+            overflow: visible;
+            box-shadow: none;
+            border-radius: var(--radius-card);
+        }
     }
 
     @media (max-width: 560px) {
@@ -811,7 +907,8 @@ if($nombreCreadorGrupo !== ""){
     </div>
 
     <div class="ecu-fila-inferior">
-        <div class="ecu-card">
+        <div class="ecu-card" id="ecuGruposPanel">
+            <button type="button" class="ecu-drawer-close" id="ecuDrawerClose" aria-label="Cerrar">&times;</button>
             <h4 class="ecu-section-title">Mis grupos</h4>
             <p class="ecu-section-sub">Elige el grupo al que le vas a hacer el reporte.</p>
 
@@ -932,6 +1029,11 @@ if($nombreCreadorGrupo !== ""){
         </div>
     </div>
 
+    <button type="button" class="ecu-hamburger" id="ecuHamburger" aria-label="Ver mis grupos" aria-expanded="false" aria-controls="ecuGruposPanel">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="ecu-drawer-backdrop" id="ecuDrawerBackdrop"></div>
+
     <div class="ecu-modal-overlay oculto" id="ecuModalOverlay">
         <div class="ecu-modal-card" id="ecuModalCard">
             <div class="ecu-modal-icono" id="ecuModalIcono"></div>
@@ -951,6 +1053,36 @@ if($nombreCreadorGrupo !== ""){
         var selectGrupoAnterior = document.getElementById('grupo_anterior');
         var idGrupoActual = <?php echo intval($idGrupoSeleccionado); ?>;
         var nombreOriginalGrupo = '';
+
+        /*
+        *   Drawer "Mis grupos" (hamburguesa, solo visible en móvil vía
+        *   CSS). En escritorio estos elementos no se muestran, pero el
+        *   JS de apertura/cierre no molesta porque las clases que agrega
+        *   no tienen efecto ahí.
+        */
+        var hamburger = document.getElementById('ecuHamburger');
+        var gruposPanel = document.getElementById('ecuGruposPanel');
+        var drawerBackdrop = document.getElementById('ecuDrawerBackdrop');
+        var drawerClose = document.getElementById('ecuDrawerClose');
+
+        function abrirDrawerGrupos(){
+            if(gruposPanel){ gruposPanel.classList.add('ecu-drawer-open'); }
+            if(drawerBackdrop){ drawerBackdrop.classList.add('ecu-drawer-open'); }
+            if(hamburger){ hamburger.setAttribute('aria-expanded', 'true'); }
+            document.body.style.overflow = 'hidden';
+        }
+        function cerrarDrawerGrupos(){
+            if(gruposPanel){ gruposPanel.classList.remove('ecu-drawer-open'); }
+            if(drawerBackdrop){ drawerBackdrop.classList.remove('ecu-drawer-open'); }
+            if(hamburger){ hamburger.setAttribute('aria-expanded', 'false'); }
+            document.body.style.overflow = '';
+        }
+        if(hamburger){ hamburger.addEventListener('click', abrirDrawerGrupos); }
+        if(drawerBackdrop){ drawerBackdrop.addEventListener('click', cerrarDrawerGrupos); }
+        if(drawerClose){ drawerClose.addEventListener('click', cerrarDrawerGrupos); }
+        document.addEventListener('keydown', function(e){
+            if(e.key === 'Escape'){ cerrarDrawerGrupos(); }
+        });
 
         function escaparHtml(texto){
             var div = document.createElement('div');
@@ -1349,6 +1481,10 @@ if($nombreCreadorGrupo !== ""){
 
                 if(input && input.value){
                     cargarInfoGrupo(input.value);
+                }
+
+                if(window.matchMedia('(max-width: 899px)').matches){
+                    cerrarDrawerGrupos();
                 }
             });
 
