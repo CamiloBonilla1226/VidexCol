@@ -4,6 +4,19 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — Corrección: reportStudents.php y report_contact_student.php fallaban al abrirse
+
+**Problema:** en el servidor ambas páginas mostraban "¡Gibbon ha terminado!". Las dos cargaban `src/StyledSpreadsheetRenderer.php` al inicio; si ese archivo no está en el servidor (o está en otra carpeta), PHP falla antes de mostrar cualquier cosa.
+
+**Solución:** el archivo del renderer ahora solo se carga cuando se presiona Exportar. Sin él, las páginas en pantalla funcionan igual que antes; para que el Excel con diseño funcione hay que subirlo.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/reportStudents.php`
+- `modules/Informes Escolares/report_contact_student.php`
+- `modules/Informes Escolares/src/StyledSpreadsheetRenderer.php` (**debe quedar en la carpeta `src`**, junto a `InformesEscolaresGateway.php`; es necesario para exportar)
+
+---
+
 ## 2026-09-30 — Excel con diseño en el Directorio (report_contact_student.php)
 
 **Problema:** el Excel del Directorio salía feo: dirección y acudientes apilados en una sola celda, sin estilo.

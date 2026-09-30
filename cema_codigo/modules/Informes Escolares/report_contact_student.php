@@ -27,7 +27,6 @@ use Modules\InformesEscolares\StyledSpreadsheetRenderer;
 
 //Module includes
 require_once __DIR__ . '/moduleFunctions.php';
-require_once __DIR__ . '/src/StyledSpreadsheetRenderer.php';
 
 if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_contact_student.php') == false) {
     // Access denied
@@ -66,6 +65,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
     $table->setTitle(__('Directorio'));
 
     if ($viewMode == 'export') {
+        // Solo se necesita para exportar: si el archivo falta, el resto de la página sigue funcionando
+        require_once __DIR__ . '/src/StyledSpreadsheetRenderer.php';
         // EXCEL: columnas planas con diseño propio
         $table->addMetaData('filename', 'Directorio_'.date('Y-m-d'));
         $table->addMetaData('sheetTitle', 'Directorio');

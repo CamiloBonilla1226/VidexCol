@@ -26,7 +26,6 @@ use Modules\InformesEscolares\InformesEscolaresGateway;
 use Modules\InformesEscolares\StyledSpreadsheetRenderer;
 
 require_once __DIR__ . '/src/InformesEscolaresGateway.php';
-require_once __DIR__ . '/src/StyledSpreadsheetRenderer.php';
 
 if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportStudents.php') == false) {
     // Access denied
@@ -82,6 +81,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportS
     	$table->setTitle(__('Report Data'));
 
 	    if ($viewMode == 'export') {
+	        // Solo se necesita para exportar: si el archivo falta, el resto de la página sigue funcionando
+	        require_once __DIR__ . '/src/StyledSpreadsheetRenderer.php';
 	        // EXCEL: columnas planas con diseño propio
 	        $groupName = $pdo->select('SELECT name FROM gibbonFormGroup WHERE gibbonFormGroupID=:id', ['id' => $gibbonFormGroupID])->fetchColumn();
 	        $table->setTitle('Reporte de estudiantes'.(!empty($groupName) ? ' - Grupo '.$groupName : ''));
