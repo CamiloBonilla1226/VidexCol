@@ -179,6 +179,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 	    // La tabla conserva todas sus columnas. Si no cabe, el scroll horizontal queda dentro de este recuadro (la página
 	    // no se ensancha), la foto y el nombre del estudiante quedan fijos a la izquierda y las celdas son más compactas.
 	    echo '<style>
+	        /* Causa de que se ensanchara toda la página: #content es un elemento flex (lg:flex-1) y por defecto no puede ser más angosto que su contenido */
+	        #content-wrap, #content, #content-inner, #medicalReportStudents { min-width: 0; max-width: 100%; }
+	        #content { overflow-x: clip; }
 	        #medicalReportStudents table { table-layout: auto; }
 	        #medicalReportStudents th, #medicalReportStudents td { padding: 4px 8px; font-size: 0.875rem; }
 	        #medicalReportStudents th { white-space: normal; max-width: 120px; vertical-align: bottom; }

@@ -4,6 +4,21 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — medicalReportStudents.php: corrección de la página que se seguía ensanchando
+
+**Problema:** aunque la tabla tenía su propio scroll, toda la página (menú y buscador incluidos) seguía saliéndose de la pantalla.
+
+**Causa:** el contenedor de la página (`#content`) es un elemento flex (`lg:flex-1`) y, por defecto, un elemento flex no puede ser más angosto que su contenido; por eso el recuadro con scroll nunca llegaba a limitarse.
+
+**Solución:** en los estilos de esta página se agregó `min-width: 0` y `max-width: 100%` a `#content-wrap`, `#content`, `#content-inner` y al reporte, y `overflow-x: clip` a `#content`. Así el recuadro de la tabla sí queda limitado al ancho de la tarjeta y el scroll horizontal ocurre solo dentro de él. Solo afecta a esta página.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+
+**Notas:** verificado solo sintaxis PHP; sin prueba visual.
+
+---
+
 ## 2026-09-30 — medicalReportStudents.php: scroll dentro de la tarjeta, columnas fijas y tabla compacta
 
 **Problema:** la tabla (14 columnas, ~1144 px) era más ancha que la pantalla (965 px); su contenedor no recortaba el desborde y empujaba toda la página, incluido el menú, generando scroll horizontal general.
