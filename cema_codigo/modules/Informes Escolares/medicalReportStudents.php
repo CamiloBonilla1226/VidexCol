@@ -199,5 +199,25 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 	    echo '<div class="medical-wrap">';
 	    echo $table->render($dataSet);
 	    echo '</div>';
+	    // Aplica el recuadro con scroll directamente al contenedor de la tabla (sin depender de :has) y lo repite cada vez que la
+	    // tabla se vuelve a dibujar (ordenar, paginar). Así la barra horizontal queda siempre a la vista, abajo del recuadro.
+	    echo <<<'JS'
+<script>
+(function () {
+    var wrap = document.querySelector('.medical-wrap');
+    if (!wrap) return;
+    function apply() {
+        Array.prototype.forEach.call(wrap.querySelectorAll('table'), function (t) {
+            var box = t.parentElement;
+            if (!box || box === wrap) return;
+            box.style.setProperty('max-height', '75vh', 'important');
+            box.style.setProperty('overflow', 'auto', 'important');
+        });
+    }
+    apply();
+    if (window.MutationObserver) new MutationObserver(apply).observe(wrap, { childList: true, subtree: true });
+})();
+</script>
+JS;
 	}
 }

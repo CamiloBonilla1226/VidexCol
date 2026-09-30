@@ -4,6 +4,19 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — medicalReportStudents.php: la barra horizontal vuelve a quedar siempre a la vista
+
+**Problema:** al dejar solo la tabla con scroll, el recuadro no estaba limitando la altura y la barra horizontal volvía a quedar al final de los 50 estudiantes.
+
+**Solución:** el recuadro de scroll (altura máxima 75 % de la pantalla, scroll en ambos sentidos) ahora se aplica con JavaScript directamente al contenedor de la tabla, sin depender de `:has()`, y se reaplica cada vez que la tabla se redibuja (ordenar, paginar). Título, contador, Imprimir y Exportar siguen quietos; solo se mueve la tabla.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+
+**Notas:** verificado sintaxis PHP y JS; sin prueba visual.
+
+---
+
 ## 2026-09-30 — medicalReportStudents.php: solo la tabla se desplaza; se quita la barra superior
 
 **Cambios:**
