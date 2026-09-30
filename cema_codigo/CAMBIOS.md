@@ -17,6 +17,8 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 - Cambio mínimo (5 líneas); no se tocó la lógica ni el diseño del reporte. Sin verificar en el servidor todavía (php -l sin errores de sintaxis).
 - Otros archivos de este módulo aún usan `$gibbon->session` (no se modificaron).
 
+**Versionamiento:** el módulo `Informes Escolares` se agregó a la lista blanca de `modules/.gitignore`. Los archivos `lib/google/error_log` (117 MB) y `db/zemfzeav_cema.csv` (61 MB) se sacaron del historial y se agregaron a `.gitignore` porque superan el límite de GitHub. Siguen en el disco, solo no se versionan.
+
 ---
 
 ## 2026-09-29 — Arreglo del reporte de estudiantes (Informes Escolares)

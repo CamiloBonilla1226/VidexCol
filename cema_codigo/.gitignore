@@ -35,3 +35,7 @@ var/*
 
 # Ignore node_modules folder
 node_modules
+
+# archivos pesados (no subir a GitHub)
+lib/google/error_log
+db/zemfzeav_cema.csv
