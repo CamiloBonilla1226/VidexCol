@@ -90,29 +90,33 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
         $url = $session->get('absoluteURL').'/index.php?q=/modules/Informes Escolares/report_student_emergencySummary.php';
 
         echo '<style>
-            .es-card { border: 1px solid #d1d5db; border-radius: 6px; background: #fff; margin-bottom: 16px; }
-            .es-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #f3f4f6; border-radius: 6px 6px 0 0; }
-            .es-head strong { font-size: 1.05em; }
-            .es-body { padding: 14px; }
-            .es-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
-            .es-filters label { display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 3px; }
-            .es-filters input, .es-filters select { width: 100%; min-width: 180px; }
+            .es-card { border: 1px solid #3575EF; border-radius: 8px; background: #fff; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(53,117,239,.15); overflow: hidden; }
+            .es-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #3575EF; color: #fff; }
+            .es-head strong { font-size: 1.1em; letter-spacing: .2px; }
+            .es-body { padding: 16px; background: #F5F8FF; }
+            .es-filters { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; }
+            .es-filters label { display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 4px; color: #1E3A8A; }
+            .es-filters input, .es-filters select { width: 100%; min-width: 180px; border: 1px solid #9DB8F5; border-radius: 6px; background: #fff; }
+            .es-filters input:focus, .es-filters select:focus { outline: 2px solid #3575EF; outline-offset: 0; border-color: #3575EF; }
             .es-filters > div { flex: 1 1 200px; }
-            .es-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
-            .es-btn { border: 1px solid #9ca3af; background: #fff; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.9em; }
-            .es-btn:hover { background: #e5e7eb; }
-            .es-min { width: 30px; height: 30px; padding: 0; font-size: 1.3em; line-height: 1; font-weight: bold; }
-            .es-count { margin-left: auto; font-weight: bold; }
-            .es-list { max-height: 320px; overflow-y: auto; border: 1px solid #d1d5db; border-radius: 4px; }
-            .es-group { background: #e5e7eb; font-weight: bold; padding: 4px 10px; position: sticky; top: 0; }
-            .es-row { display: flex; align-items: center; gap: 8px; padding: 4px 10px; border-bottom: 1px solid #f3f4f6; cursor: pointer; }
-            .es-row:hover { background: #eff6ff; }
-            .es-row input { width: auto; min-width: 0; margin: 0; }
-            .es-row small { color: #6b7280; margin-left: auto; }
-            .es-empty { padding: 14px; text-align: center; color: #6b7280; display: none; }
-            .es-row.es-selected { background: #c3c8d0; font-weight: 600; box-shadow: inset 4px 0 0 #374151; }
+            .es-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+            .es-btn { border: 1px solid #3575EF; background: #fff; color: #2555B8; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.9em; font-weight: 600; }
+            .es-btn:hover { background: #E3ECFF; }
+            .es-btn-main { background: #3575EF; color: #fff; }
+            .es-btn-main:hover { background: #2B60CF; }
+            .es-min { width: 30px; height: 30px; padding: 0; font-size: 1.3em; line-height: 1; font-weight: bold; background: transparent; color: #fff; border-color: #fff; }
+            .es-min:hover { background: rgba(255,255,255,.25); }
+            .es-count { margin-left: auto; font-weight: bold; color: #1E3A8A; background: #DCE7FD; border-radius: 999px; padding: 4px 14px; }
+            .es-list { max-height: 320px; overflow-y: auto; border: 1px solid #9DB8F5; border-radius: 6px; background: #fff; }
+            .es-group { background: #DCE7FD; color: #1E3A8A; font-weight: bold; padding: 5px 12px; position: sticky; top: 0; border-bottom: 1px solid #9DB8F5; }
+            .es-row { display: flex; align-items: center; gap: 10px; padding: 6px 12px; border-bottom: 1px solid #EEF2FA; cursor: pointer; color: #1F2937; }
+            .es-row:hover { background: #EEF4FF; }
+            .es-row input { width: auto; min-width: 0; margin: 0; accent-color: #3575EF; }
+            .es-row small { color: #4B5563; margin-left: auto; }
+            .es-empty { padding: 14px; text-align: center; color: #4B5563; display: none; }
+            .es-row.es-selected { background: #c3c8d0; font-weight: 600; box-shadow: inset 5px 0 0 #3575EF; }
             .es-row.es-selected:hover { background: #b4bac4; }
-            .es-hint { margin-top: 10px; color: #6b7280; font-size: 0.9em; }
+            .es-hint { margin-top: 10px; color: #4B5563; font-size: 0.9em; }
             #es-result { transition: opacity .2s; }
         </style>';
 
@@ -137,8 +141,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
         echo '</div>';
 
         echo '<div class="es-tools">';
-        echo '<button type="button" class="es-btn" id="es-all">Seleccionar visibles</button>';
-        echo '<button type="button" class="es-btn" id="es-none">Quitar visibles</button>';
+        echo '<button type="button" class="es-btn es-btn-main" id="es-all">Seleccionar todo</button>';
         echo '<button type="button" class="es-btn" id="es-clear">Limpiar selección</button>';
         echo '<span class="es-count" id="es-count">0 seleccionados</span>';
         echo '</div>';
@@ -246,12 +249,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
     $('es-group').addEventListener('change', applyFilters);
     $('es-search').addEventListener('input', applyFilters);
 
-    function setVisible(value) {
-        rows.forEach(function (r) { if (isVisible(r)) r.querySelector('input').checked = value; });
+    // Selecciona todos los estudiantes que se ven con los filtros actuales
+    $('es-all').addEventListener('click', function () {
+        rows.forEach(function (r) { if (isVisible(r)) r.querySelector('input').checked = true; });
         changed();
-    }
-    $('es-all').addEventListener('click', function () { setVisible(true); });
-    $('es-none').addEventListener('click', function () { setVisible(false); });
+    });
     $('es-clear').addEventListener('click', function () {
         rows.forEach(function (r) { r.querySelector('input').checked = false; });
         changed();

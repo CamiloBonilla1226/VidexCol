@@ -4,6 +4,23 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — Tabla de estudiantes sin scroll horizontal y nuevo diseño del selector de emergencia
+
+**Cambios:**
+- **`reportStudents.php`:** la tabla se ajusta al ancho de la pantalla. El texto largo (correos, direcciones) baja de línea en lugar de ensanchar la tabla, así que ya no hace falta desplazarse horizontalmente. Solo se agregó un bloque de estilos antes de mostrar la tabla; la consulta y las columnas no cambian.
+- **`report_student_emergencySummary.php`:**
+  - Se eliminó el botón "Quitar visibles". Quedan "Seleccionar todo" (antes "Seleccionar visibles"; selecciona a todos los estudiantes que se ven con los filtros actuales) y "Limpiar selección".
+  - Nuevo diseño con el color de la página `#3575EF`: encabezado azul con texto blanco, fondo azul muy claro, campos con borde azul y foco resaltado, botón principal azul, contador de seleccionados en forma de etiqueta, grupos con banda azul clara y casillas en azul. Los estudiantes seleccionados siguen en gris más oscuro, ahora con la barra lateral azul.
+
+**Archivos modificados (subir al servidor):**
+- `modules/Informes Escolares/reportStudents.php`
+- `modules/Informes Escolares/report_student_emergencySummary.php`
+
+**Notas:**
+- Verificado: sintaxis PHP y JS. Falta probar visualmente en el servidor.
+
+---
+
 ## 2026-09-29 — Resumen de emergencia: reporte automático, selección resaltada y Excel con mejor diseño
 
 **Cambios en `report_student_emergencySummary.php`:**

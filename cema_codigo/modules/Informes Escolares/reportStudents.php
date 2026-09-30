@@ -108,6 +108,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportS
 	    $table->addColumn('email_mother', __('Email mamá'))->context('primary');
 	    $table->addColumn('homeAddress', __('Dir Casa'))->context('primary');
 
+	    // Ajusta la tabla al ancho de la pantalla: el texto largo (correos, direcciones) baja de línea en vez de ensanchar la tabla
+	    echo '<style>
+	        #reportStudents table { width: 100%; table-layout: auto; }
+	        #reportStudents th, #reportStudents td { overflow-wrap: anywhere; word-break: break-word; white-space: normal; padding-left: 6px; padding-right: 6px; }
+	        #reportStudents img { max-width: 100%; height: auto; }
+	    </style>';
+
 	    echo $table->render($dataSet);
 	}
 }
