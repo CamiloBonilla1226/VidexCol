@@ -176,6 +176,22 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 //	        });
 
 
+	    // La tabla conserva todas sus columnas. Si no cabe, el scroll horizontal queda dentro de este recuadro (la página
+	    // no se ensancha), la foto y el nombre del estudiante quedan fijos a la izquierda y las celdas son más compactas.
+	    echo '<style>
+	        #medicalReportStudents table { table-layout: auto; }
+	        #medicalReportStudents th, #medicalReportStudents td { padding: 4px 8px; font-size: 0.875rem; }
+	        #medicalReportStudents th { white-space: normal; max-width: 120px; vertical-align: bottom; }
+	        #medicalReportStudents th:nth-child(1), #medicalReportStudents td:nth-child(1) { position: sticky; left: 0; z-index: 2; background: #fff; width: 72px; min-width: 72px; }
+	        #medicalReportStudents th:nth-child(2), #medicalReportStudents td:nth-child(2) { position: sticky; left: 72px; z-index: 2; background: #fff; min-width: 180px; box-shadow: 2px 0 3px -1px rgba(0,0,0,.25); }
+	        @media print {
+	            .medical-scroll { overflow: visible !important; }
+	            #medicalReportStudents table { table-layout: auto; }
+	            #medicalReportStudents th, #medicalReportStudents td { position: static !important; box-shadow: none !important; }
+	        }
+	    </style>';
+	    echo '<div class="medical-scroll" style="width:100%; max-width:100%; min-width:0; overflow-x:auto; -webkit-overflow-scrolling:touch;">';
 	    echo $table->render($dataSet);
+	    echo '</div>';
 	}
 }

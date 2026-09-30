@@ -4,6 +4,24 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — medicalReportStudents.php: scroll dentro de la tarjeta, columnas fijas y tabla compacta
+
+**Problema:** la tabla (14 columnas, ~1144 px) era más ancha que la pantalla (965 px); su contenedor no recortaba el desborde y empujaba toda la página, incluido el menú, generando scroll horizontal general.
+
+**Solución (solo presentación; no cambia datos, botones ni paginador):**
+- La tabla va en un recuadro con `overflow-x: auto` y `max-width: 100%`: el scroll horizontal queda solo dentro del reporte y la página ya no se ensancha.
+- **Foto** y **Estudiante** quedan fijas a la izquierda al desplazarse (`position: sticky`); Estudiante tiene ancho mínimo de 180 px.
+- Celdas más compactas (padding reducido, letra 0.875rem) y encabezados que bajan de línea (máx. 120 px).
+- Al imprimir: sin recuadro de scroll, sin columnas fijas y con ancho automático.
+- Se mantienen las 14 columnas (no se juntaron los celulares).
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+
+**Notas:** verificado solo sintaxis PHP; no se pudo probar visualmente a 1366/1024/768 px. Falta revisarlo en el servidor.
+
+---
+
 ## 2026-09-30 — medicalReportStudents.php: se revierte a la primera versión
 
 **Motivo:** por petición, se descartan los ajustes de ancho posteriores y se vuelve a la primera versión (la que corrige el error de `queryStudentsData_3` y agrega el Excel con diseño). La tabla en pantalla vuelve a mostrar todas las columnas con foto y sin estilos de ajuste; puede necesitar scroll horizontal.
