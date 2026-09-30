@@ -4,6 +4,23 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — medicalReportStudents.php: barra de scroll horizontal siempre a la vista
+
+**Problema:** con 50 estudiantes por página, la barra de scroll horizontal quedaba al final de la tabla y había que bajar hasta abajo para usarla.
+
+**Solución:**
+- La tabla va en un recuadro con altura máxima del 75 % de la pantalla que se desplaza en ambos sentidos, así la barra horizontal queda siempre visible en la parte de abajo del recuadro.
+- Se agregó además una barra horizontal duplicada **arriba** de la tabla, sincronizada con la de abajo (solo aparece si la tabla no cabe). Se recalcula sola al ordenar o paginar.
+- Los encabezados, la foto y el nombre del estudiante quedan fijos al desplazarse.
+- Al imprimir no hay recuadro, barra ni columnas fijas.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+
+**Notas:** verificado sintaxis PHP y JS; sin prueba visual. El Excel y los datos no cambian.
+
+---
+
 ## 2026-09-30 — medicalReportStudents.php: corrección de la página que se seguía ensanchando
 
 **Problema:** aunque la tabla tenía su propio scroll, toda la página (menú y buscador incluidos) seguía saliéndose de la pantalla.
