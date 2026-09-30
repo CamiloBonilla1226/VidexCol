@@ -4,6 +4,23 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-29 — Corrección: el reporte y el Excel salían vacíos (Informes Escolares)
+
+**Problema:** tras el rediseño, "Resumen de Datos de Emergencia del Estudiante" no traía información y el botón Exportar generaba el Excel vacío.
+
+**Causa:** los IDs de estudiante en Gibbon llevan ceros a la izquierda (`0000001234`). El rediseño los convertía a número (`1234`) y la consulta ya no encontraba a ningún estudiante.
+
+**Solución:** los IDs se conservan como texto (validando que sean solo dígitos). Además, el botón "Ocultar filtros" ahora es un botón compacto **−** (minimizar) que cambia a **+** (expandir).
+
+**Archivos modificados (subir al servidor):**
+- `modules/Informes Escolares/report_student_emergencySummary.php`
+
+**Notas:**
+- "Generar reporte" solo muestra la tabla; el Excel se descarga con el botón **Exportar** de la tabla "Resumen de Datos de Emergencia del Estudiante".
+- Verificado solo sintaxis PHP; falta probar en el servidor.
+
+---
+
 ## 2026-09-29 — Rediseño de Resumen de emergencia (Informes Escolares)
 
 **Qué se mejoró en `report_student_emergencySummary.php`:**

@@ -44,8 +44,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
         $choices = explode(',', $_GET['gibbonPersonIDList']);
     }
 
-    // Solo IDs numéricos, sin repetidos
-    $choices = array_values(array_unique(array_filter(array_map('intval', (array) $choices))));
+    // Solo IDs numéricos, sin repetidos. Se dejan como texto: los IDs de Gibbon llevan ceros a la izquierda (0000001234)
+    $choices = array_values(array_unique(array_filter(array_map('strval', (array) $choices), 'ctype_digit')));
     $_GET['gibbonPersonIDList'] = implode(',', $choices);
 
     // Curso y grupo de cada estudiante activo del año escolar (para el filtro y para las tablas)
@@ -102,6 +102,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
             .es-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
             .es-btn { border: 1px solid #9ca3af; background: #fff; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.9em; }
             .es-btn:hover { background: #e5e7eb; }
+            .es-min { width: 30px; height: 30px; padding: 0; font-size: 1.3em; line-height: 1; font-weight: bold; }
             .es-btn-main { background: #2563eb; border-color: #2563eb; color: #fff; padding: 7px 18px; font-size: 1em; }
             .es-btn-main:hover { background: #1d4ed8; }
             .es-count { margin-left: auto; font-weight: bold; }
@@ -118,7 +119,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
 
         echo '<div class="es-card">';
         echo '<div class="es-head"><strong>'.__('Choose Students').'</strong>';
-        echo '<button type="button" class="es-btn" id="es-toggle">'.($hasReport ? 'Mostrar filtros' : 'Ocultar filtros').'</button></div>';
+        echo '<button type="button" class="es-btn es-min" id="es-toggle" title="'.($hasReport ? 'Expandir' : 'Minimizar').'" aria-label="Minimizar o expandir">'.($hasReport ? '+' : '&minus;').'</button></div>';
         echo '<div class="es-body" id="es-body"'.($hasReport ? ' style="display:none"' : '').'>';
         echo '<form method="post" action="'.$h($url).'" id="es-form">';
 
@@ -152,7 +153,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
             }
             $fullName = $s['surname'].', '.$s['preferredName'];
             echo '<label class="es-row" data-year="'.$h($s['gibbonYearGroupID']).'" data-group="'.$h($s['gibbonFormGroupID']).'" data-name="'.$h(mb_strtolower($fullName, 'UTF-8')).'">';
-            echo '<input type="checkbox" name="gibbonPersonID[]" value="'.$h($s['gibbonPersonID']).'"'.(in_array((int) $s['gibbonPersonID'], $choices, true) ? ' checked' : '').'>';
+            echo '<input type="checkbox" name="gibbonPersonID[]" value="'.$h($s['gibbonPersonID']).'"'.(in_array((string) $s['gibbonPersonID'], $choices, true) ? ' checked' : '').'>';
             echo '<span>'.$h($fullName).'</span><small>'.$h($s['formGroup']).'</small>';
             echo '</label>';
         }
@@ -233,7 +234,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
         var body = $('es-body');
         var hidden = body.style.display === 'none';
         body.style.display = hidden ? '' : 'none';
-        this.textContent = hidden ? 'Ocultar filtros' : 'Mostrar filtros';
+        this.innerHTML = hidden ? '&minus;' : '+';
+        this.title = hidden ? 'Minimizar' : 'Expandir';
     });
 
     updateCount();
