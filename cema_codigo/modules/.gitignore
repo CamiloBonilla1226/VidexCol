@@ -57,3 +57,7 @@
 # black list some files and folders
 # in the module folders
 **/.DS_Store
+
+# whitelist custom module
+!/Informes Escolares
+!/Informes Escolares/**
