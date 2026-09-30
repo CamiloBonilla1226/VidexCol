@@ -18,6 +18,10 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
  *  - groups:        [idColumna => 'Nombre de la sección'] (las secciones se colorean en orden)
  *  - freezeColumns: cantidad de columnas que quedan fijas al desplazarse (por defecto 2)
  *  - sheetTitle:    nombre de la hoja (por defecto 'Reporte')
+ *  - subtitle:      texto que se agrega a la segunda línea (por ejemplo, el período consultado)
+ *  - countLabel:    texto después del total de filas (por defecto 'estudiante(s)'); false para ocultarlo
+ *  - numericColumns:[idColumna => 'formato Excel'] columnas que se guardan como número (ej. '0', '0.0')
+ *  - Si una fila trae el dato '_isTotal' => true se resalta como fila de totales
  *  - creator, filename: los define ReportTable::setViewMode()
  */
 class StyledSpreadsheetRenderer extends SpreadsheetRenderer
@@ -49,7 +53,7 @@ class StyledSpreadsheetRenderer extends SpreadsheetRenderer
         $columns = [];
         foreach ($table->getColumns() as $id => $column) {
             if ($column instanceof ActionColumn || $column instanceof ExpandableColumn) continue;
-            $columns[$id] = $column;
+            $columns[$column->getID()] = $column;
         }
 
         if (empty($columns) || $dataSet->count() == 0) {
@@ -83,7 +87,11 @@ class StyledSpreadsheetRenderer extends SpreadsheetRenderer
         $sheet->getRowDimension(1)->setRowHeight(34);
 
         // Fila 2: datos de la generación
-        $sheet->setCellValue('A2', 'Generado el '.date('d/m/Y H:i').' por '.$creator.'   |   '.$dataSet->count().' estudiante(s)');
+        $countLabel = $table->getMetaData('countLabel', 'estudiante(s)');
+        $info = 'Generado el '.date('d/m/Y H:i').' por '.$creator;
+        if ($countLabel !== false) $info .= '   |   '.$dataSet->count().' '.$countLabel;
+        if ($table->getMetaData('subtitle')) $info .= '   |   '.$table->getMetaData('subtitle');
+        $sheet->setCellValue('A2', $info);
         $sheet->mergeCells('A2:'.$lastCol.'2');
         $sheet->getStyle('A2')->applyFromArray([
             'font' => ['italic' => true, 'size' => 10, 'color' => ['rgb' => '595959']],
@@ -126,11 +134,19 @@ class StyledSpreadsheetRenderer extends SpreadsheetRenderer
         $sheet->getRowDimension(5)->setRowHeight(30);
 
         // Filas de datos
+        $numeric = $table->getMetaData('numericColumns', []);
         $row = 6;
         foreach ($dataSet as $data) {
-            foreach (array_values($columns) as $i => $column) {
-                $value = $this->stripTags($column->getOutput($data, false));
-                $sheet->setCellValueExplicit($this->num2alpha($i).$row, $value, DataType::TYPE_STRING);
+            foreach (array_values($ids) as $i => $id) {
+                $value = $this->stripTags($columns[$id]->getOutput($data, false));
+                $cell = $this->num2alpha($i).$row;
+                if (isset($numeric[$id]) && is_numeric($value)) {
+                    $sheet->setCellValueExplicit($cell, $value + 0, DataType::TYPE_NUMERIC);
+                    $sheet->getStyle($cell)->getNumberFormat()->setFormatCode($numeric[$id]);
+                    $sheet->getStyle($cell)->getAlignment()->setHorizontal('center');
+                } else {
+                    $sheet->setCellValueExplicit($cell, $value, DataType::TYPE_STRING);
+                }
             }
 
             $range = 'A'.$row.':'.$lastCol.$row;
@@ -141,13 +157,22 @@ class StyledSpreadsheetRenderer extends SpreadsheetRenderer
             if ($row % 2 == 1) {
                 $sheet->getStyle($range)->applyFromArray(['fill' => $this->fill('F5F8FC')]);
             }
+            if (!empty($data['_isTotal'])) {
+                $sheet->getStyle($range)->applyFromArray([
+                    'fill' => $this->fill('DCE6F1'),
+                    'font' => ['bold' => true, 'size' => 11],
+                    'borders' => ['top' => ['borderStyle' => 'medium', 'color' => ['rgb' => '1F4E78']]],
+                ]);
+            }
             $row++;
         }
 
         // Columnas fijas, filtros y opciones de impresión
         $freeze = intval($table->getMetaData('freezeColumns', 2));
         $sheet->freezePane($this->num2alpha($freeze).'6');
-        $sheet->setAutoFilter('A5:'.$lastCol.($row - 1));
+        // La fila de totales (si existe, es la última) queda fuera del filtro para que no se ordene con los datos
+        $filterEnd = (!empty($data['_isTotal']) && $row - 2 > 5) ? $row - 2 : $row - 1;
+        $sheet->setAutoFilter('A5:'.$lastCol.$filterEnd);
         $setup = $sheet->getPageSetup();
         $setup->setOrientation('landscape');
         $setup->setFitToWidth(1);

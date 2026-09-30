@@ -4,6 +4,32 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — Reporte de edad promedio / sexo (report_formGroupSummary.php): fechas, español y Excel
+
+**Para qué sirven las fechas (se dejó documentado en la pantalla, en español):** por defecto el reporte cuenta a los estudiantes matriculados en el año escolar actual con estado Activo. Si se escriben fechas, muestra cómo estaba el colegio en ese período: cuenta a los estudiantes cuya fecha de inicio es anterior o igual a "Desde" y cuya fecha de salida es posterior o igual a "Hasta" (o no tienen esas fechas), sin importar su estado actual. La edad promedio siempre se calcula con la fecha de hoy.
+
+**Errores encontrados y corregidos:**
+1. **Filtro de fechas defectuoso (del núcleo de Gibbon):** "Desde" y "Hasta" usaban el mismo parámetro SQL `:date`, así que con las dos fechas puestas, la segunda pisaba a la primera y el resultado era incorrecto. Ahora la consulta vive en la propia página, con parámetros separados, sin tocar el núcleo.
+2. **Si se escribía solo una fecha,** la otra se completaba únicamente en pantalla; al exportar o imprimir se usaba otra distinta. Ahora se completa siempre, antes de consultar.
+3. **Fila "Todos los grupos":** la edad promedio era un promedio de promedios (sin ponderar por cantidad de estudiantes). Ahora se calcula con todos los estudiantes.
+4. **Hombres + Mujeres no sumaba el Total** (los demás sexos no se mostraban). Ahora aparece la columna "Otros / No especificado" cuando hay alguno.
+5. La edad ya no sale con formato de texto (`FORMAT`), sino como número redondeado.
+
+**Español:** título, introducción, etiquetas de fechas, columnas (Grupo, Edad promedio (años), Hombres, Mujeres, Total), botón "Limpiar filtros" y fila "Todos los grupos".
+
+**Excel:** título, fecha de generación, período consultado, bandas de color (Grupo / Edad / Estudiantes por sexo / Total), números guardados como números (se pueden sumar y ordenar), fila de totales resaltada y fuera del filtro, columna de grupo fija e impresión horizontal. Archivo: `EdadPromedio_Sexo_AAAA-MM-DD.xlsx`.
+
+**Corrección en el renderer de Excel compartido:** las bandas de color por sección y el resaltado en rojo de fechas sin actualizar no se aplicaban (todo caía en una sola sección), porque las columnas no se identificaban por su nombre. Ya funciona en los Excel de Resumen de emergencia, Estudiantes, Directorio y este.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/report_formGroupSummary.php`
+- `modules/Informes Escolares/src/StyledSpreadsheetRenderer.php` (**actualizado**: volver a subirlo)
+- `modules/Informes Escolares/report_student_emergencySummary.php` (1 línea corregida en el Excel)
+
+**Notas:** verificado sintaxis PHP y generación de un .xlsx de prueba; falta probar con datos reales (la consulta SQL no se pudo ejecutar aquí, sin base de datos).
+
+---
+
 ## 2026-09-30 — Corrección: reportStudents.php y report_contact_student.php fallaban al abrirse
 
 **Problema:** en el servidor ambas páginas mostraban "¡Gibbon ha terminado!". Las dos cargaban `src/StyledSpreadsheetRenderer.php` al inicio; si ese archivo no está en el servidor (o está en otra carpeta), PHP falla antes de mostrar cualquier cosa.

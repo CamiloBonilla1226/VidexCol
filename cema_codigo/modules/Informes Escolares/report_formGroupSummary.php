@@ -23,6 +23,7 @@ use Gibbon\Services\Format;
 use Gibbon\Forms\DatabaseFormFactory;
 use Gibbon\Tables\Prefab\ReportTable;
 use Gibbon\Domain\Students\StudentReportGateway;
+use Modules\InformesEscolares\StyledSpreadsheetRenderer;
 
 //Module includes
 require_once __DIR__ . '/moduleFunctions.php';
@@ -33,33 +34,36 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
 } else {
     //Proceed!
     $viewMode = $_REQUEST['format'] ?? '';
-    $gibbonSchoolYearID = $gibbon->session->get('gibbonSchoolYearID');
+    $gibbonSchoolYearID = $session->get('gibbonSchoolYearID');
     $today = time();
     $dateFrom = $_GET['dateFrom'] ?? '';
     $dateTo = $_GET['dateTo'] ?? '';
+    $dateFormatPHP = $session->get('i18n')['dateFormatPHP'];
+
+    // Si solo se escribe una fecha se completa la otra. Se hace fuera del formulario para que
+    // la pantalla, la impresión y el Excel usen exactamente las mismas fechas.
+    if (empty($dateFrom) && !empty($dateTo)) {
+        $dateFrom = date($dateFormatPHP);
+    }
+    if (empty($dateTo) && !empty($dateFrom)) {
+        $dateTo = (Format::timestamp(Format::dateConvert($dateFrom)) > $today) ? $dateFrom : date($dateFormatPHP);
+    }
+    $hasDates = !empty($dateFrom) || !empty($dateTo);
 
     if (empty($viewMode)) {
-        $page->breadcrumbs->add(__('Reporte Edad promedio / Sexo'));
+        $page->breadcrumbs->add('Reporte de edad promedio / sexo');
 
-        echo '<h2>';
-        echo __('Choose Options');
-        echo '</h2>';
+        echo '<h2>Elegir opciones</h2>';
 
         echo '<p>';
-        echo __('By default this report counts all students who are enrolled in the current academic year and whose status is currently set to full. However, if dates are set, only those students who have start and end dates outside of the specified dates, or have no start and end dates, will be shown (irrespective of their status).');
+        echo 'Este reporte muestra, por cada grupo, la edad promedio y la cantidad de estudiantes por sexo. ';
+        echo 'Por defecto cuenta a los estudiantes matriculados en el año escolar actual cuyo estado es <b>Activo</b>.';
         echo '</p>';
-
-        if (empty($dateFrom) && !empty($dateTo)) {
-            $dateFrom = date($session->get('i18n')['dateFormatPHP']);
-        }
-        if (empty($dateTo) && !empty($dateFrom)) {
-            if (Format::timestamp(Format::dateConvert($dateFrom))>$today) {
-                $dateTo = $dateFrom;
-            }
-            else {
-                $dateTo = date($session->get('i18n')['dateFormatPHP']);
-            }
-        }
+        echo '<p>';
+        echo 'Si escribe fechas, el reporte muestra cómo estaba el colegio en ese período: cuenta a los estudiantes cuya fecha de inicio es ';
+        echo 'anterior o igual a la fecha <b>Desde</b> y cuya fecha de salida es posterior o igual a la fecha <b>Hasta</b> ';
+        echo '(o que no tienen esas fechas), sin importar su estado actual. La edad promedio siempre se calcula con la fecha de hoy.';
+        echo '</p>';
 
         $form = Form::create('filter', $session->get('absoluteURL').'/index.php', 'get');
 
@@ -69,61 +73,131 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
         $form->addHiddenValue('q', "/modules/".$session->get('module')."/report_formGroupSummary.php");
 
         $row = $form->addRow();
-            $row->addLabel('dateFrom', __('From Date'))->description(__('Start date must be before this date.'))->append('<br/>')->append(__('Format:').' ')->append($session->get('i18n')['dateFormat']);
+            $row->addLabel('dateFrom', 'Desde')->description('La fecha de inicio del estudiante debe ser anterior o igual a esta fecha.')->append('<br/>')->append('Formato: ')->append($session->get('i18n')['dateFormat']);
             $row->addDate('dateFrom')->setValue($dateFrom);
 
         $row = $form->addRow();
-            $row->addLabel('dateTo', __('To Date'))->description(__('End date must be after this date.'))->append('<br/>')->append(__('Format:').' ')->append($session->get('i18n')['dateFormat']);
+            $row->addLabel('dateTo', 'Hasta')->description('La fecha de salida del estudiante debe ser posterior o igual a esta fecha.')->append('<br/>')->append('Formato: ')->append($session->get('i18n')['dateFormat']);
             $row->addDate('dateTo')->setValue($dateTo);
-
 
         $row = $form->addRow();
             $row->addFooter();
-            $row->addSearchSubmit($gibbon->session);
+            $row->addSearchSubmit($session, 'Limpiar filtros');
 
         echo $form->getOutput();
+
+        echo '<p><i>';
+        echo $hasDates
+            ? 'Período consultado: del '.htmlspecialchars($dateFrom).' al '.htmlspecialchars($dateTo).'.'
+            : 'Mostrando los estudiantes activos del año escolar actual.';
+        echo '</i></p>';
     }
 
     $reportGateway = $container->get(StudentReportGateway::class);
 
-    // CRITERIA
-    $criteria = $reportGateway->newQueryCriteria()
-        ->sortBy(['gibbonYearGroup.sequenceNumber', 'gibbonFormGroup.nameShort'])
-        ->filterBy('from', Format::dateConvert($dateFrom))
-        ->filterBy('to', Format::dateConvert($dateTo))
-        ->fromPOST();
+    // CRITERIA (solo para la tabla; los datos se consultan abajo)
+    $criteria = $reportGateway->newQueryCriteria();
 
-    $formGroups = $reportGateway->queryStudentCountByFormGroup($criteria, $gibbonSchoolYearID);
+    // CONSULTA: estudiantes por grupo. Los filtros de fecha usan parámetros distintos (:dateFrom y :dateTo).
+    $where = ['gibbonFormGroup.gibbonSchoolYearID=:gibbonSchoolYearID'];
+    $params = ['gibbonSchoolYearID' => $gibbonSchoolYearID];
+    if (!$hasDates) {
+        $where[] = "gibbonPerson.status='Full'";
+    } else {
+        if (!empty($dateFrom)) {
+            $where[] = '(gibbonPerson.dateStart IS NULL OR gibbonPerson.dateStart<=:dateFrom)';
+            $params['dateFrom'] = Format::dateConvert($dateFrom);
+        }
+        if (!empty($dateTo)) {
+            $where[] = '(gibbonPerson.dateEnd IS NULL OR gibbonPerson.dateEnd>=:dateTo)';
+            $params['dateTo'] = Format::dateConvert($dateTo);
+        }
+    }
+
+    $columns = "ROUND(AVG(DATEDIFF(CURDATE(), gibbonPerson.dob))/365.2422, 1) AS meanAge,
+        COUNT(DISTINCT gibbonPerson.gibbonPersonID) AS total,
+        COUNT(DISTINCT CASE WHEN gibbonPerson.gender='M' THEN gibbonPerson.gibbonPersonID END) AS totalMale,
+        COUNT(DISTINCT CASE WHEN gibbonPerson.gender='F' THEN gibbonPerson.gibbonPersonID END) AS totalFemale";
+    $from = "FROM gibbonFormGroup
+        JOIN gibbonStudentEnrolment ON (gibbonStudentEnrolment.gibbonFormGroupID=gibbonFormGroup.gibbonFormGroupID)
+        JOIN gibbonPerson ON (gibbonPerson.gibbonPersonID=gibbonStudentEnrolment.gibbonPersonID)
+        JOIN gibbonYearGroup ON (gibbonYearGroup.gibbonYearGroupID=gibbonStudentEnrolment.gibbonYearGroupID)
+        WHERE ".implode(' AND ', $where);
+
+    $groupRows = $pdo->select("SELECT gibbonFormGroup.name AS formGroup, gibbonFormGroup.nameShort, MIN(gibbonYearGroup.sequenceNumber) AS sequenceNumber, $columns
+        $from
+        GROUP BY gibbonFormGroup.gibbonFormGroupID, gibbonFormGroup.name, gibbonFormGroup.nameShort
+        ORDER BY sequenceNumber, gibbonFormGroup.nameShort", $params)->fetchAll();
+
+    // El promedio general se calcula con todos los estudiantes (no como promedio de promedios)
+    $overall = $pdo->select("SELECT $columns $from", $params)->fetch();
+
+    // Otros = estudiantes cuyo sexo no es M ni F (para que Hombres + Mujeres + Otros = Total)
+    $formGroupsData = [];
+    foreach ($groupRows as $group) {
+        $formGroupsData[] = [
+            'formGroup'   => $group['formGroup'],
+            'meanAge'     => $group['meanAge'],
+            'totalMale'   => (int) $group['totalMale'],
+            'totalFemale' => (int) $group['totalFemale'],
+            'totalOther'  => (int) $group['total'] - (int) $group['totalMale'] - (int) $group['totalFemale'],
+            'total'       => (int) $group['total'],
+        ];
+    }
+
+    if (!empty($formGroupsData)) {
+        $formGroupsData[] = [
+            'formGroup'   => 'Todos los grupos',
+            'meanAge'     => $overall['meanAge'],
+            'totalMale'   => (int) $overall['totalMale'],
+            'totalFemale' => (int) $overall['totalFemale'],
+            'totalOther'  => (int) $overall['total'] - (int) $overall['totalMale'] - (int) $overall['totalFemale'],
+            'total'       => (int) $overall['total'],
+            '_isTotal'    => true,
+        ];
+    }
+    $showOther = array_sum(array_column($formGroupsData, 'totalOther')) > 0;
 
     // DATA TABLE
-    $table = ReportTable::createPaginated('formGroupSummary', $criteria)->setViewMode($viewMode, $gibbon->session);
-    $table->setTitle(__('Reporte Edad promedio / Sexo'));
+    $table = ReportTable::createPaginated('formGroupSummary', $criteria)->setViewMode($viewMode, $session);
+    $table->setTitle('Reporte de edad promedio / sexo por grupo');
 
     $table->modifyRows(function ($formGroup, $row) {
-        if ($formGroup['formGroup'] == __('All Form Groups')) $row->addClass('dull');
+        if (!empty($formGroup['_isTotal'])) $row->addClass('dull');
         return $row;
     });
 
-    $table->addColumn('formGroup', __('Form Group'));
-    $table->addColumn('meanAge', __('Mean Age'));
-    $table->addColumn('totalMale', __('Male'));
-    $table->addColumn('totalFemale', __('Female'));
-//    $table->addColumn('totalOther', __('Other'));
-//    $table->addColumn('totalUnspecified', __('Unspecified'));
-    $table->addColumn('total', __('Total'));
+    $table->addColumn('formGroup', 'Grupo')->width('24');
+    $table->addColumn('meanAge', 'Edad promedio (años)')->width('20');
+    $table->addColumn('totalMale', 'Hombres')->width('14');
+    $table->addColumn('totalFemale', 'Mujeres')->width('14');
+    if ($showOther) {
+        $table->addColumn('totalOther', 'Otros / No especificado')->width('22');
+    }
+    $table->addColumn('total', 'Total')->width('14');
 
-    $formGroupsData = $formGroups->toArray();
-    $filteredAges = array_filter(array_column($formGroupsData, 'meanAge'));
+    if ($viewMode == 'export') {
+        // EXCEL: diseño propio
+        // Solo se necesita para exportar: si el archivo falta, el resto de la página sigue funcionando
+        require_once __DIR__ . '/src/StyledSpreadsheetRenderer.php';
 
-    $formGroupsData[] = [
-        'formGroup'   => __('All Form Groups'),
-        'meanAge'     => !empty($filteredAges) ? number_format(array_sum($filteredAges) / count($filteredAges), 1) : 0,
-        'totalMale'   => array_sum(array_column($formGroupsData, 'totalMale')),
-        'totalFemale' => array_sum(array_column($formGroupsData, 'totalFemale')),
-        'totalOther' => array_sum(array_column($formGroupsData, 'totalOther')),
-        'totalUnspecified' => array_sum(array_column($formGroupsData, 'totalUnspecified')),
-        'total'       => array_sum(array_column($formGroupsData, 'total')),
-    ];
+        $table->setRenderer(new StyledSpreadsheetRenderer());
+        $table->addMetaData('filename', 'EdadPromedio_Sexo_'.date('Y-m-d'));
+        $table->addMetaData('sheetTitle', 'Edad y sexo');
+        $table->addMetaData('freezeColumns', 1);
+        $table->addMetaData('countLabel', false);
+        $table->addMetaData('subtitle', $hasDates
+            ? 'Período: del '.$dateFrom.' al '.$dateTo
+            : 'Estudiantes activos del año escolar actual');
+        $table->addMetaData('groups', [
+            'formGroup' => 'Grupo', 'meanAge' => 'Edad',
+            'totalMale' => 'Estudiantes por sexo', 'totalFemale' => 'Estudiantes por sexo', 'totalOther' => 'Estudiantes por sexo',
+            'total' => 'Total',
+        ]);
+        $table->addMetaData('numericColumns', [
+            'meanAge' => '0.0', 'totalMale' => '0', 'totalFemale' => '0', 'totalOther' => '0', 'total' => '0',
+        ]);
+    }
 
     echo $table->render(new DataSet($formGroupsData));
 }

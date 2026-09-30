@@ -337,7 +337,7 @@ JS;
                     $columns = [];
                     foreach ($table->getColumns() as $id => $column) {
                         if ($column instanceof \Gibbon\Tables\Columns\ActionColumn || $column instanceof \Gibbon\Tables\Columns\ExpandableColumn) continue;
-                        $columns[$id] = $column;
+                        $columns[$column->getID()] = $column;
                     }
                     if (empty($columns) || $dataSet->count() == 0) {
                         $this->sheet->setCellValue('A1', 'La consulta no devolvió estudiantes.');
