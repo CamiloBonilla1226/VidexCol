@@ -4,6 +4,21 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — medicalReportStudents.php: la tabla ya no se corta (ancho fijo sin foto)
+
+**Problema:** el primer ajuste no bastó; la tabla seguía cortándose a la altura de "Celular 1".
+
+**Solución (más robusta):**
+- Se quitó la **foto** de la vista en pantalla (queda comentada en el código; el Excel nunca la incluyó).
+- La tabla ahora usa **ancho fijo repartido en porcentajes** (suma 99 %: estudiante 11, RH 4, medicación 6, detalles 11, vacunas 6, comentarios 11, contacto 1: 9/7/7/6, contacto 2: 9/6/6) con letra al 80 % y texto que baja de línea. Con ancho fijo la tabla siempre mide el 100 % de la pantalla, sin importar cuánto texto tengan las celdas.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+
+**Notas:** verificado solo sintaxis PHP; falta verlo en pantalla. Si alguna columna queda angosta, se ajustan los porcentajes.
+
+---
+
 ## 2026-09-30 — medicalReportStudents.php: tabla ajustada al ancho de la pantalla
 
 **Problema:** al consultar un grupo, la tabla (13 columnas) se salía de la pantalla y obligaba a hacer scroll horizontal.

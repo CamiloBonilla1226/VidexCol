@@ -127,30 +127,32 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 	    }
 
 	    // COLUMNS
-	    $table->addColumn('image_240', __('Photo'))
-	        ->context('primary')
-	        ->width('10%')
-	        ->notSortable()
-	        ->format(Format::using('userPhoto', ['image_240', 'sm']));
+//	    La foto se quitó de esta vista para que la tabla quepa en la pantalla
+//	    $table->addColumn('image_240', __('Photo'))
+//	        ->context('primary')
+//	        ->width('10%')
+//	        ->notSortable()
+//	        ->format(Format::using('userPhoto', ['image_240', 'sm']));
 
 	    $table->addColumn('student', __('Student'))
+	        ->width('11%')
 	        ->sortable(['surname', 'preferredName'])
 	        ->format(function ($person) {
 	            return Format::name('', $person['preferredName'], $person['surname'], 'Student', true, true) . '<br/><small><i>'.Format::userStatusInfo($person).'</i></small>';
 	        });
-	    $table->addColumn('bloodType', __('RH'))->context('primary');
+	    $table->addColumn('bloodType', __('RH'))->context('primary')->width('4%');
 //	    $table->addColumn('bloodType', __('Tipo de Sangre'))->context('primary');
-	    $table->addColumn('longTermMedication', __('Medica- ción'))->context('primary');
-	    $table->addColumn('longTermMedicationDetails', __('Detalles medicación permanente'))->context('primary');
-	    $table->addColumn('vacunas10Years', __('Vacunas 10 años'))->context('primary');
-	    $table->addColumn('comment', __('Comentarios'))->context('primary');
-	    $table->addColumn('emergency1Name', __('Contacto emergencia 1'))->context('primary');
-	    $table->addColumn('emergency1Number1', __('Celular 1 contacto 1'))->context('primary');
-	    $table->addColumn('emergency1Number2', __('Celular 2 contacto 1'))->context('primary');
-	    $table->addColumn('emergency1Relationship', __('Parentesco'))->context('primary');
-	    $table->addColumn('emergency2Name', __('Contacto emergencia 2'))->context('primary');
-	    $table->addColumn('emergency2Number1', __('Celular 1 contacto 2'))->context('primary');
-	    $table->addColumn('emergency2Number2', __('Celular 2 contacto 2'))->context('primary');
+	    $table->addColumn('longTermMedication', __('Medica- ción'))->context('primary')->width('6%');
+	    $table->addColumn('longTermMedicationDetails', __('Detalles medicación permanente'))->context('primary')->width('11%');
+	    $table->addColumn('vacunas10Years', __('Vacunas 10 años'))->context('primary')->width('6%');
+	    $table->addColumn('comment', __('Comentarios'))->context('primary')->width('11%');
+	    $table->addColumn('emergency1Name', __('Contacto emergencia 1'))->context('primary')->width('9%');
+	    $table->addColumn('emergency1Number1', __('Celular 1 contacto 1'))->context('primary')->width('7%');
+	    $table->addColumn('emergency1Number2', __('Celular 2 contacto 1'))->context('primary')->width('7%');
+	    $table->addColumn('emergency1Relationship', __('Parentesco'))->context('primary')->width('6%');
+	    $table->addColumn('emergency2Name', __('Contacto emergencia 2'))->context('primary')->width('9%');
+	    $table->addColumn('emergency2Number1', __('Celular 1 contacto 2'))->context('primary')->width('6%');
+	    $table->addColumn('emergency2Number2', __('Celular 2 contacto 2'))->context('primary')->width('6%');
 
 
 /*                'gibbonPerson.emergency1Name',
@@ -176,11 +178,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 //	        });
 
 
-	    // Ajusta la tabla al ancho de la pantalla (hay muchas columnas): letra y márgenes más compactos y el texto largo baja de línea
+	    // Ajusta la tabla al ancho de la pantalla (son muchas columnas): ancho fijo repartido en porcentajes, letra compacta
+	    // y texto largo que baja de línea, así nunca se sale de la pantalla ni hace falta desplazarse
 	    echo '<style>
-	        #medicalReportStudents table { width: 100%; table-layout: auto; font-size: 0.85em; }
-	        #medicalReportStudents th, #medicalReportStudents td { white-space: normal; overflow-wrap: break-word; padding-left: 4px; padding-right: 4px; vertical-align: top; }
-	        #medicalReportStudents img { max-width: 48px; height: auto; }
+	        #medicalReportStudents table { width: 100%; table-layout: fixed; font-size: 0.8em; }
+	        #medicalReportStudents th, #medicalReportStudents td { white-space: normal; overflow-wrap: break-word; word-break: break-word; padding-left: 4px; padding-right: 4px; vertical-align: top; }
+	        #medicalReportStudents .dataTable { overflow-x: visible; }
 	    </style>';
 
 	    echo $table->render($dataSet);
