@@ -4,6 +4,20 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — medicalReportStudents.php: solo la tabla se desplaza; se quita la barra superior
+
+**Cambios:**
+- Se eliminó la barra de scroll horizontal duplicada de arriba (y su JavaScript). Queda solo la de abajo.
+- El recuadro con scroll ahora envuelve **únicamente la tabla**, no todo el reporte. "Datos del Reporte", "Resultados 1 a N de N", Imprimir y Exportar quedan quietos; al hacer scroll solo se mueve la tabla.
+- Se mantienen: altura máxima de 75 % de la pantalla (la barra horizontal siempre visible), encabezados/foto/nombre fijos, corrección del ensanchamiento de la página e impresión completa.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+
+**Notas:** usa el selector CSS `:has()` (navegadores actuales: Chrome/Edge 105+, Firefox 121+, Safari 15.4+). Sin prueba visual.
+
+---
+
 ## 2026-09-30 — medicalReportStudents.php: barra de scroll horizontal siempre a la vista
 
 **Problema:** con 50 estudiantes por página, la barra de scroll horizontal quedaba al final de la tabla y había que bajar hasta abajo para usarla.

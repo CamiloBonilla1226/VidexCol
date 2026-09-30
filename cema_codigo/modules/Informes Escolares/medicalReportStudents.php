@@ -176,16 +176,14 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 //	        });
 
 
-	    // La tabla conserva todas sus columnas. Va en un recuadro con altura máxima (75 % de la pantalla) que se desplaza en ambos
-	    // sentidos: así la barra horizontal siempre queda a la vista sin bajar hasta el final de los 50 estudiantes, y además hay
-	    // una barra horizontal duplicada arriba. Encabezados, foto y nombre quedan fijos al desplazarse.
+	    // La tabla conserva todas sus columnas. Solo la tabla (no el título, el contador ni los botones Imprimir/Exportar) va en un
+	    // recuadro con altura máxima (75 % de la pantalla) que se desplaza en ambos sentidos: así la barra horizontal queda siempre
+	    // a la vista abajo del recuadro. Encabezados, foto y nombre quedan fijos al desplazarse.
 	    echo '<style>
 	        /* Causa de que se ensanchara toda la página: #content es un elemento flex (lg:flex-1) y por defecto no puede ser más angosto que su contenido */
-	        #content-wrap, #content, #content-inner, #medicalReportStudents { min-width: 0; max-width: 100%; }
+	        #content-wrap, #content, #content-inner, .medical-wrap, #medicalReportStudents { min-width: 0; max-width: 100%; }
 	        #content { overflow-x: clip; }
-	        .medical-top { width: 100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; height: 16px; }
-	        .medical-top > div { height: 1px; }
-	        .medical-scroll { width: 100%; max-width: 100%; min-width: 0; max-height: 75vh; overflow: auto; -webkit-overflow-scrolling: touch; }
+	        .medical-wrap .dataTable:has(> table) { max-height: 75vh; overflow: auto; -webkit-overflow-scrolling: touch; }
 	        #medicalReportStudents table { table-layout: auto; }
 	        #medicalReportStudents th, #medicalReportStudents td { padding: 4px 8px; font-size: 0.875rem; }
 	        #medicalReportStudents th { white-space: normal; max-width: 120px; vertical-align: bottom; position: sticky; top: 0; z-index: 3; background: #f3f4f6; }
@@ -194,41 +192,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 	        #medicalReportStudents td:nth-child(1), #medicalReportStudents td:nth-child(2) { z-index: 2; background: #fff; }
 	        #medicalReportStudents th:nth-child(1), #medicalReportStudents th:nth-child(2) { z-index: 4; }
 	        @media print {
-	            .medical-top { display: none; }
-	            .medical-scroll { overflow: visible !important; max-height: none !important; }
+	            .medical-wrap .dataTable:has(> table) { overflow: visible !important; max-height: none !important; }
 	            #medicalReportStudents th, #medicalReportStudents td { position: static !important; box-shadow: none !important; }
 	        }
 	    </style>';
-	    echo '<div class="medical-top" id="medicalTop"><div></div></div>';
-	    echo '<div class="medical-scroll" id="medicalScroll">';
+	    echo '<div class="medical-wrap">';
 	    echo $table->render($dataSet);
 	    echo '</div>';
-	    echo <<<'JS'
-<script>
-(function () {
-    var top = document.getElementById('medicalTop');
-    var box = document.getElementById('medicalScroll');
-    if (!top || !box) return;
-    var dummy = top.firstElementChild;
-    var lock = false;
-
-    function sync() {
-        dummy.style.width = box.scrollWidth + 'px';
-        top.style.display = box.scrollWidth > box.clientWidth + 1 ? '' : 'none';
-    }
-    top.addEventListener('scroll', function () { if (lock) { lock = false; return; } lock = true; box.scrollLeft = top.scrollLeft; });
-    box.addEventListener('scroll', function () { if (lock) { lock = false; return; } lock = true; top.scrollLeft = box.scrollLeft; });
-
-    // La tabla se vuelve a dibujar al ordenar o paginar: se recalcula el ancho cuando cambia su tamaño
-    if (window.ResizeObserver) {
-        var ro = new ResizeObserver(sync);
-        ro.observe(box);
-        if (box.firstElementChild) ro.observe(box.firstElementChild);
-    }
-    window.addEventListener('resize', sync);
-    sync();
-})();
-</script>
-JS;
 	}
 }
