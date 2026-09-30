@@ -4,6 +4,25 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — Excel con diseño en el Directorio (report_contact_student.php)
+
+**Problema:** el Excel del Directorio salía feo: dirección y acudientes apilados en una sola celda, sin estilo.
+
+**Solución:** al exportar se arma un Excel con columnas planas y el mismo estilo de los otros reportes: título, fecha y total, bandas de color por sección, filas alternadas con bordes, filtros, columnas fijas e impresión horizontal.
+- **Estudiante:** Grupo, Apellidos, Nombres, Dirección (de la familia, en una línea; si hay varias familias van separadas por ` | `; si no hay familia, la del estudiante).
+- **Acudiente 1 y Acudiente 2:** Nombre, Parentesco, Teléfonos (con su tipo) y Correo. Si hay más de dos acudientes, del tercero en adelante se juntan en Acudiente 2, separados por ` | `.
+- Archivo: `Directorio_AAAA-MM-DD.xlsx`.
+
+La vista en pantalla y la impresión no cambian; el orden y la consulta tampoco.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/report_contact_student.php` (modificado)
+- `modules/Informes Escolares/src/StyledSpreadsheetRenderer.php` (ya se subió en el cambio anterior de reportStudents.php; si aún no está en el servidor, súbelo también)
+
+**Notas:** verificado solo sintaxis PHP; falta probar con datos reales en el servidor.
+
+---
+
 ## 2026-09-30 — Arreglo de Exportar en reportStudents.php y Excel con diseño
 
 **Problema:** el botón Exportar de `reportStudents.php` no generaba el Excel. Al exportar, la página seguía mostrando el formulario "Elegir grupo" antes de la tabla; esa salida HTML impide que el navegador reciba el archivo correctamente.

@@ -22,10 +22,12 @@ use Gibbon\Services\Format;
 use Gibbon\Domain\User\FamilyGateway;
 use Gibbon\Tables\Prefab\ReportTable;
 use Gibbon\Domain\Students\StudentReportGateway;
+use Modules\InformesEscolares\StyledSpreadsheetRenderer;
 
 
 //Module includes
 require_once __DIR__ . '/moduleFunctions.php';
+require_once __DIR__ . '/src/StyledSpreadsheetRenderer.php';
 
 if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_contact_student.php') == false) {
     // Access denied
@@ -62,6 +64,79 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
     // DATA TABLE
     $table = ReportTable::createPaginated('studentTransport', $criteria)->setViewMode($viewMode, $gibbon->session);
     $table->setTitle(__('Directorio'));
+
+    if ($viewMode == 'export') {
+        // EXCEL: columnas planas con diseño propio
+        $table->addMetaData('filename', 'Directorio_'.date('Y-m-d'));
+        $table->addMetaData('sheetTitle', 'Directorio');
+        $table->addMetaData('freezeColumns', 3);
+        $groups = ['formGroup' => 'Estudiante', 'surname' => 'Estudiante', 'preferredName' => 'Estudiante', 'address' => 'Estudiante'];
+        $table->setRenderer(new StyledSpreadsheetRenderer());
+
+        // Dirección de la familia (o la del estudiante si no tiene familia), en una sola línea
+        $address = function ($student) {
+            $lines = [];
+            foreach (($student['families'] ?? []) as $family) {
+                $lines[] = Format::address($family['homeAddress'], $family['homeAddressDistrict'], $family['homeAddressCountry']);
+            }
+            if (empty($lines)) {
+                $lines[] = Format::address($student['address1'], $student['address1District'], $student['address1Country']);
+            }
+            $text = array_map(function ($line) {
+                return trim(strip_tags(str_replace(['<br/>', '<br>', '<br />'], ', ', $line)), ' ,');
+            }, $lines);
+            return implode(' | ', array_filter($text));
+        };
+
+        // Datos del acudiente 1 y, en la segunda columna, de los demás acudientes separados por " | "
+        $adultField = function ($student, $index, $field) {
+            $adults = array_values($student['familyAdults'] ?? []);
+            $selected = ($index == 0) ? array_slice($adults, 0, 1) : array_slice($adults, 1);
+            $values = [];
+            foreach ($selected as $adult) {
+                switch ($field) {
+                    case 'name':
+                        $values[] = Format::name('', $adult['preferredName'], $adult['surname'], 'Parent', false, true);
+                        break;
+                    case 'rel':
+                        $values[] = $adult['relationship'] ?? '';
+                        break;
+                    case 'phone':
+                        $list = [];
+                        foreach ([1, 2, 3, 4] as $i) {
+                            if (!empty($adult['phone'.$i])) {
+                                $list[] = Format::phone($adult['phone'.$i], $adult['phone'.$i.'CountryCode'], $adult['phone'.$i.'Type']);
+                            }
+                        }
+                        $values[] = implode(' / ', $list);
+                        break;
+                    case 'email':
+                        $values[] = $adult['email'] ?? '';
+                        break;
+                }
+            }
+            return implode(' | ', array_filter($values));
+        };
+
+        $table->addColumn('formGroup', 'Grupo')->width('12');
+        $table->addColumn('surname', 'Apellidos')->width('22');
+        $table->addColumn('preferredName', 'Nombres')->width('22');
+        $table->addColumn('address', 'Dirección')->width('42')
+            ->format(function ($student) use ($address) { return $address($student); });
+
+        foreach ([0 => 'Acudiente 1', 1 => 'Acudiente 2'] as $index => $label) {
+            foreach (['name' => ['Nombre', 28], 'rel' => ['Parentesco', 18], 'phone' => ['Teléfonos', 34], 'email' => ['Correo', 32]] as $field => $info) {
+                $id = 'adult'.ucfirst($field).$index;
+                $groups[$id] = $label;
+                $table->addColumn($id, $info[0])->width((string) $info[1])
+                    ->format(function ($student) use ($adultField, $index, $field) { return $adultField($student, $index, $field); });
+            }
+        }
+
+        $table->addMetaData('groups', $groups);
+        echo $table->render($transport);
+        return;
+    }
 
 //    $table->addColumn('transport', __('Transport'))
 //        ->context('primary');
