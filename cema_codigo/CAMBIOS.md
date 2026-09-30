@@ -4,6 +4,24 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-29 — Rediseño de Resumen de emergencia (Informes Escolares)
+
+**Qué se mejoró en `report_student_emergencySummary.php`:**
+- **Selección de estudiantes:** se reemplazó el selector múltiple por una lista con casillas, agrupada por curso y grupo. Tiene buscador por nombre/apellido, filtro por Curso y por Grupo (los grupos dependen del curso elegido), botones "Seleccionar visibles", "Quitar visibles" y "Limpiar selección", y un contador de seleccionados.
+- **Ocultar/Mostrar filtros:** el botón ahora funciona. Al generar el reporte, el panel se pliega solo para dar espacio a la tabla.
+- **Excel (exportar):** ahora cada dato va en su propia columna (Apellidos, Nombres, Curso, Grupo, Última actualización, Email, Teléfono estudiante, Acudiente 1 y 2 con parentesco/teléfonos/correo, Emergencia 1 y 2 con parentesco y dos teléfonos), con anchos definidos. El archivo se llama `ResumenEmergencia_AAAA-MM-DD`.
+- **Tabla en pantalla:** se agregó Curso - Grupo bajo el nombre del estudiante. La vista de impresión no cambia.
+
+**Archivos modificados (subir al servidor):**
+- `modules/Informes Escolares/report_student_emergencySummary.php`
+
+**Notas:**
+- Solo se modificó este archivo; no se tocó el núcleo, la consulta ni otros reportes. El diseño usa HTML/JS propio dentro de la página, sin dependencias nuevas.
+- La lista muestra estudiantes activos del año escolar actual (mismo criterio que el selector anterior).
+- Verificado: sintaxis PHP y JS sin errores. Falta probar en el servidor.
+
+---
+
 ## 2026-09-29 — Arreglo del resumen de emergencia (Informes Escolares)
 
 **Problema:** `Informes Escolares > report_student_emergencySummary.php` mostraba "¡Gibbon ha terminado!". El archivo usaba APIs que ya no existen en el núcleo de Gibbon: `$gibbon->session` y la función global `getSettingByScope()`.
