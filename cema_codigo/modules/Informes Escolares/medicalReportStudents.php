@@ -176,6 +176,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 //	        });
 
 
+	    // Ajusta la tabla al ancho de la pantalla (hay muchas columnas): letra y márgenes más compactos y el texto largo baja de línea
+	    echo '<style>
+	        #medicalReportStudents table { width: 100%; table-layout: auto; font-size: 0.85em; }
+	        #medicalReportStudents th, #medicalReportStudents td { white-space: normal; overflow-wrap: break-word; padding-left: 4px; padding-right: 4px; vertical-align: top; }
+	        #medicalReportStudents img { max-width: 48px; height: auto; }
+	    </style>';
+
 	    echo $table->render($dataSet);
 	}
 }

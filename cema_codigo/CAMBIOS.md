@@ -4,6 +4,19 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — medicalReportStudents.php: tabla ajustada al ancho de la pantalla
+
+**Problema:** al consultar un grupo, la tabla (13 columnas) se salía de la pantalla y obligaba a hacer scroll horizontal.
+
+**Solución:** se agregó un bloque de estilos solo para esta tabla: letra un poco más pequeña (85 %), márgenes laterales reducidos, texto largo (detalles de medicación, comentarios) que baja de línea, contenido alineado arriba y foto más pequeña (máx. 48 px). La consulta, las columnas y el Excel no cambian.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+
+**Notas:** verificado solo sintaxis PHP; falta ver el resultado en pantalla. Si aún se sale, se puede reducir más la letra o quitar la foto.
+
+---
+
 ## 2026-09-30 — Arreglo de medicalReportStudents.php y reportStudentsReligion.php (+ Excel con diseño)
 
 **Problema:** ambas páginas mostraban error al elegir un grupo. Llamaban a `StudentGateway::queryStudentsData_3()`, un método que ya no existe en el núcleo de Gibbon.
