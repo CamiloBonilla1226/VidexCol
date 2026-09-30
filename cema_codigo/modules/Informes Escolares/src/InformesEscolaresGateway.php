@@ -154,4 +154,36 @@ class InformesEscolaresGateway extends QueryableGateway
 
         return $this->runQuery($query, $criteria);
     }
+
+    /**
+     * Estudiantes activos de un grupo, con datos médicos, religión y contactos de emergencia.
+     * Reemplaza queryStudentsData_3(), que ya no existe en el StudentGateway del núcleo.
+     * Se trae gibbonPersonMedical.* (así, si el colegio tiene columnas propias como
+     * vacunas10Years, aparecen sin tener que nombrarlas) y luego las columnas de gibbonPerson,
+     * que en caso de repetirse (gibbonPersonID) prevalecen.
+     */
+    public function queryStudentsData_3(QueryCriteria $criteria, $gibbonFormGroupID)
+    {
+        $query = $this
+            ->newQuery()
+            ->from('gibbonPerson')
+            ->cols([
+                'gibbonPersonMedical.*',
+                'gibbonPerson.gibbonPersonID', 'gibbonPerson.title', 'gibbonPerson.surname', 'gibbonPerson.preferredName',
+                'gibbonPerson.officialName', 'gibbonPerson.image_240', 'gibbonPerson.username',
+                'gibbonPerson.status', 'gibbonPerson.dateStart', 'gibbonPerson.dateEnd', 'gibbonPerson.religion',
+                'gibbonPerson.emergency1Name', 'gibbonPerson.emergency1Number1', 'gibbonPerson.emergency1Number2', 'gibbonPerson.emergency1Relationship',
+                'gibbonPerson.emergency2Name', 'gibbonPerson.emergency2Number1', 'gibbonPerson.emergency2Number2', 'gibbonPerson.emergency2Relationship',
+            ])
+            ->innerJoin('gibbonStudentEnrolment', 'gibbonStudentEnrolment.gibbonPersonID=gibbonPerson.gibbonPersonID')
+            ->leftJoin('gibbonPersonMedical', 'gibbonPersonMedical.gibbonPersonID=gibbonPerson.gibbonPersonID')
+            ->where('gibbonStudentEnrolment.gibbonFormGroupID=:gibbonFormGroupID')
+            ->bindValue('gibbonFormGroupID', $gibbonFormGroupID)
+            ->where("gibbonPerson.status='Full'")
+            ->where('(gibbonPerson.dateStart IS NULL OR gibbonPerson.dateStart<=:today)')
+            ->where('(gibbonPerson.dateEnd IS NULL OR gibbonPerson.dateEnd>=:today)')
+            ->bindValue('today', date('Y-m-d'));
+
+        return $this->runQuery($query, $criteria);
+    }
 }

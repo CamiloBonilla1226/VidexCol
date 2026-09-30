@@ -22,7 +22,10 @@ use Gibbon\Services\Format;
 use Gibbon\Forms\Form;
 use Gibbon\Forms\DatabaseFormFactory;
 use Gibbon\Tables\Prefab\ReportTable;
-use Gibbon\Domain\Students\StudentGateway;
+use Modules\InformesEscolares\InformesEscolaresGateway;
+use Modules\InformesEscolares\StyledSpreadsheetRenderer;
+
+require_once __DIR__ . '/src/InformesEscolaresGateway.php';
 
 if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medicalReportStudents.php') == false) {
     // Access denied
@@ -34,7 +37,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 	$gibbonFormGroupID = (isset($_GET['gibbonFormGroupID']) ? $_GET['gibbonFormGroupID'] : null);
 	$viewMode = isset($_REQUEST['format']) ? $_REQUEST['format'] : '';
 
-    $reportStudents = $container->get(StudentGateway::class);
+    $reportStudents = $container->get(InformesEscolaresGateway::class);
     $criteria = $reportStudents->newQueryCriteria(true)
         ->searchBy($reportStudents->getSearchableColumns(), $search)
         ->sortBy(['surname', 'preferredName', 'username'])
@@ -42,12 +45,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
         ->fromArray($_POST);
 
 
+	if (empty($viewMode)) {
 	$form = Form::create('action', $session->get('absoluteURL').'/index.php', 'get');
 	$form->setTitle(__('Seleccione curso a consultar'))
 	->setFactory(DatabaseFormFactory::create($pdo))
 	->setClass('noIntBorder fullWidth');
 
-	$form->addHiddenValue('q', '/modules/'.$gibbon->session->get('module').'/medicalReportStudents.php');
+	$form->addHiddenValue('q', '/modules/'.$session->get('module').'/medicalReportStudents.php');
 
 	$row = $form->addRow();
 	$row->addLabel('gibbonFormGroupID', __('Form Group'));
@@ -58,133 +62,69 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
         $row->addTextField('search')->setValue($criteria->getSearchText());
 
 	$row = $form->addRow();
-	$row->addSearchSubmit($gibbon->session, __('Clear Search'));
+	$row->addSearchSubmit($session, __('Clear Search'));
 
 	echo $form->getOutput();
-
-	$studentGateway = $container->get(StudentGateway::class);
-
+	}
 
 	if($gibbonFormGroupID !== null) {
- /*       $Host       = 'localhost';
-        $User       = 'zemfzeav_cema';
-        $Password   = '@Lbi[!ZpIQ=.';
-        $database   = 'zemfzeav_cema';
-        
-        if ($criteria->getSearchText() != "") {
-            $busquedaNombre = " AND firstName = " . "'" . $criteria->getSearchText() . "'";
-        } else {
-            $busquedaNombre = "";
-        }
-
-//      Create connection
-        $conn = new mysqli($Host, $User, $Password, $database);
-    
-        $sql_per = "SELECT * FROM gibbonPerson INNER JOIN gibbonStudentEnrolment ON gibbonPerson.gibbonPersonID=gibbonStudentEnrolment.gibbonPersonID
-                    INNER JOIN gibbonFormGroup ON gibbonStudentEnrolment.gibbonFormGroupID=gibbonFormGroup.gibbonFormGroupID
-                    WHERE gibbonFormGroup.gibbonFormGroupID = ". "'".$gibbonFormGroupID."'" . $busquedaNombre . " ORDER BY officialName";
-
-        $result = $conn->query($sql_per);
-    
-        if ($result->num_rows > 0) {
-            ?>
-            
-            <head>
-            <style>
-            table {
-                border-collapse: collapse;
-                width: 100%;
-            }
-
-            th, td {
-                text-align: left;
-                padding: 8px;
-            }
-
-            tr:nth-child(even) {
-              background-color: #D6EEEE;
-            }
-            </style>
-            </head>
-            <body>
-            
-            
-            <table style="width:100%;
-                        border: 1px solid black;">
-                <tr border: 0.5px solid black;>
-                    <th style="width:19%; border: 0.5px solid black;">Nombre</th>
-                    <th style="width:2%; border: 0.5px solid black;">RH</th>
-                    <th style="width:10%; border: 0.5px solid black;">MLT</th>
-                    <th style="width:10%; border: 0.5px solid black;">LTMD</th>
-                    <th style="width:5%; border: 0.5px solid black;">V_10_Y</th>
-                    <th style="width:15%; border: 0.5px solid black;">Comentarios</th>
-                    <th style="width:10%; border: 0.5px solid black;">Contacto 1 emergencia</th>
-                    <th style="width:8%; border: 0.5px solid black;">Contacto emergencia 1</th>
-                    <th style="width:10%; border: 0.5px solid black;">Contacto emergencia 1</th>
-                    <th style="width:8%; border: 0.5px solid black;">Parentesco</th>
-                    <th style="width:8%; border: 0.5px solid black;">Contacto 2 emergencia</th>
-                    <th style="width:10%; border: 0.5px solid black;">Contacto emergencia 2</th>
-                    <th style="width:8%; border: 0.5px solid black;">Contacto emergencia 2</th>
-                </tr> <?
-
-            while($row = $result->fetch_assoc()) {
-                $gPID = $row["gibbonPersonID"];
-                $officialName = $row["officialName"];
-                $emergency1Name = $row["emergency1Name"];
-                $emergency1Number1 = $row["emergency1Number1"];
-                $emergency1Number2 = $row["emergency1Number2"];
-                $emergency1Relationship = $row["emergency1Relationship"];
-                $emergency2Name = $row["emergency2Name"];
-                $emergency2Number1 = $row["emergency2Number1"];
-                $emergency2Number2 = $row["emergency2Number2"];
-            
-                $sql_md = "SELECT * FROM gibbonPersonMedical WHERE gibbonPersonID = ". "'".$gPID."'";
-                $result_md = $conn->query($sql_md);
-                if ($result_md->num_rows > 0) {
-                    while($row = $result_md->fetch_assoc()) {
-                        $rh = $row["bloodType"];
-                        $lTM = $row["longTermMedication"];
-                        $lTMD = $row["longTermMedicationDetails"];
-                        $v10Y = $row["vacunas10Years"];
-                        $comment = $row["comment"];
-                        $fields = $row["fields"];
-                    }
-                }
-                ?><tr>
-                    <th style="border: 0.5px solid black;"><?echo $officialName?></th>
-                    <th style="border: 0.5px solid black;"><?echo $rh?></th>
-                    <th style="border: 0.5px solid black;"><?echo $lTM?></th>
-                    <th style="border: 0.5px solid black;"><?echo $lTMD?></th>
-                    <th style="border: 0.5px solid black;"><?echo $v10Y?></th>
-                    <th style="border: 0.5px solid black;"><?echo $comment?></th>
-                    <th style="border: 0.5px solid black;"><?echo $emergency1Name?></th>
-                    <th style="border: 0.5px solid black;"><?echo $emergency1Number1?></th>
-                    <th style="border: 0.5px solid black;"><?echo $emergency1Number2?></th>
-                    <th style="border: 0.5px solid black;"><?echo $emergency1Relationship?></th>
-                    <th style="border: 0.5px solid black;"><?echo $emergency2Name?></th>
-                    <th style="border: 0.5px solid black;"><?echo $emergency2Number1?></th>
-                    <th style="border: 0.5px solid black;"><?echo $emergency2Number2?></th>
-                </tr><?
-                $rh = "";
-                $lTM = "";
-                $lTMD = "";
-                $v10Y = "";
-                $comment = "";
-                $fields = "";        }
-            }
-        $conn->close();   
-    
-        ?></table><? */
-
 
 		// QUERY
     	$dataSet = $reportStudents->queryStudentsData_3($criteria, $gibbonFormGroupID);
 
 
     	// DATA TABLE
-    	$table = ReportTable::createPaginated('medicalReportStudents', $criteria)->setViewMode($viewMode, $gibbon->session);
+    	$table = ReportTable::createPaginated('medicalReportStudents', $criteria)->setViewMode($viewMode, $session);
 
     	$table->setTitle(__('Report Data'));
+
+	    if ($viewMode == 'export') {
+	        // Solo se necesita para exportar: si el archivo falta, el resto de la página sigue funcionando
+	        require_once __DIR__ . '/src/StyledSpreadsheetRenderer.php';
+
+	        $groupName = $pdo->select('SELECT name FROM gibbonFormGroup WHERE gibbonFormGroupID=:id', ['id' => $gibbonFormGroupID])->fetchColumn();
+	        $table->setTitle('Reporte médico'.(!empty($groupName) ? ' - Grupo '.$groupName : ''));
+	        $table->addMetaData('filename', 'ReporteMedico_'.preg_replace('/[^A-Za-z0-9_-]/', '', (string) $groupName).'_'.date('Y-m-d'));
+	        $table->addMetaData('sheetTitle', 'Médico');
+	        $table->addMetaData('freezeColumns', 2);
+	        $table->addMetaData('groups', [
+	            'surname' => 'Estudiante', 'preferredName' => 'Estudiante',
+	            'bloodType' => 'Salud', 'longTermMedication' => 'Salud', 'longTermMedicationDetails' => 'Salud', 'vacunas10Years' => 'Salud', 'comment' => 'Salud',
+	            'emergency1Name' => 'Contacto de emergencia 1', 'emergency1Relationship' => 'Contacto de emergencia 1', 'emergency1Number1' => 'Contacto de emergencia 1', 'emergency1Number2' => 'Contacto de emergencia 1',
+	            'emergency2Name' => 'Contacto de emergencia 2', 'emergency2Relationship' => 'Contacto de emergencia 2', 'emergency2Number1' => 'Contacto de emergencia 2', 'emergency2Number2' => 'Contacto de emergencia 2',
+	        ]);
+	        $table->setRenderer(new StyledSpreadsheetRenderer());
+
+	        // Sí / No para los campos que guardan Y / N; los celulares con formato
+	        $yesNo = function ($field) {
+	            return function ($person) use ($field) {
+	                $value = $person[$field] ?? '';
+	                return $value == 'Y' ? 'Sí' : ($value == 'N' ? 'No' : $value);
+	            };
+	        };
+	        $phone = function ($field) {
+	            return function ($person) use ($field) {
+	                return !empty($person[$field]) ? Format::phone($person[$field]) : '';
+	            };
+	        };
+
+	        $table->addColumn('surname', 'Apellidos')->width('22');
+	        $table->addColumn('preferredName', 'Nombres')->width('22');
+	        $table->addColumn('bloodType', 'RH')->width('8');
+	        $table->addColumn('longTermMedication', 'Medicación permanente')->width('16')->format($yesNo('longTermMedication'));
+	        $table->addColumn('longTermMedicationDetails', 'Detalles de la medicación')->width('36');
+	        $table->addColumn('vacunas10Years', 'Vacunas 10 años')->width('16')->format($yesNo('vacunas10Years'));
+	        $table->addColumn('comment', 'Comentarios')->width('40');
+	        foreach ([1, 2] as $n) {
+	            $table->addColumn('emergency'.$n.'Name', 'Nombre')->width('28');
+	            $table->addColumn('emergency'.$n.'Relationship', 'Parentesco')->width('16');
+	            $table->addColumn('emergency'.$n.'Number1', 'Celular 1')->width('18')->format($phone('emergency'.$n.'Number1'));
+	            $table->addColumn('emergency'.$n.'Number2', 'Celular 2')->width('18')->format($phone('emergency'.$n.'Number2'));
+	        }
+
+	        echo $table->render($dataSet);
+	        return;
+	    }
 
 	    // COLUMNS
 	    $table->addColumn('image_240', __('Photo'))

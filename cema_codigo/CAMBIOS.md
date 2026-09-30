@@ -4,6 +4,32 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — Arreglo de medicalReportStudents.php y reportStudentsReligion.php (+ Excel con diseño)
+
+**Problema:** ambas páginas mostraban error al elegir un grupo. Llamaban a `StudentGateway::queryStudentsData_3()`, un método que ya no existe en el núcleo de Gibbon.
+
+**Solución:**
+- Se agregó `queryStudentsData_3()` al gateway propio del módulo (`InformesEscolaresGateway`), que sobrevive a las actualizaciones del núcleo. Trae los estudiantes activos del grupo con sus datos médicos (`gibbonPersonMedical.*`, así aparecen también columnas propias como `vacunas10Years`), religión y contactos de emergencia. Es una reconstrucción: validar contra lo que se espera ver.
+- Ambas páginas usan ahora ese gateway; el formulario solo se muestra en pantalla (no al exportar) y se cambió `$gibbon->session` por `$session`.
+- **Excel con el diseño unificado:**
+  - Médico (`ReporteMedico_<grupo>_<fecha>`): Apellidos, Nombres | RH, Medicación permanente (Sí/No), Detalles, Vacunas 10 años, Comentarios | Contacto de emergencia 1 y 2 (Nombre, Parentesco, Celular 1 y 2).
+  - Religión (`Religion_<grupo>_<fecha>`): Apellidos, Nombres, Religión.
+- La vista en pantalla no cambia.
+
+**Seguridad:** en `medicalReportStudents.php` había un bloque de código viejo comentado con el **usuario y la contraseña de la base de datos** escritos en texto. Se eliminó el bloque (era código muerto). Como ese texto ya quedó en el historial de git, se recomienda cambiar esa contraseña.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+- `modules/Informes Escolares/reportStudentsReligion.php`
+- `modules/Informes Escolares/src/InformesEscolaresGateway.php` (**actualizado**: método nuevo)
+- `modules/Informes Escolares/src/StyledSpreadsheetRenderer.php` (necesario para exportar; ya subido antes, debe estar la última versión)
+
+**Notas:**
+- Verificado solo sintaxis PHP; la consulta SQL no se pudo ejecutar aquí (sin base de datos). Falta probar en el servidor.
+- `informeProfesoresDatosActualizacion.php` usa el mismo método eliminado y seguirá fallando hasta que se cambie a este gateway (no se tocó).
+
+---
+
 ## 2026-09-30 — Reporte de edad promedio / sexo (report_formGroupSummary.php): fechas, español y Excel
 
 **Para qué sirven las fechas (se dejó documentado en la pantalla, en español):** por defecto el reporte cuenta a los estudiantes matriculados en el año escolar actual con estado Activo. Si se escriben fechas, muestra cómo estaba el colegio en ese período: cuenta a los estudiantes cuya fecha de inicio es anterior o igual a "Desde" y cuya fecha de salida es posterior o igual a "Hasta" (o no tienen esas fechas), sin importar su estado actual. La edad promedio siempre se calcula con la fecha de hoy.
