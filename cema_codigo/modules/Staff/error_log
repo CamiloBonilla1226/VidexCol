@@ -1,0 +1,144 @@
+[25-Aug-2026 16:48:19 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[25-Aug-2026 16:48:19 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[25-Aug-2026 16:48:19 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[25-Aug-2026 16:48:19 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[25-Aug-2026 16:48:19 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[25-Aug-2026 16:48:19 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[25-Aug-2026 16:48:19 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[25-Aug-2026 16:48:19 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[25-Aug-2026 16:48:19 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[25-Aug-2026 16:48:19 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[31-Aug-2026 12:29:18 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[31-Aug-2026 12:29:18 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[31-Aug-2026 12:29:18 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[31-Aug-2026 12:29:18 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[31-Aug-2026 12:29:18 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[31-Aug-2026 12:29:18 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[31-Aug-2026 12:29:18 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[31-Aug-2026 12:29:18 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[31-Aug-2026 12:29:18 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[31-Aug-2026 12:29:18 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[31-Aug-2026 12:29:18 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[31-Aug-2026 12:29:18 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[31-Aug-2026 12:29:19 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[31-Aug-2026 12:29:19 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[31-Aug-2026 12:29:19 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[31-Aug-2026 12:29:19 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addProcess.php(31): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[18-Sep-2026 09:12:49 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[18-Sep-2026 09:12:49 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[18-Sep-2026 09:12:49 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[18-Sep-2026 09:12:49 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113
+[18-Sep-2026 09:12:49 America/Bogota] PHP Warning:  SQLSTATE[HY000]: General error: 2006 MySQL server has gone away in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[18-Sep-2026 09:12:49 America/Bogota] PHP Fatal error:  Uncaught Error: PDO object is uninitialized in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php:113
+Stack trace:
+#0 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php(113): PDOStatement->fetchAll()
+#1 /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Core.php(111): Gibbon\Locale->setTextDomain(Object(Gibbon\Database\Connection))
+#2 /home/zemfzeav/cema.pe.edu.co/gibbon.php(98): Gibbon\Core->initializeCore(Object(League\Container\Container))
+#3 /home/zemfzeav/cema.pe.edu.co/modules/Staff/absences_addAjax.php(24): require_once('/home/zemfzeav/...')
+#4 {main}
+  thrown in /home/zemfzeav/cema.pe.edu.co/src/Gibbon/Locale.php on line 113

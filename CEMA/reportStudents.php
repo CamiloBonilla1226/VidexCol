@@ -50,7 +50,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportS
 	$form->addHiddenValue('q', '/modules/'.$gibbon->session->get('module').'/reportStudents.php');
 
 	$row = $form->addRow();
-	$row->addLabel('gibbonFormGroupID', __('Form Group'));
+	$row->addLabel('gibbonFormGroupID', __('Form Group'))->description('<b style="color:red">mensaje prueba</b>');
 	$row->addSelectFormGroup('gibbonFormGroupID', $session->get('gibbonSchoolYearID'), true)->selected($gibbonFormGroupID)->placeholder()->required();
 
 	$row = $form->addRow();

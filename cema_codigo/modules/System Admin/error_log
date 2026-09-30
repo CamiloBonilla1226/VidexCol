@@ -1,0 +1,371 @@
+[03-Aug-2026 08:40:40 America/New_York] PHP Warning:  Class "Google_Service" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:40:40 America/New_York] PHP Warning:  Class "Google_Service_Resource" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:40:40 America/New_York] PHP Warning:  Class "Google_Model" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:40:40 America/New_York] PHP Warning:  Class "Google_Collection" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 07:40:40 America/Bogota] Updater: Regular release - run all lines for all versions
+[03-Aug-2026 07:40:40 America/Bogota] Updater: fullVersionUpdate - updating version 30.0.01
+[03-Aug-2026 07:40:41 America/Bogota] PHP Warning:  SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'edf5cc2710dfba3073f2955015850a1d' for key 'PRIMARY' in /home/zemfzeav/cema.pe.edu.co/src/Database/Connection.php on line 200
+[03-Aug-2026 08:42:28 America/New_York] PHP Warning:  Class "Google_Service" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:42:28 America/New_York] PHP Warning:  Class "Google_Service_Resource" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:42:28 America/New_York] PHP Warning:  Class "Google_Model" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:42:28 America/New_York] PHP Warning:  Class "Google_Collection" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:42:43 America/New_York] PHP Warning:  Class "Google_Service" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:42:43 America/New_York] PHP Warning:  Class "Google_Service_Resource" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:42:43 America/New_York] PHP Warning:  Class "Google_Model" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 08:42:43 America/New_York] PHP Warning:  Class "Google_Collection" not found in /home/zemfzeav/cema.pe.edu.co/vendor/google/apiclient-services/autoload.php on line 21
+[03-Aug-2026 15:12:25 America/Bogota] SERVER -> CLIENT: 220 smtp-relay.brevo.com ESMTP Service Ready
+
+[03-Aug-2026 15:12:25 America/Bogota] CLIENT -> SERVER: EHLO cema.pe.edu.co
+
+[03-Aug-2026 15:12:25 America/Bogota] SERVER -> CLIENT: 250-Hello cema.pe.edu.co
+250-PIPELINING
+250-8BITMIME
+250-ENHANCEDSTATUSCODES
+250-CHUNKING
+250-STARTTLS
+250-AUTH PLAIN LOGIN CRAM-MD5
+250 SIZE 20971520
+
+[03-Aug-2026 15:12:25 America/Bogota] CLIENT -> SERVER: STARTTLS
+
+[03-Aug-2026 15:12:25 America/Bogota] SERVER -> CLIENT: 220 2.0.0 Ready to start TLS
+
+[03-Aug-2026 15:12:25 America/Bogota] CLIENT -> SERVER: EHLO cema.pe.edu.co
+
+[03-Aug-2026 15:12:26 America/Bogota] SERVER -> CLIENT: 250-Hello cema.pe.edu.co
+250-PIPELINING
+250-8BITMIME
+250-ENHANCEDSTATUSCODES
+250-CHUNKING
+250-AUTH PLAIN LOGIN CRAM-MD5
+250 SIZE 20971520
+
+[03-Aug-2026 15:12:26 America/Bogota] CLIENT -> SERVER: AUTH CRAM-MD5
+
+[03-Aug-2026 15:12:26 America/Bogota] SERVER -> CLIENT: 334 PDEuNjU3NDYxMDMyQGNlbWEucGUuZWR1LmNvPg==
+
+[03-Aug-2026 15:12:26 America/Bogota] CLIENT -> SERVER: [credentials hidden]
+[03-Aug-2026 15:12:26 America/Bogota] SERVER -> CLIENT: 235 2.0.0 Authentication succeeded
+
+[03-Aug-2026 15:12:26 America/Bogota] CLIENT -> SERVER: MAIL FROM:<no-replay@cema.pe.edu.co>
+
+[03-Aug-2026 15:12:26 America/Bogota] SERVER -> CLIENT: 250 2.0.0 Roger, accepting mail from <no-replay@cema.pe.edu.co>
+
+[03-Aug-2026 15:12:26 America/Bogota] CLIENT -> SERVER: RCPT TO:<luis.pinzon@cema.edu.co>
+
+[03-Aug-2026 15:12:27 America/Bogota] SERVER -> CLIENT: 250 2.0.0 I'll make sure <luis.pinzon@cema.edu.co> gets this
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: DATA
+
+[03-Aug-2026 15:12:27 America/Bogota] SERVER -> CLIENT: 354 Go ahead. End your data with <CR><LF>.<CR><LF>
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Date: Mon, 3 Aug 2026 15:12:25 -0500
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: To: luis.pinzon@cema.edu.co
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: From: =?UTF-8?Q?Colegio_Estrada_de_Mar=C3=ADa_Auxiliadora?= <no-replay@cema.pe.edu.co>
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Subject: CEMA - Test Email
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Message-ID: <GeEQOKjlhUAJX1fOFWvKkhflDKPowulQGjcNdj7ewQ@cema.pe.edu.co>
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: X-Mailer: PHPMailer 6.10.0 (https://github.com/PHPMailer/PHPMailer)
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: MIME-Version: 1.0
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Content-Transfer-Encoding: base64
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: 
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: PCFkb2N0eXBlIGh0bWw+CjxodG1sPgogIDxoZWFkPgogICAgPG1ldGEgbmFtZT0idmlld3BvcnQi
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCI+CiAgICA8bWV0YSBodHRwLWVxdWl2PSJDb250
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZW50LVR5cGUiIGNvbnRlbnQ9InRleHQvaHRtbDsgY2hhcnNldD1VVEYtOCI+CiAgICA8dGl0bGU+
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: VGVzdCBFbWFpbDwvdGl0bGU+CiAgICA8c3R5bGU+CgogICAgLyogLS0tLS0tLS0tLS0tLS0tLS0t
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: LS0tLS0tLS0tLS0tLS0tLS0tLQogICAgICAgIFJFU1BPTlNJVkUgQU5EIE1PQklMRSBGUklFTkRM
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: WSBTVFlMRVMKICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0gKi8KICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IEBtZWRpYSBvbmx5IHNjcmVlbiBhbmQgKG1heC13aWR0aDogNjIwcHgpIHsKICAgICAgdGFibGVb
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Y2xhc3M9Ym9keV0gaDEgewogICAgICAgIGZvbnQtc2l6ZTogMjhweCAhaW1wb3J0YW50OwogICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgIG1hcmdpbi1ib3R0b206IDEwcHggIWltcG9ydGFudDsKICAgICAgfQogICAgICB0YWJsZVtj
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: bGFzcz1ib2R5XSBwLAogICAgICAgICAgICB0YWJsZVtjbGFzcz1ib2R5XSB1bCwKICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgdGFibGVbY2xhc3M9Ym9keV0gb2wsCiAgICAgICAgICAgIHRhYmxlW2NsYXNzPWJvZHldIHRk
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: LAogICAgICAgICAgICB0YWJsZVtjbGFzcz1ib2R5XSBzcGFuLAogICAgICAgICAgICB0YWJsZVtj
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: bGFzcz1ib2R5XSBhIHsKICAgICAgICBmb250LXNpemU6IDE2cHggIWltcG9ydGFudDsKICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: fQogICAgICB0YWJsZVtjbGFzcz1ib2R5XSAud3JhcHBlciwKICAgICAgICAgICAgdGFibGVbY2xh
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: c3M9Ym9keV0gLmFydGljbGUgewogICAgICAgIHBhZGRpbmc6IDIwcHggMTBweCAhaW1wb3J0YW50
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OwogICAgICB9CiAgICAgIHRhYmxlW2NsYXNzPWJvZHldIC5jb250ZW50IHsKICAgICAgICBwYWRk
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: aW5nOiAwICFpbXBvcnRhbnQ7CiAgICAgIH0KICAgICAgdGFibGVbY2xhc3M9Ym9keV0gLmNvbnRh
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: aW5lciB7CiAgICAgICAgcGFkZGluZzogMCAhaW1wb3J0YW50OwogICAgICAgIHdpZHRoOiAxMDAl
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICFpbXBvcnRhbnQ7CiAgICAgIH0KICAgICAgdGFibGVbY2xhc3M9Ym9keV0gLm1haW4gewogICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgIGJvcmRlci1sZWZ0LXdpZHRoOiAwICFpbXBvcnRhbnQ7CiAgICAgICAgYm9yZGVyLXJhZGl1
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: czogMCAhaW1wb3J0YW50OwogICAgICAgIGJvcmRlci1yaWdodC13aWR0aDogMCAhaW1wb3J0YW50
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OwogICAgICB9CiAgICAgIHRhYmxlW2NsYXNzPWJvZHldIC5idG4gdGFibGUgewogICAgICAgIHdp
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZHRoOiAxMDAlICFpbXBvcnRhbnQ7CiAgICAgIH0KICAgICAgdGFibGVbY2xhc3M9Ym9keV0gLmJ0
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: biBhIHsKICAgICAgICB3aWR0aDogMTAwJSAhaW1wb3J0YW50OwogICAgICB9CiAgICAgIHRhYmxl
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: W2NsYXNzPWJvZHldIC5pbWctcmVzcG9uc2l2ZSB7CiAgICAgICAgaGVpZ2h0OiBhdXRvICFpbXBv
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: cnRhbnQ7CiAgICAgICAgbWF4LXdpZHRoOiAxMDAlICFpbXBvcnRhbnQ7CiAgICAgICAgd2lkdGg6
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IGF1dG8gIWltcG9ydGFudDsKICAgICAgfQogICAgICB0YWJsZVtjbGFzcz1mb290XSAuY29udGVu
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: dC1ibG9jaywKICAgICAgdGFibGVbY2xhc3M9Zm9vdF0gLmNvbnRlbnQtYmxvY2sgYSB7CiAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgZm9udC1zaXplOiAxMnB4ICFpbXBvcnRhbnQ7CiAgICAgIH0KICAgICAgaW1nLCBpbWdbc3R5
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: bGVdIHsKICAgICAgICAgIG1heC13aWR0aDogMTAwJTsKICAgICAgfQogICAgfQoKICAgIC8qIC0t
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KICAgICAgICBQUkVTRVJWRSBUSEVT
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: RSBTVFlMRVMgSU4gVEhFIEhFQUQKICAgIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: LS0tLS0gKi8KCiAgICBAbWVkaWEgYWxsIHsKICAgICAgLkV4dGVybmFsQ2xhc3MgewogICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IHdpZHRoOiAxMDAlOwogICAgICB9CiAgICAgIC5FeHRlcm5hbENsYXNzLAogICAgICAgICAgICAu
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: RXh0ZXJuYWxDbGFzcyBwLAogICAgICAgICAgICAuRXh0ZXJuYWxDbGFzcyBzcGFuLAogICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAuRXh0ZXJuYWxDbGFzcyBmb250LAogICAgICAgICAgICAuRXh0ZXJuYWxDbGFzcyB0ZCwK
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICAgLkV4dGVybmFsQ2xhc3MgZGl2IHsKICAgICAgICBsaW5lLWhlaWdodDogMTAw
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: JTsKICAgICAgfQogICAgICAuYXBwbGUtbGluayBhIHsKICAgICAgICBjb2xvcjogaW5oZXJpdCAh
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: aW1wb3J0YW50OwogICAgICAgIGZvbnQtZmFtaWx5OiBpbmhlcml0ICFpbXBvcnRhbnQ7CiAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgZm9udC1zaXplOiBpbmhlcml0ICFpbXBvcnRhbnQ7CiAgICAgICAgZm9udC13ZWlnaHQ6IGlu
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: aGVyaXQgIWltcG9ydGFudDsKICAgICAgICBsaW5lLWhlaWdodDogaW5oZXJpdCAhaW1wb3J0YW50
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OwogICAgICAgIHRleHQtZGVjb3JhdGlvbjogbm9uZSAhaW1wb3J0YW50OwogICAgICB9CiAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IC5idG4tcHJpbWFyeSB0YWJsZSB0ZDpob3ZlciB7CiAgICAgICAgY29sb3I6ICNmZmZmZmYgIWlt
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: cG9ydGFudDsKICAgICAgICBiYWNrZ3JvdW5kLWNvbG9yOiAjNGU2ZDhjICFpbXBvcnRhbnQ7CiAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgIH0KICAgICAgLmJ0bi1wcmltYXJ5IGE6aG92ZXIgewogICAgICAgIGNvbG9yOiAjZmZmZmZm
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICFpbXBvcnRhbnQ7CiAgICAgICAgYmFja2dyb3VuZC1jb2xvcjogIzRlNmQ4YyAhaW1wb3J0YW50
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OwogICAgICAgIGJvcmRlci1jb2xvcjogIzRlNmQ4YyAhaW1wb3J0YW50OwogICAgICB9CiAgICB9
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: CiAgICA8L3N0eWxlPgogIDwvaGVhZD4KICA8Ym9keSBjbGFzcz0iIiBzdHlsZT0iYmFja2dyb3Vu
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZC1jb2xvcjogI2Y2ZjZmNjsgZm9udC1mYW1pbHk6ICYjMDM5O0hlbHZldGljYSBOZXVlJiMwMzk7
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: LEhlbHZldGljYSxBcmlhbCxzYW5zLXNlcmlmIWltcG9ydGFudDsgLXdlYmtpdC1mb250LXNtb290
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: aGluZzogYW50aWFsaWFzZWQ7IGZvbnQtc2l6ZTogMTRweDsgbGluZS1oZWlnaHQ6IDEuNDsgbWFy
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Z2luOiAwOyBwYWRkaW5nOiAwOyAtbXMtdGV4dC1zaXplLWFkanVzdDogMTAwJTsgLXdlYmtpdC10
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZXh0LXNpemUtYWRqdXN0OiAxMDAlOyI+CiAgICA8dGFibGUgYm9yZGVyPSIwIiBjZWxscGFkZGlu
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Zz0iMCIgY2VsbHNwYWNpbmc9IjAiIGNsYXNzPSJib2R5IiBzdHlsZT0iYm9yZGVyLWNvbGxhcHNl
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OiBzZXBhcmF0ZTsgbXNvLXRhYmxlLWxzcGFjZTogMHB0OyBtc28tdGFibGUtcnNwYWNlOiAwcHQ7
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IHdpZHRoOiAxMDAlOyBiYWNrZ3JvdW5kLWNvbG9yOiAjZjZmNmY2OyI+CiAgICAgIDx0cj4KICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICA8dGQgc3R5bGU9ImZvbnQtZmFtaWx5OiAmIzAzOTtIZWx2ZXRpY2EgTmV1ZSYjMDM5OyxI
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZWx2ZXRpY2EsQXJpYWwsc2Fucy1zZXJpZiFpbXBvcnRhbnQ7IGZvbnQtc2l6ZTogMTRweDsgdmVy
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: dGljYWwtYWxpZ246IHRvcDsiPiZuYnNwOzwvdGQ+CiAgICAgICAgPHRkIGNsYXNzPSJjb250YWlu
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZXIiIHN0eWxlPSJmb250LWZhbWlseTogJiMwMzk7SGVsdmV0aWNhIE5ldWUmIzAzOTssSGVsdmV0
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: aWNhLEFyaWFsLHNhbnMtc2VyaWYhaW1wb3J0YW50OyBmb250LXNpemU6IDE0cHg7IHZlcnRpY2Fs
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: LWFsaWduOiB0b3A7IGRpc3BsYXk6IGJsb2NrOyBNYXJnaW46IDAgYXV0bzsgbWF4LXdpZHRoOiA3
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ODBweDsgcGFkZGluZzogMTBweCAwcHg7IHdpZHRoOiA5MCU7Ij4KICAgICAgICAgIDxkaXYgY2xh
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: c3M9ImhlYWRlciIgc3R5bGU9ImJveC1zaXppbmc6IGJvcmRlci1ib3g7IGRpc3BsYXk6IGJsb2Nr
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OyBNYXJnaW46IDAgYXV0bzsgbWF4LXdpZHRoOiA3ODBweDsgcGFkZGluZzoyMHB4IDE2cHggMTJw
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: eDt0ZXh0LWFsaWduOmNlbnRlcjsiPgogICAgICAgICAgICA8YSBocmVmPSJodHRwczovL2NlbWEu
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: cGUuZWR1LmNvIiBzdHlsZT0iY29sb3I6IzQzOWZlMDtmb250LXdlaWdodDpib2xkO3RleHQtZGVj
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: b3JhdGlvbjpub25lOyIgdGFyZ2V0PSJfYmxhbmsiPgogICAgICAgICAgICAgICAgPGltZyBzcmM9
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Imh0dHBzOi8vY2VtYS5wZS5lZHUuY28vdXBsb2Fkcy8yMDIzLzA0L2xvZ29faWt6NjNqMDdzZXl2
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: cHN1ZS5wbmciIHN0eWxlPSJvdXRsaW5lOm5vbmU7dGV4dC1kZWNvcmF0aW9uOm5vbmU7Ym9yZGVy
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Om5vbmUiIGhlaWdodD0iNTAiPgogICAgICAgICAgICA8L2E+CiAgICAgICAgICA8L2Rpdj4KICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgIDxkaXYgY2xhc3M9ImNvbnRlbnQiIHN0eWxlPSJib3gtc2l6aW5nOiBib3JkZXItYm94
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OyBkaXNwbGF5OiBibG9jazsgTWFyZ2luOiAwIGF1dG87IG1heC13aWR0aDogNzgwcHg7IHBhZGRp
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: bmc6IDBweCAwcHggNDBweDsiPgoKICAgICAgICAgICAgPCEtLSBTVEFSVCBDRU5URVJFRCBXSElU
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: RSBDT05UQUlORVIgLS0+CiAgICAgICAgICAgIDxzcGFuIGNsYXNzPSJwcmVoZWFkZXIiIHN0eWxl
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: PSJjb2xvcjogdHJhbnNwYXJlbnQ7IGRpc3BsYXk6IG5vbmU7IGhlaWdodDogMDsgbWF4LWhlaWdo
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: dDogMDsgbWF4LXdpZHRoOiAwOyBvcGFjaXR5OiAwOyBvdmVyZmxvdzogaGlkZGVuOyBtc28taGlk
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZTogYWxsOyB2aXNpYmlsaXR5OiBoaWRkZW47IHdpZHRoOiAwOyI+CiAgICAgICAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICA8L3NwYW4+CiAgICAgICAgICAgIDx0YWJsZSBjbGFzcz0ibWFpbiIgc3R5bGU9
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ImJvcmRlci1jb2xsYXBzZTogc2VwYXJhdGU7IG1zby10YWJsZS1sc3BhY2U6IDBwdDsgbXNvLXRh
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: YmxlLXJzcGFjZTogMHB0OyB3aWR0aDogMTAwJTsgYmFja2dyb3VuZDogI2ZmZmZmZjsgYm9yZGVy
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: LXJhZGl1czogNnB4OyI+CgogICAgICAgICAgICAgIDwhLS0gU1RBUlQgTUFJTiBDT05URU5UIEFS
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: RUEgLS0+CiAgICAgICAgICAgICAgPHRyPgogICAgICAgICAgICAgICAgPHRkIGNsYXNzPSJ3cmFw
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: cGVyIiBzdHlsZT0iZm9udC1mYW1pbHk6ICYjMDM5O0hlbHZldGljYSBOZXVlJiMwMzk7LEhlbHZl
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: dGljYSxBcmlhbCxzYW5zLXNlcmlmIWltcG9ydGFudDsgZm9udC1zaXplOiAxNHB4OyB2ZXJ0aWNh
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: bC1hbGlnbjogdG9wOyBib3gtc2l6aW5nOiBib3JkZXItYm94OyBwYWRkaW5nOiAzMnB4OyI+CiAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICAgICAgIDx0YWJsZSBib3JkZXI9IjAiIGNlbGxwYWRkaW5nPSIwIiBjZWxsc3Bh
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Y2luZz0iMCIgc3R5bGU9ImJvcmRlci1jb2xsYXBzZTogc2VwYXJhdGU7IG1zby10YWJsZS1sc3Bh
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Y2U6IDBwdDsgbXNvLXRhYmxlLXJzcGFjZTogMHB0OyB3aWR0aDogMTAwJTsiPgogICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgIDx0cj4KICAgICAgICAgICAgICAgICAgICAgIDx0ZCBzdHlsZT0iZm9udC1mYW1p
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: bHk6ICYjMDM5O0hlbHZldGljYSBOZXVlJiMwMzk7LEhlbHZldGljYSxBcmlhbCxzYW5zLXNlcmlm
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IWltcG9ydGFudDsgZm9udC1zaXplOiAxNHB4OyB2ZXJ0aWNhbC1hbGlnbjogdG9wOyI+CiAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICAgICAgICAgIDxkaXYgc3R5bGU9ImZvbnQtZmFtaWx5OiAmIzAzOTtIZWx2ZXRp
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Y2EgTmV1ZSYjMDM5OyxIZWx2ZXRpY2EsQXJpYWwsc2Fucy1zZXJpZiFpbXBvcnRhbnQ7IGZvbnQt
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: c2l6ZTogMTRweDsgZm9udC13ZWlnaHQ6IG5vcm1hbDsgbWFyZ2luOiAwOyBNYXJnaW4tYm90dG9t
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OiAxNXB4O2NvbG9yOiAjMzczNzM3OyI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxoMiBzdHlsZT0ibWFyZ2luLXRvcDogMHB4OyI+
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: VGVzdCBFbWFpbDwvaDI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICA8L2Rpdj4KICAgICAgICAgICAgICAgICAgICAgICAgPGRpdiBzdHlsZT0iZm9u
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: dC1mYW1pbHk6ICYjMDM5O0hlbHZldGljYSBOZXVlJiMwMzk7LEhlbHZldGljYSxBcmlhbCxzYW5z
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: LXNlcmlmIWltcG9ydGFudDsgZm9udC1zaXplOiAxNnB4OyBsaW5lLWhlaWdodDogMjJweDsgZm9u
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: dC13ZWlnaHQ6IG5vcm1hbDsgbWFyZ2luOiAwOyBNYXJnaW4tYm90dG9tOiAxNXB4OyBjb2xvcjog
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IzU1NTU0OTsiPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAKCiAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IDxociBzdHlsZT0iYm9yZGVyOm5vbmU7Ym9yZGVyLWJvdHRvbToxcHggc29saWQgI2VjZWNlYztt
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: YXJnaW46MS41cmVtIDA7d2lkdGg6MTAwJTsiPgoKICAgICAgICA8dWw+CiAgICAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgIDxsaSBzdHlsZT0icGFkZGluZzogM3B4IDBweDsiPgogICAgICAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: PGI+RGVzdGluYXRhcmlvPC9iPjogbHVpcy5waW56b25AY2VtYS5lZHUuY28KICAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: PC9saT4KICAgICAgICAgICAgICAgICAgICAgICAgPGxpIHN0eWxlPSJwYWRkaW5nOiAzcHggMHB4
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OyI+CiAgICAgICAgICAgICAgICA8Yj5GZWNoYTwvYj46IDAzLzA4LzIwMjYgMTU6MTIKICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgPC9saT4KICAgICAgICAgICAgICAgICAgICA8L3VsPgoKICAgICAgICA8aHIgc3R5bGU9
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ImJvcmRlcjpub25lO2JvcmRlci1ib3R0b206MXB4IHNvbGlkICNlY2VjZWM7bWFyZ2luOjEuNXJl
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: bSAwO3dpZHRoOjEwMCU7Ij4KICAgIAogICAgICAgICAgICAgICAgICAgICAgICA8L2Rpdj4KCiAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICA8cCBzdHlsZT0i
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Zm9udC1mYW1pbHk6ICYjMDM5O0hlbHZldGljYSBOZXVlJiMwMzk7LEhlbHZldGljYSxBcmlhbCxz
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: YW5zLXNlcmlmIWltcG9ydGFudDsgZm9udC1zaXplOiAxNnB4OyBsaW5lLWhlaWdodDogMjJweDsg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Zm9udC13ZWlnaHQ6IG5vcm1hbDsgbWFyZ2luOiAwOyBjb2xvcjogIzU1NTU0OTsiPgogICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9wPgogICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICAgICAgPC90ZD4KICAgICAgICAgICAgICAgICAgICA8L3RyPgogICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICA8L3RhYmxlPgogICAgICAgICAgICAgICAgPC90ZD4KICAgICAgICAgICAgICA8L3Ry
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: PgoKICAgICAgICAgICAgPCEtLSBFTkQgTUFJTiBDT05URU5UIEFSRUEgLS0+CiAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IDwvdGFibGU+CgogICAgICAgICAgICA8IS0tIFNUQVJUIEZPT1RFUiAtLT4KICAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: PGRpdiBjbGFzcz0iZm9vdGVyIiBzdHlsZT0iY2xlYXI6IGJvdGg7IE1hcmdpbi10b3A6IDEwcHg7
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IHRleHQtYWxpZ246IGNlbnRlcjsgd2lkdGg6IDEwMCU7Ij4KICAgICAgICAgICAgICA8dGFibGUg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: Y2xhc3M9ImZvb3QiIGJvcmRlcj0iMCIgY2VsbHBhZGRpbmc9IjAiIGNlbGxzcGFjaW5nPSIwIiBz
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: dHlsZT0iYm9yZGVyLWNvbGxhcHNlOiBzZXBhcmF0ZTsgbXNvLXRhYmxlLWxzcGFjZTogMHB0OyBt
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: c28tdGFibGUtcnNwYWNlOiAwcHQ7IHdpZHRoOiAxMDAlOyI+CiAgICAgICAgICAgICAgICA8dHI+
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: CiAgICAgICAgICAgICAgICAgIDx0ZCBjbGFzcz0iY29udGVudC1ibG9jayIgc3R5bGU9ImZvbnQt
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZmFtaWx5OiAmIzAzOTtIZWx2ZXRpY2EgTmV1ZSYjMDM5OyxIZWx2ZXRpY2EsQXJpYWwsc2Fucy1z
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZXJpZiFpbXBvcnRhbnQ7IHZlcnRpY2FsLWFsaWduOiB0b3A7IHBhZGRpbmctYm90dG9tOiAxMHB4
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: OyBwYWRkaW5nLXRvcDogMTBweDsgZm9udC1zaXplOiAxMnB4OyBjb2xvcjogIzk5OTk5OTsgdGV4
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: dC1hbGlnbjogY2VudGVyOyI+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgQ29ycmVvIGVudmlhZG8gYSB0cmF2w6lzIGRlIFBsYXRhZm9ybWEgRWR1Y2F0aXZhIGVu
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: IENvbGVnaW8gRXN0cmFkYSBkZSBNYXLDrWEgQXV4aWxpYWRvcmEgLgogICAgICAgICAgICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgICAgICAgICAgICAgICAgIDwvdGQ+CiAgICAgICAgICAgICAgICA8L3RyPgogICAgICAg
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ICAgICAgIDwvdGFibGU+CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICA8IS0tIEVORCBG
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: T09URVIgLS0+CgogICAgICAgICAgPCEtLSBFTkQgQ0VOVEVSRUQgV0hJVEUgQ09OVEFJTkVSIC0t
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: PgogICAgICAgICAgPC9kaXY+CiAgICAgICAgPC90ZD4KICAgICAgICA8dGQgc3R5bGU9ImZvbnQt
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZmFtaWx5OiAmIzAzOTtIZWx2ZXRpY2EgTmV1ZSYjMDM5OyxIZWx2ZXRpY2EsQXJpYWwsc2Fucy1z
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: ZXJpZiFpbXBvcnRhbnQ7IGZvbnQtc2l6ZTogMTRweDsgdmVydGljYWwtYWxpZ246IHRvcDsiPiZu
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: YnNwOzwvdGQ+CiAgICAgIDwvdHI+CiAgICA8L3RhYmxlPgogIDwvYm9keT4KPC9odG1sPgo=
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: 
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: .
+
+[03-Aug-2026 15:12:27 America/Bogota] SERVER -> CLIENT: 250 2.0.0 OK: queued as <GeEQOKjlhUAJX1fOFWvKkhflDKPowulQGjcNdj7ewQ@cema.pe.edu.co>
+
+[03-Aug-2026 15:12:27 America/Bogota] CLIENT -> SERVER: QUIT
+
+[03-Aug-2026 15:12:27 America/Bogota] SERVER -> CLIENT: 221 2.0.0 Bye
+

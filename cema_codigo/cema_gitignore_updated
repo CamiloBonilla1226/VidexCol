@@ -1,0 +1,45 @@
+# Core Files
+/config.php
+/index_custom.php
+/index_customSidebar.php
+
+# Uploads Folder
+uploads/*
+!uploads/.htaccess
+
+# Themes Folder
+themes/*
+!themes/Default
+!themes/Legacy
+!themes/2021
+
+# Tests Folder
+tests/log/*
+tests/config/support/_generated/*
+
+# Template Cache
+/resources/templates/cache/*
+
+# Misc System Temp Files
+Thumb.db
+.DS_Store
+*~
+nbproject/
+
+# Vendor Libraries
+/vendor
+
+# Var Folder
+var/*
+!var/.htaccess
+
+# Ignore node_modules folder
+node_modules
+
+# Log files
+error_log
+*.log
+
+# Heavy directories
+/i18n
+/dist
