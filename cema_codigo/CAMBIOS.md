@@ -4,6 +4,22 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-29 — Resumen de emergencia: reporte automático, selección resaltada y Excel con mejor diseño
+
+**Cambios en `report_student_emergencySummary.php`:**
+- **Panel "Elegir estudiantes":** siempre inicia abierto. Se puede minimizar con el botón **−** (pasa a **+**).
+- **Reporte automático:** se quitó el botón "Generar reporte". La tabla se actualiza sola (sin recargar la página) unos instantes después de marcar o desmarcar estudiantes; si no hay ninguno marcado, la tabla desaparece.
+- **Estudiantes seleccionados:** ahora se ven con fondo gris más oscuro, texto en negrita y una barra oscura a la izquierda.
+- **Excel:** diseño propio (sin tocar el núcleo): título, fecha de generación y total de estudiantes; bandas de color por sección (Estudiante, Acudiente 1 y 2, Emergencia 1 y 2) con encabezados en el color de su sección; filas alternadas con bordes suaves; texto ajustado; fecha de actualización vencida en rojo; nombre y apellido fijos al desplazarse; filtros en los encabezados; impresión horizontal ajustada al ancho con encabezados repetidos y pie con número de página.
+
+**Archivos modificados (subir al servidor):**
+- `modules/Informes Escolares/report_student_emergencySummary.php`
+
+**Notas:**
+- Verificado: sintaxis PHP y JS, y generación de un .xlsx válido con datos de prueba. Falta probar con datos reales en el servidor.
+
+---
+
 ## 2026-09-29 — Corrección: el reporte y el Excel salían vacíos (Informes Escolares)
 
 **Problema:** tras el rediseño, "Resumen de Datos de Emergencia del Estudiante" no traía información y el botón Exportar generaba el Excel vacío.

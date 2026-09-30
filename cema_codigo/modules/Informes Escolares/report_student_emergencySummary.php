@@ -87,7 +87,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
             $formGroups[$s['gibbonFormGroupID']] = ['name' => $s['formGroup'], 'year' => $s['gibbonYearGroupID']];
         }
 
-        $hasReport = !empty($choices);
         $url = $session->get('absoluteURL').'/index.php?q=/modules/Informes Escolares/report_student_emergencySummary.php';
 
         echo '<style>
@@ -103,8 +102,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
             .es-btn { border: 1px solid #9ca3af; background: #fff; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 0.9em; }
             .es-btn:hover { background: #e5e7eb; }
             .es-min { width: 30px; height: 30px; padding: 0; font-size: 1.3em; line-height: 1; font-weight: bold; }
-            .es-btn-main { background: #2563eb; border-color: #2563eb; color: #fff; padding: 7px 18px; font-size: 1em; }
-            .es-btn-main:hover { background: #1d4ed8; }
             .es-count { margin-left: auto; font-weight: bold; }
             .es-list { max-height: 320px; overflow-y: auto; border: 1px solid #d1d5db; border-radius: 4px; }
             .es-group { background: #e5e7eb; font-weight: bold; padding: 4px 10px; position: sticky; top: 0; }
@@ -113,14 +110,16 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
             .es-row input { width: auto; min-width: 0; margin: 0; }
             .es-row small { color: #6b7280; margin-left: auto; }
             .es-empty { padding: 14px; text-align: center; color: #6b7280; display: none; }
-            .es-actions { margin-top: 12px; }
-            .es-warn { color: #b91c1c; margin-left: 10px; display: none; }
+            .es-row.es-selected { background: #c3c8d0; font-weight: 600; box-shadow: inset 4px 0 0 #374151; }
+            .es-row.es-selected:hover { background: #b4bac4; }
+            .es-hint { margin-top: 10px; color: #6b7280; font-size: 0.9em; }
+            #es-result { transition: opacity .2s; }
         </style>';
 
         echo '<div class="es-card">';
         echo '<div class="es-head"><strong>'.__('Choose Students').'</strong>';
-        echo '<button type="button" class="es-btn es-min" id="es-toggle" title="'.($hasReport ? 'Expandir' : 'Minimizar').'" aria-label="Minimizar o expandir">'.($hasReport ? '+' : '&minus;').'</button></div>';
-        echo '<div class="es-body" id="es-body"'.($hasReport ? ' style="display:none"' : '').'>';
+        echo '<button type="button" class="es-btn es-min" id="es-toggle" title="Minimizar" aria-label="Minimizar o expandir">&minus;</button></div>';
+        echo '<div class="es-body" id="es-body">';
         echo '<form method="post" action="'.$h($url).'" id="es-form">';
 
         echo '<div class="es-filters">';
@@ -160,8 +159,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
         echo '<div class="es-empty" id="es-empty">No hay estudiantes con esos filtros.</div>';
         echo '</div>';
 
-        echo '<div class="es-actions"><button type="submit" class="es-btn es-btn-main">Generar reporte</button>';
-        echo '<span class="es-warn" id="es-warn">Seleccione al menos un estudiante.</span></div>';
+        echo '<div class="es-hint">El reporte se actualiza solo al marcar o desmarcar estudiantes.</div>';
         echo '</form></div></div>';
 
         echo <<<'JS'
@@ -177,6 +175,42 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
     function updateCount() {
         var n = rows.filter(function (r) { return r.querySelector('input').checked; }).length;
         $('es-count').textContent = n + (n === 1 ? ' seleccionado' : ' seleccionados');
+        rows.forEach(function (r) { r.classList.toggle('es-selected', r.querySelector('input').checked); });
+    }
+
+    // Actualiza el reporte sin recargar la página
+    var timer = null, controller = null;
+    function refresh() {
+        var box = $('es-result');
+        if (controller) controller.abort();
+        controller = window.AbortController ? new AbortController() : null;
+        box.style.opacity = '0.5';
+        fetch($('es-form').action, {
+            method: 'POST',
+            body: new FormData($('es-form')),
+            credentials: 'same-origin',
+            signal: controller ? controller.signal : undefined
+        }).then(function (r) { return r.text(); }).then(function (html) {
+            var res = new DOMParser().parseFromString(html, 'text/html').getElementById('es-result');
+            if (!res) throw new Error('sin resultado');
+            box.innerHTML = res.innerHTML;
+            // Los scripts insertados con innerHTML no se ejecutan: se recrean para que la tabla funcione
+            Array.prototype.forEach.call(box.querySelectorAll('script'), function (old) {
+                var sc = document.createElement('script');
+                sc.text = old.text;
+                old.parentNode.replaceChild(sc, old);
+            });
+            box.style.opacity = '';
+        }).catch(function (e) {
+            if (e && e.name === 'AbortError') return;
+            box.style.opacity = '';
+            box.innerHTML = '<p style="color:#b91c1c">No se pudo actualizar el reporte. Recargue la página e intente de nuevo.</p>';
+        });
+    }
+    function changed() {
+        updateCount();
+        clearTimeout(timer);
+        timer = setTimeout(refresh, 600);
     }
 
     function applyFilters() {
@@ -214,21 +248,17 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/report_
 
     function setVisible(value) {
         rows.forEach(function (r) { if (isVisible(r)) r.querySelector('input').checked = value; });
-        updateCount();
+        changed();
     }
     $('es-all').addEventListener('click', function () { setVisible(true); });
     $('es-none').addEventListener('click', function () { setVisible(false); });
     $('es-clear').addEventListener('click', function () {
         rows.forEach(function (r) { r.querySelector('input').checked = false; });
-        updateCount();
+        changed();
     });
-    $('es-list').addEventListener('change', updateCount);
-
-    $('es-form').addEventListener('submit', function (e) {
-        var n = rows.filter(function (r) { return r.querySelector('input').checked; }).length;
-        $('es-warn').style.display = n ? 'none' : 'inline';
-        if (!n) e.preventDefault();
-    });
+    $('es-list').addEventListener('change', changed);
+    // Sin JavaScript de envío: si alguien pulsa Enter en el buscador no se recarga la página
+    $('es-form').addEventListener('submit', function (e) { e.preventDefault(); });
 
     $('es-toggle').addEventListener('click', function () {
         var body = $('es-body');
@@ -245,6 +275,9 @@ JS;
     }
 
     if (empty($choices)) {
+        if (empty($viewMode)) {
+            echo '<div id="es-result"></div>';
+        }
         return;
     }
 
@@ -275,6 +308,158 @@ JS;
     $table->addMetaData('post', ['gibbonPersonID' => $choices]);
 
     if ($viewMode == 'export') {
+        // EXCEL: diseño propio (título, bandas de color por sección, filtros, paneles fijos, impresión horizontal)
+        if (!class_exists('EmergencySpreadsheetRenderer')) {
+            class EmergencySpreadsheetRenderer extends \Gibbon\Tables\Renderer\SpreadsheetRenderer
+            {
+                protected function groupOf($id)
+                {
+                    if (preg_match('/^adult\w+(\d)$/', $id, $m)) return 'Acudiente '.($m[1] + 1);
+                    if (preg_match('/^emergency(\d)/', $id, $m)) return 'Emergencia '.$m[1];
+                    return 'Estudiante';
+                }
+
+                protected function fill($rgb)
+                {
+                    return ['fillType' => 'solid', 'startColor' => ['rgb' => $rgb]];
+                }
+
+                public function renderTable(\Gibbon\Tables\DataTable $table, \Gibbon\Domain\DataSet $dataSet)
+                {
+                    $creator = $table->getMetaData('creator');
+                    $this->excel->getProperties()->setCreator($creator)->setLastModifiedBy($creator)
+                        ->setTitle($table->getTitle())
+                        ->setDescription('Información confidencial. Generado por Gibbon.');
+                    $this->sheet->setTitle('Emergencia');
+
+                    $columns = [];
+                    foreach ($table->getColumns() as $id => $column) {
+                        if ($column instanceof \Gibbon\Tables\Columns\ActionColumn || $column instanceof \Gibbon\Tables\Columns\ExpandableColumn) continue;
+                        $columns[$id] = $column;
+                    }
+                    if (empty($columns) || $dataSet->count() == 0) {
+                        $this->sheet->setCellValue('A1', 'La consulta no devolvió estudiantes.');
+                        $this->save($table);
+                        return;
+                    }
+
+                    // Colores por sección: [banda oscura, encabezado claro]
+                    $palette = [
+                        'Estudiante'   => ['1F4E78', 'D9E2F3'],
+                        'Acudiente 1'  => ['2E75B6', 'DDEBF7'],
+                        'Acudiente 2'  => ['548235', 'E2EFDA'],
+                        'Emergencia 1' => ['C55A11', 'FCE4D6'],
+                        'Emergencia 2' => ['7F6000', 'FFF2CC'],
+                    ];
+                    $border = ['borders' => ['allBorders' => ['borderStyle' => 'thin', 'color' => ['rgb' => 'C9D2E0']]]];
+                    $ids = array_keys($columns);
+                    $lastCol = $this->num2alpha(count($columns) - 1);
+                    $sheet = $this->sheet;
+
+                    // Fila 1: título
+                    $sheet->setCellValue('A1', $table->getTitle());
+                    $sheet->mergeCells('A1:'.$lastCol.'1');
+                    $sheet->getStyle('A1:'.$lastCol.'1')->applyFromArray([
+                        'fill' => $this->fill('1F4E78'),
+                        'font' => ['bold' => true, 'size' => 16, 'color' => ['rgb' => 'FFFFFF']],
+                        'alignment' => ['vertical' => 'center', 'indent' => 1],
+                    ]);
+                    $sheet->getRowDimension(1)->setRowHeight(34);
+
+                    // Fila 2: datos de la generación
+                    $sheet->setCellValue('A2', 'Generado el '.date('d/m/Y H:i').' por '.$creator.'   |   '.$dataSet->count().' estudiante(s)   |   Las fechas en rojo indican datos sin actualizar');
+                    $sheet->mergeCells('A2:'.$lastCol.'2');
+                    $sheet->getStyle('A2')->applyFromArray([
+                        'font' => ['italic' => true, 'size' => 10, 'color' => ['rgb' => '595959']],
+                        'alignment' => ['vertical' => 'center', 'indent' => 1],
+                    ]);
+                    $sheet->getRowDimension(2)->setRowHeight(20);
+                    $sheet->getRowDimension(3)->setRowHeight(6);
+
+                    // Fila 4: bandas de sección | Fila 5: encabezados de columna
+                    $groupStart = 0;
+                    foreach ($ids as $i => $id) {
+                        $group = $this->groupOf($id);
+                        $alpha = $this->num2alpha($i);
+                        $colors = $palette[$group];
+
+                        $width = intval($columns[$id]->getWidth());
+                        $sheet->getColumnDimension($alpha)->setWidth($width > 0 ? $width : 18);
+
+                        $sheet->setCellValue($alpha.'5', $columns[$id]->getLabel());
+                        $sheet->getStyle($alpha.'5')->applyFromArray($border + [
+                            'fill' => $this->fill($colors[1]),
+                            'font' => ['bold' => true, 'size' => 11, 'color' => ['rgb' => '1F1F1F']],
+                            'alignment' => ['horizontal' => 'center', 'vertical' => 'center', 'wrapText' => true],
+                        ]);
+
+                        // Cierra la banda cuando cambia la sección
+                        $next = isset($ids[$i + 1]) ? $this->groupOf($ids[$i + 1]) : null;
+                        if ($next !== $group) {
+                            $first = $this->num2alpha($groupStart);
+                            $sheet->setCellValue($first.'4', $group);
+                            if ($groupStart < $i) $sheet->mergeCells($first.'4:'.$alpha.'4');
+                            $sheet->getStyle($first.'4:'.$alpha.'4')->applyFromArray($border + [
+                                'fill' => $this->fill($colors[0]),
+                                'font' => ['bold' => true, 'size' => 12, 'color' => ['rgb' => 'FFFFFF']],
+                                'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
+                            ]);
+                            $groupStart = $i + 1;
+                        }
+                    }
+                    $sheet->getRowDimension(4)->setRowHeight(22);
+                    $sheet->getRowDimension(5)->setRowHeight(30);
+
+                    // Filas de datos
+                    $cutoff = $table->getMetaData('cutoffDate');
+                    $updatePos = array_search('lastUpdate', $ids);
+                    $row = 6;
+                    foreach ($dataSet as $data) {
+                        foreach (array_values($columns) as $i => $column) {
+                            $value = $this->stripTags($column->getOutput($data, false));
+                            $sheet->setCellValueExplicit($this->num2alpha($i).$row, $value, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+                        }
+
+                        $range = 'A'.$row.':'.$lastCol.$row;
+                        $sheet->getStyle($range)->applyFromArray($border + [
+                            'font' => ['size' => 11],
+                            'alignment' => ['vertical' => 'center', 'wrapText' => true],
+                        ]);
+                        if ($row % 2 == 1) {
+                            $sheet->getStyle($range)->applyFromArray(['fill' => $this->fill('F5F8FC')]);
+                        }
+
+                        // Fecha de actualización en rojo si está vencida o no existe
+                        if ($updatePos !== false && (empty($data['lastPersonalUpdate']) || (!empty($cutoff) && $data['lastPersonalUpdate'] < $cutoff))) {
+                            $sheet->getStyle($this->num2alpha($updatePos).$row)->applyFromArray([
+                                'fill' => $this->fill('FDE9E7'),
+                                'font' => ['bold' => true, 'color' => ['rgb' => 'C00000']],
+                            ]);
+                        }
+                        $row++;
+                    }
+
+                    // Nombre y apellido siempre visibles, filtros y opciones de impresión
+                    $sheet->freezePane('C6');
+                    $sheet->setAutoFilter('A5:'.$lastCol.($row - 1));
+                    $setup = $sheet->getPageSetup();
+                    $setup->setOrientation('landscape');
+                    $setup->setFitToWidth(1);
+                    $setup->setFitToHeight(0);
+                    $setup->setRowsToRepeatAtTopByStartAndEnd(4, 5);
+                    $sheet->getPageSetup()->setFitToPage(true);
+                    $sheet->getHeaderFooter()->setOddFooter('&L&F&RPágina &P de &N');
+                    $sheet->getSheetView()->setZoomScale(90);
+
+                    if ($table->getMetaData('tableCount') <= 1) {
+                        $this->save($table);
+                    }
+                }
+            }
+        }
+        $table->setRenderer(new EmergencySpreadsheetRenderer());
+        $table->addMetaData('cutoffDate', $cutoffDate);
+
         // EXCEL: una columna por dato (sin texto apilado) para que se lea bien en la hoja de cálculo
         $phones = function ($person) {
             $list = [];
@@ -302,8 +487,8 @@ JS;
             return implode(' | ', array_filter($values));
         };
 
-        $table->addColumn('surname', __('Surname'))->width('20');
-        $table->addColumn('preferredName', __('Preferred Name'))->width('20');
+        $table->addColumn('surname', 'Apellidos')->width('20');
+        $table->addColumn('preferredName', 'Nombres')->width('20');
         $table->addColumn('yearGroup', 'Curso')->width('14')
             ->format(function ($student) use ($enrolment) {
                 return $enrolment[$student['gibbonPersonID']]['yearGroup'] ?? '';
@@ -316,33 +501,33 @@ JS;
             ->format(function ($student) {
                 return !empty($student['lastPersonalUpdate']) ? Format::date($student['lastPersonalUpdate']) : __('N/A');
             });
-        $table->addColumn('email', __('Email'))->width('30');
-        $table->addColumn('phone', 'Teléfono estudiante')->width('20')
+        $table->addColumn('email', 'Correo electrónico')->width('30');
+        $table->addColumn('phone', 'Teléfono')->width('20')
             ->format(function ($student) use ($phones) {
                 return $phones($student);
             });
 
         foreach ([0 => 'Acudiente 1', 1 => 'Acudiente 2'] as $index => $label) {
-            $table->addColumn('adultName'.$index, $label)->width('28')
+            $table->addColumn('adultName'.$index, 'Nombre')->width('28')
                 ->format(function ($student) use ($adultField, $index) { return $adultField($student, $index, 'name'); });
-            $table->addColumn('adultRel'.$index, $label.' - Parentesco')->width('18')
+            $table->addColumn('adultRel'.$index, 'Parentesco')->width('18')
                 ->format(function ($student) use ($adultField, $index) { return $adultField($student, $index, 'rel'); });
-            $table->addColumn('adultPhone'.$index, $label.' - Teléfonos')->width('30')
+            $table->addColumn('adultPhone'.$index, 'Teléfonos')->width('30')
                 ->format(function ($student) use ($adultField, $index) { return $adultField($student, $index, 'phone'); });
-            $table->addColumn('adultEmail'.$index, $label.' - Correo')->width('30')
+            $table->addColumn('adultEmail'.$index, 'Correo')->width('30')
                 ->format(function ($student) use ($adultField, $index) { return $adultField($student, $index, 'email'); });
         }
 
         foreach ([1 => 'Emergencia 1', 2 => 'Emergencia 2'] as $n => $label) {
-            $table->addColumn('emergency'.$n.'Name', $label)->width('28')
+            $table->addColumn('emergency'.$n.'Name', 'Nombre')->width('28')
                 ->format(function ($student) use ($n) { return $student['emergency'.$n.'Name'] ?? ''; });
-            $table->addColumn('emergency'.$n.'Rel', $label.' - Parentesco')->width('18')
+            $table->addColumn('emergency'.$n.'Rel', 'Parentesco')->width('18')
                 ->format(function ($student) use ($n) { return $student['emergency'.$n.'Relationship'] ?? ''; });
-            $table->addColumn('emergency'.$n.'Num1', $label.' - Teléfono 1')->width('20')
+            $table->addColumn('emergency'.$n.'Num1', 'Teléfono 1')->width('20')
                 ->format(function ($student) use ($n) {
                     return !empty($student['emergency'.$n.'Number1']) ? Format::phone($student['emergency'.$n.'Number1']) : '';
                 });
-            $table->addColumn('emergency'.$n.'Num2', $label.' - Teléfono 2')->width('20')
+            $table->addColumn('emergency'.$n.'Num2', 'Teléfono 2')->width('20')
                 ->format(function ($student) use ($n) {
                     return !empty($student['emergency'.$n.'Number2']) ? Format::phone($student['emergency'.$n.'Number2']) : '';
                 });
@@ -415,5 +600,11 @@ JS;
             );
         });
 
+    if (empty($viewMode)) {
+        echo '<div id="es-result">';
+    }
     echo $table->render($students);
+    if (empty($viewMode)) {
+        echo '</div>';
+    }
 }
