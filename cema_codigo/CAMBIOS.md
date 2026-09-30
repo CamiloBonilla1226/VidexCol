@@ -4,6 +4,15 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — medicalReportStudents.php: se revierte a la primera versión
+
+**Motivo:** por petición, se descartan los ajustes de ancho posteriores y se vuelve a la primera versión (la que corrige el error de `queryStudentsData_3` y agrega el Excel con diseño). La tabla en pantalla vuelve a mostrar todas las columnas con foto y sin estilos de ajuste; puede necesitar scroll horizontal.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+
+---
+
 ## 2026-09-30 — medicalReportStudents.php: se restaura la tabla completa, con scroll interno
 
 **Problema:** el ajuste anterior deformó la tabla (anchos fijos en porcentaje, letra reducida y sin foto).

@@ -129,6 +129,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 	    // COLUMNS
 	    $table->addColumn('image_240', __('Photo'))
 	        ->context('primary')
+	        ->width('10%')
 	        ->notSortable()
 	        ->format(Format::using('userPhoto', ['image_240', 'sm']));
 
@@ -175,10 +176,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/medical
 //	        });
 
 
-	    // La tabla conserva todas sus columnas y su tamaño normal; si no cabe, el scroll horizontal queda DENTRO de este
-	    // recuadro, de modo que la página y la tabla nunca se salen de la pantalla.
-	    echo '<div style="width:100%; max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;">';
 	    echo $table->render($dataSet);
-	    echo '</div>';
 	}
 }
