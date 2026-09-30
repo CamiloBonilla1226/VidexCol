@@ -4,6 +4,19 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — medicalReportStudents.php: se restaura la tabla completa, con scroll interno
+
+**Problema:** el ajuste anterior deformó la tabla (anchos fijos en porcentaje, letra reducida y sin foto).
+
+**Solución:** se quitaron esos ajustes. La tabla vuelve a mostrar **todas** las columnas, incluida la **foto**, con su tamaño normal y anchos automáticos. La tabla va dentro de un recuadro con `overflow-x: auto` y ancho máximo del 100 %: si no cabe, el scroll horizontal ocurre dentro del recuadro y la tabla/página no se salen de la pantalla.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/medicalReportStudents.php`
+
+**Notas:** verificado solo sintaxis PHP; falta ver el resultado en pantalla. El Excel no cambia.
+
+---
+
 ## 2026-09-30 — medicalReportStudents.php: la tabla ya no se corta (ancho fijo sin foto)
 
 **Problema:** el primer ajuste no bastó; la tabla seguía cortándose a la altura de "Celular 1".
