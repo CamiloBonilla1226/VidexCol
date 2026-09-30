@@ -23,8 +23,10 @@ use Gibbon\Forms\Form;
 use Gibbon\Forms\DatabaseFormFactory;
 use Gibbon\Tables\Prefab\ReportTable;
 use Modules\InformesEscolares\InformesEscolaresGateway;
+use Modules\InformesEscolares\StyledSpreadsheetRenderer;
 
 require_once __DIR__ . '/src/InformesEscolaresGateway.php';
+require_once __DIR__ . '/src/StyledSpreadsheetRenderer.php';
 
 if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportStudents.php') == false) {
     // Access denied
@@ -44,12 +46,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportS
         ->fromArray($_POST);
 
 
+	if (empty($viewMode)) {
 	$form = Form::create('action', $session->get('absoluteURL').'/index.php', 'get');
 	$form->setTitle(__('Choose Form Group'))
 	->setFactory(DatabaseFormFactory::create($pdo))
 	->setClass('noIntBorder fullWidth');
 
-	$form->addHiddenValue('q', '/modules/'.$gibbon->session->get('module').'/reportStudents.php');
+	$form->addHiddenValue('q', '/modules/'.$session->get('module').'/reportStudents.php');
 
 	$row = $form->addRow();
 	$row->addLabel('gibbonFormGroupID', __('Form Group'));
@@ -60,9 +63,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportS
         $row->addTextField('search')->setValue($criteria->getSearchText());
 
 	$row = $form->addRow();
-	$row->addSearchSubmit($gibbon->session, __('Clear Search'));
+	$row->addSearchSubmit($session, __('Clear Search'));
 
 	echo $form->getOutput();
+	}
 
 
 
@@ -73,9 +77,42 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportS
 
 
     	// DATA TABLE
-    	$table = ReportTable::createPaginated('reportStudents', $criteria)->setViewMode($viewMode, $gibbon->session);
+    	$table = ReportTable::createPaginated('reportStudents', $criteria)->setViewMode($viewMode, $session);
 
     	$table->setTitle(__('Report Data'));
+
+	    if ($viewMode == 'export') {
+	        // EXCEL: columnas planas con diseño propio
+	        $groupName = $pdo->select('SELECT name FROM gibbonFormGroup WHERE gibbonFormGroupID=:id', ['id' => $gibbonFormGroupID])->fetchColumn();
+	        $table->setTitle('Reporte de estudiantes'.(!empty($groupName) ? ' - Grupo '.$groupName : ''));
+	        $table->addMetaData('filename', 'ReporteEstudiantes_'.preg_replace('/[^A-Za-z0-9_-]/', '', (string) $groupName).'_'.date('Y-m-d'));
+	        $table->addMetaData('sheetTitle', 'Estudiantes');
+	        $table->addMetaData('freezeColumns', 2);
+	        $table->addMetaData('groups', [
+	            'surname' => 'Estudiante', 'preferredName' => 'Estudiante', 'username' => 'Estudiante', 'studentID' => 'Estudiante', 'canLogin' => 'Estudiante',
+	            'phone' => 'Contacto', 'email_father' => 'Contacto', 'email_mother' => 'Contacto', 'homeAddress' => 'Contacto',
+	        ]);
+	        $table->setRenderer(new StyledSpreadsheetRenderer());
+
+	        $table->addColumn('surname', 'Apellidos')->width('22');
+	        $table->addColumn('preferredName', 'Nombres')->width('22');
+	        $table->addColumn('username', 'Usuario')->width('18');
+	        $table->addColumn('studentID', 'T.I')->width('16');
+	        $table->addColumn('canLogin', 'Acceso')->width('10')
+	            ->format(function ($person) {
+	                return ($person['canLogin'] ?? '') == 'Y' ? 'Sí' : 'No';
+	            });
+	        $table->addColumn('phone', 'Teléfono')->width('20')
+	            ->format(function ($person) {
+	                return !empty($person['phone1']) ? Format::phone($person['phone1'], $person['phone1CountryCode']) : '';
+	            });
+	        $table->addColumn('email_father', 'Email papá')->width('32');
+	        $table->addColumn('email_mother', 'Email mamá')->width('32');
+	        $table->addColumn('homeAddress', 'Dirección de casa')->width('42');
+
+	        echo $table->render($dataSet);
+	        return;
+	    }
 
 	    // COLUMNS
 	    $table->addColumn('image_240', __('Photo'))

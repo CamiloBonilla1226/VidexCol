@@ -4,6 +4,26 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-09-30 — Arreglo de Exportar en reportStudents.php y Excel con diseño
+
+**Problema:** el botón Exportar de `reportStudents.php` no generaba el Excel. Al exportar, la página seguía mostrando el formulario "Elegir grupo" antes de la tabla; esa salida HTML impide que el navegador reciba el archivo correctamente.
+
+**Solución:**
+- El formulario solo se muestra en pantalla (no en exportar ni imprimir).
+- Al exportar se arma un Excel con columnas planas (Apellidos, Nombres, Usuario, T.I, Acceso, Teléfono, Email papá, Email mamá, Dirección de casa) y el mismo estilo del Excel de emergencia: título con el grupo, fecha y total, bandas de color por sección (Estudiante / Contacto), filas alternadas con bordes, apellidos y nombres fijos al desplazarse, filtros en los encabezados e impresión horizontal. El archivo se llama `ReporteEstudiantes_<grupo>_<fecha>`.
+- Se creó un renderer reutilizable para otros reportes del módulo.
+- Se cambió `$gibbon->session` por `$session` en este archivo (la forma actual de Gibbon).
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/reportStudents.php` (modificado)
+- `modules/Informes Escolares/src/StyledSpreadsheetRenderer.php` (**archivo nuevo**, en la carpeta `src`)
+
+**Notas:**
+- Verificado: sintaxis PHP y generación de un .xlsx válido con datos de prueba. Falta probar con datos reales en el servidor.
+- La pantalla no cambia, salvo que el Excel ya no incluye la foto.
+
+---
+
 ## 2026-09-30 — Tabla de estudiantes sin scroll horizontal y nuevo diseño del selector de emergencia
 
 **Cambios:**
