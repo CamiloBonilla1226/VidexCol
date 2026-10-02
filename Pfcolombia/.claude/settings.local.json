@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -l api-informe-coordinador-ecc.php)",
+      "Bash(php -l generaExcelECC.php)",
+      "Bash(ls -la \"/c/Users/LENOVO/Downloads/\" | grep -i 2026_RMI20)",
+      "Bash(python -c ' *)",
+      "Bash(pip install *)",
+      "Bash(python3 -c ' *)",
+      "Bash(cd \"c:/Users/LENOVO/Desktop/VidexCol/Pfcolombia\" && diff -w /tmp/block1.txt /tmp/block2a.txt | head -80 *)",
+      "Read(//tmp/**)",
+      "Bash(cp lpp/gestionar-sub-programa-lpp.php 'C:\\\\Users\\\\LENOVO/lpp_backup.php')",
+      "Bash(cp \"lpp/gestionar-sub-programa-lpp.php\" /tmp/lpp_backup.php)",
+      "Bash(sed -i '2844,3348d' \"lpp/gestionar-sub-programa-lpp.php\")",
+      "Bash(sed -i '2578,2843d' \"lpp/gestionar-sub-programa-lpp.php\")",
+      "Bash(sed -i '2217,2577d' \"lpp/gestionar-sub-programa-lpp.php\")",
+      "Bash(sed -n '3266,3515p' lpp/gestionar-sub-programa-lpp.php)",
+      "Bash(node --check /tmp/autosave.js)",
+      "Bash(grep -n 'idReporteActual\\\\s*=\\\\|opc==\\\\|$opc\\\\b\\\\|function gestionarSubProgramaEcop\\\\|<?php\\\\s*$' 'c:\\\\Users\\\\LENOVO\\\\Desktop\\\\VidexCol\\\\Pfcolombia\\\\ecop\\\\gestionar-sub-programa-ecop.php')",
+      "Bash(grep -n '^if \\(isset\\($_POST\\\\[\"funcion\"\\\\]\\)\\)\\\\|^} else {\\\\|^}\\\\s*$' 'c:\\\\Users\\\\LENOVO\\\\Desktop\\\\VidexCol\\\\Pfcolombia\\\\ecop\\\\gestionar-sub-programa-ecop.php')",
+      "Bash(awk 'NR==482,NR==500' \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\VidexCol\\\\Pfcolombia\\\\ecop\\\\gestionar-sub-programa-ecop.php\")",
+      "Bash(grep -n '^} else if \\(!isset\\($_POST\\\\[.funcion.\\\\]\\)\\)\\\\|isset\\($_POST\\\\[.funcion.\\\\]\\)' 'c:\\\\Users\\\\LENOVO\\\\Desktop\\\\VidexCol\\\\Pfcolombia\\\\ecop\\\\gestionar-sub-programa-ecop.php')",
+      "Bash(grep -n 'switch\\($error_datos\\)\\\\|switch \\($error_datos\\)' 'c:\\\\Users\\\\LENOVO\\\\Desktop\\\\VidexCol\\\\Pfcolombia\\\\ecop\\\\gestionar-sub-programa-ecop.php')",
+      "Bash(grep -n \"^}\\\\s*$\" \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\VidexCol\\\\Pfcolombia\\\\ecop\\\\gestionar-sub-programa-ecop.php\")",
+      "Bash(awk -F: '$1>480 && $1<2900')",
+      "Bash(awk -F: '$1>2590 && $1<4600')",
+      "Bash(awk 'NR>=2592 && NR<=4600 && /^\\\\}/' \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\VidexCol\\\\Pfcolombia\\\\ecop\\\\gestionar-sub-programa-ecop.php\")",
+      "Bash(awk -F: '$1>=2592 && $1<=4600')",
+      "Bash(where php *)",
+      "Bash(php -v)",
+      "Bash(php -r 'echo \"ok\";')",
+      "Bash(cat)",
+      "Bash(python3 /tmp/scan.py 2592)",
+      "Bash(awk -F: '$1>4308 && $1<4600')",
+      "Bash(awk -F: '$1>6115 && $1<6447')",
+      "Bash(grep -n \"^\\\\s*</div>\\\\s*$\\\\|<!-- *\\\\/.report-shell\\\\|end report-shell\\\\|/\\\\* *report-shell\" \"c:\\\\Users\\\\LENOVO\\\\Desktop\\\\VidexCol\\\\Pfcolombia\\\\ecop\\\\gestionar-sub-programa-ecop.php\")",
+      "Bash(awk -F: '$1>4600 && $1<6115')"
+    ]
+  }
+}

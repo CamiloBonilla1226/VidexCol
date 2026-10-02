@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f \"c:/Users/LENOVO/Desktop/VidexCol/Ecuador-Sociedad/ajax_eliminar_foto_reporte.php\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\LENOVO\\Desktop\\VidexCol\\Ecuador-Sociedad"
+    ]
+  }
+}
