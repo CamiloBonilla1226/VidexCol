@@ -40,6 +40,8 @@
         $sql .= " LEFT JOIN usuario_relacion ON usuario_relacion.idUsuario1 = usuario.id ";
         $sql .= "LEFT JOIN dane_municipios ON dane_municipios.id_municipio = usuario.usua_muni LEFT JOIN dane_departamentos ON dane_departamentos.id_departamento = dane_municipios.departamento_id";
         $sql .= " LEFT JOIN usuario as cliente ON cliente.id = usuario_relacion.idUsuario2 AND cliente.tipo = 3";
+        // Solo usuarios activos (acceso = 1), misma lógica que usuario_buscar.php
+        $sql .= " WHERE usuario.acceso = 1";
         $PSN->query($sql);
         if ($PSN->num_rows() == 0) {
             echo json_encode("sin resultado");
