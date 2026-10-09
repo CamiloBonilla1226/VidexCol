@@ -349,6 +349,8 @@ else{
     */
     $sqlFiltro = "";
     $buscar_idUsuario = "";
+    $buscar_zona = "";
+    $buscar_regional = "";
     $buscar_tipo = isset($_REQUEST["rep_inex"]) ? $_REQUEST["rep_inex"] : "";
     $fechaInicial = isset($_REQUEST["fechaInicial"]) ? $_REQUEST["fechaInicial"] : "";
     $fechaFinal   = isset($_REQUEST["fechaFinal"])   ? $_REQUEST["fechaFinal"]   : "";
@@ -362,6 +364,28 @@ else{
 
     if($buscar_idUsuario != ""){
         $sqlFiltro .= " AND RC.usuario_id = '".$buscar_idUsuario."'";
+    }
+
+    // Zona (prioridad: filtro elegido, si no la zona asignada a la sesión)
+    if(isset($_REQUEST["empresa_sitio_cor"]) && trim($_REQUEST["empresa_sitio_cor"]) != "" && soloNumeros($_REQUEST["empresa_sitio_cor"]) != ""){
+        $buscar_zona = soloNumeros($_REQUEST["empresa_sitio_cor"]);
+    } elseif($_SESSION["id_zona"] != "" && $_SESSION["id_zona"] != 0){
+        $buscar_zona = soloNumeros($_SESSION["id_zona"]);
+        $_REQUEST["empresa_sitio_cor"] = $buscar_zona;
+    }
+    if($buscar_zona != ""){
+        $sqlFiltro .= " AND EXISTS (SELECT 1 FROM usuario_empresa UE LEFT JOIN categorias C ON C.id = UE.empresa_pd WHERE UE.idUsuario = RC.usuario_id AND C.idSec = '".$buscar_zona."')";
+    }
+
+    // Regional (prioridad: filtro elegido, si no la regional asignada a la sesión)
+    if(isset($_REQUEST["empresa_pd"]) && trim($_REQUEST["empresa_pd"]) != "" && soloNumeros($_REQUEST["empresa_pd"]) != ""){
+        $buscar_regional = soloNumeros($_REQUEST["empresa_pd"]);
+    } elseif($_SESSION["empresa_pd"] != "" && $_SESSION["empresa_pd"] != 0){
+        $buscar_regional = soloNumeros($_SESSION["empresa_pd"]);
+        $_REQUEST["empresa_pd"] = $buscar_regional;
+    }
+    if($buscar_regional != ""){
+        $sqlFiltro .= " AND EXISTS (SELECT 1 FROM usuario_empresa UE WHERE UE.idUsuario = RC.usuario_id AND UE.empresa_pd = '".$buscar_regional."')";
     }
 
     if($buscar_tipo == "INTRA"){
@@ -434,13 +458,58 @@ else{
             <div class="hr"><hr></div>
         </div>
         <div class="form-group">
+            <div class="col-sm-2">
+                <strong>Zona:</strong>
+                <select name="empresa_sitio_cor" id="zona" class="form-control">
+                    <option value="" <?php if($buscar_zona == ""){ ?>selected="selected"<?php } ?>>Todas las zonas</option>
+                    <?php
+                    $sql = "SELECT id, descripcion FROM categorias WHERE idSec = 85";
+                    if($_SESSION["id_zona"] != "" && $_SESSION["id_zona"] != 0){
+                        $sql .= " AND id = ".$_SESSION["id_zona"];
+                    }
+                    $sql .= " ORDER BY descripcion ASC";
+                    $PSN2->query($sql);
+                    while($PSN2->next_record()){
+                        $sel = ($buscar_zona == $PSN2->f('id')) ? 'selected="selected"' : '';
+                        echo '<option value="'.$PSN2->f('id').'" '.$sel.'>'.$PSN2->f('descripcion').'</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <strong>Regional:</strong>
+                <select name="empresa_pd" id="regional" class="form-control">
+                    <?php if($buscar_zona == "" && $_SESSION["perfil"] != 163 && $_SESSION["perfil"] != 162){ ?>
+                        <option value="" <?php if($buscar_regional == ""){ ?>selected="selected"<?php } ?>>Todas las regionales</option>
+                    <?php }
+                    $sql = "SELECT C.id, C.descripcion AS regional FROM categorias AS C LEFT JOIN categorias AS CA ON CA.id = C.idSec WHERE CA.idSec = 85";
+                    if(!empty($buscar_zona)){
+                        $sql .= " AND CA.id = ".$buscar_zona;
+                    }
+                    if($_SESSION["perfil"] != 167){
+                        if($_SESSION["empresa_pd"] != "" && $_SESSION["empresa_pd"] != 0){
+                            $sql .= " AND C.id = ".$_SESSION["empresa_pd"];
+                        }
+                    }
+                    $PSN2->query($sql);
+                    while($PSN2->next_record()){
+                        $sel = ($buscar_regional == $PSN2->f('id')) ? 'selected="selected"' : '';
+                        echo '<option value="'.$PSN2->f('id').'" '.$sel.'>'.$PSN2->f('regional').'</option>';
+                    }
+                    ?>
+                </select>
+            </div>
             <div class="col-sm-3">
                 <strong>Coordinador:</strong>
                 <select name="idUsuario" class="form-control">
                     <?php if($_SESSION["perfil"] != 163){ ?>
                         <option value="">— Ver todos —</option>
                     <?php }
-                    $sql = "SELECT U.id, U.nombre FROM usuario AS U WHERE U.tipo IN (162, 163, 167) ORDER BY U.nombre ASC";
+                    $sql = "SELECT DISTINCT U.id, U.nombre FROM usuario AS U LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = U.id WHERE U.tipo IN (162, 163, 167)";
+                    if(!empty($buscar_regional)){
+                        $sql .= " AND UE.empresa_pd = ".$buscar_regional;
+                    }
+                    $sql .= " ORDER BY U.nombre ASC";
                     $PSN2->query($sql);
                     while($PSN2->next_record()){
                         $sel = ($buscar_idUsuario == $PSN2->f('id')) ? 'selected' : '';

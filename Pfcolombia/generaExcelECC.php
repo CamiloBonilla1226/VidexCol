@@ -204,13 +204,9 @@ if($numero > 0){
         
         $hojaActiva->setCellValue('J'.$fila, intval($registro['bautizados']));
         
-        // Verificar si está en el período para bautizados
-        if ($iniQ <= $fecRep && $fecRep <= $finQ) {
-            $bautiP = intval($registro['bautizadosPeriodo']);
-        } else {
-            $bautiP = 0;
-        }
-        $hojaActiva->setCellValue('K'.$fila, $bautiP);
+        // Bautizados del período: el reporte ya viene filtrado por fecha_reporte en el API,
+        // por lo que se toma el valor completo (no se condiciona a la fecha de inicio de la confraternidad)
+        $hojaActiva->setCellValue('K'.$fila, intval($registro['bautizadosPeriodo']));
         
         // Mapeos espirituales (ahora sí disponibles desde el API)
         $hojaActiva->setCellValue('L'.$fila, intval($registro['mapeo_oracion']));

@@ -155,6 +155,7 @@ else{
 
     //  YA GENERACION 0 NO CUENTA
     $sqlFiltro .= " AND RC.generacion != 0";
+    $sqlFiltro .= " AND RC.inactivo = 0";
 
     //
     // Comentado: Filtro automático por perfil puede limitar resultados innecesariamente
@@ -198,9 +199,9 @@ else{
         $buscar_zona = soloNumeros($_REQUEST["empresa_sitio_cor"]);
         $sqlFiltro .= " AND C.idSec = '".$buscar_zona."'";
     }
+    // El trimestre se filtra por fecha_reporte: mapeo_cuarto no se diligencia en el formulario de C&M
     if(isset($_REQUEST["rep_qua"]) && trim($_REQUEST["rep_qua"]) != "" && soloNumeros($_REQUEST["rep_qua"]) != ""){
-        $buscar_periodo = soloNumeros($_REQUEST["rep_qua"]);
-        $sqlFiltro .= " AND RC.mapeo_cuarto = '".$buscar_periodo."'";
+        $sqlFiltro .= " AND RC.fecha_reporte >= '".$iniQ."' AND RC.fecha_reporte <= '".$finQ."'";
     }
 
     //

@@ -134,6 +134,7 @@ if(isset($_REQUEST["empresa_paisid"]) && trim($_REQUEST["empresa_paisid"]) != ""
 }
 
 
+$sqlFiltro .= " AND RC.inactivo = 0 ";
 $sqlFiltro_limpio = $sqlFiltro;
 $sqlFiltro .= " AND RC.generacion != 0 ";
 

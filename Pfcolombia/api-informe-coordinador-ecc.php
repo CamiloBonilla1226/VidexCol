@@ -42,6 +42,7 @@ if (!empty($_REQUEST['rep_qua'])) {
 
 // Construir filtros SQL
 $sqlFiltro = "";
+$sqlFiltro .= " AND RC.inactivo = 0";
 $sqlFiltro .= " AND RC.generacion != 0";
 
 if(isset($_REQUEST["idUsuario"]) && trim($_REQUEST["idUsuario"]) != "" && soloNumeros($_REQUEST["idUsuario"]) != ""){
@@ -64,9 +65,9 @@ if(isset($_REQUEST["empresa_sitio_cor"]) && trim($_REQUEST["empresa_sitio_cor"])
     $sqlFiltro .= " AND C.idSec = '".$buscar_zona."'";
 }
 
+// El trimestre se filtra por fecha_reporte: mapeo_cuarto no se diligencia en el formulario de C&M
 if(isset($_REQUEST["rep_qua"]) && trim($_REQUEST["rep_qua"]) != "" && soloNumeros($_REQUEST["rep_qua"]) != ""){
-    $buscar_periodo = soloNumeros($_REQUEST["rep_qua"]);
-    $sqlFiltro .= " AND RC.mapeo_cuarto = '".$buscar_periodo."'";
+    $sqlFiltro .= " AND RC.fecha_reporte >= '".$iniQ."' AND RC.fecha_reporte <= '".$finQ."'";
 }
 
 if(isset($_REQUEST["rep_inex"]) && eliminarInvalidos($_REQUEST["rep_inex"]) != ""){
@@ -119,7 +120,7 @@ if ($only_basic_filters) {
         $sql_user_ids .= " LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk";
     }
     if ($needs_empresa_join) {
-        $sql_user_ids .= " LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = RC.usuario_id";
+        $sql_user_ids .= " LEFT JOIN usuario_empresa ON usuario_empresa.idUsuario = RC.usuario_id";
     }
 
     $sql_user_ids .= " WHERE 1 ".$sqlFiltro."
@@ -152,6 +153,9 @@ if (count($user_ids) > 0) {
     $sql .= " FROM reporte_cm AS RC ";
     $sql .= " LEFT JOIN usuario ON usuario.id = RC.usuario_id";
     $sql .= " LEFT JOIN usuario_empresa ON usuario_empresa.idUsuario = RC.usuario_id";
+    // Necesarios para los filtros de regional (RU.reub_reg_fk) y zona (C.idSec), igual que en informe-coordinador-ecc
+    $sql .= " LEFT JOIN tbl_regional_ubicacion AS RU ON RU.reub_id = RC.carcel_id";
+    $sql .= " LEFT JOIN categorias AS C ON C.id = RU.reub_reg_fk";
     $sql .= " WHERE RC.usuario_id IN (" . implode(',', $user_ids) . ") ".$sqlFiltro;
     $sql .= " ORDER BY usuario_empresa.empresa_paisid ASC, usuario.nombre ASC";
 
