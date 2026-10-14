@@ -140,9 +140,7 @@ while ($PSN->next_record()) {
 $tot_facilitadores = count($facilitadores);
 $tot_inactivos = $tot_facilitadores - $tot_activos;
 $pct_activos = $tot_facilitadores > 0 ? round($tot_activos * 100 / $tot_facilitadores) : 0;
-$pct_completos = $tot_facilitadores > 0 ? round($tot_completos * 100 / $tot_facilitadores) : 0;
 $prom_reportes = $tot_facilitadores > 0 ? round($tot_reportes / $tot_facilitadores, 1) : 0;
-$pct_al_dia = $tot_facilitadores > 0 ? round($actividad["≤ 30 días"] * 100 / $tot_facilitadores) : 0;
 ksort($porRegional);
 
 /*
@@ -175,6 +173,10 @@ if ($tot_facilitadores > 0) {
     }
   }
 }
+// Facilitadores que reportaron en el mes en curso (último mes de la serie)
+$fac_mes_actual = $reportesMes[date("Y-m")][2];
+$nombresMesLargo = array("", "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre");
+$nombreMesActual = $nombresMesLargo[intval(date("n"))];
 
 /*
 *   DATOS PARA GOOGLE CHARTS
@@ -409,12 +411,9 @@ $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
       </div>
       <div class="col-md-3 col-sm-6 col-xs-12">
         <div class="card kpi">
-          <div class="kpi-label">Al día</div>
-          <div class="kpi-num"><?= $pct_al_dia; ?>%</div>
-          <div class="kpi-det"><?= $actividad["≤ 30 días"]; ?> reportaron en los últimos 30 días</div>
-          <div class="kpi-bar">
-            <div style="width: <?= $pct_al_dia; ?>%; background:#2E86C1"></div>
-          </div>
+          <div class="kpi-label">Reportaron este mes</div>
+          <div class="kpi-num"><?= $fac_mes_actual; ?></div>
+          <div class="kpi-det">facilitadores con reportes en <?= $nombreMesActual; ?></div>
         </div>
       </div>
       <div class="col-md-3 col-sm-6 col-xs-12">
@@ -426,12 +425,9 @@ $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
       </div>
       <div class="col-md-3 col-sm-6 col-xs-12">
         <div class="card kpi">
-          <div class="kpi-label">Perfil completo</div>
-          <div class="kpi-num"><?= $pct_completos; ?>%</div>
-          <div class="kpi-det"><?= $tot_completos; ?> de <?= $tot_facilitadores; ?> con todos sus datos</div>
-          <div class="kpi-bar">
-            <div style="width: <?= $pct_completos; ?>%; background:#F39C12"></div>
-          </div>
+          <div class="kpi-label">Sin reportes</div>
+          <div class="kpi-num"><?= $actividad["Sin reportes"]; ?></div>
+          <div class="kpi-det">facilitadores que nunca han reportado</div>
         </div>
       </div>
     </div>
