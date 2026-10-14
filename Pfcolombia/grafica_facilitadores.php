@@ -208,24 +208,61 @@ $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
     color: #333;
   }
 
-  .dash-fac .dash-head {
-    margin-bottom: 28px;
+  /* Encabezado: título + filtros en una sola tarjeta */
+  .dash-fac .dash-titulo {
+    display: flex;
+    align-items: center;
     padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
   }
 
-  .dash-fac .dash-head h3 {
+  .dash-fac .dash-icono {
+    flex: 0 0 auto;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #EBF5FB;
+    color: #2E86C1;
+    font-size: 20px;
+    line-height: 48px;
+    text-align: center;
+    margin-right: 16px;
+  }
+
+  .dash-fac .dash-titulo h3 {
     margin: 0 0 4px;
+    font-size: 22px;
     font-weight: bold;
   }
 
-  .dash-fac .dash-head p {
+  .dash-fac .dash-titulo p {
     margin: 0;
-    color: #888;
+    font-size: 13px;
+    color: #999;
   }
 
-  .dash-fac .dash-filtros select {
+  .dash-fac .dash-filtros label {
+    display: block;
+    font-size: 12px;
+    font-weight: normal;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 6px;
+  }
+
+  .dash-fac .dash-filtros .form-control {
     margin-bottom: 8px;
+  }
+
+  .dash-fac .dash-limpiar {
+    padding-top: 22px;
+  }
+
+  .dash-fac .dash-limpiar .btn-link {
+    color: #999;
+    padding-left: 0;
   }
 
   .dash-fac .card {
@@ -355,16 +392,20 @@ $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
 <div class="container dash-fac">
 
   <!-- ENCABEZADO + FILTROS -->
-  <div class="row dash-head">
-    <div class="col-md-6 col-xs-12">
-      <h3>Facilitadores</h3>
-      <p>Inventario, estado y actividad de reportes</p>
+  <div class="card dash-head">
+    <div class="dash-titulo">
+      <div class="dash-icono"><i class="fas fa-users"></i></div>
+      <div>
+        <h3>Facilitadores</h3>
+        <p>Inventario, estado y actividad de reportes · Actualizado al <?= intval(date("j")) . " de " . $nombresMesLargo[intval(date("n"))] . " de " . date("Y"); ?></p>
+      </div>
     </div>
-    <form action="index.php" method="get" name="form1" class="col-md-6 col-xs-12 dash-filtros">
+    <form action="index.php" method="get" name="form1" class="dash-filtros">
       <input type="hidden" name="doc" value="grafica_facilitadores" />
       <div class="row">
-        <div class="col-sm-6 col-xs-12">
-          <select name="empresa_pd" class="form-control" onchange="this.form.submit()" title="Regional">
+        <div class="col-sm-5 col-xs-12">
+          <label for="filtroRegional">Regional</label>
+          <select name="empresa_pd" id="filtroRegional" class="form-control" onchange="this.form.submit()">
             <?php
             if ($verTodasRegionales) {
               echo '<option value="">Todas las regionales</option>';
@@ -382,12 +423,18 @@ $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
             <?php } ?>
           </select>
         </div>
-        <div class="col-sm-6 col-xs-12">
-          <select name="estado" class="form-control" onchange="this.form.submit()" title="Estado">
+        <div class="col-sm-4 col-xs-12">
+          <label for="filtroEstado">Estado</label>
+          <select name="estado" id="filtroEstado" class="form-control" onchange="this.form.submit()">
             <option value="">Activos e inactivos</option>
             <option value="1" <?= $buscar_estado === "1" ? 'selected' : ''; ?>>Solo activos</option>
             <option value="0" <?= $buscar_estado === "0" ? 'selected' : ''; ?>>Solo inactivos</option>
           </select>
+        </div>
+        <div class="col-sm-3 col-xs-12 dash-limpiar">
+          <?php if (($verTodasRegionales && $buscar_regional > 0) || $buscar_estado !== "") { ?>
+            <a href="index.php?doc=grafica_facilitadores" class="btn btn-link"><i class="fas fa-times"></i> Limpiar filtros</a>
+          <?php } ?>
         </div>
       </div>
     </form>
