@@ -3,7 +3,7 @@
 /*******************************************
 DASHBOARD DE INVENTARIO DE FACILITADORES
 Estado, regional, último reporte, cantidad de reportes,
-datos completos y línea de tiempo (Google Charts).
+datos completos y actividad en el tiempo (Google Charts).
  *******************************************/
 
 // Solo usuarios con sesión y perfil de administración/coordinación (162, 167) o superusuario
@@ -54,12 +54,12 @@ $sqlReportes = "SELECT usuario_id AS uid, fecha_reporte AS f FROM reporte_lpp
 */
 $sql = "SELECT U.id, U.nombre, U.acceso, U.identificacion, U.email, U.celular, U.direccion, U.usua_muni,
   C.descripcion AS regional,
-  R.total_reportes, R.primer_reporte, R.ultimo_reporte
+  R.total_reportes, R.ultimo_reporte
   FROM usuario AS U
   LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = U.id
   LEFT JOIN categorias AS C ON C.id = UE.empresa_pd
   LEFT JOIN (
-    SELECT uid, COUNT(*) AS total_reportes, MIN(f) AS primer_reporte, MAX(f) AS ultimo_reporte
+    SELECT uid, COUNT(*) AS total_reportes, MAX(f) AS ultimo_reporte
     FROM (" . $sqlReportes . ") AS X
     GROUP BY uid
   ) AS R ON R.uid = U.id
@@ -70,9 +70,9 @@ $PSN->query($sql);
 
 $hoy = new DateTime(date("Y-m-d"));
 $facilitadores = array();
-$tot_activos = $tot_inactivos = $tot_completos = $tot_reportes = 0;
+$tot_activos = $tot_completos = $tot_reportes = 0;
 // Actividad según días desde el último reporte
-$actividad = array("Al día (≤ 30 días)" => 0, "31 a 90 días" => 0, "91 a 180 días" => 0, "Más de 180 días" => 0, "Sin reportes" => 0);
+$actividad = array("≤ 30 días" => 0, "31 - 90 días" => 0, "91 - 180 días" => 0, "> 180 días" => 0, "Sin reportes" => 0);
 // Conteo por regional: [activos, inactivos]
 $porRegional = array();
 
@@ -97,7 +97,9 @@ while ($PSN->next_record()) {
   $ultimo = $PSN->f('ultimo_reporte');
   $regional = $PSN->f('regional') != "" ? $PSN->f('regional') : "Sin regional";
 
-  $activo ? $tot_activos++ : $tot_inactivos++;
+  if ($activo) {
+    $tot_activos++;
+  }
   if (empty($faltantes)) {
     $tot_completos++;
   }
@@ -105,15 +107,15 @@ while ($PSN->next_record()) {
 
   $dias = null;
   if ($total > 0 && $ultimo != "") {
-    $dias = intval($hoy->diff(new DateTime($ultimo))->format("%r%a")) * -1;
+    $dias = max(0, intval((new DateTime($ultimo))->diff($hoy)->format("%r%a")));
     if ($dias <= 30) {
-      $actividad["Al día (≤ 30 días)"]++;
+      $actividad["≤ 30 días"]++;
     } else if ($dias <= 90) {
-      $actividad["31 a 90 días"]++;
+      $actividad["31 - 90 días"]++;
     } else if ($dias <= 180) {
-      $actividad["91 a 180 días"]++;
+      $actividad["91 - 180 días"]++;
     } else {
-      $actividad["Más de 180 días"]++;
+      $actividad["> 180 días"]++;
     }
   } else {
     $actividad["Sin reportes"]++;
@@ -130,42 +132,46 @@ while ($PSN->next_record()) {
     "regional" => $regional,
     "activo" => $activo,
     "total" => $total,
-    "primero" => $PSN->f('primer_reporte'),
     "ultimo" => $ultimo,
     "dias" => $dias,
     "faltantes" => $faltantes,
   );
 }
 $tot_facilitadores = count($facilitadores);
-$tot_incompletos = $tot_facilitadores - $tot_completos;
+$tot_inactivos = $tot_facilitadores - $tot_activos;
 $pct_activos = $tot_facilitadores > 0 ? round($tot_activos * 100 / $tot_facilitadores) : 0;
 $pct_completos = $tot_facilitadores > 0 ? round($tot_completos * 100 / $tot_facilitadores) : 0;
 $prom_reportes = $tot_facilitadores > 0 ? round($tot_reportes / $tot_facilitadores, 1) : 0;
+$pct_al_dia = $tot_facilitadores > 0 ? round($actividad["≤ 30 días"] * 100 / $tot_facilitadores) : 0;
 ksort($porRegional);
 
 /*
-*   REPORTES POR MES (últimos 12 meses) de los facilitadores del filtro
+*   ACTIVIDAD EN EL TIEMPO (últimos 12 meses): reportes y facilitadores que reportaron.
+*   Se filtra con IN (subconsulta) para no duplicar conteos por usuario_empresa.
 */
 $reportesMes = array();
 $inicioMeses = new DateTime(date("Y-m-01"));
 $inicioMeses->modify("-11 months");
 $cursor = clone $inicioMeses;
 for ($i = 0; $i < 12; $i++) {
-  $reportesMes[$cursor->format("Y-m")] = array("label" => $mesesNom[intval($cursor->format("n"))] . " " . $cursor->format("y"), "total" => 0);
+  $reportesMes[$cursor->format("Y-m")] = array($mesesNom[intval($cursor->format("n"))] . " " . $cursor->format("y"), 0, 0);
   $cursor->modify("+1 month");
 }
 if ($tot_facilitadores > 0) {
-  $sql = "SELECT DATE_FORMAT(X.f, '%Y-%m') AS mes, COUNT(*) AS total
+  $sql = "SELECT DATE_FORMAT(X.f, '%Y-%m') AS mes, COUNT(*) AS reportes, COUNT(DISTINCT X.uid) AS facilitadores
     FROM (" . $sqlReportes . ") AS X
-    INNER JOIN usuario AS U ON U.id = X.uid
-    LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = U.id
-    WHERE U.tipo IN (162, 163, 167) " . $sqlFiltro . "
-      AND X.f >= '" . $inicioMeses->format("Y-m-d") . "'
+    WHERE X.f >= '" . $inicioMeses->format("Y-m-d") . "'
+      AND X.uid IN (
+        SELECT U.id FROM usuario AS U
+        LEFT JOIN usuario_empresa AS UE ON UE.idUsuario = U.id
+        WHERE U.tipo IN (162, 163, 167) " . $sqlFiltro . "
+      )
     GROUP BY mes";
   $PSN->query($sql);
   while ($PSN->next_record()) {
     if (isset($reportesMes[$PSN->f('mes')])) {
-      $reportesMes[$PSN->f('mes')]["total"] = intval($PSN->f('total'));
+      $reportesMes[$PSN->f('mes')][1] = intval($PSN->f('reportes'));
+      $reportesMes[$PSN->f('mes')][2] = intval($PSN->f('facilitadores'));
     }
   }
 }
@@ -173,135 +179,191 @@ if ($tot_facilitadores > 0) {
 /*
 *   DATOS PARA GOOGLE CHARTS
 */
-$dataEstado = array(array("Estado", "Facilitadores"), array("Activos", $tot_activos), array("Inactivos", $tot_inactivos));
-$dataDatos = array(array("Datos", "Facilitadores"), array("Completos", $tot_completos), array("Incompletos", $tot_incompletos));
-$dataActividad = array(array("Actividad", "Facilitadores"));
+$dataMes = array(array("Mes", "Reportes", "Facilitadores que reportaron"));
+foreach ($reportesMes as $m) {
+  $dataMes[] = $m;
+}
+$dataActividad = array(array("Último reporte", "Facilitadores", array("role" => "style")));
+$coloresActividad = array("#239B56", "#2E86C1", "#F39C12", "#C0392B", "#BDBDBD");
+$i = 0;
 foreach ($actividad as $k => $v) {
-  $dataActividad[] = array($k, $v);
+  $dataActividad[] = array($k, $v, $coloresActividad[$i++]);
 }
 $dataRegional = array(array("Regional", "Activos", "Inactivos"));
 foreach ($porRegional as $k => $v) {
   $dataRegional[] = array($k, $v[0], $v[1]);
 }
-$dataMes = array(array("Mes", "Reportes"));
-foreach ($reportesMes as $m) {
-  $dataMes[] = array($m["label"], $m["total"]);
-}
-
-// Línea de tiempo: solo facilitadores con al menos un reporte (ya vienen del más reciente al más antiguo)
-$filasTimeline = array();
-foreach ($facilitadores as $f) {
-  if ($f["total"] > 0 && $f["primero"] != "" && $f["ultimo"] != "") {
-    $filasTimeline[] = array(
-      "fac" => $f["nombre"],
-      "estado" => $f["activo"] ? "Activo" : "Inactivo",
-      "color" => $f["activo"] ? "#239B56" : "#C0392B",
-      "tip" => "<div class='fac-tip'><strong>" . h($f["nombre"]) . "</strong><br>"
-        . h($f["regional"]) . " · " . ($f["activo"] ? "Activo" : "Inactivo") . "<br>"
-        . "Primer reporte: " . h($f["primero"]) . "<br>"
-        . "Último reporte: " . h($f["ultimo"]) . "<br>"
-        . "Reportes: <strong>" . $f["total"] . "</strong></div>",
-      "ini" => $f["primero"],
-      "fin" => $f["ultimo"],
-    );
-  }
-}
-$alturaTimeline = max(160, count($filasTimeline) * 41 + 60);
+// Altura compartida por "Último reporte" y "Por regional" (van lado a lado)
+$alturaRegional = max(320, count($porRegional) * 34 + 60);
 
 $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 
 ?>
 <style>
   /* Estilos exclusivos de este dashboard (prefijo .dash-fac) */
-  .dash-fac .panel {
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    margin-bottom: 20px;
+  .dash-fac {
+    padding-top: 10px;
+    padding-bottom: 30px;
+    color: #333;
   }
 
-  .dash-fac .panel-heading {
-    background: #fff;
+  .dash-fac .dash-head {
+    margin-bottom: 28px;
+    padding-bottom: 20px;
     border-bottom: 1px solid #eee;
   }
 
-  .dash-fac .panel-title {
+  .dash-fac .dash-head h3 {
+    margin: 0 0 4px;
     font-weight: bold;
-    font-size: 15px;
   }
 
-  .dash-fac .panel-sub {
+  .dash-fac .dash-head p {
+    margin: 0;
     color: #888;
+  }
+
+  .dash-fac .dash-filtros select {
+    margin-bottom: 8px;
+  }
+
+  .dash-fac .card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 24px 26px;
+    margin-bottom: 28px;
+  }
+
+  .dash-fac .card-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+  }
+
+  .dash-fac .card-sub {
     font-size: 12px;
-    margin: 3px 0 0;
+    color: #999;
+    margin: 4px 0 20px;
   }
 
-  .dash-fac .chart-box {
-    width: 100%;
-    height: 260px;
+  /* Filas con tarjetas de igual altura */
+  .dash-fac .row-eq {
+    display: flex;
+    flex-wrap: wrap;
   }
 
-  .dash-fac .chart-box-lg {
-    width: 100%;
-    height: 320px;
+  .dash-fac .row-eq > [class*="col-"] {
+    display: flex;
+    flex-direction: column;
   }
 
-  .dash-fac .timeline-scroll {
-    max-height: 520px;
-    overflow-y: auto;
+  .dash-fac .row-eq .card {
+    flex: 1;
   }
 
-  .dash-fac .leyenda span {
-    display: inline-block;
-    margin-right: 15px;
+  /* Indicadores */
+  .dash-fac .kpi {
+    min-height: 130px;
+    padding: 20px 22px;
+  }
+
+  .dash-fac .kpi-label {
     font-size: 12px;
-    color: #666;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .5px;
   }
 
-  .dash-fac .leyenda i {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
+  .dash-fac .kpi-num {
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 1.2;
+    margin: 4px 0;
+  }
+
+  .dash-fac .kpi-det {
+    font-size: 12px;
+    color: #888;
+  }
+
+  .dash-fac .kpi-bar {
+    height: 4px;
+    background: #eee;
     border-radius: 2px;
-    margin-right: 4px;
-    vertical-align: middle;
+    margin-top: 8px;
+    overflow: hidden;
   }
 
-  .dash-fac .tabla-scroll {
-    max-height: 500px;
-    overflow-y: auto;
+  .dash-fac .kpi-bar div {
+    height: 100%;
   }
 
-  .dash-fac .tabla-scroll thead th {
-    position: sticky;
-    top: 0;
-    background: #f7f7f7;
-    z-index: 1;
+  /* Tabla */
+  .dash-fac .tabla-fac {
+    margin-bottom: 0;
   }
 
-  .dash-fac .resu-item .item-num span {
-    white-space: nowrap;
+  .dash-fac .tabla-fac th {
+    font-size: 12px;
+    color: #888;
+    font-weight: normal;
+    text-transform: uppercase;
+    border-bottom: 1px solid #e8e8e8 !important;
   }
 
-  .fac-tip {
-    padding: 8px 10px;
+  .dash-fac .tabla-fac td {
+    vertical-align: middle !important;
+    border-top: 1px solid #f2f2f2 !important;
+  }
+
+  .dash-fac .tabla-fac .sub {
+    display: block;
+    font-size: 12px;
+    color: #999;
+  }
+
+  .dash-fac .punto {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+
+  .dash-fac .dash-pag {
+    margin-top: 12px;
     font-size: 13px;
-    line-height: 1.5;
+    color: #888;
+  }
+
+  .dash-fac .dash-pag .btn {
+    margin-left: 4px;
+  }
+
+  .dash-fac .chips {
+    margin: 4px 0 16px;
+  }
+
+  .dash-fac .chips .btn {
+    margin: 0 4px 6px 0;
+    border-radius: 14px;
   }
 </style>
 
 <div class="container dash-fac">
-  <div class="row">
-    <h3 class="alert alert-info text-center">DASHBOARD DE FACILITADORES</h3>
-  </div>
 
-  <!-- FILTROS -->
-  <form action="index.php" method="get" name="form1" class="panel panel-default">
-    <input type="hidden" name="doc" value="grafica_facilitadores" />
-    <div class="panel-body">
+  <!-- ENCABEZADO + FILTROS -->
+  <div class="row dash-head">
+    <div class="col-md-6 col-xs-12">
+      <h3>Facilitadores</h3>
+      <p>Inventario, estado y actividad de reportes</p>
+    </div>
+    <form action="index.php" method="get" name="form1" class="col-md-6 col-xs-12 dash-filtros">
+      <input type="hidden" name="doc" value="grafica_facilitadores" />
       <div class="row">
-        <div class="col-sm-4 col-xs-12">
-          <strong>Regional</strong>
-          <select name="empresa_pd" class="form-control" onchange="this.form.submit()">
+        <div class="col-sm-6 col-xs-12">
+          <select name="empresa_pd" class="form-control" onchange="this.form.submit()" title="Regional">
             <?php
             if ($verTodasRegionales) {
               echo '<option value="">Todas las regionales</option>';
@@ -319,321 +381,237 @@ $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
             <?php } ?>
           </select>
         </div>
-        <div class="col-sm-4 col-xs-12">
-          <strong>Estado</strong>
-          <select name="estado" class="form-control" onchange="this.form.submit()">
+        <div class="col-sm-6 col-xs-12">
+          <select name="estado" class="form-control" onchange="this.form.submit()" title="Estado">
             <option value="">Activos e inactivos</option>
             <option value="1" <?= $buscar_estado === "1" ? 'selected' : ''; ?>>Solo activos</option>
             <option value="0" <?= $buscar_estado === "0" ? 'selected' : ''; ?>>Solo inactivos</option>
           </select>
         </div>
-        <div class="col-sm-4 col-xs-12"><br>
-          <a href="index.php?doc=grafica_facilitadores" class="btn btn-default">Limpiar filtros</a>
-        </div>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 
   <?php if ($tot_facilitadores == 0) { ?>
-    <div class="row">
-      <h5 class="alert alert-warning text-center">No se ha encontrado ningún facilitador con los filtros seleccionados.</h5>
-    </div>
+    <div class="card text-center text-muted">No se ha encontrado ningún facilitador con los filtros seleccionados.</div>
   <?php } else { ?>
 
-    <!-- 1. INDICADORES PRINCIPALES -->
-    <div class="contenedor-flex content-grafic fl-sard">
-      <div class="cont-resu fl-sard">
-        <div class="resu-item bck-col-1">
-          <div class="item-ico"><i class="fas fa-users"></i></div>
-          <div class="item-con">
-            <div class="item-text">
-              <h3>Facilitadores</h3>
-              <p>registrados</p>
-            </div>
-            <div class="item-num"><span><?= $tot_facilitadores; ?></span></div>
-          </div>
-        </div>
-        <div class="resu-item bck-col-2">
-          <div class="item-ico"><i class="fas fa-user-check"></i></div>
-          <div class="item-con">
-            <div class="item-text">
-              <h3>Activos</h3>
-              <p><?= $pct_activos; ?>% del total</p>
-            </div>
-            <div class="item-num"><span><?= $tot_activos; ?></span></div>
-          </div>
-        </div>
-        <div class="resu-item bck-col-5">
-          <div class="item-ico"><i class="fas fa-user-times"></i></div>
-          <div class="item-con">
-            <div class="item-text">
-              <h3>Inactivos</h3>
-              <p><?= 100 - $pct_activos; ?>% del total</p>
-            </div>
-            <div class="item-num"><span><?= $tot_inactivos; ?></span></div>
-          </div>
-        </div>
-        <div class="resu-item bck-col-3">
-          <div class="item-ico"><i class="fas fa-file-alt"></i></div>
-          <div class="item-con">
-            <div class="item-text">
-              <h3>Reportes</h3>
-              <p><?= $prom_reportes; ?> por facilitador</p>
-            </div>
-            <div class="item-num"><span><?= number_format($tot_reportes); ?></span></div>
-          </div>
-        </div>
-        <div class="resu-item bck-col-4">
-          <div class="item-ico"><i class="fas fa-id-card"></i></div>
-          <div class="item-con">
-            <div class="item-text">
-              <h3>Datos completos</h3>
-              <p><?= $pct_completos; ?>% del total</p>
-            </div>
-            <div class="item-num"><span><?= $tot_completos; ?></span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. ESTADO / ACTIVIDAD / DATOS -->
+    <!-- 1. INDICADORES -->
     <div class="row">
-      <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <div class="panel-title">Estado de los facilitadores</div>
-            <p class="panel-sub">¿Cuántos tienen el acceso habilitado?</p>
-          </div>
-          <div class="panel-body">
-            <div id="chart_estado" class="chart-box"></div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 col-sm-6 col-xs-12">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <div class="panel-title">Actividad reciente</div>
-            <p class="panel-sub">Tiempo desde su último reporte</p>
-          </div>
-          <div class="panel-body">
-            <div id="chart_actividad" class="chart-box"></div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="card kpi">
+          <div class="kpi-label">Facilitadores</div>
+          <div class="kpi-num"><?= $tot_facilitadores; ?></div>
+          <div class="kpi-det"><?= $tot_activos; ?> activos · <?= $tot_inactivos; ?> inactivos</div>
+          <div class="kpi-bar">
+            <div style="width: <?= $pct_activos; ?>%; background:#239B56"></div>
           </div>
         </div>
       </div>
-      <div class="col-md-4 col-sm-12 col-xs-12">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <div class="panel-title">Datos del perfil</div>
-            <p class="panel-sub">Nombre, identificación, correo, celular, dirección y municipio</p>
-          </div>
-          <div class="panel-body">
-            <div id="chart_datos" class="chart-box"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. REGIONALES / REPORTES POR MES -->
-    <div class="row">
-      <div class="col-md-6 col-xs-12">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <div class="panel-title">Facilitadores por regional</div>
-            <p class="panel-sub">Activos e inactivos en cada regional</p>
-          </div>
-          <div class="panel-body">
-            <div id="chart_regional" class="chart-box-lg"></div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="card kpi">
+          <div class="kpi-label">Al día</div>
+          <div class="kpi-num"><?= $pct_al_dia; ?>%</div>
+          <div class="kpi-det"><?= $actividad["≤ 30 días"]; ?> reportaron en los últimos 30 días</div>
+          <div class="kpi-bar">
+            <div style="width: <?= $pct_al_dia; ?>%; background:#2E86C1"></div>
           </div>
         </div>
       </div>
-      <div class="col-md-6 col-xs-12">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <div class="panel-title">Reportes por mes</div>
-            <p class="panel-sub">Últimos 12 meses (LPP, C&amp;M y demás programas)</p>
-          </div>
-          <div class="panel-body">
-            <div id="chart_mes" class="chart-box-lg"></div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="card kpi">
+          <div class="kpi-label">Reportes</div>
+          <div class="kpi-num"><?= number_format($tot_reportes); ?></div>
+          <div class="kpi-det"><?= $prom_reportes; ?> en promedio por facilitador</div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 col-xs-12">
+        <div class="card kpi">
+          <div class="kpi-label">Perfil completo</div>
+          <div class="kpi-num"><?= $pct_completos; ?>%</div>
+          <div class="kpi-det"><?= $tot_completos; ?> de <?= $tot_facilitadores; ?> con todos sus datos</div>
+          <div class="kpi-bar">
+            <div style="width: <?= $pct_completos; ?>%; background:#F39C12"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 4. LINEA DE TIEMPO -->
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <div class="panel-title">Línea de tiempo de reportes</div>
-        <p class="panel-sub">Cada barra va desde el primer hasta el último reporte del facilitador. Pase el mouse sobre una barra para ver el detalle.</p>
-        <div class="leyenda" style="margin-top:6px">
-          <span><i style="background:#239B56"></i>Activo</span>
-          <span><i style="background:#C0392B"></i>Inactivo</span>
+    <!-- 2. ACTIVIDAD EN EL TIEMPO -->
+    <div class="card">
+      <p class="card-title">Actividad en el tiempo</p>
+      <p class="card-sub">Reportes y facilitadores que reportaron, mes a mes (últimos 12 meses)</p>
+      <div id="chart_tiempo" style="width:100%; height:320px;"></div>
+    </div>
+
+    <!-- 3. ULTIMO REPORTE + REGIONALES -->
+    <div class="row row-eq">
+      <div class="col-md-5 col-xs-12">
+        <div class="card">
+          <p class="card-title">Último reporte</p>
+          <p class="card-sub">Cuántos facilitadores reportaron en cada rango de tiempo</p>
+          <div id="chart_actividad" style="width:100%; height: <?= $alturaRegional; ?>px;"></div>
         </div>
       </div>
-      <div class="panel-body">
-        <?php if (count($filasTimeline) > 0) { ?>
-          <div class="timeline-scroll">
-            <div id="chart_timeline" style="width:100%; height: <?= $alturaTimeline; ?>px;"></div>
-          </div>
-        <?php } else { ?>
-          <p class="text-muted text-center">Ningún facilitador del filtro tiene reportes para mostrar.</p>
-        <?php } ?>
-        <?php if ($actividad["Sin reportes"] > 0) { ?>
-          <p class="text-muted" style="margin:10px 0 0"><small><?= $actividad["Sin reportes"]; ?> facilitador(es) sin reportes no aparecen en la línea de tiempo; puede verlos en el detalle de abajo.</small></p>
-        <?php } ?>
+      <div class="col-md-7 col-xs-12">
+        <div class="card">
+          <p class="card-title">Facilitadores por regional</p>
+          <p class="card-sub">Activos e inactivos</p>
+          <div id="chart_regional" style="width:100%; height: <?= $alturaRegional; ?>px;"></div>
+        </div>
       </div>
     </div>
 
-    <!-- 5. DETALLE -->
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        <div class="row">
-          <div class="col-sm-7 col-xs-12">
-            <div class="panel-title">Detalle del inventario</div>
-            <p class="panel-sub">Ordenado del reporte más reciente al más antiguo</p>
-          </div>
-          <div class="col-sm-5 col-xs-12">
-            <input type="text" id="buscarFacilitador" class="form-control" placeholder="Buscar por nombre o regional..." />
-          </div>
+    <!-- 4. INVENTARIO -->
+    <div class="card">
+      <div class="row">
+        <div class="col-sm-6 col-xs-12">
+          <p class="card-title">Inventario</p>
+          <p class="card-sub">Del reporte más reciente al más antiguo</p>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+          <input type="text" id="buscarFacilitador" class="form-control" placeholder="Buscar facilitador o regional" />
         </div>
       </div>
-      <div class="panel-body">
-        <div class="table-responsive tabla-scroll">
-          <table class="table table-hover table-condensed" id="tablaFacilitadores">
-            <thead>
-              <tr>
-                <th>Facilitador</th>
-                <th>Regional</th>
-                <th>Estado</th>
-                <th>Último reporte</th>
-                <th class="text-center">Reportes</th>
-                <th>Datos del perfil</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($facilitadores as $f) {
-                if ($f["dias"] === null) {
-                  $claseDias = "text-muted";
-                  $textoDias = "Sin reportes";
-                } else {
-                  $claseDias = $f["dias"] <= 30 ? "text-success" : ($f["dias"] <= 180 ? "text-warning" : "text-danger");
-                  $textoDias = $f["dias"] == 0 ? "hoy" : "hace " . $f["dias"] . " días";
+      <div class="chips" id="chipsFiltro">
+        <button type="button" class="btn btn-sm btn-primary" data-filtro="">Todos</button>
+        <button type="button" class="btn btn-sm btn-default" data-filtro="sin-reportes">Sin reportes</button>
+        <button type="button" class="btn btn-sm btn-default" data-filtro="atrasado">Más de 90 días</button>
+        <button type="button" class="btn btn-sm btn-default" data-filtro="incompleto">Perfil incompleto</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table tabla-fac" id="tablaFacilitadores">
+          <thead>
+            <tr>
+              <th>Facilitador</th>
+              <th>Estado</th>
+              <th>Último reporte</th>
+              <th class="text-center">Reportes</th>
+              <th>Perfil</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($facilitadores as $f) {
+              $etiquetas = array();
+              if ($f["dias"] === null) {
+                $colorDias = "#BDBDBD";
+                $textoDias = "Sin reportes";
+                $etiquetas[] = "sin-reportes";
+              } else {
+                $colorDias = $f["dias"] <= 30 ? "#239B56" : ($f["dias"] <= 90 ? "#2E86C1" : ($f["dias"] <= 180 ? "#F39C12" : "#C0392B"));
+                $textoDias = $f["dias"] == 0 ? "Hoy" : "Hace " . $f["dias"] . " días";
+                if ($f["dias"] > 90) {
+                  $etiquetas[] = "atrasado";
                 }
-              ?>
-                <tr>
-                  <td><a href="index.php?doc=usuario&id=<?= $f["id"]; ?>"><?= h($f["nombre"]); ?></a></td>
-                  <td><?= h($f["regional"]); ?></td>
-                  <td><span class="label <?= $f["activo"] ? 'label-success' : 'label-danger'; ?>"><?= $f["activo"] ? 'Activo' : 'Inactivo'; ?></span></td>
-                  <td>
-                    <?php if ($f["dias"] !== null) { ?><?= h($f["ultimo"]); ?><br><?php } ?>
-                    <small class="<?= $claseDias; ?>"><?= $textoDias; ?></small>
-                  </td>
-                  <td class="text-center"><strong><?= $f["total"]; ?></strong></td>
-                  <td>
-                    <?php if (empty($f["faltantes"])) { ?>
-                      <span class="label label-success">Completos</span>
-                    <?php } else { ?>
-                      <span class="label label-warning">Incompletos</span><br>
-                      <small class="text-muted">Falta: <?= h(implode(", ", $f["faltantes"])); ?></small>
-                    <?php } ?>
-                  </td>
-                </tr>
-              <?php } ?>
-            </tbody>
-          </table>
-          <p id="sinCoincidencias" class="text-muted text-center" style="display:none">No hay facilitadores que coincidan con la búsqueda.</p>
+              }
+              if (!empty($f["faltantes"])) {
+                $etiquetas[] = "incompleto";
+              }
+            ?>
+              <tr data-etiquetas="<?= implode(" ", $etiquetas); ?>">
+                <td>
+                  <a href="index.php?doc=usuario&id=<?= $f["id"]; ?>"><?= h($f["nombre"]); ?></a>
+                  <span class="sub"><?= h($f["regional"]); ?></span>
+                </td>
+                <td>
+                  <span class="punto" style="background: <?= $f["activo"] ? '#239B56' : '#C0392B'; ?>"></span><?= $f["activo"] ? 'Activo' : 'Inactivo'; ?>
+                </td>
+                <td>
+                  <span class="punto" style="background: <?= $colorDias; ?>"></span><?= $textoDias; ?>
+                  <?php if ($f["dias"] !== null) { ?><span class="sub"><?= h($f["ultimo"]); ?></span><?php } ?>
+                </td>
+                <td class="text-center"><?= $f["total"]; ?></td>
+                <td>
+                  <?php if (empty($f["faltantes"])) { ?>
+                    <span class="text-success">Completo</span>
+                  <?php } else { ?>
+                    <span class="text-warning" title="Falta: <?= h(implode(", ", $f["faltantes"])); ?>">Falta <?= count($f["faltantes"]); ?> dato<?= count($f["faltantes"]) > 1 ? 's' : ''; ?></span>
+                    <span class="sub"><?= h(implode(", ", $f["faltantes"])); ?></span>
+                  <?php } ?>
+                </td>
+              </tr>
+            <?php } ?>
+          </tbody>
+        </table>
+      </div>
+      <p id="sinCoincidencias" class="text-muted text-center" style="display:none; margin-top:12px">No hay facilitadores que coincidan.</p>
+      <div class="dash-pag clearfix">
+        <span id="pagInfo"></span>
+        <div class="pull-right">
+          <button type="button" class="btn btn-default btn-sm" id="pagAnt">&laquo; Anterior</button>
+          <button type="button" class="btn btn-default btn-sm" id="pagSig">Siguiente &raquo;</button>
         </div>
       </div>
     </div>
 
     <script type="text/javascript">
       google.charts.load("current", {
-        packages: ["corechart", "timeline"]
+        packages: ["corechart"]
       });
       google.charts.setOnLoadCallback(dibujarDashboard);
 
-      var datosEstado = <?= json_encode($dataEstado, $jsonOpts); ?>;
-      var datosActividad = <?= json_encode($dataActividad, $jsonOpts); ?>;
-      var datosDatos = <?= json_encode($dataDatos, $jsonOpts); ?>;
-      var datosRegional = <?= json_encode($dataRegional, $jsonOpts); ?>;
       var datosMes = <?= json_encode($dataMes, $jsonOpts); ?>;
-      var filasTimeline = <?= json_encode($filasTimeline, $jsonOpts); ?>;
+      var datosActividad = <?= json_encode($dataActividad, $jsonOpts); ?>;
+      var datosRegional = <?= json_encode($dataRegional, $jsonOpts); ?>;
 
-      var opcionesDona = {
-        pieHole: 0.55,
-        chartArea: {left: 10, top: 10, width: "95%", height: "80%"},
-        legend: {position: "bottom", textStyle: {fontSize: 12}},
-        pieSliceText: "value",
-        tooltip: {text: "both"}
-      };
-
-      function parseFecha(s) {
-        var p = s.split("-");
-        return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
-      }
-
-      function dona(id, datos, colores) {
-        var data = google.visualization.arrayToDataTable(datos);
-        var opts = $.extend({}, opcionesDona, {colors: colores});
-        new google.visualization.PieChart(document.getElementById(id)).draw(data, opts);
-      }
+      // Estilo común minimalista para los ejes
+      var ejeTexto = {color: "#999", fontSize: 11};
+      var ejeLimpio = {textStyle: ejeTexto, gridlines: {color: "#f0f0f0"}, baselineColor: "#e0e0e0", minorGridlines: {count: 0}};
 
       function dibujarDashboard() {
-        dona("chart_estado", datosEstado, ["#239B56", "#C0392B"]);
-        dona("chart_actividad", datosActividad, ["#239B56", "#2E86C1", "#F39C12", "#C0392B", "#BDBDBD"]);
-        dona("chart_datos", datosDatos, ["#2E86C1", "#F39C12"]);
+        // Actividad en el tiempo: columnas (reportes) + línea (facilitadores que reportaron)
+        var dataMes = google.visualization.arrayToDataTable(datosMes);
+        new google.visualization.ComboChart(document.getElementById("chart_tiempo")).draw(dataMes, {
+          seriesType: "bars",
+          series: {
+            0: {color: "#AED6F1"},
+            1: {type: "line", color: "#2E86C1", lineWidth: 3, pointSize: 6, targetAxisIndex: 1}
+          },
+          vAxes: {
+            0: $.extend({}, ejeLimpio, {format: "0", minValue: 0, title: "Reportes", titleTextStyle: ejeTexto}),
+            1: $.extend({}, ejeLimpio, {format: "0", minValue: 0, gridlines: {count: 0}, title: "Facilitadores", titleTextStyle: ejeTexto})
+          },
+          hAxis: {textStyle: ejeTexto},
+          legend: {position: "top", alignment: "end", textStyle: {color: "#666", fontSize: 12}},
+          chartArea: {left: 55, right: 55, top: 35, bottom: 35},
+          bar: {groupWidth: "55%"}
+        });
 
-        // Facilitadores por regional (barras apiladas)
+        // Último reporte: columnas por rango de días, con cantidad y porcentaje encima
+        var dataAct = google.visualization.arrayToDataTable(datosActividad);
+        var totalAct = 0;
+        for (var i = 0; i < dataAct.getNumberOfRows(); i++) {
+          totalAct += dataAct.getValue(i, 1);
+        }
+        var vistaAct = new google.visualization.DataView(dataAct);
+        vistaAct.setColumns([0, 1, 2, {
+          type: "string",
+          role: "annotation",
+          calc: function(dt, fila) {
+            var v = dt.getValue(fila, 1);
+            return v + (totalAct > 0 ? " (" + Math.round(v * 100 / totalAct) + "%)" : "");
+          }
+        }]);
+        new google.visualization.ColumnChart(document.getElementById("chart_actividad")).draw(vistaAct, {
+          legend: {position: "none"},
+          vAxis: $.extend({}, ejeLimpio, {format: "0", minValue: 0}),
+          hAxis: {textStyle: {color: "#666", fontSize: 12}, maxAlternation: 1, slantedText: false},
+          annotations: {alwaysOutside: true, textStyle: {color: "#555", fontSize: 12}},
+          chartArea: {left: 40, right: 15, top: 30, bottom: 40},
+          bar: {groupWidth: "55%"}
+        });
+
+        // Por regional: barras apiladas activos / inactivos
         var dataReg = google.visualization.arrayToDataTable(datosRegional);
         new google.visualization.BarChart(document.getElementById("chart_regional")).draw(dataReg, {
           isStacked: true,
-          colors: ["#239B56", "#C0392B"],
-          legend: {position: "top"},
-          chartArea: {left: 140, top: 30, width: "65%", height: "85%"},
-          hAxis: {format: "0", minValue: 0},
-          vAxis: {textStyle: {fontSize: 11}},
-          bar: {groupWidth: "65%"}
-        });
-
-        // Reportes por mes (columnas con el valor encima)
-        var dataMes = google.visualization.arrayToDataTable(datosMes);
-        var vistaMes = new google.visualization.DataView(dataMes);
-        vistaMes.setColumns([0, 1, {calc: "stringify", sourceColumn: 1, type: "string", role: "annotation"}]);
-        new google.visualization.ColumnChart(document.getElementById("chart_mes")).draw(vistaMes, {
-          colors: ["#2E86C1"],
-          legend: {position: "none"},
-          chartArea: {left: 45, top: 20, width: "88%", height: "75%"},
-          vAxis: {format: "0", minValue: 0},
-          hAxis: {textStyle: {fontSize: 11}},
-          annotations: {alwaysOutside: true, textStyle: {fontSize: 11, color: "#555"}},
+          colors: ["#239B56", "#E6B0AA"],
+          legend: {position: "top", alignment: "end", textStyle: {color: "#666", fontSize: 12}},
+          hAxis: $.extend({}, ejeLimpio, {format: "0", minValue: 0}),
+          vAxis: {textStyle: {color: "#666", fontSize: 12}},
+          chartArea: {left: 170, right: 20, top: 30, bottom: 30},
           bar: {groupWidth: "60%"}
         });
-
-        // Línea de tiempo
-        if (filasTimeline.length > 0) {
-          var data = new google.visualization.DataTable();
-          data.addColumn({type: "string", id: "Facilitador"});
-          data.addColumn({type: "string", id: "Estado"});
-          data.addColumn({type: "string", role: "style"});
-          data.addColumn({type: "string", role: "tooltip", p: {html: true}});
-          data.addColumn({type: "date", id: "Inicio"});
-          data.addColumn({type: "date", id: "Fin"});
-          var rows = [];
-          for (var i = 0; i < filasTimeline.length; i++) {
-            var ini = parseFecha(filasTimeline[i].ini);
-            var fin = parseFecha(filasTimeline[i].fin);
-            // Un único reporte generaría una barra invisible: se amplía visualmente 15 días
-            if (fin.getTime() <= ini.getTime()) {
-              fin = new Date(ini.getTime() + 15 * 86400000);
-            }
-            rows.push([filasTimeline[i].fac, filasTimeline[i].estado, filasTimeline[i].color, filasTimeline[i].tip, ini, fin]);
-          }
-          data.addRows(rows);
-          new google.visualization.Timeline(document.getElementById("chart_timeline")).draw(data, {
-            tooltip: {isHtml: true},
-            timeline: {showBarLabels: false, rowLabelStyle: {fontSize: 12}},
-            avoidOverlappingGridLines: false
-          });
-        }
       }
 
       // Redibujar al cambiar el tamaño de la ventana (responsive)
@@ -643,17 +621,59 @@ $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
         timerResize = setTimeout(dibujarDashboard, 250);
       });
 
-      // Búsqueda rápida en la tabla de detalle
-      $("#buscarFacilitador").on("keyup", function() {
-        var texto = $(this).val().toLowerCase();
-        var visibles = 0;
-        $("#tablaFacilitadores tbody tr").each(function() {
-          var coincide = $(this).children("td").slice(0, 2).text().toLowerCase().indexOf(texto) > -1;
-          $(this).toggle(coincide);
-          if (coincide) visibles++;
+      /*
+       *  INVENTARIO: búsqueda, filtros rápidos y paginación (10 por página)
+       */
+      var porPagina = 10,
+        paginaActual = 1,
+        filtroActual = "";
+      var $filas = $("#tablaFacilitadores tbody tr");
+
+      function filasVisibles() {
+        var texto = $("#buscarFacilitador").val().toLowerCase();
+        return $filas.filter(function() {
+          var okTexto = $(this).children("td").first().text().toLowerCase().indexOf(texto) > -1;
+          var okFiltro = filtroActual === "" || (" " + $(this).data("etiquetas") + " ").indexOf(" " + filtroActual + " ") > -1;
+          return okTexto && okFiltro;
         });
-        $("#sinCoincidencias").toggle(visibles === 0);
+      }
+
+      function pintarTabla() {
+        var $vis = filasVisibles();
+        var total = $vis.length;
+        var paginas = Math.max(1, Math.ceil(total / porPagina));
+        paginaActual = Math.min(paginaActual, paginas);
+        var desde = (paginaActual - 1) * porPagina;
+
+        $filas.hide();
+        $vis.slice(desde, desde + porPagina).show();
+
+        $("#sinCoincidencias").toggle(total === 0);
+        $("#pagInfo").text(total === 0 ? "" : "Mostrando " + (desde + 1) + "–" + Math.min(desde + porPagina, total) + " de " + total);
+        $("#pagAnt").prop("disabled", paginaActual <= 1);
+        $("#pagSig").prop("disabled", paginaActual >= paginas);
+      }
+
+      $("#buscarFacilitador").on("keyup", function() {
+        paginaActual = 1;
+        pintarTabla();
       });
+      $("#chipsFiltro .btn").on("click", function() {
+        $("#chipsFiltro .btn").removeClass("btn-primary").addClass("btn-default");
+        $(this).removeClass("btn-default").addClass("btn-primary");
+        filtroActual = $(this).data("filtro");
+        paginaActual = 1;
+        pintarTabla();
+      });
+      $("#pagAnt").on("click", function() {
+        paginaActual--;
+        pintarTabla();
+      });
+      $("#pagSig").on("click", function() {
+        paginaActual++;
+        pintarTabla();
+      });
+      pintarTabla();
     </script>
   <?php } ?>
 </div>
