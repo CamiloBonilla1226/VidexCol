@@ -193,8 +193,7 @@ $dataRegional = array(array("Regional", "Activos", "Inactivos"));
 foreach ($porRegional as $k => $v) {
   $dataRegional[] = array($k, $v[0], $v[1]);
 }
-// Altura compartida por "Último reporte" y "Por regional" (van lado a lado)
-$alturaRegional = max(320, count($porRegional) * 34 + 60);
+$alturaRegional = max(220, count($porRegional) * 34 + 60);
 
 $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 
@@ -437,29 +436,29 @@ $jsonOpts = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
       </div>
     </div>
 
-    <!-- 2. ACTIVIDAD EN EL TIEMPO -->
-    <div class="card">
-      <p class="card-title">Actividad en el tiempo</p>
-      <p class="card-sub">Reportes y facilitadores que reportaron, mes a mes (últimos 12 meses)</p>
-      <div id="chart_tiempo" style="width:100%; height:320px;"></div>
-    </div>
-
-    <!-- 3. ULTIMO REPORTE + REGIONALES -->
+    <!-- 2. ACTIVIDAD EN EL TIEMPO + ULTIMO REPORTE (misma altura fija) -->
     <div class="row row-eq">
+      <div class="col-md-7 col-xs-12">
+        <div class="card">
+          <p class="card-title">Actividad en el tiempo</p>
+          <p class="card-sub">Reportes y facilitadores que reportaron, mes a mes (últimos 12 meses)</p>
+          <div id="chart_tiempo" style="width:100%; height:320px;"></div>
+        </div>
+      </div>
       <div class="col-md-5 col-xs-12">
         <div class="card">
           <p class="card-title">Último reporte</p>
           <p class="card-sub">Cuántos facilitadores reportaron en cada rango de tiempo</p>
-          <div id="chart_actividad" style="width:100%; height: <?= $alturaRegional; ?>px;"></div>
+          <div id="chart_actividad" style="width:100%; height:320px;"></div>
         </div>
       </div>
-      <div class="col-md-7 col-xs-12">
-        <div class="card">
-          <p class="card-title">Facilitadores por regional</p>
-          <p class="card-sub">Activos e inactivos</p>
-          <div id="chart_regional" style="width:100%; height: <?= $alturaRegional; ?>px;"></div>
-        </div>
-      </div>
+    </div>
+
+    <!-- 3. REGIONALES (altura según cantidad de regionales) -->
+    <div class="card">
+      <p class="card-title">Facilitadores por regional</p>
+      <p class="card-sub">Activos e inactivos</p>
+      <div id="chart_regional" style="width:100%; height: <?= $alturaRegional; ?>px;"></div>
     </div>
 
     <!-- 4. INVENTARIO -->
