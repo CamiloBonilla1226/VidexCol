@@ -1,4 +1,22 @@
 <?php
+require_once __DIR__ . '/glosario.php';
+
+// Número de definición del glosario según el nombre de la actividad ('' si no hay una equivalente)
+function db2_glosario_actividad($nombre)
+{
+    $n = mb_strtolower(trim((string)$nombre), 'UTF-8');
+    $n = strtr($n, array('á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u'));
+    $mapa = array(
+        'coach' => 7, 'gran celebracion' => 49, 'evangelismo' => 43, 'bautizo' => 60,
+        'hijo de paz' => 12, 'taller' => 51, 'caminata' => 42, 'siembra' => 50, 'oracion' => 47,
+    );
+    foreach ($mapa as $clave => $num) {
+        if (strpos($n, $clave) !== false) {
+            return $num;
+        }
+    }
+    return null;
+}
 /*******************************************
 DASHBOARD - NUEVO DISEÑO ESTRATÉGICO
 Archivo: graphs_dashboard2.php
@@ -770,7 +788,49 @@ if($PSN->num_rows() > 0){
 
 </div><!-- /container -->
 
+<?php glosario_assets(); ?>
 <script type="text/javascript">
+/* ===== Glosario en las gráficas ===== */
+var GLOS = <?= glosario_datos(array(60, 13, 7, 49, 43, 12, 51, 42, 50, 47, 9, 1, 45, 29, 31, 27)); ?>;
+var GLOS_ACTIVIDAD = <?php
+  $glosAct = array();
+  foreach($datosActividad as $i => $r){ $glosAct[$i] = db2_glosario_actividad($r[0]); }
+  echo json_encode($glosAct);
+?>;
+var GLOS_GEN = {0: 9, 1: 1, 2: 45, 3: 29, 4: 31, 5: 27};
+
+function glosEsc(t){
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Número de definición de una etiqueta "Gen N"
+function glosGen(label){
+  var m = /^Gen (\d+)$/.exec(label);
+  return m ? GLOS_GEN[parseInt(m[1], 10)] : null;
+}
+
+// Tooltip HTML: dato + definición del glosario (si la tiene)
+function glosTip(titulo, valor, n){
+  var h = '<div class="glosario-gtip"><strong>' + glosEsc(titulo) + ': ' + valor + '</strong>';
+  if(n && GLOS[n]){
+    h += '<p>' + glosEsc(GLOS[n].d) + '</p><em>Click para ampliar la definición</em>';
+  }
+  return h + '</div>';
+}
+
+// Click en una barra: abre el modal del glosario. resolver(sel) devuelve el número de definición
+function glosClick(chart, resolver){
+  google.visualization.events.addListener(chart, 'select', function(){
+    var sel = chart.getSelection();
+    if(!sel.length || sel[0].row == null) return;
+    var n = resolver(sel[0]);
+    if(n && GLOS[n]){
+      window.Glosario.modal(GLOS[n].t, GLOS[n].d);
+      chart.setSelection([]);
+    }
+  });
+}
+
 google.charts.load("current", {packages:["corechart","bar"]});
 google.charts.setOnLoadCallback(drawAllCharts);
 
@@ -876,11 +936,20 @@ function drawEmbudo(){
     bar: { groupWidth: '58%' },
     annotations: { textStyle: baseTextStyle(12), alwaysOutside: false },
     animation:{ startup:true, duration:900, easing:'out' },
-    tooltip: { textStyle: baseTextStyle(12) }
+    tooltip: { isHtml: true, textStyle: baseTextStyle(12) }
   };
 
+  var embudoGlos = {'Bautizados': 60, 'Discipulado': 13};
+  var view = new google.visualization.DataView(data);
+  view.setColumns([0, 1,
+    { calc: function(dt, row){ var et = dt.getValue(row, 0); return glosTip(et, dt.getValue(row, 1), embudoGlos[et]); },
+      type: "string", role: "tooltip", properties: { html: true } },
+    2, 3
+  ]);
+
   var chart = new google.visualization.BarChart(document.getElementById('chart_embudo'));
-  chart.draw(data, options);
+  glosClick(chart, function(sel){ return embudoGlos[data.getValue(sel.row, 0)]; });
+  chart.draw(view, options);
   <?php endif; ?>
 }
 
@@ -919,11 +988,19 @@ function drawActividad(){
     bar: { groupWidth: '55%' },
     annotations: { textStyle: baseTextStyle(11) },
     animation:{ startup:true, duration:900, easing:'out' },
-    tooltip: { textStyle: baseTextStyle(12) }
+    tooltip: { isHtml: true, textStyle: baseTextStyle(12) }
   };
 
+  var view = new google.visualization.DataView(dtAct);
+  view.setColumns([0, 1,
+    { calc: function(dt, row){ return glosTip(dt.getValue(row, 0), dt.getValue(row, 1), GLOS_ACTIVIDAD[row]); },
+      type: "string", role: "tooltip", properties: { html: true } },
+    2, 3
+  ]);
+
   var chart = new google.visualization.ColumnChart(document.getElementById('chart_actividad'));
-  chart.draw(dtAct, options);
+  glosClick(chart, function(sel){ return GLOS_ACTIVIDAD[sel.row]; });
+  chart.draw(view, options);
   <?php endif; ?>
 }
 
@@ -952,11 +1029,25 @@ function drawFrutos(){
     bar: { groupWidth: '60%' },
     isStacked: false,
     animation:{ startup:true, duration:900, easing:'out' },
-    tooltip: { textStyle: baseTextStyle(12) }
+    tooltip: { isHtml: true, textStyle: baseTextStyle(12) }
   };
 
+  // Definición por serie (columna de la gráfica): Bautizados 60, Discipulado 13
+  var frutosGlos = {1: 60, 5: 13};
+  function frutosTip(col, serie, n){
+    return { calc: function(dt, row){ return glosTip(dt.getValue(row, 0) + ' - ' + serie, dt.getValue(row, col), n); },
+             type: "string", role: "tooltip", properties: { html: true } };
+  }
+  var view = new google.visualization.DataView(data);
+  view.setColumns([0,
+    1, frutosTip(1, 'Bautizados', 60),
+    2, frutosTip(2, 'Decisiones', null),
+    3, frutosTip(3, 'Discipulado', 13)
+  ]);
+
   var chart = new google.visualization.ColumnChart(document.getElementById('chart_frutos'));
-  chart.draw(data, options);
+  glosClick(chart, function(sel){ return frutosGlos[sel.column]; });
+  chart.draw(view, options);
   <?php endif; ?>
 }
 
@@ -987,11 +1078,19 @@ function drawMulti(){
     bar: { groupWidth: '50%' },
     annotations: { textStyle: baseTextStyle(12) },
     animation:{ startup:true, duration:900, easing:'out' },
-    tooltip: { textStyle: baseTextStyle(12) }
+    tooltip: { isHtml: true, textStyle: baseTextStyle(12) }
   };
 
+  var view = new google.visualization.DataView(data);
+  view.setColumns([0, 1,
+    { calc: function(dt, row){ var g = dt.getValue(row, 0); return glosTip(g, dt.getValue(row, 1) + ' grupos', glosGen(g)); },
+      type: "string", role: "tooltip", properties: { html: true } },
+    2, 3
+  ]);
+
   var chart = new google.visualization.ColumnChart(document.getElementById('chart_multi'));
-  chart.draw(data, options);
+  glosClick(chart, function(sel){ return glosGen(data.getValue(sel.row, 0)); });
+  chart.draw(view, options);
   <?php endif; ?>
 }
 
