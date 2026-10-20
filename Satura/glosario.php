@@ -15,6 +15,14 @@ $GLOSARIO_DEFINICIONES = array(
     49 => 'Es un encuentro especial en el que se reúnen las iglesias de pequeños grupos para celebrar lo que Dios está haciendo en las vidas de las personas. Se sugiere compartir alimentos en la celebración.',
     51 => 'Actividad pedagógica que se realiza para capacitar un grupo a través de la interactividad de los participantes y los facilitadores, siguiendo las 4 tareas de aprendizaje. Esta estrategia es usada en Satura Colombia para todos los procesos.',
     60 => 'Es una de las 9 funciones de la iglesia saludable; es el resultado final de discipular e inicio a la apertura de un IPG, y también es un mandato del Señor.',
+    1 => 'Es una iglesia de pequeño grupo que ha sido resultado de un plantador que ha pasado por el ciclo generacional de una IPG de generación.',
+    9 => 'Se inició con el líder principal (pastor) y sus líderes.',
+    13 => 'Es un proceso que inicia con una persona de paz, a través de los estudios del ciclo generacional, y se lleva a cabo por un plantador; estos estudios corresponden al manual de Capacitar y Multiplicar.',
+    27 => 'Paso de un discípulo a ser un plantador o multiplicador.',
+    29 => 'Proceso que marca un plantador para una multiplicación.',
+    31 => 'Continuación, discipulado de la generación 3.',
+    45 => 'Es el grupo de creyentes que ha sido alcanzado por la generación 1. Este grupo ya ha sido formado a través del ciclo generacional y ahora se está preparando para alcanzar otro grupo de creyentes, al cual llamaremos generación 3.',
+    54 => 'Fecha que se debe colocar en el sistema de gestión de Satura Colombia para indicar el momento que se hace el registro.',
 );
 
 $GLOSARIO_TERMINOS = array(
@@ -27,6 +35,14 @@ $GLOSARIO_TERMINOS = array(
     49 => 'Gran celebración',
     51 => 'Taller',
     60 => 'Bautismo',
+    1 => 'Generación 1',
+    9 => 'Generación 0',
+    13 => 'Discipular',
+    27 => 'Generación 5',
+    29 => 'Generación 3',
+    31 => 'Generación 4',
+    45 => 'Generación 2',
+    54 => 'Fecha de reporte',
 );
 
 /**
@@ -58,6 +74,19 @@ function glosario_icono($n)
     $n = (int)$n;
     $titulo = isset($GLOSARIO_TERMINOS[$n]) ? htmlspecialchars($GLOSARIO_TERMINOS[$n], ENT_QUOTES, 'UTF-8') : '';
     return '<span class="glosario-info" ' . glosario_attr($n) . ' data-glosario-titulo="' . $titulo . '" data-glosario-modal tabindex="0" role="button" aria-label="Ver definición">i</span>';
+}
+
+/**
+ * Atributos para un elemento (celda, encabezado, texto) que muestra la definición
+ * al pasar el mouse y la abre en un modal al dar click, sin icono.
+ * Uso: <th <?= glosario_click(54) ?>>Fec. Reporte</th>
+ */
+function glosario_click($n)
+{
+    global $GLOSARIO_TERMINOS;
+    $n = (int)$n;
+    $titulo = isset($GLOSARIO_TERMINOS[$n]) ? htmlspecialchars($GLOSARIO_TERMINOS[$n], ENT_QUOTES, 'UTF-8') : '';
+    return glosario_attr($n) . ' data-glosario-titulo="' . $titulo . '" data-glosario-modal tabindex="0" role="button"';
 }
 
 /**

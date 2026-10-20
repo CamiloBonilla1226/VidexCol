@@ -197,3 +197,14 @@
 [data-glosario-modal]:not(.glosario-info) {
     cursor: pointer;
 }
+
+/* Celdas y encabezados de tabla con definición al dar click */
+th[data-glosario-modal]:hover,
+td[data-glosario-modal]:hover,
+th[data-glosario-modal]:focus,
+td[data-glosario-modal]:focus {
+    background: rgba(52, 152, 219, 0.18);
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    outline: none;
+}

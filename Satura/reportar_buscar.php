@@ -1081,6 +1081,35 @@ else{
                         <?=$mensajeSinResultados != "" ? $mensajeSinResultados : "No se encontraron reportes con los filtros seleccionados."; ?>
                     </div>
                     <?php } ?>
+                    <?php
+require_once __DIR__ . '/glosario.php';
+glosario_assets();
+
+if (!function_exists('reportar_buscar_glosario_actividad')) {
+    // Definición del glosario según la actividad del reporte ('' si no tiene)
+    function reportar_buscar_glosario_actividad($idActividad, $nombreActividad)
+    {
+        $porId = array(77 => 43, 8 => 49, 99 => 60, 1 => 7, 12 => 12, 14 => 51);
+        $idActividad = (int)$idActividad;
+        if (isset($porId[$idActividad])) {
+            return glosario_click($porId[$idActividad]);
+        }
+        $porNombre = array('Evangelismo' => 43, 'Gran celebracion' => 49, 'Bautizo' => 60, 'Coach' => 7, 'Taller' => 51);
+        return isset($porNombre[$nombreActividad]) ? glosario_click($porNombre[$nombreActividad]) : '';
+    }
+}
+
+if (!function_exists('reportar_buscar_glosario_generacion')) {
+    // Definición del glosario según el número de generación ('' si no tiene)
+    function reportar_buscar_glosario_generacion($generacion)
+    {
+        $porGeneracion = array(0 => 9, 1 => 1, 2 => 45, 3 => 29, 4 => 31, 5 => 27);
+        $generacion = (int)$generacion;
+        return isset($porGeneracion[$generacion]) ? glosario_click($porGeneracion[$generacion]) : '';
+    }
+}
+
+?>
                     <div style="overflow-x: auto;">
                         <?php $columnasAntesTotales = $esFacilitador ? 4 : 5; ?>
                         <table border="0" cellspacing="0" cellpadding="2"  align="center" class="table table-striped tabla-reportes-grupos" style="font-size:12px">
@@ -1090,13 +1119,13 @@ else{
                                     <?php if(!$esFacilitador){ ?>
                                     <th class="col-text">Facilitador</th>
                                     <?php } ?>
-                                    <th class="col-center" title="Fecha de reporte" width="80">Fec. Reporte</th>
+                                    <th class="col-center" width="80" <?= glosario_click(54) ?>>Fec. Reporte</th>
                                     <th class="col-text">Actividad</th>
                                     <th class="col-center">Generacion</th>
                                     <th class="col-center" title="Decisiones">Deci.</th>
                                     <th class="col-center" title="Preparándose">Prep.</th>
-                                    <th class="col-center" title="En Discipulado">Disc.</th>
-                                    <th class="col-center" title="Bautizados">Baut.</th>
+                                    <th class="col-center" <?= glosario_click(13) ?>>Disc.</th>
+                                    <th class="col-center" <?= glosario_click(60) ?>>Baut.</th>
                                     <th class="col-center">Foto</th>
                                 </tr>
                             </thead>
@@ -1168,13 +1197,13 @@ else{
                                             <?php if(!$esFacilitador){ ?>
                                             <td class="col-text"><a href="index.php?doc=reportar&id=<?=$id; ?>"><?=$nombreUsuario; ?></a></td>
                                             <?php } ?>
-                                            <td class="col-center"><?=$fechaReporte; ?></td>
-                                            <td class="col-text"><?=$actividadReporte; ?></td>
-                                            <td class="col-center"><?=$generacionGrupo; ?></td>
+                                            <td class="col-center" <?= glosario_click(54) ?>><?=$fechaReporte; ?></td>
+                                            <td class="col-text" <?= reportar_buscar_glosario_actividad($idActividad, $actividadReporte); ?>><?=$actividadReporte; ?></td>
+                                            <td class="col-center" <?= reportar_buscar_glosario_generacion($generacionGrupo); ?>><?=$generacionGrupo; ?></td>
                                             <td class="col-center"><?=$desiciones; ?></td>
                                             <td class="col-center"><?=$preparandose; ?></td>
-                                            <td class="col-center"><?=$discipulado; ?></td>
-                                            <td class="col-center"><?=$bautizados; ?></td>
+                                            <td class="col-center" <?= glosario_click(13) ?>><?=$discipulado; ?></td>
+                                            <td class="col-center" <?= glosario_click(60) ?>><?=$bautizados; ?></td>
                                             <td class="col-center"><?php
                                             if($tieneFoto){
                                                 ?><i class="fas fa-thumbs-up ico-lik"></i><?php
