@@ -1108,7 +1108,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
     <div class="header">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
             <div>
-                <h1>📊 <span <?= glosario_attr(44) ?> data-glosario-modal tabindex="0" role="button">IPG</span><?= glosario_icono(44) ?> </h1>
+                <h1>📊 <span <?= glosario_attr(44) ?> data-glosario-modal tabindex="0" role="button">IPG</span> </h1>
                 <p>Visualiza y gestiona todos tus grupos con sus datos actuales.</p>
             </div>
             <button class="btn btn-primary" onclick="openCreateGroupModal()" <?= glosario_attr(57) ?>
