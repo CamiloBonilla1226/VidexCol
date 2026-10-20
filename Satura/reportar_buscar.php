@@ -1197,13 +1197,13 @@ if (!function_exists('reportar_buscar_glosario_generacion')) {
                                             <?php if(!$esFacilitador){ ?>
                                             <td class="col-text"><a href="index.php?doc=reportar&id=<?=$id; ?>"><?=$nombreUsuario; ?></a></td>
                                             <?php } ?>
-                                            <td class="col-center" <?= glosario_click(54) ?>><?=$fechaReporte; ?></td>
+                                            <td class="col-center"><?=$fechaReporte; ?></td>
                                             <td class="col-text" <?= reportar_buscar_glosario_actividad($idActividad, $actividadReporte); ?>><?=$actividadReporte; ?></td>
                                             <td class="col-center" <?= reportar_buscar_glosario_generacion($generacionGrupo); ?>><?=$generacionGrupo; ?></td>
                                             <td class="col-center"><?=$desiciones; ?></td>
                                             <td class="col-center"><?=$preparandose; ?></td>
-                                            <td class="col-center" <?= glosario_click(13) ?>><?=$discipulado; ?></td>
-                                            <td class="col-center" <?= glosario_click(60) ?>><?=$bautizados; ?></td>
+                                            <td class="col-center"><?=$discipulado; ?></td>
+                                            <td class="col-center"><?=$bautizados; ?></td>
                                             <td class="col-center"><?php
                                             if($tieneFoto){
                                                 ?><i class="fas fa-thumbs-up ico-lik"></i><?php
