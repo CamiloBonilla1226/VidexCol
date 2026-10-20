@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/glosario.php';
 //print_r( $_SESSION ); 
 //    echo $_SESSION["perfil"];
 //    if ($_SESSION["perfil"] == 2) {
@@ -289,6 +290,70 @@ $nombreGrafica ="MIS METAS";
     $num_ARP=$PSN->num_rows();
     if ($num_ARP > 0) { 
     ?>
+        <?php glosario_assets(); ?>
+        <script type="text/javascript">
+        /* ===== Glosario en las gráficas de metas ===== */
+        var GLOS = <?= glosario_datos(array(43, 13, 60, 1, 45, 29)); ?>;
+        // Fila de la gráfica => número de definición: Evangelismo, Discipulado, Bautizos, IPG Gen 1, 2 y 3
+        var GLOS_FILAS = {0: 43, 1: 13, 2: 60, 3: 1, 4: 45, 5: 29};
+
+        function glosEsc(t){
+            return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+
+        // Tooltip HTML: dato + definición del glosario (si la tiene)
+        function glosTip(titulo, valor, n){
+            var h = '<div class="glosario-gtip"><strong>' + glosEsc(titulo) + ': ' + valor + '</strong>';
+            if(n && GLOS[n]){
+                h += '<p>' + glosEsc(GLOS[n].d) + '</p><em>Click para ampliar la definición</em>';
+            }
+            return h + '</div>';
+        }
+
+        // Columna de tooltip para una serie (col = columna del dato)
+        function glosTipCol(col, serie){
+            return {
+                calc: function(dt, row){ return glosTip(dt.getValue(row, 0) + ' (' + serie + ')', dt.getValue(row, col), GLOS_FILAS[row]); },
+                type: "string", role: "tooltip", properties: { html: true }
+            };
+        }
+
+        function glosFila(sel){ return GLOS_FILAS[sel.row]; }
+
+        // Click en una barra: abre el modal del glosario
+        function glosClick(chart, resolver){
+            google.visualization.events.addListener(chart, 'select', function(){
+                var sel = chart.getSelection();
+                if(!sel.length || sel[0].row == null) return;
+                var n = resolver(sel[0]);
+                if(n && GLOS[n]){
+                    window.Glosario.modal(GLOS[n].t, GLOS[n].d);
+                    chart.setSelection([]);
+                }
+            });
+        }
+
+        // Dibuja la gráfica con tooltips del glosario; si falla, la dibuja normal (sin definiciones)
+        function glosDraw(chart, data, options, makeView, resolver){
+            var plain = Object.assign({}, options);
+            var conGlosario = Object.assign({}, options, { tooltip: { isHtml: true } });
+            var recuperada = false;
+            function sinGlosario(err){
+                if(recuperada) return;
+                recuperada = true;
+                if(window.console) console.error('Glosario en gráfica:', err && (err.message || err));
+                chart.draw(data, plain);
+            }
+            google.visualization.events.addListener(chart, 'error', sinGlosario);
+            try {
+                var view = makeView();
+                glosClick(chart, resolver);
+                chart.draw(view, conGlosario);
+            } catch(err){
+                sinGlosario(err);
+            }
+        }
+        </script>
         <div class="cont-tit" style="width: 100%;">
             <div class="hr"><hr></div>
             <div class="tit-cen">
@@ -346,24 +411,19 @@ $nombreGrafica ="MIS METAS";
                         // Información eliminada de la gráfica
                         // echo "['Total grupos y Asistencia',".intval($datfYear[$anio]['gen-1']+$datfYear[$anio]['gen-2']+$datfYear[$anio]['gen-3']).",".intval($datfYear[$anio]['asistencia'])."]";
 
-                        var view = new google.visualization.DataView(data);
-                        view.setColumns([
-                            0, 
-                            { 
-                                calc: "stringify",
-                                sourceColumn: 2,
-                                type: "string",
-                                role: "annotation" 
-                            }, 
-                            1,
-                            { 
-                                calc: "stringify",
-                                sourceColumn: 1,
-                                type: "string",
-                                role: "annotation" 
-                            }, 
-                            2
-                        ]);
+                        function makeView(){
+                            var view = new google.visualization.DataView(data);
+                            view.setColumns([
+                                0,
+                                { calc: "stringify", sourceColumn: 2, type: "string", role: "annotation" },
+                                1,
+                                glosTipCol(1, 'Meta'),
+                                { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" },
+                                2,
+                                glosTipCol(2, 'Datos')
+                            ]);
+                            return view;
+                        }
 
                         var options = {
                             chartArea: {
@@ -377,7 +437,7 @@ $nombreGrafica ="MIS METAS";
                             colors: ['limegreen', 'crimson']
                         };
                         var chart = new google.visualization.BarChart(document.getElementById('grafica<?php echo $anio;?>'));
-                        chart.draw(view, options); 
+                        glosDraw(chart, data, options, makeView, glosFila);
                     }
                 </script>
                 <?php 
@@ -407,24 +467,19 @@ $nombreGrafica ="MIS METAS";
                             ?>
                         ]);
 
-                        var view = new google.visualization.DataView(data);
-                        view.setColumns([
-                            0, 
-                            { 
-                                calc: "stringify",
-                                sourceColumn: 2,
-                                type: "string",
-                                role: "annotation" 
-                            }, 
-                            1,
-                            { 
-                                calc: "stringify",
-                                sourceColumn: 1,
-                                type: "string",
-                                role: "annotation" 
-                            }, 
-                            2
-                        ]);
+                        function makeView(){
+                            var view = new google.visualization.DataView(data);
+                            view.setColumns([
+                                0,
+                                { calc: "stringify", sourceColumn: 2, type: "string", role: "annotation" },
+                                1,
+                                glosTipCol(1, 'Meta'),
+                                { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" },
+                                2,
+                                glosTipCol(2, 'Datos')
+                            ]);
+                            return view;
+                        }
 
                         var options = {
                             chartArea: {
@@ -438,7 +493,7 @@ $nombreGrafica ="MIS METAS";
                             colors: ['limegreen', 'crimson']
                         };
                         var chart = new google.visualization.BarChart(document.getElementById('graficaMaestro'));
-                        chart.draw(view, options);
+                        glosDraw(chart, data, options, makeView, glosFila);
                     }
                 </script>
                 
