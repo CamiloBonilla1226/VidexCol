@@ -1,6 +1,6 @@
 <?php
 /**
- * includes/glosario.php
+ * glosario.php
  * Definiciones del glosario de Satura APP (fuente: Glosario.md).
  * Para agregar una definición nueva basta con añadir una línea al array.
  */
@@ -58,6 +58,6 @@ function glosario_assets()
         return;
     }
     $impreso = true;
-    echo '<link rel="stylesheet" href="css/glosario.css">' . "\n";
-    echo '<script src="js/glosario.js"></script>' . "\n";
+    echo '<link rel="stylesheet" href="glosario.css">' . "\n";
+    echo '<script src="glosario.js"></script>' . "\n";
 }

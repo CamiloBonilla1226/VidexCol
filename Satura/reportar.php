@@ -108,7 +108,7 @@ th {
 </style>
 
 <?php
-require_once __DIR__ . '/includes/glosario.php';
+require_once __DIR__ . '/glosario.php';
 glosario_assets();
 
 if (!function_exists('reportar_escape_attr')) {

@@ -11,7 +11,7 @@ if (!isset($_SESSION['id'])) {
     exit();
 }
 
-require_once __DIR__ . '/includes/glosario.php';
+require_once __DIR__ . '/glosario.php';
 glosario_assets();
 
 $idFacilitador = $_SESSION['id'];
