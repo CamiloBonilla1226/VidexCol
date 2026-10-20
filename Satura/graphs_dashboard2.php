@@ -648,17 +648,17 @@ if($PSN->num_rows() > 0){
     <div class="db-kpi__label">Preparándose</div>
     <div class="db-kpi__value"><?=number_format($kpi_preparando);?></div>
   </div>
-  <div class="db-kpi" style="--kpi-accent:#8e44ad;">
+  <div class="db-kpi" style="--kpi-accent:#8e44ad;" <?= glosario_click(60) ?>>
     <span class="db-kpi__icon">💧</span>
     <div class="db-kpi__label">Bautizados</div>
     <div class="db-kpi__value"><?=number_format($kpi_bautizados);?></div>
   </div>
-  <div class="db-kpi" style="--kpi-accent:#e74c3c;">
+  <div class="db-kpi" style="--kpi-accent:#e74c3c;" <?= glosario_click(13) ?>>
     <span class="db-kpi__icon">🌱</span>
     <div class="db-kpi__label">Discipulado</div>
     <div class="db-kpi__value"><?=number_format($kpi_discipulado);?></div>
   </div>
-  <div class="db-kpi" style="--kpi-accent:#16a085;">
+  <div class="db-kpi" style="--kpi-accent:#16a085;" <?= glosario_click(44) ?>>
     <span class="db-kpi__icon">🏠</span>
     <div class="db-kpi__label">Total Grupos</div>
     <div class="db-kpi__value"><?=number_format($kpi_grupos);?></div>
@@ -834,6 +834,8 @@ function glosClick(chart, resolver){
 // Dibuja la gráfica con tooltips del glosario; si falla, la dibuja normal (sin definiciones)
 function glosDraw(chart, data, options, makeView, resolver){
   var plain = Object.assign({}, options, { tooltip: { textStyle: options.tooltip && options.tooltip.textStyle } });
+  var conGlosario = Object.assign({}, options);
+  delete conGlosario.animation; // la animación de inicio no se lleva bien con tooltips HTML
   var recuperada = false;
   function sinGlosario(err){
     if(recuperada) return;
@@ -845,7 +847,7 @@ function glosDraw(chart, data, options, makeView, resolver){
   try {
     var view = makeView();
     glosClick(chart, resolver);
-    chart.draw(view, options);
+    chart.draw(view, conGlosario);
   } catch(err){
     sinGlosario(err);
   }
