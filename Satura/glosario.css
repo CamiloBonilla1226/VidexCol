@@ -121,18 +121,7 @@
     50% { box-shadow: 0 0 0 5px rgba(52, 152, 219, 0); }
 }
 
-/* Término que abre la definición al dar click (sin icono) */
+/* Término que abre la definición al dar click (sin icono): conserva el estilo original */
 [data-glosario-modal]:not(.glosario-info) {
     cursor: pointer;
-    text-decoration: underline dotted;
-    text-underline-offset: 4px;
-    display: inline-block;
-    transition: transform 0.15s ease, color 0.15s ease;
-}
-
-[data-glosario-modal]:not(.glosario-info):hover,
-[data-glosario-modal]:not(.glosario-info):focus {
-    transform: scale(1.12);
-    color: #3498db;
-    outline: none;
 }
