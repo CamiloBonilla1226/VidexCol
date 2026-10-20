@@ -76,3 +76,45 @@
     cursor: pointer;
     color: #666;
 }
+
+/* Icono de información (i) junto a los términos con definición */
+.glosario-info {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    line-height: 14px;
+    margin-left: 6px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: bold;
+    font-style: italic;
+    font-family: Georgia, serif;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.glosario-info:hover,
+.glosario-info:focus {
+    opacity: 1;
+    transform: scale(1.25);
+    background: #3498db;
+    border-color: #3498db;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3);
+    outline: none;
+}
+
+/* Al pasar el mouse por un término con definición, el icono se resalta */
+[data-glosario]:hover > .glosario-info {
+    opacity: 1;
+    animation: glosario-pulso 1s ease-in-out infinite;
+}
+
+@keyframes glosario-pulso {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.6); }
+    50% { box-shadow: 0 0 0 5px rgba(52, 152, 219, 0); }
+}

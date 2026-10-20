@@ -11,6 +11,12 @@ $GLOSARIO_DEFINICIONES = array(
     57 => 'Es un medio donde se ponen datos o información de una iglesia local que ha iniciado el proceso de plantación con la fundación; este se registra en el sistema de gestión.',
 );
 
+$GLOSARIO_TERMINOS = array(
+    23 => 'Nuevo reporte',
+    44 => 'IPG (Iglesia pequeña o grupo)',
+    57 => 'Crear un grupo IPG',
+);
+
 /**
  * Devuelve la definición $n escapada para HTML ('' si no existe).
  */
@@ -28,6 +34,18 @@ function glosario($n)
 function glosario_attr($n)
 {
     return 'data-glosario="' . (int)$n . '" data-glosario-texto="' . glosario($n) . '"';
+}
+
+/**
+ * Icono de información (i): tooltip al pasar el mouse y modal al dar click.
+ * Uso: <?= glosario_icono(44) ?> junto al texto que tiene definición.
+ */
+function glosario_icono($n)
+{
+    global $GLOSARIO_TERMINOS;
+    $n = (int)$n;
+    $titulo = isset($GLOSARIO_TERMINOS[$n]) ? htmlspecialchars($GLOSARIO_TERMINOS[$n], ENT_QUOTES, 'UTF-8') : '';
+    return '<span class="glosario-info" ' . glosario_attr($n) . ' data-glosario-titulo="' . $titulo . '" data-glosario-modal tabindex="0" role="button" aria-label="Ver definición">i</span>';
 }
 
 /**

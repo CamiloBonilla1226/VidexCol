@@ -80,7 +80,7 @@
         if (!texto) return;
         ocultar();
         crearModal();
-        overlay.querySelector('h4').textContent = el.textContent.trim();
+        overlay.querySelector('h4').textContent = el.getAttribute('data-glosario-titulo') || el.textContent.trim();
         overlay.querySelector('p').textContent = texto;
         overlay.classList.add('visible');
         overlay.querySelector('.glosario-modal-close').focus();
@@ -90,10 +90,15 @@
         if (overlay) overlay.classList.remove('visible');
     }
 
+    // En captura, para que el click en el icono no active el botón que lo contiene
     document.addEventListener('click', function (e) {
         var el = e.target.closest ? e.target.closest('[data-glosario-modal]') : null;
-        if (el) abrirModal(el);
-    });
+        if (el) {
+            e.preventDefault();
+            e.stopPropagation();
+            abrirModal(el);
+        }
+    }, true);
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') cerrarModal();
         var el = e.target.closest ? e.target.closest('[data-glosario-modal]') : null;
