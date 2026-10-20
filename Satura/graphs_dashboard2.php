@@ -831,6 +831,26 @@ function glosClick(chart, resolver){
   });
 }
 
+// Dibuja la gráfica con tooltips del glosario; si falla, la dibuja normal (sin definiciones)
+function glosDraw(chart, data, options, makeView, resolver){
+  var plain = Object.assign({}, options, { tooltip: { textStyle: options.tooltip && options.tooltip.textStyle } });
+  var recuperada = false;
+  function sinGlosario(err){
+    if(recuperada) return;
+    recuperada = true;
+    if(window.console) console.error('Glosario en gráfica:', err && (err.message || err));
+    chart.draw(data, plain);
+  }
+  google.visualization.events.addListener(chart, 'error', sinGlosario);
+  try {
+    var view = makeView();
+    glosClick(chart, resolver);
+    chart.draw(view, options);
+  } catch(err){
+    sinGlosario(err);
+  }
+}
+
 google.charts.load("current", {packages:["corechart","bar"]});
 google.charts.setOnLoadCallback(drawAllCharts);
 
@@ -866,11 +886,10 @@ function baseAxisStyle(){
 }
 
 function drawAllCharts(){
-  drawEvolucion();
-  drawEmbudo();
-  drawActividad();
-  drawFrutos();
-  drawMulti();
+  // Cada gráfica se dibuja por separado: si una falla, las demás se siguen mostrando
+  [drawEvolucion, drawEmbudo, drawActividad, drawFrutos, drawMulti].forEach(function(f){
+    try { f(); } catch(err){ if(window.console) console.error(f.name + ':', err); }
+  });
 }
 
 /* ===== #1 Evolución de Asistencia (LineChart) ===== */
@@ -940,16 +959,18 @@ function drawEmbudo(){
   };
 
   var embudoGlos = {'Bautizados': 60, 'Discipulado': 13};
+  function makeView(){
   var view = new google.visualization.DataView(data);
   view.setColumns([0, 1,
     { calc: function(dt, row){ var et = dt.getValue(row, 0); return glosTip(et, dt.getValue(row, 1), embudoGlos[et]); },
       type: "string", role: "tooltip", properties: { html: true } },
     2, 3
   ]);
+  return view;
+  }
 
   var chart = new google.visualization.BarChart(document.getElementById('chart_embudo'));
-  glosClick(chart, function(sel){ return embudoGlos[data.getValue(sel.row, 0)]; });
-  chart.draw(view, options);
+  glosDraw(chart, data, options, makeView, function(sel){ return embudoGlos[data.getValue(sel.row, 0)]; });
   <?php endif; ?>
 }
 
@@ -991,16 +1012,18 @@ function drawActividad(){
     tooltip: { isHtml: true, textStyle: baseTextStyle(12) }
   };
 
+  function makeView(){
   var view = new google.visualization.DataView(dtAct);
   view.setColumns([0, 1,
     { calc: function(dt, row){ return glosTip(dt.getValue(row, 0), dt.getValue(row, 1), GLOS_ACTIVIDAD[row]); },
       type: "string", role: "tooltip", properties: { html: true } },
     2, 3
   ]);
+  return view;
+  }
 
   var chart = new google.visualization.ColumnChart(document.getElementById('chart_actividad'));
-  glosClick(chart, function(sel){ return GLOS_ACTIVIDAD[sel.row]; });
-  chart.draw(view, options);
+  glosDraw(chart, dtAct, options, makeView, function(sel){ return GLOS_ACTIVIDAD[sel.row]; });
   <?php endif; ?>
 }
 
@@ -1038,16 +1061,18 @@ function drawFrutos(){
     return { calc: function(dt, row){ return glosTip(dt.getValue(row, 0) + ' - ' + serie, dt.getValue(row, col), n); },
              type: "string", role: "tooltip", properties: { html: true } };
   }
+  function makeView(){
   var view = new google.visualization.DataView(data);
   view.setColumns([0,
     1, frutosTip(1, 'Bautizados', 60),
     2, frutosTip(2, 'Decisiones', null),
     3, frutosTip(3, 'Discipulado', 13)
   ]);
+  return view;
+  }
 
   var chart = new google.visualization.ColumnChart(document.getElementById('chart_frutos'));
-  glosClick(chart, function(sel){ return frutosGlos[sel.column]; });
-  chart.draw(view, options);
+  glosDraw(chart, data, options, makeView, function(sel){ return frutosGlos[sel.column]; });
   <?php endif; ?>
 }
 
@@ -1081,16 +1106,18 @@ function drawMulti(){
     tooltip: { isHtml: true, textStyle: baseTextStyle(12) }
   };
 
+  function makeView(){
   var view = new google.visualization.DataView(data);
   view.setColumns([0, 1,
     { calc: function(dt, row){ var g = dt.getValue(row, 0); return glosTip(g, dt.getValue(row, 1) + ' grupos', glosGen(g)); },
       type: "string", role: "tooltip", properties: { html: true } },
     2, 3
   ]);
+  return view;
+  }
 
   var chart = new google.visualization.ColumnChart(document.getElementById('chart_multi'));
-  glosClick(chart, function(sel){ return glosGen(data.getValue(sel.row, 0)); });
-  chart.draw(view, options);
+  glosDraw(chart, data, options, makeView, function(sel){ return glosGen(data.getValue(sel.row, 0)); });
   <?php endif; ?>
 }
 
