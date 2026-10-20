@@ -1178,7 +1178,7 @@ function drawProceso(){
   var procesoGlos = {0: 60, 1: 13};
   view.setColumns([0, 1,
     { calc: function(dt, row){ return glosTip(dt.getValue(row, 0), dt.getValue(row, 1), procesoGlos[row]); },
-      type: "string", role: "tooltip", p: { html: true } },
+      type: "string", role: "tooltip", properties: { html: true } },
     { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" },
     2
   ]);
@@ -1255,11 +1255,11 @@ function drawG5(){
     0,
     1,
     { calc: function(dt, row){ return glosTip(dt.getValue(row, 0) + ' (Meta)', dt.getValue(row, 1), metasGlos[row]); },
-      type: "string", role: "tooltip", p: { html: true } },
+      type: "string", role: "tooltip", properties: { html: true } },
     { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" },
     2,
     { calc: function(dt, row){ return glosTip(dt.getValue(row, 0) + ' (Actual)', dt.getValue(row, 2), metasGlos[row]); },
-      type: "string", role: "tooltip", p: { html: true } },
+      type: "string", role: "tooltip", properties: { html: true } },
     { calc: "stringify", sourceColumn: 2, type: "string", role: "annotation" }
   ]);
 
