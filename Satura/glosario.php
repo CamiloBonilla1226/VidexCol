@@ -6,7 +6,6 @@
  */
 
 $GLOSARIO_DEFINICIONES = array(
-    3 => 'Es un proceso natural e intencional que sigue una iglesia de pequeño grupo.',
     23 => 'Es la nueva información de un grupo existente que se encuentra registrado dentro del sistema de gestión y en el cual se le hace seguimiento de diferentes actividades: coaching, celebraciones, bautismos, etc.',
     44 => 'Es un grupo de creyentes maduros que no solo crece en números para ellos mismos, sino que tiene la capacidad de multiplicarse en otros grupos, en diferentes espacios, territorios, culturas y lenguas.',
     57 => 'Es un medio donde se ponen datos o información de una iglesia local que ha iniciado el proceso de plantación con la fundación; este se registra en el sistema de gestión.',
@@ -28,7 +27,6 @@ $GLOSARIO_DEFINICIONES = array(
 );
 
 $GLOSARIO_TERMINOS = array(
-    3 => 'Ciclo generacional',
     23 => 'Nuevo reporte',
     44 => 'IPG (Iglesia pequeña o grupo)',
     57 => 'Crear un grupo IPG',
