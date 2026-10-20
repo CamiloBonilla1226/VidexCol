@@ -67,11 +67,13 @@
         overlay = document.createElement('div');
         overlay.className = 'glosario-modal-overlay';
         overlay.innerHTML = '<div class="glosario-modal" role="dialog" aria-modal="true" aria-labelledby="glosarioModalTitulo">' +
-            '<button type="button" class="glosario-modal-close" aria-label="Cerrar">&#10005;</button>' +
-            '<h4 id="glosarioModalTitulo"></h4><p></p></div>';
+            '<div class="glosario-modal-header"><span class="glosario-modal-icono">i</span><h4 id="glosarioModalTitulo"></h4>' +
+            '<button type="button" class="glosario-modal-close" aria-label="Cerrar">&#10005;</button></div>' +
+            '<div class="glosario-modal-body"><p></p></div>' +
+            '<div class="glosario-modal-footer"><button type="button" class="glosario-modal-ok">Entendido</button></div></div>';
         document.body.appendChild(overlay);
         overlay.addEventListener('click', function (e) {
-            if (e.target === overlay || e.target.className === 'glosario-modal-close') cerrarModal();
+            if (e.target === overlay || e.target.className === 'glosario-modal-close' || e.target.className === 'glosario-modal-ok') cerrarModal();
         });
     }
 
@@ -83,7 +85,7 @@
         overlay.querySelector('h4').textContent = el.getAttribute('data-glosario-titulo') || el.textContent.trim();
         overlay.querySelector('p').textContent = texto;
         overlay.classList.add('visible');
-        overlay.querySelector('.glosario-modal-close').focus();
+        overlay.querySelector('.glosario-modal-ok').focus();
     }
 
     function cerrarModal() {

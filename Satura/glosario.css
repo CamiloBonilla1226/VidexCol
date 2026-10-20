@@ -6,12 +6,12 @@
 .glosario-tooltip {
     position: absolute;
     z-index: 100000;
-    max-width: 520px;
+    max-width: 440px;
     padding: 20px 24px;
     background: #2c3e50;
     color: #fff;
-    font-size: 24px;
-    line-height: 1.6;
+    font-size: 18px;
+    line-height: 1.55;
     font-weight: normal;
     text-align: left;
     border-radius: 10px;
@@ -34,7 +34,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(20, 30, 45, 0.55);
     z-index: 100001;
     display: none;
     align-items: center;
@@ -43,42 +43,112 @@
 
 .glosario-modal-overlay.visible {
     display: flex;
+    animation: glosario-fade 0.2s ease;
 }
 
 .glosario-modal {
     background: #fff;
-    color: #333;
+    color: #34495e;
     width: 90%;
-    max-width: 760px;
+    max-width: 560px;
     max-height: 90vh;
     overflow-y: auto;
-    padding: 40px 44px;
-    border-radius: 12px;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
     position: relative;
+    animation: glosario-subir 0.25s ease;
+}
+
+.glosario-modal-header {
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    color: #fff;
+    padding: 20px 56px 20px 24px;
+    border-radius: 14px 14px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.glosario-modal-icono {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    line-height: 30px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    text-align: center;
+    font: italic bold 20px Georgia, serif;
 }
 
 .glosario-modal h4 {
-    margin: 0 36px 16px 0;
-    font-size: 38px;
-    color: #2c3e50;
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.25;
+    color: #fff;
+}
+
+.glosario-modal-body {
+    padding: 24px 28px 8px;
 }
 
 .glosario-modal p {
     margin: 0;
-    font-size: 30px;
-    line-height: 1.6;
+    font-size: 20px;
+    line-height: 1.65;
+}
+
+.glosario-modal-footer {
+    padding: 16px 28px 24px;
+    text-align: right;
+}
+
+.glosario-modal-ok {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.glosario-modal-ok:hover,
+.glosario-modal-ok:focus {
+    background: #2176ad;
+    outline: none;
 }
 
 .glosario-modal-close {
     position: absolute;
-    top: 12px;
+    top: 14px;
     right: 16px;
-    background: none;
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.2);
     border: none;
-    font-size: 34px;
+    border-radius: 50%;
+    font-size: 18px;
     cursor: pointer;
-    color: #666;
+    color: #fff;
+    transition: background 0.15s ease;
+}
+
+.glosario-modal-close:hover,
+.glosario-modal-close:focus {
+    background: rgba(255, 255, 255, 0.4);
+    outline: none;
+}
+
+@keyframes glosario-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes glosario-subir {
+    from { transform: translateY(16px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 /* Icono de información (i) junto a los términos con definición */
