@@ -1,0 +1,78 @@
+/* Tooltips del glosario de Satura APP */
+[data-glosario] {
+    cursor: help;
+}
+
+.glosario-tooltip {
+    position: absolute;
+    z-index: 100000;
+    max-width: 320px;
+    padding: 10px 12px;
+    background: #2c3e50;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: normal;
+    text-align: left;
+    border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease;
+}
+
+.glosario-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal de definición */
+.glosario-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.glosario-modal-overlay.visible {
+    display: flex;
+}
+
+.glosario-modal {
+    background: #fff;
+    color: #333;
+    width: 90%;
+    max-width: 420px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    position: relative;
+}
+
+.glosario-modal h4 {
+    margin: 0 30px 10px 0;
+    color: #2c3e50;
+}
+
+.glosario-modal p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.glosario-modal-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #666;
+}
