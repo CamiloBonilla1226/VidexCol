@@ -77,16 +77,22 @@
         });
     }
 
-    function abrirModal(el) {
-        var texto = el.getAttribute('data-glosario-texto');
+    function abrirModalTexto(titulo, texto) {
         if (!texto) return;
         ocultar();
         crearModal();
-        overlay.querySelector('h4').textContent = el.getAttribute('data-glosario-titulo') || el.textContent.trim();
+        overlay.querySelector('h4').textContent = titulo;
         overlay.querySelector('p').textContent = texto;
         overlay.classList.add('visible');
         overlay.querySelector('.glosario-modal-ok').focus();
     }
+
+    function abrirModal(el) {
+        abrirModalTexto(el.getAttribute('data-glosario-titulo') || el.textContent.trim(), el.getAttribute('data-glosario-texto'));
+    }
+
+    // Para usar desde el código (por ejemplo, gráficas): Glosario.modal(titulo, texto)
+    window.Glosario = { modal: abrirModalTexto };
 
     function cerrarModal() {
         if (overlay) overlay.classList.remove('visible');

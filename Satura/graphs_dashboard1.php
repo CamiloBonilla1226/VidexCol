@@ -983,7 +983,40 @@ if($varErrorG5 != 1){
 })();
 </script>
 
+<?php
+require_once __DIR__ . '/glosario.php';
+glosario_assets();
+?>
 <script type="text/javascript">
+/* ===== Glosario en las gráficas ===== */
+var GLOS = <?= glosario_datos(array(1, 9, 13, 27, 29, 31, 43, 45, 60)); ?>;
+
+function glosEsc(t){
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Tooltip HTML: dato + definición del glosario (si la tiene)
+function glosTip(titulo, valor, n){
+  var h = '<div class="glosario-gtip"><strong>' + glosEsc(titulo) + ': ' + valor + '</strong>';
+  if(n && GLOS[n]){
+    h += '<p>' + glosEsc(GLOS[n].d) + '</p><em>Click para ampliar la definición</em>';
+  }
+  return h + '</div>';
+}
+
+// Click en una barra: abre el modal del glosario. map = {fila: numero de definición}
+function glosClick(chart, map){
+  google.visualization.events.addListener(chart, 'select', function(){
+    var sel = chart.getSelection();
+    if(!sel.length || sel[0].row == null) return;
+    var n = map[sel[0].row];
+    if(n && GLOS[n]){
+      window.Glosario.modal(GLOS[n].t, GLOS[n].d);
+      chart.setSelection([]);
+    }
+  });
+}
+
 google.charts.load("current", {packages:["corechart","treemap","sankey"]});
 google.charts.setOnLoadCallback(drawAllCharts);
 
@@ -1083,6 +1116,14 @@ function drawSankey(){
   };
 
   var chart = new google.visualization.Sankey(el);
+  var genGlos = {0: 9, 1: 1, 2: 45, 3: 29, 4: 31, 5: 27};
+  google.visualization.events.addListener(chart, 'select', function(){
+    var sel = chart.getSelection();
+    if(!sel.length || !sel[0].name) return;
+    var m = /^G(?:EN)?\s?(\d)$/.exec(sel[0].name);
+    var n = m ? genGlos[parseInt(m[1], 10)] : null;
+    if(n && GLOS[n]) window.Glosario.modal(GLOS[n].t, GLOS[n].d);
+  });
   chart.draw(data, options);
 
   el.style.height = cfg.height + "px";
@@ -1134,18 +1175,23 @@ function drawProceso(){
   ]);
 
   var view = new google.visualization.DataView(data);
+  var procesoGlos = {0: 60, 1: 13};
   view.setColumns([0, 1,
+    { calc: function(dt, row){ return glosTip(dt.getValue(row, 0), dt.getValue(row, 1), procesoGlos[row]); },
+      type: "string", role: "tooltip", p: { html: true } },
     { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" },
     2
   ]);
 
   var options = {
+    tooltip: { isHtml: true },
     chartArea: { width: '78%', height: '75%' },
     bar: { groupWidth: "80%" },
     legend: { position: 'none' }
   };
 
   var chart = new google.visualization.BarChart(document.getElementById('chart_proceso'));
+  glosClick(chart, procesoGlos);
   chart.draw(view, options);
   <?php } ?>
 }
@@ -1204,15 +1250,21 @@ function drawG5(){
   ]);
 
   var view = new google.visualization.DataView(data);
+  var metasGlos = {0: 43, 1: 13, 2: 60, 3: 1, 4: 45, 5: 29};
   view.setColumns([
     0,
     1,
+    { calc: function(dt, row){ return glosTip(dt.getValue(row, 0) + ' (Meta)', dt.getValue(row, 1), metasGlos[row]); },
+      type: "string", role: "tooltip", p: { html: true } },
     { calc: "stringify", sourceColumn: 1, type: "string", role: "annotation" },
     2,
+    { calc: function(dt, row){ return glosTip(dt.getValue(row, 0) + ' (Actual)', dt.getValue(row, 2), metasGlos[row]); },
+      type: "string", role: "tooltip", p: { html: true } },
     { calc: "stringify", sourceColumn: 2, type: "string", role: "annotation" }
   ]);
 
   var options = {
+    tooltip: { isHtml: true },
     chartArea: isMobile ? { width: '88%', height: '78%' } : { width: '72%', height: '82%' },
     bar: { groupWidth: isMobile ? "80%" : "92%" },
     legend: { position: 'none' },
@@ -1224,6 +1276,7 @@ function drawG5(){
   };
 
   var chart = new google.visualization.BarChart(el);
+  glosClick(chart, metasGlos);
   chart.draw(view, options);
 
   <?php } ?>

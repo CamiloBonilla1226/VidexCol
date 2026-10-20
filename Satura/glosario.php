@@ -92,6 +92,25 @@ function glosario_click($n)
 }
 
 /**
+ * Datos del glosario en JSON para usar en JavaScript: {"43": {"t": titulo, "d": definicion}, ...}
+ */
+function glosario_datos($numeros)
+{
+    global $GLOSARIO_DEFINICIONES, $GLOSARIO_TERMINOS;
+    $datos = array();
+    foreach ($numeros as $n) {
+        $n = (int)$n;
+        if (isset($GLOSARIO_DEFINICIONES[$n])) {
+            $datos[$n] = array(
+                't' => isset($GLOSARIO_TERMINOS[$n]) ? $GLOSARIO_TERMINOS[$n] : '',
+                'd' => $GLOSARIO_DEFINICIONES[$n],
+            );
+        }
+    }
+    return json_encode($datos, JSON_HEX_TAG | JSON_HEX_AMP);
+}
+
+/**
  * Imprime una sola vez los archivos CSS y JS del tooltip.
  */
 function glosario_assets()
