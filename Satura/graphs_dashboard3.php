@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/glosario.php';
+// Definición del glosario por generación: Generación => número de definición
+$genGlosario = array(0 => 9, 1 => 1, 2 => 45, 3 => 29, 4 => 31, 5 => 27);
 /*******************************************
 DASHBOARD 3 - 3 VISUALES (REDISEÑO)
 Archivo: graphs_dashboard3.php
@@ -858,7 +861,11 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
               <summary class="genealogia-gen-title">
                 <span class="genealogia-gen-title__toggle" aria-hidden="true"></span>
                 <span class="genealogia-gen-title__dot" style="background:<?=$colorGen;?>"></span>
-                Generación <?=$gen;?>
+                <?php if(isset($genGlosario[$gen])){ ?>
+                  <span <?= glosario_attr($genGlosario[$gen]) ?>>Generación <?=$gen;?></span><?= glosario_icono($genGlosario[$gen]) ?>
+                <?php } else { ?>
+                  Generación <?=$gen;?>
+                <?php } ?>
                 <span class="genealogia-gen-title__count">(<?=count($listaGen);?>)</span>
               </summary>
               <div class="genealogia-gen-section__body">
@@ -900,7 +907,69 @@ details[open] > .genealogia-gen-title .genealogia-gen-title__toggle::before{
   </div>
 </div>
 
+<?php glosario_assets(); ?>
 <script type="text/javascript">
+/* ===== Glosario en las gráficas ===== */
+var GLOS = <?= glosario_datos(array(26, 8, 43, 35, 18, 41)); ?>;
+// Área de madurez => número de definición del glosario
+var MADUREZ_GLOS = {
+  'Compañerismo': 26,
+  'Adoración': 8,
+  'Evangelizar': 43,
+  'Cena del Señor': 35,
+  'Bautizar': 18,
+  'Entrenar líderes': 41
+};
+
+function glosEsc(t){
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Tooltip HTML: dato + definición del glosario (si la tiene)
+function glosTip(titulo, valor, n){
+  var h = '<div class="glosario-gtip"><strong>' + glosEsc(titulo) + ': ' + valor + '</strong>';
+  if(n && GLOS[n]){
+    h += '<p>' + glosEsc(GLOS[n].d) + '</p><em>Click para ampliar la definición</em>';
+  }
+  return h + '</div>';
+}
+
+// Click en una barra: abre el modal del glosario. resolver(sel) devuelve el número de definición
+function glosClick(chart, resolver){
+  google.visualization.events.addListener(chart, 'select', function(){
+    var sel = chart.getSelection();
+    if(!sel.length || sel[0].row == null) return;
+    var n = resolver(sel[0]);
+    if(n && GLOS[n]){
+      window.Glosario.modal(GLOS[n].t, GLOS[n].d);
+      chart.setSelection([]);
+    }
+  });
+}
+
+// Dibuja la gráfica con tooltips del glosario; si falla, la dibuja normal (sin definiciones)
+function glosDraw(chart, data, options, makeView, resolver){
+  var plain = Object.assign({}, options);
+  delete plain.tooltip;
+  var conGlosario = Object.assign({}, options, { tooltip: { isHtml: true } });
+  delete conGlosario.animation; // la animación de inicio no se lleva bien con tooltips HTML
+  var recuperada = false;
+  function sinGlosario(err){
+    if(recuperada) return;
+    recuperada = true;
+    if(window.console) console.error('Glosario en gráfica:', err && (err.message || err));
+    chart.draw(data, plain);
+  }
+  google.visualization.events.addListener(chart, 'error', sinGlosario);
+  try {
+    var view = makeView();
+    glosClick(chart, resolver);
+    chart.draw(view, conGlosario);
+  } catch(err){
+    sinGlosario(err);
+  }
+}
+
 google.charts.load("current", {packages:["corechart"]});
 google.charts.setOnLoadCallback(drawAllCharts);
 
@@ -930,8 +999,10 @@ google.charts.setOnLoadCallback(drawAllCharts);
 })();
 
 function drawAllCharts(){
-  drawMadurez();
-  drawCrecimiento();
+  // Cada gráfica se dibuja por separado: si una falla, la otra se sigue mostrando
+  [drawMadurez, drawCrecimiento].forEach(function(f){
+    try { f(); } catch(err){ if(window.console) console.error(f.name + ':', err); }
+  });
 }
 
 /* ===== Búsqueda aproximada de tarjetas (sin acentos, tolera errores) ===== */
@@ -1171,7 +1242,18 @@ function drawMadurez(){
     annotations: { textStyle: { fontSize: isMobile ? 10 : 12 } }
   };
 
-  new google.visualization.ColumnChart(el).draw(data, options);
+  function makeView(){
+    var view = new google.visualization.DataView(data);
+    view.setColumns([0, 1,
+      { calc: function(dt, row){ var area = dt.getValue(row, 0); return glosTip(area, dt.getValue(row, 1).toFixed(2) + ' / 4', MADUREZ_GLOS[area]); },
+        type: "string", role: "tooltip", properties: { html: true } },
+      2
+    ]);
+    return view;
+  }
+
+  var chart = new google.visualization.ColumnChart(el);
+  glosDraw(chart, data, options, makeView, function(sel){ return MADUREZ_GLOS[data.getValue(sel.row, 0)]; });
   <?php } ?>
 }
 
