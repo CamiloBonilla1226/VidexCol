@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/glosario.php';
 /*******************************************
 
 ORGANIZACIÓN VISUAL:
@@ -830,10 +831,10 @@ if($varErrorG5 != 1){
   <div class="col-lg-12 col-md-12 col-sm-12">
     <div class="db-card">
       <div class="db-card__head">
-        <h4 class="db-card__title"><?=$nombreSankey;?></h4>
+        <h4 class="db-card__title" <?= glosario_click(3) ?>><?=$nombreSankey;?></h4>
         <div class="db-card__meta">
           <span class="db-pill">Total: <?=$totalSankey;?></span>
-          <button class="db-info-btn" onclick="dbOpenInfo('sankey')" title="Ver descripción">i</button>
+          <button class="db-info-btn" onclick="dbOpenInfo('sankey')" <?= glosario_attr(3) ?>>i</button>
         </div>
       </div>
       <div class="db-card__body">
@@ -909,6 +910,10 @@ if($varErrorG5 != 1){
   </div>
 </div>
 
+<?php
+require_once __DIR__ . '/glosario.php';
+glosario_assets();
+?>
 <script type="text/javascript">
 /* ===== Sistema de Info ===== */
 (function(){
@@ -932,6 +937,7 @@ if($varErrorG5 != 1){
     'sankey': {
       title: '🔄 Flujo por Generación',
       html: '<ul>'
+          + '<li><strong>🔄 Ciclo generacional:</strong> ' + <?= json_encode(glosario(3)); ?> + '</li>'
           + '<li><strong>📈 Flujo generacional:</strong> Esta gráfica muestra cómo los grupos han avanzado y se han multiplicado de una generación a otra, permitiendo visualizar el crecimiento y desarrollo del proceso.</li>'
           + '</ul>'
     },
