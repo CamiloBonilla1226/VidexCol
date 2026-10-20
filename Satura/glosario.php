@@ -9,12 +9,24 @@ $GLOSARIO_DEFINICIONES = array(
     23 => 'Es la nueva información de un grupo existente que se encuentra registrado dentro del sistema de gestión y en el cual se le hace seguimiento de diferentes actividades: coaching, celebraciones, bautismos, etc.',
     44 => 'Es un grupo de creyentes maduros que no solo crece en números para ellos mismos, sino que tiene la capacidad de multiplicarse en otros grupos, en diferentes espacios, territorios, culturas y lenguas.',
     57 => 'Es un medio donde se ponen datos o información de una iglesia local que ha iniciado el proceso de plantación con la fundación; este se registra en el sistema de gestión.',
+    7 => 'Herramienta clara y estratégica para llegar a un objetivo.',
+    12 => 'Es una persona que escucha, comprende y responde al evangelio de manera positiva. Es la persona con la cual se inicia un IPG.',
+    43 => 'Función de la iglesia saludable. Consiste en predicar la Palabra y así encontrar personas, hijos de paz.',
+    49 => 'Es un encuentro especial en el que se reúnen las iglesias de pequeños grupos para celebrar lo que Dios está haciendo en las vidas de las personas. Se sugiere compartir alimentos en la celebración.',
+    51 => 'Actividad pedagógica que se realiza para capacitar un grupo a través de la interactividad de los participantes y los facilitadores, siguiendo las 4 tareas de aprendizaje. Esta estrategia es usada en Satura Colombia para todos los procesos.',
+    60 => 'Es una de las 9 funciones de la iglesia saludable; es el resultado final de discipular e inicio a la apertura de un IPG, y también es un mandato del Señor.',
 );
 
 $GLOSARIO_TERMINOS = array(
     23 => 'Nuevo reporte',
     44 => 'IPG (Iglesia pequeña o grupo)',
     57 => 'Crear un grupo IPG',
+    7 => 'Coaching',
+    12 => 'Persona de paz',
+    43 => 'Función de evangelismo',
+    49 => 'Gran celebración',
+    51 => 'Taller',
+    60 => 'Bautismo',
 );
 
 /**

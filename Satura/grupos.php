@@ -940,6 +940,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
     }
 
     .activity-button {
+        position: relative;
         padding: 15px;
         border: 2px solid #e0e0e0;
         border-radius: 8px;
@@ -985,6 +986,21 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
     .activity-button span {
         font-size: 13px;
         color: #666;
+    }
+
+    /* Icono de información al final y a la derecha de la tarjeta */
+    .activity-button .glosario-info {
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        margin: 0;
+        font-size: 12px;
+        color: #8e44ad;
+    }
+
+    .activity-button .glosario-info:hover,
+    .activity-button .glosario-info:focus {
+        color: #fff;
     }
 
     /* Estilos para formulario de nuevo reporte */
@@ -1434,35 +1450,41 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
             <p style="color: #666; margin-bottom: 20px;">Selecciona el tipo de actividad a reportar:</p>
 
             <div class="activity-options">
-                <button type="button" class="activity-button evangelismo" onclick="selectActivity('evangelismo')">
+                <button type="button" class="activity-button evangelismo" onclick="selectActivity('evangelismo')" <?= glosario_attr(43) ?>>
                     <strong>🌍 Evangelismo</strong>
                     <span>Actividad de evangelización realizada</span>
+                    <?= glosario_icono(43) ?>
                 </button>
 
                 <button type="button" class="activity-button gran-celebracion"
-                    onclick="selectActivity('gran_celebracion')">
+                    onclick="selectActivity('gran_celebracion')" <?= glosario_attr(49) ?>>
                     <strong>🎉 Gran Celebración</strong>
                     <span>Evento especial de celebración</span>
+                    <?= glosario_icono(49) ?>
                 </button>
 
-                <button type="button" class="activity-button bautizo" onclick="selectActivity('bautizo')">
+                <button type="button" class="activity-button bautizo" onclick="selectActivity('bautizo')" <?= glosario_attr(60) ?>>
                     <strong>💧 Bautizo</strong>
                     <span>Actividad de bautismo con evidencia fotográfica</span>
+                    <?= glosario_icono(60) ?>
                 </button>
 
-                <button type="button" class="activity-button reunion" onclick="selectActivity('reunion_cotidiana')">
+                <button type="button" class="activity-button reunion" onclick="selectActivity('reunion_cotidiana')" <?= glosario_attr(7) ?>>
                     <strong>🤝 Coach</strong>
                     <span>Reunión regular del grupo</span>
+                    <?= glosario_icono(7) ?>
                 </button>
 
-                <button type="button" class="activity-button otra" onclick="selectActivity('identificar_hijo_paz')">
+                <button type="button" class="activity-button otra" onclick="selectActivity('identificar_hijo_paz')" <?= glosario_attr(12) ?>>
                     <strong>🕊️ Identificar al Hijo de Paz</strong>
                     <span>Actividad para identificar al hijo de paz</span>
+                    <?= glosario_icono(12) ?>
                 </button>
 
-                <button type="button" class="activity-button otra" onclick="selectActivity('taller')">
+                <button type="button" class="activity-button otra" onclick="selectActivity('taller')" <?= glosario_attr(51) ?>>
                     <strong>🛠️ Taller</strong>
                     <span>Taller de capacitación</span>
+                    <?= glosario_icono(51) ?>
                 </button>
 
                 <button type="button" class="activity-button otra" onclick="selectActivity('hope')">
