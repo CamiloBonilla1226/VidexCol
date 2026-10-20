@@ -59,4 +59,48 @@
         if (e.key === 'Escape') ocultar();
     });
     window.addEventListener('scroll', ocultar, true);
+    // Modal de definición: elementos con data-glosario-modal abren la definición al dar click
+    var overlay = null;
+
+    function crearModal() {
+        if (overlay) return;
+        overlay = document.createElement('div');
+        overlay.className = 'glosario-modal-overlay';
+        overlay.innerHTML = '<div class="glosario-modal" role="dialog" aria-modal="true" aria-labelledby="glosarioModalTitulo">' +
+            '<button type="button" class="glosario-modal-close" aria-label="Cerrar">&#10005;</button>' +
+            '<h4 id="glosarioModalTitulo"></h4><p></p></div>';
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay || e.target.className === 'glosario-modal-close') cerrarModal();
+        });
+    }
+
+    function abrirModal(el) {
+        var texto = el.getAttribute('data-glosario-texto');
+        if (!texto) return;
+        ocultar();
+        crearModal();
+        overlay.querySelector('h4').textContent = el.textContent.trim();
+        overlay.querySelector('p').textContent = texto;
+        overlay.classList.add('visible');
+        overlay.querySelector('.glosario-modal-close').focus();
+    }
+
+    function cerrarModal() {
+        if (overlay) overlay.classList.remove('visible');
+    }
+
+    document.addEventListener('click', function (e) {
+        var el = e.target.closest ? e.target.closest('[data-glosario-modal]') : null;
+        if (el) abrirModal(el);
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') cerrarModal();
+        var el = e.target.closest ? e.target.closest('[data-glosario-modal]') : null;
+        if (el && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            abrirModal(el);
+        }
+    });
+
 })();
