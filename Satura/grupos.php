@@ -11,6 +11,9 @@ if (!isset($_SESSION['id'])) {
     exit();
 }
 
+require_once __DIR__ . '/includes/glosario.php';
+glosario_assets();
+
 $idFacilitador = $_SESSION['id'];
 $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 ?>
@@ -1105,10 +1108,10 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
     <div class="header">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
             <div>
-                <h1>📊 IPG </h1>
+                <h1>📊 <span <?= glosario_attr(44) ?>>IPG</span> </h1>
                 <p>Visualiza y gestiona todos tus grupos con sus datos actuales.</p>
             </div>
-            <button class="btn btn-primary" onclick="openCreateGroupModal()" title="Crear un nuevo grupo"
+            <button class="btn btn-primary" onclick="openCreateGroupModal()" <?= glosario_attr(57) ?>
                 style="white-space: nowrap;">
                 ➕ Crear Nuevo IPG
             </button>
@@ -1151,17 +1154,17 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         <div class="right-panel">
             <div class="right-panel-header">
                 <h3 id="groupPanelTitle">📋 Información del IPG</h3>
-                <button class="btn-new-report" onclick="newReport()" id="btnNewReport">
+                <button class="btn-new-report" onclick="newReport()" id="btnNewReport" <?= glosario_attr(23) ?>>
                     + Nuevo
                 </button>
             </div>
 
             <!-- Tabs -->
             <div class="tabs-container">
-                <button class="tab-button active" onclick="switchTab('info')">
+                <button class="tab-button active" onclick="switchTab('info')" <?= glosario_attr(44) ?>>
                     ℹ️ Información General
                 </button>
-                <button class="tab-button" onclick="switchTab('reports')">
+                <button class="tab-button" onclick="switchTab('reports')" <?= glosario_attr(23) ?>>
                     📄 Reportes
                 </button>
             </div>
