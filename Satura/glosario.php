@@ -58,6 +58,6 @@ function glosario_assets()
         return;
     }
     $impreso = true;
-    echo '<link rel="stylesheet" href="glosario.css">' . "\n";
-    echo '<script src="glosario.js"></script>' . "\n";
+    echo '<link rel="stylesheet" href="glosario.css?v=' . @filemtime(__DIR__ . '/glosario.css') . '">' . "\n";
+    echo '<script src="glosario.js?v=' . @filemtime(__DIR__ . '/glosario.js') . '"></script>' . "\n";
 }
