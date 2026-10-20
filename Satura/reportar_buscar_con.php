@@ -557,7 +557,7 @@ SUM(sat_reportes.preparandose) as preparandose,
                 <th>Decisiones</th>
                 <th>Preparandose</th>
                 <th <?= glosario_click(13) ?>>En Discipulado</th>
-                <th <?= glosario_click(9) ?>>Lideres capacitandose</th>
+                <th>Lideres capacitandose</th>
             </tr>
         </thead>
         <tbody>
