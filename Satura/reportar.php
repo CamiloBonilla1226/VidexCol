@@ -108,6 +108,8 @@ th {
 </style>
 
 <?php
+require_once __DIR__ . '/glosario.php';
+glosario_assets();
 
 if (!function_exists('reportar_escape_attr')) {
     function reportar_escape_attr($valor)
@@ -3097,10 +3099,10 @@ else if($preguntarGeneracion == 1 && !isset($_POST["SendOpcion"]) ){
                 <!-- <button type="button" onClick="generarForm('evan')" name="generacionEvangelismo" class="btn-mar btn btn-success">ACTIVIDADES<br><span class="btn-desc">DE EVANGELISMO</span></button> -->
                 <!-- <button type="button" onClick="generarForm('gcel')" name="granCelebracion" class="btn-mar btn btn-warning">GRAN CELEBRACIÓN<br><span class="btn-desc">(REPORTE)</span></button> -->
 
-                <button type="button" onClick="window.location.href='index.php?doc=grupos'" class="btn btn-primary btn-reporte-card">
+                <button type="button" onClick="window.location.href='index.php?doc=grupos'" class="btn btn-primary btn-reporte-card" <?= glosario_attr(44) ?>>
                     <span class="badge-nuevo">✨ NUEVO</span>
                     <span class="btn-icon">👥</span>
-                    IPG
+                    IPG<?= glosario_icono(44) ?>
                     <span class="btn-desc">Reportes de Generaciones<br>Capacitación y Gestión</span>
                 </button>
 

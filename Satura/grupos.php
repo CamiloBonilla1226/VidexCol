@@ -11,6 +11,9 @@ if (!isset($_SESSION['id'])) {
     exit();
 }
 
+require_once __DIR__ . '/glosario.php';
+glosario_assets();
+
 $idFacilitador = $_SESSION['id'];
 $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
 ?>
@@ -1105,12 +1108,12 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
     <div class="header">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
             <div>
-                <h1>📊 IPG </h1>
+                <h1>📊 <span <?= glosario_attr(44) ?> data-glosario-modal tabindex="0" role="button">IPG</span> </h1>
                 <p>Visualiza y gestiona todos tus grupos con sus datos actuales.</p>
             </div>
-            <button class="btn btn-primary" onclick="openCreateGroupModal()" title="Crear un nuevo grupo"
+            <button class="btn btn-primary" onclick="openCreateGroupModal()" <?= glosario_attr(57) ?>
                 style="white-space: nowrap;">
-                ➕ Crear Nuevo IPG
+                ➕ Crear Nuevo IPG<?= glosario_icono(57) ?>
             </button>
         </div>
         <div class="info-box">
@@ -1151,18 +1154,18 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
         <div class="right-panel">
             <div class="right-panel-header">
                 <h3 id="groupPanelTitle">📋 Información del IPG</h3>
-                <button class="btn-new-report" onclick="newReport()" id="btnNewReport">
-                    + Nuevo
+                <button class="btn-new-report" onclick="newReport()" id="btnNewReport" <?= glosario_attr(23) ?>>
+                    + Nuevo<?= glosario_icono(23) ?>
                 </button>
             </div>
 
             <!-- Tabs -->
             <div class="tabs-container">
-                <button class="tab-button active" onclick="switchTab('info')">
-                    ℹ️ Información General
+                <button class="tab-button active" onclick="switchTab('info')" <?= glosario_attr(44) ?>>
+                    ℹ️ Información General<?= glosario_icono(44) ?>
                 </button>
-                <button class="tab-button" onclick="switchTab('reports')">
-                    📄 Reportes
+                <button class="tab-button" onclick="switchTab('reports')" <?= glosario_attr(23) ?>>
+                    📄 Reportes<?= glosario_icono(23) ?>
                 </button>
             </div>
 

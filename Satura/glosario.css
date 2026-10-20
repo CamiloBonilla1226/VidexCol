@@ -1,0 +1,199 @@
+/* Tooltips del glosario de Satura APP */
+[data-glosario] {
+    cursor: help;
+}
+
+.glosario-tooltip {
+    position: absolute;
+    z-index: 100000;
+    max-width: 440px;
+    padding: 20px 24px;
+    background: #2c3e50;
+    color: #fff;
+    font-size: 18px;
+    line-height: 1.55;
+    font-weight: normal;
+    text-align: left;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease;
+}
+
+.glosario-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal de definición */
+.glosario-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(20, 30, 45, 0.55);
+    z-index: 100001;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.glosario-modal-overlay.visible {
+    display: flex;
+    animation: glosario-fade 0.2s ease;
+}
+
+.glosario-modal {
+    background: #fff;
+    color: #34495e;
+    width: 90%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+    position: relative;
+    animation: glosario-subir 0.25s ease;
+}
+
+.glosario-modal-header {
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    color: #fff;
+    padding: 20px 56px 20px 24px;
+    border-radius: 14px 14px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.glosario-modal-icono {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    line-height: 30px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    text-align: center;
+    font: italic bold 20px Georgia, serif;
+}
+
+.glosario-modal h4 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.25;
+    color: #fff;
+}
+
+.glosario-modal-body {
+    padding: 24px 28px 8px;
+}
+
+.glosario-modal p {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.65;
+}
+
+.glosario-modal-footer {
+    padding: 16px 28px 24px;
+    text-align: right;
+}
+
+.glosario-modal-ok {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 28px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.glosario-modal-ok:hover,
+.glosario-modal-ok:focus {
+    background: #2176ad;
+    outline: none;
+}
+
+.glosario-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    width: 34px;
+    height: 34px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    color: #fff;
+    transition: background 0.15s ease;
+}
+
+.glosario-modal-close:hover,
+.glosario-modal-close:focus {
+    background: rgba(255, 255, 255, 0.4);
+    outline: none;
+}
+
+@keyframes glosario-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes glosario-subir {
+    from { transform: translateY(16px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Icono de información (i) junto a los términos con definición */
+.glosario-info {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    line-height: 14px;
+    margin-left: 6px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: bold;
+    font-style: italic;
+    font-family: Georgia, serif;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    opacity: 0.75;
+    transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.glosario-info:hover,
+.glosario-info:focus {
+    opacity: 1;
+    transform: scale(1.25);
+    background: #3498db;
+    border-color: #3498db;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.3);
+    outline: none;
+}
+
+/* Al pasar el mouse por un término con definición, el icono se resalta */
+[data-glosario]:hover > .glosario-info {
+    opacity: 1;
+    animation: glosario-pulso 1s ease-in-out infinite;
+}
+
+@keyframes glosario-pulso {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.6); }
+    50% { box-shadow: 0 0 0 5px rgba(52, 152, 219, 0); }
+}
+
+/* Término que abre la definición al dar click (sin icono): conserva el estilo original */
+[data-glosario-modal]:not(.glosario-info) {
+    cursor: pointer;
+}
