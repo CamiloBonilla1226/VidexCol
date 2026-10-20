@@ -48,7 +48,7 @@ $nombreFacilitador = $_SESSION['nombre'] ?? 'Usuario';
     .header h1 {
         color: #333;
         margin-bottom: 10px;
-        font-size: 28px;
+        font-size: 36px;
     }
 
     .header p {
