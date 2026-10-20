@@ -542,21 +542,22 @@ SUM(sat_reportes.preparandose) as preparandose,
         <div class="hr"><hr></div>
     </div>
 
+    <?php require_once __DIR__ . '/glosario.php'; glosario_assets(); ?>
     <table border="0" cellspacing="0" cellpadding="2"  align="center" class="table table-bordered" style="font-size:12px">
         <thead>
             <tr> 
                 <th>Id</th>
-                <th>Facilitador</th>
+                <th <?= glosario_click(17) ?>>Facilitador</th>
                 <th>RM</th>
                 <th>Proceso</th>
                 <th>Sitio</th>
-                <th>Grupos</th>
+                <th <?= glosario_click(44) ?>>Grupos</th>
                 <th>Asistencia</th>
-                <th>Bautizados</th>
+                <th <?= glosario_click(60) ?>>Bautizados</th>
                 <th>Decisiones</th>
                 <th>Preparandose</th>
-                <th>En Discipulado</th>
-                <th>Lideres capacitandose</th>
+                <th <?= glosario_click(13) ?>>En Discipulado</th>
+                <th <?= glosario_click(9) ?>>Lideres capacitandose</th>
             </tr>
         </thead>
         <tbody>
