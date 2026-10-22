@@ -4,6 +4,26 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-10-22 — Informes Escolares: Ingreso de Notas, Notas por Curso, Asistencia, Planeación y Observaciones
+
+**Problemas y causas:**
+- **reportEntryNotes.php** y **reportGradesByCourse.php** daban error porque llamaban a `StaffGateway::queryReportEntryNotesData()` y `StudentGateway::queryGradesByCourse()`, métodos que ya no existen en el núcleo.
+- **reportAttendances.php** no daba error pero salía en ceros: comparaba el nombre del grupo con `'1ro'`, `'2do'`... exacto.
+- **reportPlanning.php** titulaba su columna "Número de Observaciones" por error. Planeación y Observaciones listan a todos los profesores activos (con 0 si no tienen registros), por diseño.
+
+**Solución:** ambos métodos se reconstruyeron en `src/InformesEscolaresGateway.php`; asistencia ahora agrupa por el número con que empieza el nombre del grupo; se corrigió el título de Planeación y se agregó una descripción a Planeación y Observaciones. Se añade `consultas_diagnostico.sql` para revisar los datos en la BD.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/src/InformesEscolaresGateway.php`
+- `modules/Informes Escolares/reportEntryNotes.php`
+- `modules/Informes Escolares/reportGradesByCourse.php`
+- `modules/Informes Escolares/reportPlanning.php`
+- `modules/Informes Escolares/reportStudentObservations.php`
+
+**Notas:** reconstrucción de mejor esfuerzo (no hay copia del código original) y sin prueba contra la BD; validar con las consultas de `consultas_diagnostico.sql`.
+
+---
+
 ## 2026-09-30 — medicalReportStudents.php: la barra horizontal vuelve a quedar siempre a la vista
 
 **Problema:** al dejar solo la tabla con scroll, el recuadro no estaba limitando la altura y la barra horizontal volvía a quedar al final de los 50 estudiantes.
