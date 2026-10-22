@@ -22,7 +22,9 @@ use Gibbon\Services\Format;
 use Gibbon\Forms\Form;
 use Gibbon\Forms\DatabaseFormFactory;
 use Gibbon\Tables\Prefab\ReportTable;
-use Gibbon\Domain\Staff\StaffGateway;
+use Modules\InformesEscolares\InformesEscolaresGateway;
+
+require_once __DIR__ . '/src/InformesEscolaresGateway.php';
 
 if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportEntryNotes.php') == false) {
     // Access denied
@@ -33,7 +35,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportE
 	$gibbonSchoolYearTermID = (isset($_GET['gibbonSchoolYearTermID']) ? $_GET['gibbonSchoolYearTermID'] : null);
 
 	// QUERY
-    $staffGateway = $container->get(StaffGateway::class);
+    $staffGateway = $container->get(InformesEscolaresGateway::class);
     $criteria = $staffGateway->newQueryCriteria(true)
         ->searchBy($staffGateway->getSearchableColumns(), $search)
         ->pageSize(!empty($viewMode) ? 0 : 50)
@@ -94,8 +96,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportE
 
 	        	$text = 'Completado';
 
-	        	if($data['total'] < 0){
-	        		$text = 'Pendiente';
+	        	if($data['columnas'] < 1){
+	        		$text = 'Pendiente (sin columnas de notas)';
+	        	} elseif($data['sinNota'] > 0){
+	        		$text = 'Pendiente ('.$data['sinNota'].' notas sin registrar)';
 	        	}
 
 	            return $text;

@@ -38,7 +38,9 @@ class InformesEscolaresGateway extends QueryableGateway
      */
     public function queryAttendanceTakeClass(QueryCriteria $criteria, $fechaInicial, $fechaFinal)
     {
-        $gradeColumns = ['1ro', '2do', '3ro', '4to', '5to', '6to', '7mo', '8vo', '9no', '10mo', '11vo'];
+        // Columna => número de grado. El grupo cuenta para una columna si su nameShort
+        // empieza por ese número (ej. "1", "1A", "1ro", "10-2"), no solo si es igual a "1ro".
+        $gradeColumns = ['1ro' => 1, '2do' => 2, '3ro' => 3, '4to' => 4, '5to' => 5, '6to' => 6, '7mo' => 7, '8vo' => 8, '9no' => 9, '10mo' => 10, '11vo' => 11];
 
         $query = $this
             ->newQuery()
@@ -55,8 +57,9 @@ class InformesEscolaresGateway extends QueryableGateway
             ->bindValue('fechaFinal', $fechaFinal)
             ->groupBy(['gibbonPerson.gibbonPersonID']);
 
-        foreach ($gradeColumns as $grade) {
-            $query->cols(["SUM(CASE WHEN gibbonFormGroup.nameShort = '{$grade}' AND gibbonAttendanceLogFormGroup.gibbonAttendanceLogFormGroupID IS NOT NULL THEN 1 ELSE 0 END) AS `{$grade}`"]);
+        foreach ($gradeColumns as $grade => $number) {
+            $number = (int) $number;
+            $query->cols(["SUM(CASE WHEN gibbonFormGroup.nameShort REGEXP '^0*{$number}([^0-9]|$)' AND gibbonAttendanceLogFormGroup.gibbonAttendanceLogFormGroupID IS NOT NULL THEN 1 ELSE 0 END) AS `{$grade}`"]);
         }
 
         return $this->runQuery($query, $criteria);
@@ -109,6 +112,114 @@ class InformesEscolaresGateway extends QueryableGateway
             ->groupBy(['gibbonPerson.gibbonPersonID']);
 
         return $this->runQuery($query, $criteria);
+    }
+
+    /**
+     * Ingreso de notas por profesor(a) y clase en un período (reportEntryNotes.php).
+     * Una fila por profesor(a) + clase del año del período. Campos propios:
+     *  - columnas: columnas del markbook creadas para esa clase en el período.
+     *  - sinNota:  casillas sin nota (estudiante x columna) de esas columnas.
+     * Antes vivía en StaffGateway del core (ya no existe).
+     */
+    public function queryReportEntryNotesData(QueryCriteria $criteria, $gibbonSchoolYearTermID)
+    {
+        $query = $this
+            ->newQuery()
+            ->from('gibbonStaff')
+            ->cols([
+                'gibbonPerson.gibbonPersonID', 'gibbonPerson.title', 'gibbonPerson.surname', 'gibbonPerson.preferredName',
+                'gibbonPerson.image_240', 'gibbonPerson.username',
+                'gibbonCourseClass.gibbonCourseClassID',
+                "CONCAT(gibbonCourse.nameShort, '.', gibbonCourseClass.nameShort) AS nameShort",
+                '(SELECT COUNT(*) FROM gibbonMarkbookColumn mc
+                    WHERE mc.gibbonCourseClassID = gibbonCourseClass.gibbonCourseClassID
+                    AND mc.gibbonSchoolYearTermID = :termColumnas) AS columnas',
+                "(SELECT COUNT(*) FROM gibbonMarkbookColumn mc
+                    INNER JOIN gibbonCourseClassPerson st ON st.gibbonCourseClassID = mc.gibbonCourseClassID AND st.role = 'Student'
+                    LEFT JOIN gibbonMarkbookEntry me ON me.gibbonMarkbookColumnID = mc.gibbonMarkbookColumnID AND me.gibbonPersonIDStudent = st.gibbonPersonID
+                    WHERE mc.gibbonCourseClassID = gibbonCourseClass.gibbonCourseClassID
+                    AND mc.gibbonSchoolYearTermID = :termSinNota
+                    AND (me.attainmentValue IS NULL OR me.attainmentValue = '')) AS sinNota",
+            ])
+            ->innerJoin('gibbonPerson', 'gibbonPerson.gibbonPersonID=gibbonStaff.gibbonPersonID')
+            ->innerJoin('gibbonCourseClassPerson', "gibbonCourseClassPerson.gibbonPersonID=gibbonPerson.gibbonPersonID AND gibbonCourseClassPerson.role='Teacher'")
+            ->innerJoin('gibbonCourseClass', 'gibbonCourseClass.gibbonCourseClassID=gibbonCourseClassPerson.gibbonCourseClassID')
+            ->innerJoin('gibbonCourse', 'gibbonCourse.gibbonCourseID=gibbonCourseClass.gibbonCourseID')
+            ->where('gibbonPerson.status = "Full"')
+            ->where('gibbonCourse.gibbonSchoolYearID = (SELECT gibbonSchoolYearID FROM gibbonSchoolYearTerm WHERE gibbonSchoolYearTermID = :termAnio)')
+            ->bindValue('termColumnas', $gibbonSchoolYearTermID)
+            ->bindValue('termSinNota', $gibbonSchoolYearTermID)
+            ->bindValue('termAnio', $gibbonSchoolYearTermID)
+            ->groupBy(['gibbonPerson.gibbonPersonID', 'gibbonCourseClass.gibbonCourseClassID']);
+
+        return $this->runQuery($query, $criteria);
+    }
+
+    /**
+     * Notas de los estudiantes de un grupo: una fila por estudiante con una clave
+     * por curso (nameShort del curso, ej. "Mat 5") con el promedio de sus notas
+     * (gibbonMarkbookEntry.attainmentValue) en columnas del markbook cuya fecha
+     * esté en el rango. Devuelve un arreglo (reportGradesByCourse.php).
+     * Antes vivía en StudentGateway del core (ya no existe).
+     */
+    public function queryGradesByCourse($gibbonFormGroupID, $fechaInicial, $fechaFinal)
+    {
+        $alumnos = $this->db()->select(
+            "SELECT gibbonPerson.gibbonPersonID, gibbonPerson.surname, gibbonPerson.preferredName, gibbonPerson.image_240,
+                    gibbonPerson.status, gibbonPerson.dateStart, gibbonPerson.dateEnd, gibbonFormGroup.nameShort AS grupo
+             FROM gibbonStudentEnrolment
+             INNER JOIN gibbonPerson ON gibbonPerson.gibbonPersonID = gibbonStudentEnrolment.gibbonPersonID
+             INNER JOIN gibbonFormGroup ON gibbonFormGroup.gibbonFormGroupID = gibbonStudentEnrolment.gibbonFormGroupID
+             WHERE gibbonStudentEnrolment.gibbonFormGroupID = :gibbonFormGroupID
+             AND gibbonPerson.status = 'Full'
+             ORDER BY gibbonPerson.surname, gibbonPerson.preferredName",
+            ['gibbonFormGroupID' => $gibbonFormGroupID]
+        )->fetchAll();
+
+        $promedios = $this->db()->select(
+            "SELECT gibbonMarkbookEntry.gibbonPersonIDStudent AS gibbonPersonID, gibbonCourse.nameShort AS curso,
+                    ROUND(AVG(CAST(REPLACE(gibbonMarkbookEntry.attainmentValue, ',', '.') AS DECIMAL(6,2))), 2) AS nota
+             FROM gibbonStudentEnrolment
+             INNER JOIN gibbonMarkbookEntry ON gibbonMarkbookEntry.gibbonPersonIDStudent = gibbonStudentEnrolment.gibbonPersonID
+             INNER JOIN gibbonMarkbookColumn ON gibbonMarkbookColumn.gibbonMarkbookColumnID = gibbonMarkbookEntry.gibbonMarkbookColumnID
+             INNER JOIN gibbonCourseClass ON gibbonCourseClass.gibbonCourseClassID = gibbonMarkbookColumn.gibbonCourseClassID
+             INNER JOIN gibbonCourse ON gibbonCourse.gibbonCourseID = gibbonCourseClass.gibbonCourseID
+                 AND gibbonCourse.gibbonSchoolYearID = gibbonStudentEnrolment.gibbonSchoolYearID
+             WHERE gibbonStudentEnrolment.gibbonFormGroupID = :gibbonFormGroupID
+             AND gibbonMarkbookColumn.date BETWEEN :fechaInicial AND :fechaFinal
+             AND gibbonMarkbookEntry.attainmentValue REGEXP '^[0-9]+([.,][0-9]+)?$'
+             GROUP BY gibbonMarkbookEntry.gibbonPersonIDStudent, gibbonCourse.nameShort",
+            ['gibbonFormGroupID' => $gibbonFormGroupID, 'fechaInicial' => $fechaInicial, 'fechaFinal' => $fechaFinal]
+        )->fetchAll();
+
+        $notas = [];
+        foreach ($promedios as $fila) {
+            $notas[$fila['gibbonPersonID']][$fila['curso']] = $fila['nota'];
+        }
+
+        // Todos los cursos del año del grupo arrancan vacíos, así el reporte nunca
+        // encuentra una clave inexistente cuando un estudiante no tiene nota.
+        $cursos = $this->db()->select(
+            "SELECT DISTINCT gibbonCourse.nameShort
+             FROM gibbonCourse
+             INNER JOIN gibbonFormGroup ON gibbonFormGroup.gibbonSchoolYearID = gibbonCourse.gibbonSchoolYearID
+             WHERE gibbonFormGroup.gibbonFormGroupID = :gibbonFormGroupID",
+            ['gibbonFormGroupID' => $gibbonFormGroupID]
+        )->fetchAll(\PDO::FETCH_COLUMN);
+
+        foreach ($alumnos as &$alumno) {
+            foreach ($cursos as $curso) {
+                $alumno[$curso] = '';
+            }
+            $alumno['roleCategory'] = 'Student';
+            $alumno['yearGroup'] = $gibbonFormGroupID;
+            foreach ($notas[$alumno['gibbonPersonID']] ?? [] as $curso => $nota) {
+                $alumno[$curso] = $nota;
+            }
+        }
+        unset($alumno);
+
+        return $alumnos;
     }
 
     /**
