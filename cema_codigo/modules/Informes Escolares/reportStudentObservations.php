@@ -78,6 +78,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportS
 
 
     $table->setTitle(__('Report Data'));
+    $table->setDescription('Cantidad de observaciones del observador del estudiante que cada profesor activo registró entre las fechas elegidas. Aparecen todos los profesores; quien no registró ninguna muestra 0.');
 
     // COLUMNS
     $table->addColumn('image_240', __('Photo'))

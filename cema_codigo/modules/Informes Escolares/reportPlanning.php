@@ -78,6 +78,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportP
 
 
     $table->setTitle(__('Report Data'));
+    $table->setDescription('Cantidad de planeaciones (clases del planeador) registradas por cada profesor activo entre las fechas elegidas. Aparecen todos los profesores; quien no planeó muestra 0.');
 
     // COLUMNS
     $table->addColumn('image_240', __('Photo'))
@@ -89,7 +90,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportP
         ->sortable(['surname', 'preferredName'])
         ->format(Format::using('name', ['title', 'preferredName', 'surname', 'Staff', true,]));
 
-    $table->addColumn('numero_planning', __('Número de Observaciones'));
+    $table->addColumn('numero_planning', __('Número de Planeaciones'));
 
 
     echo $table->render($dataSet);
