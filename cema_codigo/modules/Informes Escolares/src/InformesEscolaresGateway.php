@@ -59,7 +59,7 @@ class InformesEscolaresGateway extends QueryableGateway
 
         foreach ($gradeColumns as $grade => $number) {
             $number = (int) $number;
-            $query->cols(["SUM(CASE WHEN gibbonFormGroup.nameShort REGEXP '^0*{$number}([^0-9]|$)' AND gibbonAttendanceLogFormGroup.gibbonAttendanceLogFormGroupID IS NOT NULL THEN 1 ELSE 0 END) AS `{$grade}`"]);
+            $query->cols(["SUM(CASE WHEN gibbonFormGroup.nameShort REGEXP '^ *0*{$number}([^0-9]|$)' AND gibbonAttendanceLogFormGroup.gibbonAttendanceLogFormGroupID IS NOT NULL THEN 1 ELSE 0 END) AS `{$grade}`"]);
         }
 
         return $this->runQuery($query, $criteria);
