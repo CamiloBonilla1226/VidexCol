@@ -22,7 +22,9 @@ use Gibbon\Services\Format;
 use Gibbon\Forms\Form;
 use Gibbon\Forms\DatabaseFormFactory;
 use Gibbon\Tables\Prefab\ReportTable;
-use Gibbon\Domain\Students\StudentGateway;
+use Modules\InformesEscolares\InformesEscolaresGateway;
+
+require_once __DIR__ . '/src/InformesEscolaresGateway.php';
 
 
 if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportGradesByCourse.php') == false) {
@@ -61,7 +63,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportG
 
 	echo $form->getOutput();
 
-	$studentGateway = $container->get(StudentGateway::class);
+	$studentGateway = $container->get(InformesEscolaresGateway::class);
 
 	$criteria = $studentGateway->newQueryCriteria(true)
 	->sortBy(['surname', 'preferredName'])
@@ -79,8 +81,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/reportG
         $grupo = $group->fetch();
 
 		// QUERY
-	    $gradesByCourse = $studentGateway->queryGradesByCourse($gibbonFormGroupID, $fecha_inicial, $fecha_final);
-	    $data = $gradesByCourse->fetchAll();
+	    $data = $studentGateway->queryGradesByCourse($gibbonFormGroupID, $fecha_inicial, $fecha_final);
 
 	    // DATA TABLE
 		$table = ReportTable::createPaginated('gradesByCourse', $criteria)->setViewMode($viewMode, $gibbon->session);
