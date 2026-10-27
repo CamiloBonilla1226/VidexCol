@@ -20,7 +20,7 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 **No verificado (sin acceso a la BD):**
 - `gibbonPerson.nationality`: no aparece en `gibbon.sql` del repositorio. El gateway comprueba si la columna existe y, si no, devuelve "Sin dato" (la columna se cambia en `$columnaNacionalidad`, al inicio de la página). Ninguna de las 8 gráficas usa nacionalidad todavía.
 - `gibbonPerson.address1District`, `dob`, `gender` y `gibbonYearGroup.name/sequenceNumber`: sí están en `gibbon.sql`, pero conviene confirmarlas en la BD real.
-- Edad esperada por grado (1°=6 … 11°=16): es un supuesto mío, configurable en `$edadEsperadaPorGrado`. "En edad" = esperada o esperada+1; "Extraedad" = esperada+2 o más (`$margenExtraedad`). El número de grado se toma del primer número del nombre en `gibbonYearGroup` (si no tiene, de `sequenceNumber`).
+- Edad esperada por grado (1°=6 … 11°=16): es un supuesto mío, configurable en `$edadEsperadaPorGrado`. "En edad" = esperada o esperada+1; "Extraedad" = esperada+2 o más (`$margenExtraedad`). El número de grado se toma del nombre en `gibbonYearGroup`: un número ("1°") o la palabra ("Primero" … "Once"). Si no se reconoce (p. ej. "Transición"), ese grado no entra en la gráfica de extraedad.
 
 **Consultas para validar:**
 ```sql

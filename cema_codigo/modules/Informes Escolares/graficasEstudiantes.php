@@ -61,11 +61,6 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             'antiguedad' => (int) $fila['antiguedad'],
         ];
     }
-    $edadesTexto = [];
-    foreach ($edadEsperadaPorGrado as $numGrado => $edad) {
-        $edadesTexto[] = $numGrado . '° = ' . $edad;
-    }
-    $edadesTexto = htmlspecialchars(implode(', ', $edadesTexto), ENT_QUOTES, 'UTF-8');
     $margenTexto = (int) $margenExtraedad;
     $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR;
     $generado = date('d/m/Y H:i');
@@ -97,7 +92,7 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         .gr-cifra:first-child b { color: #3575EF; }
         .gr-cifra span { font-size: .85em; color: #6b7280; }
 
-        .gr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+        .gr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
         .gr-card { background: #fff; border: 1px solid #E3EAF8; border-radius: 10px; padding: 18px 20px 10px; min-width: 0; }
         .gr-card.gr-wide { grid-column: 1 / -1; }
         .gr-card { position: relative; }
@@ -106,7 +101,7 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         .gr-info { flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: -4px -6px 0 0; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #9CA3AF; cursor: pointer; transition: background .15s, color .15s; }
         .gr-info:hover, .gr-info[aria-expanded="true"] { background: #EEF4FF; color: #3575EF; }
         .gr-info:focus-visible { outline: 2px solid #3575EF; outline-offset: 1px; }
-        .gr-pop { position: absolute; top: 46px; right: 14px; z-index: 5; width: min(340px, calc(100% - 28px)); padding: 14px 16px; background: #fff; border: 1px solid #E3EAF8; border-radius: 10px; box-shadow: 0 12px 32px rgba(30,58,138,.16); font-size: .86em; line-height: 1.5; color: #374151; }
+        .gr-pop { position: absolute; top: 46px; right: 14px; z-index: 5; width: min(360px, calc(100% - 28px)); padding: 16px 18px; background: #fff; border: 1px solid #E3EAF8; border-radius: 10px; box-shadow: 0 12px 32px rgba(30,58,138,.16); font-size: 1em; line-height: 1.55; color: #1F2937; }
         .gr-pop[hidden] { display: none; }
         .gr-pop p { margin: 0 0 8px; }
         .gr-pop p:last-child { margin-bottom: 0; }
@@ -146,31 +141,31 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         <div class="gr-grid" id="gr-graficas">
             <div class="gr-card">
                 <div class="gr-card-head"><h3>¿Cuántos estudiantes hay en cada grado?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-grado"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-grado" role="dialog" aria-label="¿Cuántos estudiantes hay en cada grado?" hidden><p>Número de estudiantes matriculados en cada grado en el año escolar elegido.</p><p>El grado se toma del curso de Gibbon (no del nombre del grupo), así se pueden comparar años aunque los grupos cambien de nombre.</p><p>Pasa el mouse sobre una barra para ver cuántas niñas y cuántos niños hay.</p></div>
+                <div class="gr-pop" id="i-grado" role="dialog" aria-label="¿Cuántos estudiantes hay en cada grado?" hidden><p>Cuántos estudiantes hay en cada grado.</p><p>Pasa el mouse sobre una barra para ver cuántas son niñas y cuántos niños.</p></div>
                 <p class="gr-lectura" id="l-grado"></p>
                 <div class="gr-chart" id="g-grado"></div>
             </div>
             <div class="gr-card">
                 <div class="gr-card-head"><h3>¿Cuántas niñas y cuántos niños?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-genero"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-genero" role="dialog" aria-label="¿Cuántas niñas y cuántos niños?" hidden><p>Proporción de estudiantes según el género registrado en su ficha de Gibbon.</p><p><strong>Sin dato</strong> agrupa a quienes no tienen género registrado o tienen «Otro» / «Sin especificar».</p></div>
+                <div class="gr-pop" id="i-genero" role="dialog" aria-label="¿Cuántas niñas y cuántos niños?" hidden><p>Cuántas niñas y cuántos niños hay.</p><p><strong>Sin dato:</strong> estudiantes sin género registrado.</p></div>
                 <p class="gr-lectura" id="l-genero"></p>
                 <div class="gr-chart" id="g-genero"></div>
             </div>
             <div class="gr-card">
                 <div class="gr-card-head"><h3>¿Cuántos están por encima de la edad de su grado?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-extraedad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-extraedad" role="dialog" aria-label="¿Cuántos están por encima de la edad de su grado?" hidden><p><strong>Cómo se calcula:</strong> con la fecha de nacimiento se saca la edad que el estudiante tenía el primer día del año escolar y se compara con la edad esperada para su grado.</p><p><strong>Edad esperada:</strong> <?php echo $edadesTexto; ?> años.</p><p>Si tiene <strong><?php echo $margenTexto; ?> años o más</strong> por encima de la esperada, cuenta como extraedad (mismo criterio del Ministerio de Educación). Ejemplo: en 1° se esperan 6 años; un estudiante de 8 años o más está en extraedad.</p><p>Los estudiantes sin fecha de nacimiento no se cuentan. Las edades esperadas son un supuesto y deben ajustarse a la fecha de corte del colegio.</p></div>
+                <div class="gr-pop" id="i-extraedad" role="dialog" aria-label="¿Cuántos están por encima de la edad de su grado?" hidden><p>Un estudiante está en <strong>extraedad</strong> cuando tiene <?php echo $margenTexto; ?> años o más de lo normal para su grado.</p><p><strong>Ejemplo:</strong> en Primero lo normal es tener 6 años. Con 8 años o más, está en extraedad.</p><p>Lo normal: Primero 6 años, Segundo 7… hasta Once 16.</p></div>
                 <p class="gr-lectura" id="l-extraedad"></p>
                 <div class="gr-chart" id="g-extraedad"></div>
             </div>
             <div class="gr-card">
                 <div class="gr-card-head"><h3>¿Cuántos estudiantes son nuevos?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-antiguedad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-antiguedad" role="dialog" aria-label="¿Cuántos estudiantes son nuevos?" hidden><p>Cuenta en cuántos años escolares distintos aparece matriculado cada estudiante, hasta el año elegido. <strong>Nuevos</strong> = es su primer año.</p><p>Solo se cuentan los años registrados en Gibbon: si el colegio empezó a usarlo hace poco, nadie puede tener más años que esos, y en el primer año todos salen como nuevos.</p></div>
+                <div class="gr-pop" id="i-antiguedad" role="dialog" aria-label="¿Cuántos estudiantes son nuevos?" hidden><p>Cuántos estudiantes llegaron este año y cuántos ya llevan 2 o más años en el colegio.</p><p>Solo cuenta los años registrados en Gibbon.</p></div>
                 <p class="gr-lectura" id="l-antiguedad"></p>
                 <div class="gr-chart" id="g-antiguedad"></div>
             </div>
             <div class="gr-card gr-wide">
                 <div class="gr-card-head"><h3>¿Cómo ha cambiado la matrícula con los años?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-evolucion"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-evolucion" role="dialog" aria-label="¿Cómo ha cambiado la matrícula con los años?" hidden><p>Total de estudiantes matriculados en cada año escolar registrado. La barra azul fuerte es el año que estás viendo.</p><p>Respeta los filtros de grado y género, pero siempre muestra todos los años.</p><p>En los años pasados cuentan todos los que estuvieron matriculados; en el año actual, solo los estudiantes activos.</p></div>
+                <div class="gr-pop" id="i-evolucion" role="dialog" aria-label="¿Cómo ha cambiado la matrícula con los años?" hidden><p>Total de estudiantes en cada año.</p><p>La barra azul fuerte es el año que estás viendo.</p></div>
                 <p class="gr-lectura" id="l-evolucion"></p>
                 <div class="gr-chart" id="g-evolucion"></div>
             </div>
@@ -196,6 +191,7 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         // Columnas del DataTable
         var C = { ANIO: 0, GRADO: 1, ORDEN: 2, GRUPO: 3, GENERO: 4, EDAD: 5, LOCALIDAD: 6, NACIONALIDAD: 7, ANTIGUEDAD: 8 };
         var ALTO = 300;
+        var ALTO_FILA2 = 380; // extraedad y estudiantes nuevos: mismo alto para que las tarjetas queden parejas
 
         var data, redimensionar = null;
         // Vacío = todos: no hace falta elegir nada para ver los datos.
@@ -383,9 +379,16 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             };
         }
 
-        function numeroGrado(nombre, orden) {
-            var m = /\d+/.exec(nombre || '');
-            return m ? parseInt(m[0], 10) : orden;
+        // Número de grado a partir del nombre: "1°", "Grado 1" o "Primero"... "Once".
+        // Si no se reconoce (p. ej. "Transición"), no se compara su edad.
+        var GRADOS_EN_LETRAS = { primero: 1, segundo: 2, tercero: 3, cuarto: 4, quinto: 5, sexto: 6, septimo: 7,
+                                 octavo: 8, noveno: 9, decimo: 10, once: 11, undecimo: 11 };
+        function numeroGrado(nombre) {
+            var texto = String(nombre || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            var m = /\d+/.exec(texto);
+            if (m) { return parseInt(m[0], 10); }
+            var palabra = /[a-z]+/.exec(texto);
+            return palabra && GRADOS_EN_LETRAS[palabra[0]] ? GRADOS_EN_LETRAS[palabra[0]] : null;
         }
 
         function graficaGrado(filas) {
@@ -440,7 +443,7 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             vista.setColumns([C.ORDEN, C.GRADO, {
                 type: 'string', label: 'Categoría',
                 calc: function (dt, fila) {
-                    var esperada = EDAD_ESPERADA_POR_GRADO[numeroGrado(dt.getValue(fila, C.GRADO), dt.getValue(fila, C.ORDEN))];
+                    var esperada = EDAD_ESPERADA_POR_GRADO[numeroGrado(dt.getValue(fila, C.GRADO))];
                     if (esperada === undefined) { return 'Sin referencia'; }
                     return dt.getValue(fila, C.EDAD) >= esperada + MARGEN_EXTRAEDAD ? 'Extraedad' : 'Normal';
                 }
@@ -469,7 +472,7 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             if (peor) { partes.push(' · más casos en ', { b: peor.etiqueta }); }
             lectura('l-extraedad', partes);
             nuevo('BarChart', 'g-extraedad').draw(tablaBarras('Grado', barras), opciones({
-                height: Math.max(ALTO, 30 * barras.length + 40),
+                height: Math.max(ALTO_FILA2, 30 * barras.length + 40),
                 hAxis: { format: '#%', minValue: 0, maxValue: 0.25, textStyle: { color: '#6b7280' }, gridlines: { color: '#F1F4FA' } },
                 vAxis: { gridlines: { color: 'transparent' } },
                 chartArea: { left: 80, right: 70, top: 8, bottom: 32 }
@@ -495,7 +498,7 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             });
             lectura('l-antiguedad', [{ b: num(grupos[0].valor) + ' (' + pct(grupos[0].valor, conDato) + ')' }, ' entraron este año']);
             nuevo('ColumnChart', 'g-antiguedad').draw(tablaBarras('Antigüedad', grupos), opciones({
-                height: 280,
+                height: ALTO_FILA2,
                 bar: { groupWidth: '50%' },
                 vAxis: ejeConAire(grupos),
                 hAxis: { textStyle: { color: '#1F2937', fontSize: 13 } },
