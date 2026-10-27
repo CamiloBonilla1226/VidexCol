@@ -101,11 +101,23 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         .gr-info { flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: -4px -6px 0 0; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #9CA3AF; cursor: pointer; transition: background .15s, color .15s; }
         .gr-info:hover, .gr-info[aria-expanded="true"] { background: #EEF4FF; color: #3575EF; }
         .gr-info:focus-visible { outline: 2px solid #3575EF; outline-offset: 1px; }
-        .gr-pop { position: absolute; top: 46px; right: 14px; z-index: 5; width: min(360px, calc(100% - 28px)); padding: 16px 18px; background: #fff; border: 1px solid #E3EAF8; border-radius: 10px; box-shadow: 0 12px 32px rgba(30,58,138,.16); font-size: 1em; line-height: 1.55; color: #1F2937; }
+        .gr-pop { position: absolute; top: 50px; right: 12px; z-index: 5; width: min(340px, calc(100% - 24px)); background: #fff; border: 1px solid #DCE7FD; border-radius: 14px; box-shadow: 0 18px 40px rgba(30,58,138,.18), 0 2px 6px rgba(30,58,138,.06); color: #1F2937; animation: gr-aparecer .16s ease-out; }
         .gr-pop[hidden] { display: none; }
-        .gr-pop p { margin: 0 0 8px; }
-        .gr-pop p:last-child { margin-bottom: 0; }
+        .gr-pop::before { content: ''; position: absolute; top: -7px; right: 11px; width: 12px; height: 12px; background: #F5F8FF; border-left: 1px solid #DCE7FD; border-top: 1px solid #DCE7FD; transform: rotate(45deg); }
+        .gr-pop-head { display: flex; align-items: center; gap: 10px; padding: 12px 12px 12px 16px; background: #F5F8FF; border-bottom: 1px solid #E3EAF8; border-radius: 14px 14px 0 0; }
+        .gr-pop-icono { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: #3575EF; color: #fff; }
+        .gr-pop-titulo { flex: 1; font-weight: 700; font-size: .95em; color: #1E3A8A; }
+        .gr-pop-cerrar { display: grid; place-items: center; flex: none; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #6b7280; font-size: 1.3em; line-height: 1; cursor: pointer; }
+        .gr-pop-cerrar:hover { background: #E3ECFF; color: #1E3A8A; }
+        .gr-pop-cerrar:focus-visible { outline: 2px solid #3575EF; outline-offset: 1px; }
+        .gr-pop-body { padding: 14px 18px 16px; font-size: 1em; line-height: 1.6; }
+        .gr-pop-body p { margin: 0 0 10px; }
+        .gr-pop-body p:last-child { margin-bottom: 0; }
         .gr-pop strong { color: #1E3A8A; }
+        .gr-pop-ej { padding: 10px 12px; background: #F5F8FF; border-left: 3px solid #3575EF; border-radius: 8px; }
+        .gr-pop-dato { font-size: .9em; color: #4B5563; }
+        @keyframes gr-aparecer { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .gr-pop { animation: none; } }
         .gr-lectura { margin: 0 0 6px; font-size: .95em; color: #1F2937; line-height: 1.45; }
         .gr-lectura strong { color: #1E3A8A; }
         .gr-chart { width: 100%; }
@@ -141,31 +153,31 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         <div class="gr-grid" id="gr-graficas">
             <div class="gr-card">
                 <div class="gr-card-head"><h3>¿Cuántos estudiantes hay en cada grado?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-grado"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-grado" role="dialog" aria-label="¿Cuántos estudiantes hay en cada grado?" hidden><p>Cuántos estudiantes hay en cada grado.</p><p>Pasa el mouse sobre una barra para ver cuántas son niñas y cuántos niños.</p></div>
+                <div class="gr-pop" id="i-grado" role="dialog" aria-label="¿Cuántos estudiantes hay en cada grado?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>Cuántos estudiantes hay en cada grado.</p><p class="gr-pop-dato">Pasa el mouse sobre una barra para ver cuántas son niñas y cuántos niños.</p></div></div>
                 <p class="gr-lectura" id="l-grado"></p>
                 <div class="gr-chart" id="g-grado"></div>
             </div>
             <div class="gr-card">
                 <div class="gr-card-head"><h3>¿Cuántas niñas y cuántos niños?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-genero"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-genero" role="dialog" aria-label="¿Cuántas niñas y cuántos niños?" hidden><p>Cuántas niñas y cuántos niños hay.</p><p><strong>Sin dato:</strong> estudiantes sin género registrado.</p></div>
+                <div class="gr-pop" id="i-genero" role="dialog" aria-label="¿Cuántas niñas y cuántos niños?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>Cuántas niñas y cuántos niños hay.</p><p><strong>Sin dato:</strong> estudiantes sin género registrado.</p></div></div>
                 <p class="gr-lectura" id="l-genero"></p>
                 <div class="gr-chart" id="g-genero"></div>
             </div>
             <div class="gr-card">
                 <div class="gr-card-head"><h3>¿Cuántos están por encima de la edad de su grado?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-extraedad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-extraedad" role="dialog" aria-label="¿Cuántos están por encima de la edad de su grado?" hidden><p>Un estudiante está en <strong>extraedad</strong> cuando tiene <?php echo $margenTexto; ?> años o más de lo normal para su grado.</p><p><strong>Ejemplo:</strong> en Primero lo normal es tener 6 años. Con 8 años o más, está en extraedad.</p><p>Lo normal: Primero 6 años, Segundo 7… hasta Once 16.</p></div>
+                <div class="gr-pop" id="i-extraedad" role="dialog" aria-label="¿Cuántos están por encima de la edad de su grado?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>Un estudiante está en <strong>extraedad</strong> cuando tiene <?php echo $margenTexto; ?> años o más de lo normal para su grado.</p><p class="gr-pop-ej"><strong>Ejemplo:</strong> en Primero lo normal es tener 6 años. Con 8 años o más, está en extraedad.</p><p class="gr-pop-dato">Lo normal: Primero 6 años, Segundo 7… hasta Once 16.</p></div></div>
                 <p class="gr-lectura" id="l-extraedad"></p>
                 <div class="gr-chart" id="g-extraedad"></div>
             </div>
             <div class="gr-card">
                 <div class="gr-card-head"><h3>¿Cuántos estudiantes son nuevos?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-antiguedad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-antiguedad" role="dialog" aria-label="¿Cuántos estudiantes son nuevos?" hidden><p>Cuántos estudiantes llegaron este año y cuántos ya llevan 2 o más años en el colegio.</p><p>Solo cuenta los años registrados en Gibbon.</p></div>
+                <div class="gr-pop" id="i-antiguedad" role="dialog" aria-label="¿Cuántos estudiantes son nuevos?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>Cuántos estudiantes llegaron este año y cuántos ya llevan 2 o más años en el colegio.</p><p class="gr-pop-dato">Solo cuenta los años registrados en Gibbon.</p></div></div>
                 <p class="gr-lectura" id="l-antiguedad"></p>
                 <div class="gr-chart" id="g-antiguedad"></div>
             </div>
             <div class="gr-card gr-wide">
                 <div class="gr-card-head"><h3>¿Cómo ha cambiado la matrícula con los años?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-evolucion"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-evolucion" role="dialog" aria-label="¿Cómo ha cambiado la matrícula con los años?" hidden><p>Total de estudiantes en cada año.</p><p>La barra azul fuerte es el año que estás viendo.</p></div>
+                <div class="gr-pop" id="i-evolucion" role="dialog" aria-label="¿Cómo ha cambiado la matrícula con los años?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>Total de estudiantes en cada año.</p><p>La barra azul fuerte es el año que estás viendo.</p></div></div>
                 <p class="gr-lectura" id="l-evolucion"></p>
                 <div class="gr-chart" id="g-evolucion"></div>
             </div>
@@ -573,6 +585,14 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             });
             document.addEventListener('click', function (e) {
                 if (!e.target.closest || !e.target.closest('.gr-pop')) { botones.forEach(cerrar); }
+            });
+            Array.prototype.forEach.call(document.querySelectorAll('#gr-wrap .gr-pop-cerrar'), function (x) {
+                x.addEventListener('click', function () {
+                    var pop = x.closest('.gr-pop');
+                    botones.forEach(function (b) {
+                        if (b.getAttribute('aria-controls') === pop.id) { cerrar(b); b.focus(); }
+                    });
+                });
             });
             document.addEventListener('keydown', function (e) {
                 if (e.key !== 'Escape') { return; }
