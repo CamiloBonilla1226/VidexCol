@@ -4,6 +4,37 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-10-27 — Gráficas de docentes (módulo Graficas)
+
+**Qué se agregó:** dashboard "Gráficas de docentes" en `modules/Graficas/docentes.php` (la opción "Graficas docentes" que ya estaba en el menú del módulo Graficas; no hizo falta script SQL ni tocar el manifest). Mismo estilo que Gráficas de estudiantes: filtros (año, rango de fechas, docente con búsqueda, materia, tipo), cifras (planeaciones, observaciones, docentes con actividad) y 5 gráficas con pregunta, frase corta e ícono (i): planeaciones por mes (una línea por año), ranking de docentes por planeaciones (top 15), observaciones por docente (top 15), observaciones por año y cumplimiento de planeación (Gauge: % de docentes activos con al menos una planeación, "X de Y docentes").
+
+**Datos:** `queryGraficasDocentes()` y `queryDocentesActivos()` en `modules/Graficas/src/GraficasGateway.php`. Una fila por evento; el navegador recibe listas de nombres/materias una sola vez y cada evento como `[tipo, fecha, docente, materia, id]` (sin IDs de persona). Constantes al inicio de la página: `$fechaMinima` (2020-01-01, descarta años mal digitados) y `$incluirFechasFuturas` (false: se excluye lo posterior a hoy).
+
+**Archivos (subir al servidor):**
+- `modules/Graficas/docentes.php`
+- `modules/Graficas/src/GraficasGateway.php`
+
+**Supuestos / no verificado (sin acceso a la BD):**
+- Planeaciones: se atribuyen a `gibbonPlannerEntry.gibbonPersonIDCreator` (columna confirmada en `gibbon.sql`). Respaldo: si ese creador ya no existe en `gibbonPerson`, se atribuyen a cada docente (`role = 'Teacher'`) de la clase y se cuentan una sola vez en los totales.
+- Observaciones: `obsObservaciones.id`, `fechaIncidente`, `gibbonPersonID_create` (confirmadas en el manifest del módulo Observador). No tienen materia: al elegir una materia, solo quedan planeaciones.
+- "Docentes activos" = todo `gibbonStaff` con `gibbonPerson.status = 'Full'`; si incluye personal administrativo, el porcentaje de cumplimiento baja. El cruce con quienes planearon se hace por el texto "Apellido Nombre" (no se envían IDs); dos personas con el mismo nombre se confundirían.
+- Con ~90.000 eventos el navegador recibe unos pocos MB de datos; si la página tarda, avisa.
+- Acceso: limitar la acción "Graficas docentes" a directivos (Administración > Permisos de acción).
+
+**Consultas para validar:**
+```sql
+SELECT YEAR(date) AS anio, COUNT(*) FROM gibbonPlannerEntry GROUP BY YEAR(date) ORDER BY 1;
+SELECT YEAR(fechaIncidente) AS anio, COUNT(*) FROM obsObservaciones GROUP BY YEAR(fechaIncidente) ORDER BY 1;
+SELECT COUNT(*) AS sin_creador FROM gibbonPlannerEntry pe
+ WHERE NOT EXISTS (SELECT 1 FROM gibbonPerson p WHERE p.gibbonPersonID = pe.gibbonPersonIDCreator);
+SELECT COUNT(DISTINCT gibbonPersonID) AS docentes_activos FROM gibbonStaff s
+ INNER JOIN gibbonPerson p USING (gibbonPersonID) WHERE p.status = 'Full';
+```
+
+**Notas:** sin prueba contra la BD; se probó la página con datos inventados (sintaxis PHP y JS, escritorio y celular).
+
+---
+
 ## 2026-10-27 — Gráficas de estudiantes: se muda al módulo Graficas
 
 **Qué cambió:** el dashboard ahora vive completo en `modules/Graficas/estudiantes.php` (la opción "Graficas de estudiantes" del menú), con su propio gateway `modules/Graficas/src/GraficasGateway.php`. Se quitó de Informes Escolares: se borró `graficasEstudiantes.php`, el script `registrar_accion_graficas.sql` y el método `queryGraficasEstudiantes()` de `InformesEscolaresGateway.php`. El módulo Graficas queda versionado (se agregó a `modules/.gitignore`).
