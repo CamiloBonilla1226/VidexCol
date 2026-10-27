@@ -14,7 +14,7 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 - `modules/Informes Escolares/src/InformesEscolaresGateway.php`
 - `modules/Informes Escolares/graficasEstudiantes.php`
 
-**Pendiente en el servidor — registrar la acción:** el `manifest.php` de Informes Escolares no está en el repositorio, así que no se pudo editar. Agrega allí una acción nueva con los mismos permisos que los otros reportes (copia el bloque de `reportAttendances.php`), con nombre `Gráficas de estudiantes` y `URLList`/`entryURL` = `graficasEstudiantes.php`; luego Gibbon necesita que se vuelva a leer el manifest (Administración > Módulos > Actualizar) y dar permiso al rol en Permisos de acción.
+**Registrar la acción (sin tocar manifest.php):** correr en phpMyAdmin `modules/Informes Escolares/registrar_accion_graficas.sql`. Crea la acción "Gráficas de estudiantes" copiando categoría y permisos por rol de `reportAttendances.php`, y es repetible. No hay que subir ese archivo al servidor, solo ejecutarlo.
 
 **No verificado (sin acceso a la BD):**
 - `gibbonPerson.nationality`: no aparece en `gibbon.sql` del repositorio. El gateway comprueba si la columna existe y, si no, devuelve "Sin dato" (la columna se cambia en `$columnaNacionalidad`, al inicio de la página). Ninguna de las 8 gráficas usa nacionalidad todavía.
