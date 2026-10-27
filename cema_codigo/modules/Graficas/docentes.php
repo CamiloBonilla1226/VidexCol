@@ -130,8 +130,14 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
         .gr-fecha:focus-visible, .gr-buscar:focus-visible { outline: 2px solid #3575EF; outline-offset: 2px; }
         .gr-rango { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: #6b7280; }
         .gr-vacio { padding: 36px 12px; text-align: center; color: #6b7280; font-size: .95em; }
-        .gr-cumpl-texto { margin: 0 0 8px; text-align: center; font-size: 1.05em; color: #1F2937; }
-        .gr-cumpl-texto strong { color: #1E3A8A; }
+        .gr-cumpl { padding: 8px 4px 14px; }
+        .gr-cumpl-num { font-size: 3.4em; font-weight: 800; line-height: 1; color: #1E3A8A; font-variant-numeric: tabular-nums; }
+        .gr-pista { height: 14px; margin: 14px 0 22px; border-radius: 999px; background: #E3ECFF; overflow: hidden; }
+        .gr-relleno { height: 100%; border-radius: 999px; background: #3575EF; transition: width .4s ease; }
+        .gr-sin-titulo { margin: 0 0 8px; font-size: .9em; font-weight: 600; color: #6b7280; }
+        .gr-sin { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+        .gr-sin li { padding: 4px 12px; border: 1px solid #DCE7FD; border-radius: 999px; background: #F5F8FF; font-size: .88em; color: #1E3A8A; }
+        .gr-todos { margin: 0; font-weight: 600; color: #1E3A8A; }
         .gr-cifras.gr-tres { grid-template-columns: repeat(3, 1fr); }
         .gr-cifras.gr-tres .gr-cifra:nth-child(3) { border-left: 1px solid #E3EAF8; border-top: 0; }
         @media (max-width: 900px) { .gr-cifras.gr-tres { grid-template-columns: 1fr; } .gr-cifras.gr-tres .gr-cifra { border-left: 0; border-top: 1px solid #E3EAF8; } .gr-cifras.gr-tres .gr-cifra:first-child { border-top: 0; } }
@@ -162,7 +168,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
         <div class="gr-grid" id="gr-graficas">
             <div class="gr-card gr-wide">
                 <div class="gr-card-head"><h3>¿Cuántas planeaciones se hacen cada mes?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-meses"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-meses" role="dialog" aria-label="¿Cuántas planeaciones se hacen cada mes?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>Cuántas planeaciones se registran en cada mes. Cada línea es un año; la línea oscura es el año que estás viendo.</p><p class="gr-pop-dato">No cambia con el filtro de año ni de fechas, para poder comparar años. Sí respeta docente y materia.</p></div></div>
+                <div class="gr-pop" id="i-meses" role="dialog" aria-label="¿Cuántas planeaciones se hacen cada mes?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>Cuántas planeaciones se registran en cada mes del año elegido. El mes con más planeaciones va en azul fuerte.</p><p class="gr-pop-dato">El mes en curso aún no termina. Con «Todos» en el año se suman todos los años.</p></div></div>
                 <p class="gr-lectura" id="l-meses"></p>
                 <div class="gr-chart" id="g-meses"></div>
             </div>
@@ -186,9 +192,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
             </div>
             <div class="gr-card">
                 <div class="gr-card-head"><h3>¿Cuántos docentes están al día con su planeación?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-cumpl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
-                <div class="gr-pop" id="i-cumpl" role="dialog" aria-label="¿Cuántos docentes están al día con su planeación?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>Porcentaje de docentes activos que tienen <strong>al menos una planeación</strong> en el año y las fechas elegidos.</p><p class="gr-pop-ej">Ejemplo: 40 de 50 docentes = 80 %.</p><p class="gr-pop-dato">Los docentes activos son el personal de Gibbon con estado «Full». No cambia con el filtro de docente.</p></div></div>
+                <div class="gr-pop" id="i-cumpl" role="dialog" aria-label="¿Cuántos docentes están al día con su planeación?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>De todos los docentes activos, cuántos tienen <strong>al menos una planeación</strong> en el año y las fechas elegidos.</p><p class="gr-pop-ej">Ejemplo: 24 de 28 docentes = 86 %.</p><p class="gr-pop-dato">Abajo aparecen los que todavía no tienen ninguna. Los docentes activos son el personal de Gibbon con estado «Full». No cambia con el filtro de docente.</p></div></div>
                 <p class="gr-lectura" id="l-cumpl"></p>
-                <p class="gr-cumpl-texto" id="n-cumpl"></p>
                 <div class="gr-chart" id="g-cumpl"></div>
             </div>
         </div>
@@ -399,40 +404,34 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
             return true;
         }
 
-        // 1. Planeaciones por mes: una línea por año. Ignora año, fechas y tipo.
+        // 1. Planeaciones por mes: una columna por mes del año elegido (con «Todos», suma de todos los años).
         function graficaMeses() {
             if (ocultoPorTipo(0, 'g-meses', 'l-meses')) { return; }
-            var filas = filtrar({ docente: true, materia: true }).filter(function (e) { return e[0] === 0; });
+            var filas = filtrar({ anio: true, rango: true, docente: true, materia: true }).filter(function (e) { return e[0] === 0; });
             if (!filas.length) { aviso('g-meses', 'l-meses', 'No hay planeaciones con esos filtros.'); return; }
-            var cuentas = contarPor(filas, function (e) { return anioDe(e[1]) * 100 + mesDe(e[1]); });
-            var aniosConDatos = anios.filter(function (a) { for (var m = 1; m <= 12; m++) { if (cuentas[a * 100 + m]) { return true; } } return false; });
-            var hoy = new Date(), mesHoy = hoy.getMonth() + 1, anioHoy = hoy.getFullYear();
-            var t = new google.visualization.DataTable();
-            t.addColumn('string', 'Mes');
-            aniosConDatos.forEach(function (a) { t.addColumn('number', String(a)); });
-            for (var m = 1; m <= 12; m++) {
-                var fila = [MESES[m - 1]];
-                aniosConDatos.forEach(function (a) {
-                    // Los meses que aún no llegan no se dibujan (en vez de caer a cero).
-                    fila.push(a === anioHoy && m > mesHoy ? null : (cuentas[a * 100 + m] || 0));
-                });
-                t.addRow(fila);
+            var cuentas = contarPor(filas, function (e) { return mesDe(e[1]); });
+            var hoy = new Date();
+            var enCurso = estado.anio === hoy.getFullYear() ? hoy.getMonth() + 1 : 0;   // mes que aún no termina
+            var hasta = enCurso || 12;
+            var barras = [];
+            for (var m = 1; m <= hasta; m++) {
+                var n = cuentas[m] || 0;
+                barras.push({ mes: m, etiqueta: MESES[m - 1], valor: n,
+                              ayuda: MESES_LARGO[m - 1].charAt(0).toUpperCase() + MESES_LARGO[m - 1].slice(1) + ': ' + num(n) + ' planeaciones' + (m === enCurso ? ' (mes en curso)' : '') });
             }
-            var elegido = estado.anio === '' ? aniosConDatos[aniosConDatos.length - 1] : estado.anio;
-            var claros = ['#C7D6F8', '#9DB8F5', '#7A9BE6', '#B8C4DB', '#8FA3C9', '#D5DEF2', '#A9B6D0'];
-            var series = {};
-            aniosConDatos.forEach(function (a, i) {
-                series[i] = a === elegido ? { color: COLOR.oscuro, lineWidth: 4, pointSize: 6 } : { color: claros[i % claros.length], lineWidth: 2, pointSize: 0 };
-            });
-            // Frase corta: el mes más fuerte del año elegido.
-            var mejor = 0, mesMejor = 0;
-            for (var k = 1; k <= 12; k++) { var c = cuentas[elegido * 100 + k] || 0; if (c > mejor) { mejor = c; mesMejor = k; } }
-            lectura('l-meses', mejor ? ['En ', { b: String(elegido) }, ' el mes con más planeaciones fue ', { b: MESES_LARGO[mesMejor - 1] + ' (' + num(mejor) + ')' }] : ['Sin planeaciones en ', { b: String(elegido) }]);
-            nuevo('LineChart', 'g-meses').draw(t, opciones({
-                series: series,
-                legend: { position: 'bottom', textStyle: { color: '#4B5563' } },
-                interpolateNulls: false,
-                chartArea: { left: 48, right: 16, top: 16, bottom: 56 }
+            // El mes en curso no compite para "más" ni "menos" porque está incompleto.
+            var completos = barras.filter(function (b) { return b.mes !== enCurso; });
+            if (!completos.length) { completos = barras; }
+            var mayor = completos.reduce(function (a, b) { return b.valor > a.valor ? b : a; }, completos[0]);
+            var menor = completos.reduce(function (a, b) { return b.valor < a.valor ? b : a; }, completos[0]);
+            barras.forEach(function (b) { b.color = b === mayor ? COLOR.primario : COLOR.claro; });
+            var periodo = estado.anio === '' ? 'En todos los años' : 'En ' + estado.anio;
+            var partes = [periodo + ' el mes con más planeaciones es ', { b: MESES_LARGO[mayor.mes - 1] + ' (' + num(mayor.valor) + ')' }];
+            if (menor !== mayor) { partes.push(' y el que menos, ', { b: MESES_LARGO[menor.mes - 1] + ' (' + num(menor.valor) + ')' }); }
+            lectura('l-meses', partes);
+            nuevo('ColumnChart', 'g-meses').draw(tablaBarras('Mes', barras), opciones({
+                vAxis: ejeConAire(barras),
+                chartArea: { left: 8, right: 8, top: 28, bottom: 36 }
             }));
         }
 
@@ -484,28 +483,47 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
             }));
         }
 
+        function elemento(tag, clase, texto) {
+            var e = document.createElement(tag);
+            if (clase) { e.className = clase; }
+            if (texto !== undefined) { e.textContent = texto; }
+            return e;
+        }
+
         // 5. Cumplimiento: % de docentes activos con al menos una planeación (ignora docente y tipo).
         function graficaCumplimiento() {
-            if (ocultoPorTipo(0, 'g-cumpl', 'l-cumpl')) { $('n-cumpl').textContent = ''; return; }
+            if (ocultoPorTipo(0, 'g-cumpl', 'l-cumpl')) { return; }
             var filas = filtrar({ anio: true, rango: true, materia: true }).filter(function (e) { return e[0] === 0; });
             var conPlaneacion = {};
             filas.forEach(function (e) { conPlaneacion[DOCENTES[e[2]]] = true; });
             var total = ACTIVOS.length;
-            var cumplen = ACTIVOS.filter(function (n) { return conPlaneacion[n]; }).length;
+            var sin = ACTIVOS.filter(function (n) { return !conPlaneacion[n]; });
+            var cumplen = total - sin.length;
             var porcentaje = total ? Math.round(100 * cumplen / total) : 0;
-            var texto = $('n-cumpl');
-            while (texto.firstChild) { texto.removeChild(texto.firstChild); }
-            var fuerte = document.createElement('strong');
-            fuerte.textContent = num(cumplen) + ' de ' + num(total) + ' docentes';
-            texto.appendChild(fuerte);
-            texto.appendChild(document.createTextNode(' tienen al menos una planeación'));
-            lectura('l-cumpl', total ? [{ b: porcentaje + ' %' }, ' de los docentes activos'] : ['No hay docentes activos registrados']);
-            var t = google.visualization.arrayToDataTable([['Etiqueta', 'Valor'], ['%', porcentaje]]);
-            var ancho = Math.min($('g-cumpl').clientWidth || 300, 320);
-            nuevo('Gauge', 'g-cumpl').draw(t, {
-                width: ancho, height: Math.round(ancho * 0.85), min: 0, max: 100, minorTicks: 5,
-                redFrom: 0, redTo: 50, yellowFrom: 50, yellowTo: 80, greenFrom: 80, greenTo: 100
-            });
+            var cont = $('g-cumpl');
+            while (cont.firstChild) { cont.removeChild(cont.firstChild); }
+            if (!total) { aviso('g-cumpl', 'l-cumpl', 'No hay docentes activos registrados.'); return; }
+            lectura('l-cumpl', [{ b: num(cumplen) + ' de ' + num(total) + ' docentes' }, ' tienen al menos una planeación']);
+
+            var caja = elemento('div', 'gr-cumpl');
+            caja.appendChild(elemento('div', 'gr-cumpl-num', porcentaje + ' %'));
+            var pista = elemento('div', 'gr-pista');
+            pista.setAttribute('role', 'img');
+            pista.setAttribute('aria-label', porcentaje + ' por ciento de los docentes');
+            var relleno = elemento('div', 'gr-relleno');
+            relleno.style.width = porcentaje + '%';
+            pista.appendChild(relleno);
+            caja.appendChild(pista);
+            if (sin.length) {
+                caja.appendChild(elemento('p', 'gr-sin-titulo', 'Sin planeaciones (' + num(sin.length) + '):'));
+                var lista = elemento('ul', 'gr-sin');
+                sin.slice(0, 8).forEach(function (n) { lista.appendChild(elemento('li', '', n)); });
+                if (sin.length > 8) { lista.appendChild(elemento('li', '', 'y ' + num(sin.length - 8) + ' más')); }
+                caja.appendChild(lista);
+            } else {
+                caja.appendChild(elemento('p', 'gr-todos', 'Todos los docentes tienen planeaciones.'));
+            }
+            cont.appendChild(caja);
         }
 
         // ---- Cifras y dibujo general ----------------------------------------
@@ -593,7 +611,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
             });
         }
 
-        google.charts.load('current', { packages: ['corechart', 'gauge'], language: 'es' });
+        google.charts.load('current', { packages: ['corechart'], language: 'es' });
         google.charts.setOnLoadCallback(iniciar);
     })();
     </script>
