@@ -124,7 +124,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
             .gr-grid { grid-template-columns: 1fr; }
         }
         /* Extras de docentes */
-        .gr-sub { margin: 0 0 6px; max-width: 760px; color: #4B5563; line-height: 1.5; }
         .gr-fecha, .gr-buscar { border: 0; border-radius: 10px; background: #E9EEF8; padding: 8px 12px; font: inherit; font-size: .9em; font-weight: 600; color: #1E3A8A; }
         .gr-fecha { min-width: 0; width: 150px; max-width: 100%; }
         .gr-buscar { min-width: 200px; }
@@ -132,10 +131,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
         .gr-fecha:focus-visible, .gr-buscar:focus-visible { outline: 2px solid #3575EF; outline-offset: 2px; }
         .gr-rango { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: #6b7280; }
         .gr-vacio { padding: 36px 12px; text-align: center; color: #6b7280; font-size: .95em; }
-        .gr-cifras.gr-tres { grid-template-columns: repeat(3, 1fr); }
-        .gr-cifras.gr-tres .gr-cifra:nth-child(3) { border-left: 1px solid #E3EAF8; border-top: 0; }
         @media (min-width: 901px) { .gr-card.gr-alta { grid-row: span 2; } }
-        @media (max-width: 900px) { .gr-cifras.gr-tres { grid-template-columns: 1fr; } .gr-cifras.gr-tres .gr-cifra { border-left: 0; border-top: 1px solid #E3EAF8; } .gr-cifras.gr-tres .gr-cifra:first-child { border-top: 0; } }
         .gr-cumpl { padding: 8px 4px 14px; }
         .gr-cumpl-num { font-size: 3.4em; font-weight: 800; line-height: 1; color: #1E3A8A; font-variant-numeric: tabular-nums; }
         .gr-pista { height: 14px; margin: 14px 0 22px; border-radius: 999px; background: #E3ECFF; overflow: hidden; }
@@ -148,7 +144,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
 
     <div class="gr-wrap" id="gr-wrap">
         <h2>Gráficas de docentes</h2>
-        <p class="gr-sub">Una <strong>planeación</strong> es la clase que el docente prepara y registra en el Planificador de Gibbon. Aquí se ve cuánto y cuándo planea cada docente.</p>
 
         <div class="gr-filtros" role="group" aria-label="Filtros">
             <div class="gr-campo"><span>Año</span><div class="gr-seg" id="f-anio"></div></div>
@@ -160,19 +155,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
             <button type="button" class="gr-limpiar" id="f-limpiar">Quitar filtros</button>
         </div>
 
-        <div class="gr-cifras gr-tres">
-            <div class="gr-cifra"><b id="kpi-plan">–</b><span>planeaciones</span></div>
-            <div class="gr-cifra"><b id="kpi-doc">–</b><span>docentes con planeaciones</span></div>
-            <div class="gr-cifra"><b id="kpi-prom">–</b><span>planeaciones por docente (promedio)</span></div>
-        </div>
-
         <div class="gr-empty" id="gr-empty">Sin datos para los filtros seleccionados</div>
 
         <div class="gr-grid" id="gr-graficas">
             <div class="gr-card gr-alta">
                 <div class="gr-card-head"><h3>¿Cuántas planeaciones tiene cada docente?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-docentes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
                 <div class="gr-pop" id="i-docentes" role="dialog" aria-label="¿Cuántas planeaciones tiene cada docente?" hidden><div class="gr-pop-head"><span class="gr-pop-icono" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor"/></svg></span><span class="gr-pop-titulo">¿Qué muestra esta gráfica?</span><button type="button" class="gr-pop-cerrar" aria-label="Cerrar">&times;</button></div><div class="gr-pop-body"><p>Cuántas planeaciones registró cada docente en el año y las fechas elegidos, de más a menos.</p><p class="gr-pop-dato">Las barras grises son docentes activos que no registraron ninguna.</p></div></div>
-                <p class="gr-lectura" id="l-docentes"></p>
                 <div class="gr-chart" id="g-docentes"></div>
             </div>
             <div class="gr-card">
@@ -386,9 +374,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
             var barras = lista.slice(0, MAX_DOCENTES).map(function (x) {
                 return { etiqueta: x.nombre, valor: x.valor, ayuda: x.nombre + ': ' + num(x.valor) + ' planeaciones', color: x.valor === 0 ? COLOR.gris : COLOR.primario };
             });
-            var partes = [{ b: lista[0].nombre }, ' es quien más planea (', { b: num(lista[0].valor) }, ')'];
-            if (total > 1 && lista[total - 1].valor < lista[0].valor) { partes.push(' · quien menos, ', { b: lista[total - 1].nombre + ' (' + num(lista[total - 1].valor) + ')' }); }
-            lectura('l-docentes', partes);
             var max = lista[0].valor;
             nuevo('BarChart', 'g-docentes').draw(tablaBarras('Docente', barras), opciones({
                 height: Math.max(ALTO, 26 * barras.length + 40),
@@ -465,16 +450,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
 
         // ---- Cifras y dibujo general ----------------------------------------
 
-        function actualizarCifras(filas) {
-            var total = 0;
-            var cuentas = contarPor(filas, function (p) { return p[1]; });
-            Object.keys(cuentas).forEach(function (k) { total += cuentas[k]; });
-            var docentes = Object.keys(cuentas).length;
-            $('kpi-plan').textContent = num(total);
-            $('kpi-doc').textContent = num(docentes);
-            $('kpi-prom').textContent = docentes ? num(Math.round(total / docentes)) : '–';
-        }
-
         // Si una gráfica falla, las demás se siguen dibujando.
         function dibujar(id, fn) {
             try { fn(); } catch (e) {
@@ -486,7 +461,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
         function render() {
             marcarFiltros();
             var filas = filtrar(TODOS);
-            actualizarCifras(filas);
             var hayDatos = filas.length > 0;
             mostrar('gr-empty', !hayDatos, 'block');
             mostrar('gr-graficas', hayDatos, 'grid');
