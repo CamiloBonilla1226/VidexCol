@@ -70,70 +70,77 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
 
     ?>
     <style>
-        .gr-wrap { color: #1F2937; }
-        .gr-filters { border: 1px solid #3575EF; border-radius: 8px; background: #F5F8FF; padding: 12px 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(53,117,239,.15); }
-        .gr-filters h3 { margin: 0 0 8px; color: #1E3A8A; font-size: 1em; }
-        .gr-filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: start; }
-        .gr-filter-grid label { display: block; font-size: .85em; font-weight: bold; margin-bottom: 4px; color: #1E3A8A; }
-        .gr-filter-grid .gr-ctl { min-height: 48px; }
-        .gr-kpis { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-        .gr-kpi { background: #fff; border: 1px solid #9DB8F5; border-radius: 8px; padding: 12px 16px; }
-        .gr-kpi.gr-hero { background: #3575EF; border-color: #3575EF; color: #fff; }
-        .gr-kpi .gr-kpi-label { font-size: .85em; font-weight: 600; color: #4B5563; }
-        .gr-kpi.gr-hero .gr-kpi-label { color: #DCE7FD; }
-        .gr-kpi .gr-kpi-value { font-size: 2em; font-weight: 700; line-height: 1.2; color: #1E3A8A; }
-        .gr-kpi.gr-hero .gr-kpi-value { font-size: 2.6em; color: #fff; }
-        .gr-kpi .gr-kpi-sub { font-size: .8em; color: #6b7280; }
-        .gr-kpi.gr-hero .gr-kpi-sub { color: #DCE7FD; }
-        .gr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-        .gr-card { background: #fff; border: 1px solid #9DB8F5; border-radius: 8px; padding: 12px 16px; min-width: 0; }
+        .gr-wrap { color: #1F2937; max-width: 1200px; }
+        .gr-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+        .gr-head h2 { margin: 0; font-size: 1.6em; font-weight: 700; color: #1E3A8A; letter-spacing: -.01em; }
+        .gr-head p { margin: 2px 0 0; color: #6b7280; font-size: .9em; }
+        .gr-year { display: flex; align-items: center; gap: 8px; font-size: .85em; font-weight: 600; color: #4B5563; }
+        .gr-year select { appearance: none; -webkit-appearance: none; border: 1px solid #CFDCF8; border-radius: 999px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%233575EF' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center; padding: 8px 36px 8px 16px; font-size: 1em; font-weight: 700; color: #1E3A8A; cursor: pointer; box-shadow: 0 1px 3px rgba(30,58,138,.08); }
+        .gr-year select:focus { outline: 2px solid #3575EF; outline-offset: 1px; }
+        .gr-filters { display: grid; gap: 10px; background: #fff; border: 1px solid #E3EAF8; border-radius: 16px; padding: 14px 18px; margin-bottom: 18px; box-shadow: 0 4px 16px rgba(30,58,138,.06); }
+        .gr-frow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+        .gr-flabel { min-width: 64px; font-size: .78em; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #6b7280; }
+        .gr-chip { border: 1px solid #CFDCF8; background: #fff; color: #2555B8; border-radius: 999px; padding: 5px 14px; font-size: .85em; font-weight: 600; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+        .gr-chip:hover { background: #EEF4FF; }
+        .gr-chip:focus-visible { outline: 2px solid #3575EF; outline-offset: 1px; }
+        .gr-chip.on { background: #3575EF; border-color: #3575EF; color: #fff; }
+        .gr-kpis { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+        .gr-kpi { position: relative; background: #fff; border: 1px solid #E3EAF8; border-radius: 16px; padding: 16px 20px; box-shadow: 0 4px 16px rgba(30,58,138,.06); overflow: hidden; }
+        .gr-kpi::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #9DB8F5; }
+        .gr-kpi.gr-hero { background: linear-gradient(135deg, #3575EF, #1E3A8A); border-color: transparent; color: #fff; }
+        .gr-kpi.gr-hero::before { display: none; }
+        .gr-kpi-label { font-size: .8em; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; }
+        .gr-hero .gr-kpi-label { color: #DCE7FD; }
+        .gr-kpi-value { font-size: 2.1em; font-weight: 800; line-height: 1.15; color: #1E3A8A; }
+        .gr-hero .gr-kpi-value { font-size: 2.8em; color: #fff; }
+        .gr-kpi-sub { font-size: .8em; color: #6b7280; min-height: 1.2em; }
+        .gr-hero .gr-kpi-sub { color: #DCE7FD; }
+        .gr-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; }
+        .gr-card { grid-column: span 3; background: #fff; border: 1px solid #E3EAF8; border-radius: 16px; padding: 16px 20px 12px; min-width: 0; box-shadow: 0 4px 16px rgba(30,58,138,.06); }
+        .gr-card.gr-w4 { grid-column: span 4; }
+        .gr-card.gr-w2 { grid-column: span 2; }
         .gr-card.gr-wide { grid-column: 1 / -1; }
-        .gr-card h3 { margin: 0; color: #1E3A8A; font-size: 1.05em; }
-        .gr-card p { margin: 2px 0 8px; font-size: .85em; color: #4B5563; }
+        .gr-card h3 { margin: 0; color: #1E3A8A; font-size: 1.05em; font-weight: 700; }
+        .gr-card p { margin: 2px 0 10px; font-size: .84em; color: #6b7280; }
         .gr-chart { width: 100%; }
-        .gr-empty { display: none; border: 1px dashed #9DB8F5; border-radius: 8px; background: #F5F8FF; color: #1E3A8A; padding: 32px 16px; text-align: center; font-weight: 600; }
-        .gr-foot { margin-top: 12px; font-size: .8em; color: #6b7280; }
+        .gr-empty { display: none; border: 1px dashed #9DB8F5; border-radius: 16px; background: #F5F8FF; color: #1E3A8A; padding: 40px 16px; text-align: center; font-weight: 600; }
+        .gr-foot { margin-top: 14px; font-size: .8em; color: #6b7280; }
         @media (max-width: 900px) {
             .gr-kpis { grid-template-columns: 1fr 1fr; }
-            .gr-grid { grid-template-columns: 1fr; }
+            .gr-card, .gr-card.gr-w4, .gr-card.gr-w2 { grid-column: 1 / -1; }
         }
         @media (max-width: 480px) { .gr-kpis { grid-template-columns: 1fr; } }
     </style>
 
     <div class="gr-wrap" id="gr-wrap">
-        <div id="gr-dashboard">
-            <div class="gr-filters">
-                <h3>Filtros</h3>
-                <div class="gr-filter-grid">
-                    <div><label>Año escolar</label><div class="gr-ctl" id="ctl-anio"></div></div>
-                    <div><label>Grado</label><div class="gr-ctl" id="ctl-grado"></div></div>
-                    <div><label>Grupo</label><div class="gr-ctl" id="ctl-grupo"></div></div>
-                    <div><label>Género</label><div class="gr-ctl" id="ctl-genero"></div></div>
-                    <div><label>Rango de edad</label><div class="gr-ctl" id="ctl-edad"></div></div>
-                    <div><label>Rango de antigüedad (años)</label><div class="gr-ctl" id="ctl-antiguedad"></div></div>
-                </div>
+        <div class="gr-head">
+            <div>
+                <h2>Gráficas de estudiantes</h2>
+                <p>Matrícula del colegio por año escolar. Los filtros son opcionales.</p>
             </div>
-            <div id="ctl-helper" style="display:none"></div>
+            <label class="gr-year">Año escolar <select id="f-anio"></select></label>
+        </div>
+
+        <div class="gr-filters">
+            <div class="gr-frow"><span class="gr-flabel">Grado</span><span class="gr-frow" id="f-grado"></span></div>
+            <div class="gr-frow"><span class="gr-flabel">Género</span><span class="gr-frow" id="f-genero"></span></div>
         </div>
 
         <div class="gr-kpis" id="gr-kpis">
             <div class="gr-kpi gr-hero"><div class="gr-kpi-label">Total de estudiantes</div><div class="gr-kpi-value" id="kpi-total">–</div><div class="gr-kpi-sub" id="kpi-total-sub"></div></div>
             <div class="gr-kpi"><div class="gr-kpi-label">Niñas</div><div class="gr-kpi-value" id="kpi-ninas">–</div><div class="gr-kpi-sub" id="kpi-ninas-sub"></div></div>
             <div class="gr-kpi"><div class="gr-kpi-label">Niños</div><div class="gr-kpi-value" id="kpi-ninos">–</div><div class="gr-kpi-sub" id="kpi-ninos-sub"></div></div>
-            <div class="gr-kpi"><div class="gr-kpi-label">Edad promedio</div><div class="gr-kpi-value" id="kpi-edad">–</div><div class="gr-kpi-sub">años cumplidos al inicio del año escolar</div></div>
+            <div class="gr-kpi"><div class="gr-kpi-label">Edad promedio</div><div class="gr-kpi-value" id="kpi-edad">–</div><div class="gr-kpi-sub">años al inicio del año escolar</div></div>
         </div>
 
         <div class="gr-empty" id="gr-empty">Sin datos para los filtros seleccionados</div>
 
         <div class="gr-grid" id="gr-graficas">
-            <div class="gr-card"><h3>Distribución por género</h3><p>Proporción de niñas y niños entre los estudiantes filtrados.</p><div class="gr-chart" id="g-genero"></div></div>
-            <div class="gr-card"><h3>Matrícula por grado</h3><p>Total de estudiantes por grado (columnas) y porcentaje de niñas (línea).</p><div class="gr-chart" id="g-grado"></div></div>
-            <div class="gr-card"><h3>Pirámide poblacional</h3><p>Estudiantes por edad: niños a la izquierda, niñas a la derecha.</p><div class="gr-chart" id="g-piramide"></div></div>
-            <div class="gr-card"><h3>Extraedad por grado</h3><p>Proporción de estudiantes en edad, adelantados o con extraedad respecto a la edad esperada del grado.</p><div class="gr-chart" id="g-extraedad"></div></div>
-            <div class="gr-card"><h3>Estudiantes por grupo</h3><p>Tamaño de cada grupo, del más numeroso al más pequeño.</p><div class="gr-chart" id="g-grupo"></div></div>
-            <div class="gr-card"><h3>Localidades de procedencia (Top 10)</h3><p>Barrios o localidades con más estudiantes; las de menos de 5 se agrupan en «Otras».</p><div class="gr-chart" id="g-localidad"></div></div>
-            <div class="gr-card"><h3>Antigüedad en el colegio</h3><p>Años escolares que el estudiante lleva matriculado, contando el año en curso.</p><div class="gr-chart" id="g-antiguedad"></div></div>
-            <div class="gr-card"><h3>Evolución de la matrícula por año</h3><p>Total de estudiantes en cada año escolar; ignora el filtro de año pero respeta los demás.</p><div class="gr-chart" id="g-evolucion"></div></div>
+            <div class="gr-card gr-w4"><h3>Matrícula por grado</h3><p>Total de estudiantes por grado (columnas) y porcentaje de niñas (línea).</p><div class="gr-chart" id="g-grado"></div></div>
+            <div class="gr-card gr-w2"><h3>Distribución por género</h3><p>Proporción de niñas y niños.</p><div class="gr-chart" id="g-genero"></div></div>
+            <div class="gr-card"><h3>Extraedad por grado</h3><p>Estudiantes en edad, adelantados o con extraedad según la edad esperada del grado.</p><div class="gr-chart" id="g-extraedad"></div></div>
+            <div class="gr-card"><h3>Localidades de procedencia (Top 10)</h3><p>Las localidades con menos de 5 estudiantes se agrupan en «Otras».</p><div class="gr-chart" id="g-localidad"></div></div>
+            <div class="gr-card gr-wide"><h3>Evolución de la matrícula por año</h3><p>Total de estudiantes en cada año escolar; ignora el filtro de año pero respeta los demás.</p><div class="gr-chart" id="g-evolucion"></div></div>
         </div>
 
         <div class="gr-foot">Fuente: matrícula registrada en Gibbon. Datos generados el <?php echo htmlspecialchars($generado, ENT_QUOTES, 'UTF-8'); ?>. En el año actual solo se cuentan estudiantes con estado «Full».</div>
@@ -152,11 +159,15 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
 
         // Paleta del proyecto (la misma de los reportes de Informes Escolares).
         var COLOR = { primario: '#3575EF', oscuro: '#1E3A8A', medio: '#2B60CF', claro: '#9DB8F5', pale: '#DCE7FD', gris: '#9CA3AF', alerta: '#D97706' };
+        var COLOR_GENERO = { 'Niñas': COLOR.primario, 'Niños': COLOR.oscuro, 'Sin dato': COLOR.gris };
 
         // Columnas del DataTable
         var C = { ANIO: 0, GRADO: 1, ORDEN: 2, GRUPO: 3, GENERO: 4, EDAD: 5, LOCALIDAD: 6, NACIONALIDAD: 7, ANTIGUEDAD: 8 };
+        var ALTO = 320;
 
-        var data, dashboard, controles = {}, temporizador = null;
+        var data, redimensionar = null;
+        // Sin selección en grado o género = todos (por eso los filtros no son obligatorios).
+        var estado = { anio: null, grados: [], generos: [] };
 
         function texto(id, valor) { document.getElementById(id).textContent = valor; }
         function mostrar(id, visible, tipo) { document.getElementById(id).style.display = visible ? (tipo || '') : 'none'; }
@@ -179,54 +190,75 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             return t;
         }
 
-        function categoria(columna, etiqueta, multiple, ordenar) {
-            return new google.visualization.ControlWrapper({
-                controlType: 'CategoryFilter',
-                containerId: 'ctl-' + etiqueta,
-                options: {
-                    filterColumnIndex: columna,
-                    ui: { allowMultiple: multiple, allowNone: multiple, allowTyping: false, label: '', sortValues: ordenar, selectedValuesLayout: 'belowWrapping' }
-                }
+        function unicos(columna) {
+            var vistos = {}, lista = [];
+            for (var i = 0; i < data.getNumberOfRows(); i++) {
+                var v = data.getValue(i, columna);
+                if (!vistos[v]) { vistos[v] = true; lista.push(v); }
+            }
+            return lista;
+        }
+
+        // ---- Filtros ---------------------------------------------------------
+
+        function filtros(incluirAnio) {
+            var f = [];
+            if (incluirAnio) { f.push({ column: C.ANIO, value: estado.anio }); }
+            if (estado.grados.length) { f.push({ column: C.GRADO, test: function (v) { return estado.grados.indexOf(v) !== -1; } }); }
+            if (estado.generos.length) { f.push({ column: C.GENERO, test: function (v) { return estado.generos.indexOf(v) !== -1; } }); }
+            return f;
+        }
+
+        function alternar(lista, valor) {
+            var i = lista.indexOf(valor);
+            if (i === -1) { lista.push(valor); } else { lista.splice(i, 1); }
+        }
+
+        function chip(etiqueta, activo, alClick) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'gr-chip' + (activo ? ' on' : '');
+            b.setAttribute('aria-pressed', activo ? 'true' : 'false');
+            b.textContent = etiqueta;
+            b.addEventListener('click', alClick);
+            return b;
+        }
+
+        function pintarChips(idContenedor, opciones, seleccion) {
+            var cont = document.getElementById(idContenedor);
+            while (cont.firstChild) { cont.removeChild(cont.firstChild); }
+            cont.appendChild(chip('Todos', seleccion.length === 0, function () { seleccion.length = 0; render(); }));
+            opciones.forEach(function (o) {
+                cont.appendChild(chip(o, seleccion.indexOf(o) !== -1, function () { alternar(seleccion, o); render(); }));
             });
         }
 
-        function rango(columna, etiqueta) {
-            return new google.visualization.ControlWrapper({
-                controlType: 'NumberRangeFilter',
-                containerId: 'ctl-' + etiqueta,
-                options: { filterColumnIndex: columna, ui: { label: '', labelStacking: 'vertical', format: { pattern: '#' } } }
-            });
+        function pintarFiltros() {
+            // Grados en orden numérico (no alfabético).
+            var vista = new google.visualization.DataView(data);
+            var g = google.visualization.data.group(vista, [C.ORDEN, C.GRADO],
+                [{ column: C.GRADO, aggregation: google.visualization.data.count, type: 'number', label: 'n' }]);
+            var grados = [];
+            for (var i = 0; i < g.getNumberOfRows(); i++) { grados.push(g.getValue(i, 1)); }
+            var generos = unicos(C.GENERO).sort();
+            pintarChips('f-grado', grados, estado.grados);
+            pintarChips('f-genero', generos, estado.generos);
         }
 
-        function seleccion(ctl) {
-            var s = ctl.getState() || {};
-            return s.selectedValues && s.selectedValues.length ? s.selectedValues : null;
+        function iniciarAnios() {
+            var anios = unicos(C.ANIO);
+            var sel = document.getElementById('f-anio');
+            anios.forEach(function (a) {
+                var o = document.createElement('option');
+                o.value = a; o.textContent = a;
+                sel.appendChild(o);
+            });
+            estado.anio = anios.indexOf(ANIO_ACTUAL) !== -1 ? ANIO_ACTUAL : anios[anios.length - 1];
+            sel.value = estado.anio;
+            sel.addEventListener('change', function () { estado.anio = sel.value; render(); });
         }
 
-        // Arma los filtros de getFilteredRows a partir del estado de los controles.
-        // Con incluirAnio = false se ignora el año (gráfica de evolución).
-        function filtrosActuales(incluirAnio) {
-            var filtros = [];
-            var anio = seleccion(controles.anio) || [ANIO_ACTUAL];
-            function enLista(lista) { return function (v) { return lista.indexOf(v) !== -1; }; }
-            if (incluirAnio) { filtros.push({ column: C.ANIO, test: enLista(anio) }); }
-            [['grado', C.GRADO], ['grupo', C.GRUPO], ['genero', C.GENERO]].forEach(function (par) {
-                var sel = seleccion(controles[par[0]]);
-                if (sel) { filtros.push({ column: par[1], test: enLista(sel) }); }
-            });
-            // Los rangos solo filtran si el usuario los movió: así los valores nulos no se pierden.
-            [['edad', C.EDAD], ['antiguedad', C.ANTIGUEDAD]].forEach(function (par) {
-                var s = controles[par[0]].getState() || {};
-                if (s.lowValue === undefined || s.lowValue === null || s.highValue === undefined || s.highValue === null) { return; }
-                var vista = new google.visualization.DataView(data);
-                vista.setRows(data.getFilteredRows(filtros));
-                var lim = vista.getColumnRange(par[1]);
-                if (lim.min === null || lim.min === undefined) { return; }
-                if (s.lowValue <= lim.min && s.highValue >= lim.max) { return; }
-                filtros.push({ column: par[1], minValue: s.lowValue, maxValue: s.highValue });
-            });
-            return filtros;
-        }
+        // ---- Indicadores -----------------------------------------------------
 
         function vistaDe(filas) {
             var v = new google.visualization.DataView(data);
@@ -235,79 +267,23 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         }
 
         function actualizarKpis(filas) {
-            var total = filas.length, ninas = 0, ninos = 0, suma = 0, conEdad = 0;
+            var total = filas.length, ninas = 0, ninos = 0, suma = 0, conEdadN = 0;
             filas.forEach(function (i) {
                 var g = data.getValue(i, C.GENERO), e = data.getValue(i, C.EDAD);
                 if (g === 'Niñas') { ninas++; } else if (g === 'Niños') { ninos++; }
-                if (e !== null) { suma += e; conEdad++; }
+                if (e !== null) { suma += e; conEdadN++; }
             });
             function pct(n) { return total ? (100 * n / total).toFixed(1).replace('.', ',') + ' % del total' : ''; }
             texto('kpi-total', total.toLocaleString('es'));
-            texto('kpi-total-sub', total ? 'según los filtros seleccionados' : '');
+            texto('kpi-total-sub', total ? 'año escolar ' + estado.anio : '');
             texto('kpi-ninas', ninas.toLocaleString('es'));
             texto('kpi-ninas-sub', pct(ninas));
             texto('kpi-ninos', ninos.toLocaleString('es'));
             texto('kpi-ninos-sub', pct(ninos));
-            texto('kpi-edad', conEdad ? (suma / conEdad).toFixed(1).replace('.', ',') : '–');
+            texto('kpi-edad', conEdadN ? (suma / conEdadN).toFixed(1).replace('.', ',') : '–');
         }
 
-        function render() {
-            var filas = data.getFilteredRows(filtrosActuales(true));
-            actualizarKpis(filas);
-            var hayDatos = filas.length > 0;
-            mostrar('gr-empty', !hayDatos, 'block');
-            mostrar('gr-graficas', hayDatos, 'grid');
-            if (hayDatos) {
-                dibujarGraficas(filas, data.getFilteredRows(filtrosActuales(false)));
-            }
-        }
-
-        function programar() {
-            clearTimeout(temporizador);
-            temporizador = setTimeout(render, 50);
-        }
-
-        function iniciar() {
-            data = construirTabla();
-
-            controles.anio = categoria(C.ANIO, 'anio', false, true);
-            controles.grado = categoria(C.GRADO, 'grado', true, false);
-            controles.grupo = categoria(C.GRUPO, 'grupo', true, false);
-            controles.genero = categoria(C.GENERO, 'genero', true, true);
-            controles.edad = rango(C.EDAD, 'edad');
-            controles.antiguedad = rango(C.ANTIGUEDAD, 'antiguedad');
-            controles.anio.setState({ selectedValues: [ANIO_ACTUAL] });
-            controles.anio.setOption('ui', { allowMultiple: false, allowNone: false, allowTyping: false, label: '' });
-
-            // Cada control recibe los datos ya filtrados por el anterior: así "Grupo" solo ofrece
-            // los grupos de los grados elegidos. El auxiliar (oculto) cierra la cadena.
-            var auxiliar = new google.visualization.ChartWrapper({ chartType: 'Table', containerId: 'ctl-helper' });
-            dashboard = new google.visualization.Dashboard(document.getElementById('gr-dashboard'));
-            dashboard.bind(controles.anio, controles.grado)
-                     .bind(controles.grado, controles.grupo)
-                     .bind(controles.grupo, controles.genero)
-                     .bind(controles.genero, controles.edad)
-                     .bind(controles.edad, controles.antiguedad)
-                     .bind(controles.antiguedad, auxiliar);
-
-            Object.keys(controles).forEach(function (k) {
-                google.visualization.events.addListener(controles[k], 'statechange', programar);
-            });
-            google.visualization.events.addListener(dashboard, 'ready', programar);
-
-            var redimensionar = null;
-            window.addEventListener('resize', function () {
-                clearTimeout(redimensionar);
-                redimensionar = setTimeout(render, 200);
-            });
-
-            dashboard.draw(data);
-        }
-
-        // ---- Gráficas -----------------------------------------------------------
-
-        var COLOR_GENERO = { 'Niñas': COLOR.primario, 'Niños': COLOR.oscuro, 'Sin dato': COLOR.gris };
-        var ALTO = 320;
+        // ---- Gráficas ----------------------------------------------------------
 
         function nuevo(tipo, id) { return new google.visualization[tipo](document.getElementById(id)); }
 
@@ -315,11 +291,19 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             var o = {
                 height: ALTO,
                 fontSize: 12,
-                legend: { position: 'bottom' },
+                fontName: 'Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+                backgroundColor: 'transparent',
+                legend: { position: 'bottom', textStyle: { color: '#4B5563' } },
                 chartArea: { left: 56, right: 24, top: 16, bottom: 56 },
-                colors: [COLOR.primario, COLOR.oscuro, COLOR.claro, COLOR.gris]
+                colors: [COLOR.primario, COLOR.oscuro, COLOR.claro, COLOR.gris],
+                hAxis: { textStyle: { color: '#4B5563' }, gridlines: { color: '#EEF2FA' }, baselineColor: '#CFDCF8' },
+                vAxis: { textStyle: { color: '#4B5563' }, gridlines: { color: '#EEF2FA' }, baselineColor: '#CFDCF8' },
+                animation: { startup: true, duration: 350, easing: 'out' }
             };
-            Object.keys(extra || {}).forEach(function (k) { o[k] = extra[k]; });
+            Object.keys(extra || {}).forEach(function (k) {
+                o[k] = (typeof extra[k] === 'object' && !Array.isArray(extra[k]) && o[k] && typeof o[k] === 'object')
+                    ? Object.assign({}, o[k], extra[k]) : extra[k];
+            });
             return o;
         }
 
@@ -351,7 +335,7 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             for (var i = 0; i < g.getNumberOfRows(); i++) {
                 slices[i] = { color: COLOR_GENERO[g.getValue(i, 0)] || COLOR.claro };
             }
-            nuevo('PieChart', 'g-genero').draw(g, opciones({ pieHole: 0.5, slices: slices, chartArea: { left: 16, right: 16, top: 16, bottom: 48 } }));
+            nuevo('PieChart', 'g-genero').draw(g, opciones({ pieHole: 0.55, slices: slices, pieSliceBorderColor: '#fff', chartArea: { left: 16, right: 16, top: 16, bottom: 48 } }));
         }
 
         function graficaGrado(filas) {
@@ -372,31 +356,8 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
                 seriesType: 'bars',
                 series: { 0: { color: COLOR.primario }, 1: { type: 'line', targetAxisIndex: 1, color: COLOR.oscuro, pointSize: 5 } },
                 vAxes: { 0: { minValue: 0, title: 'Estudiantes' }, 1: { minValue: 0, maxValue: 1, format: '#%', title: '% de niñas' } },
+                bar: { groupWidth: '65%' },
                 chartArea: { left: 56, right: 56, top: 16, bottom: 56 }
-            }));
-        }
-
-        function graficaPiramide(filas) {
-            var g = google.visualization.data.group(vistaDe(conEdad(filas)), [C.EDAD], [
-                { column: C.GENERO, aggregation: function (v) { return -contarValor('Niños')(v); }, type: 'number', label: 'Niños' },
-                { column: C.GENERO, aggregation: contarValor('Niñas'), type: 'number', label: 'Niñas' }
-            ]);
-            var t = new google.visualization.DataTable();
-            t.addColumn('string', 'Edad');
-            t.addColumn('number', 'Niños');
-            t.addColumn('number', 'Niñas');
-            // Las edades mayores arriba, como en una pirámide.
-            for (var i = g.getNumberOfRows() - 1; i >= 0; i--) {
-                t.addRow([String(g.getValue(i, 0)), g.getValue(i, 1), g.getValue(i, 2)]);
-            }
-            new google.visualization.NumberFormat({ pattern: '#,##0;#,##0' }).format(t, 1);
-            nuevo('BarChart', 'g-piramide').draw(t, opciones({
-                isStacked: true,
-                height: Math.max(ALTO, 24 * t.getNumberOfRows() + 80),
-                colors: [COLOR_GENERO['Niños'], COLOR_GENERO['Niñas']],
-                hAxis: { format: '#,##0;#,##0' },
-                vAxis: { title: 'Edad (años)' },
-                bar: { groupWidth: '85%' }
             }));
         }
 
@@ -429,6 +390,7 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             nuevo('ColumnChart', 'g-extraedad').draw(t, opciones({
                 isStacked: 'percent',
                 colors: [COLOR.primario, COLOR.claro, COLOR.alerta],
+                bar: { groupWidth: '65%' },
                 vAxis: { format: '#%', minValue: 0 }
             }));
         }
@@ -448,20 +410,6 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             return t;
         }
 
-        function graficaGrupo(filas) {
-            var g = contarPor(vistaDe(filas), C.GRUPO);
-            g.sort([{ column: 1, desc: true }]);
-            var pares = [];
-            for (var i = 0; i < g.getNumberOfRows(); i++) { pares.push([g.getValue(i, 0), g.getValue(i, 1)]); }
-            nuevo('BarChart', 'g-grupo').draw(tablaBarras(pares, 'Grupo'), opciones({
-                legend: { position: 'none' },
-                height: Math.max(ALTO, 26 * pares.length + 60),
-                colors: [COLOR.primario],
-                hAxis: { minValue: 0 },
-                chartArea: { left: 80, right: 32, top: 16, bottom: 40 }
-            }));
-        }
-
         // Privacidad: las categorías con menos de MINIMO_CATEGORIA estudiantes (y todo lo que
         // quede fuera del Top 10) se agrupan en "Otras" para no identificar a nadie.
         function graficaLocalidad(filas) {
@@ -478,23 +426,8 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
                 legend: { position: 'none' },
                 height: Math.max(ALTO, 28 * pares.length + 60),
                 hAxis: { minValue: 0 },
+                bar: { groupWidth: '70%' },
                 chartArea: { left: 150, right: 32, top: 16, bottom: 40 }
-            }));
-        }
-
-        function graficaAntiguedad(filas) {
-            var cuentas = { '1 año': 0, '2 años': 0, '3 o más años': 0 };
-            filas.forEach(function (i) {
-                var a = data.getValue(i, C.ANTIGUEDAD);
-                if (a === null || a < 1) { return; }
-                cuentas[a === 1 ? '1 año' : (a === 2 ? '2 años' : '3 o más años')]++;
-            });
-            var pares = Object.keys(cuentas).map(function (k) { return [k, cuentas[k]]; });
-            nuevo('ColumnChart', 'g-antiguedad').draw(tablaBarras(pares, 'Antigüedad'), opciones({
-                legend: { position: 'none' },
-                colors: [COLOR.primario],
-                bar: { groupWidth: '95%' },
-                vAxis: { minValue: 0 }
             }));
         }
 
@@ -505,24 +438,43 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             nuevo('LineChart', 'g-evolucion').draw(tablaBarras(pares, 'Año'), opciones({
                 legend: { position: 'none' },
                 colors: [COLOR.primario],
-                pointSize: 6,
+                pointSize: 7,
                 lineWidth: 3,
                 vAxis: { minValue: 0 }
             }));
         }
 
-        function dibujarGraficas(filas, filasEvolucion) {
+        function render() {
+            pintarFiltros();
+            var filas = data.getFilteredRows(filtros(true));
+            actualizarKpis(filas);
+            var hayDatos = filas.length > 0;
+            mostrar('gr-empty', !hayDatos, 'block');
+            mostrar('gr-graficas', hayDatos, 'grid');
+            if (!hayDatos) { return; }
             graficaGenero(filas);
             graficaGrado(filas);
-            graficaPiramide(filas);
             graficaExtraedad(filas);
-            graficaGrupo(filas);
             graficaLocalidad(filas);
-            graficaAntiguedad(filas);
-            graficaEvolucion(filasEvolucion);
+            graficaEvolucion(data.getFilteredRows(filtros(false)));
         }
 
-        google.charts.load('current', { packages: ['corechart', 'controls'], language: 'es' });
+        function iniciar() {
+            data = construirTabla();
+            if (!data.getNumberOfRows()) {
+                mostrar('gr-graficas', false);
+                mostrar('gr-empty', true, 'block');
+                return;
+            }
+            iniciarAnios();
+            render();
+            window.addEventListener('resize', function () {
+                clearTimeout(redimensionar);
+                redimensionar = setTimeout(render, 200);
+            });
+        }
+
+        google.charts.load('current', { packages: ['corechart'], language: 'es' });
         google.charts.setOnLoadCallback(iniciar);
     })();
     </script>

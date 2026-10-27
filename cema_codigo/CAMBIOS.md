@@ -6,13 +6,14 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ## 2026-10-26 — Informes Escolares: nuevo dashboard "Gráficas de estudiantes"
 
-**Qué se agregó:** página `graficasEstudiantes.php` con Google Charts (loader oficial, idioma `es`), 6 filtros (año escolar, grado, grupo dependiente del grado, género, rango de edad, rango de antigüedad), indicadores (total, niñas, niños, edad promedio) y 8 gráficas: género (dona), matrícula por grado (columnas + % de niñas), pirámide poblacional, extraedad por grado, estudiantes por grupo, localidades Top 10, antigüedad y evolución de la matrícula por año (ignora el filtro de año). Colores: la paleta azul que ya usan los reportes (#3575EF, #1E3A8A, #9DB8F5…). El servidor entrega los datos una sola vez y todo el filtrado se hace en el navegador. No se envía ningún nombre ni identificador; las localidades con menos de 5 estudiantes se agrupan en "Otras".
+**Qué se agregó:** página `graficasEstudiantes.php` (también servida desde `modules/Graficas/estudiantes.php`) con Google Charts (loader oficial, idioma `es`), diseño moderno en tarjetas y la paleta azul de los reportes (#3575EF, #1E3A8A, #9DB8F5…). Filtros opcionales: año escolar (por defecto el actual) y chips de grado y género ("Todos" por defecto, no hace falta tocar nada para ver datos). Indicadores (total, niñas, niños, edad promedio) y 5 gráficas: matrícula por grado (columnas + % de niñas), distribución por género (dona), extraedad por grado, localidades Top 10 y evolución de la matrícula por año (ignora el filtro de año). El servidor entrega los datos una sola vez y todo el filtrado se hace en el navegador. No se envía ningún nombre ni identificador; las localidades con menos de 5 estudiantes se agrupan en "Otras".
 
 **Datos:** nuevo método `queryGraficasEstudiantes()` en el gateway (una fila por estudiante y año escolar, años Past y Current; en el año actual solo status `Full`). El grado sale de `gibbonYearGroup`, el grupo con `TRIM`.
 
 **Archivos (subir al servidor):**
 - `modules/Informes Escolares/src/InformesEscolaresGateway.php`
 - `modules/Informes Escolares/graficasEstudiantes.php`
+- `modules/Graficas/estudiantes.php`
 
 **Registrar la acción (sin tocar manifest.php):** correr en phpMyAdmin `modules/Informes Escolares/registrar_accion_graficas.sql`. Crea la acción "Gráficas de estudiantes" copiando categoría y permisos por rol de `reportAttendances.php`, y es repetible. No hay que subir ese archivo al servidor, solo ejecutarlo.
 
