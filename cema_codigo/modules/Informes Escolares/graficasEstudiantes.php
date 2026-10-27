@@ -33,7 +33,11 @@ $minimoCategoria = 5;
 // repositorio: si no existe en la BD, el gateway devuelve "Sin dato" en lugar de fallar.
 $columnaNacionalidad = 'nationality';
 
-if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/graficasEstudiantes.php') == false) {
+// Permiso que se valida. Otra página (modules/Graficas/estudiantes.php) puede definir
+// $accionGraficas antes de incluir este archivo para usar su propia acción.
+$accionGraficas = $accionGraficas ?? '/modules/Informes Escolares/graficasEstudiantes.php';
+
+if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
 } else {
