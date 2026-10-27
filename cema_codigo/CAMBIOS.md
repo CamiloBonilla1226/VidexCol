@@ -16,7 +16,7 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 **Supuestos / no verificado (sin acceso a la BD):**
 - Planeaciones: se atribuyen a `gibbonPlannerEntry.gibbonPersonIDCreator` (columna confirmada en `gibbon.sql`). Respaldo: si ese creador ya no existe en `gibbonPerson`, se atribuyen a cada docente (`role = 'Teacher'`) de la clase y se cuentan una sola vez en los totales.
-- "Docentes activos" = todo `gibbonStaff` con `gibbonPerson.status = 'Full'`; si incluye personal administrativo, el porcentaje de cumplimiento baja. El cruce con quienes planearon se hace por el texto "Apellido Nombre" (no se envían IDs); dos personas con el mismo nombre se confundirían.
+- Docentes: solo cuentan personas que son docentes de alguna clase (`gibbonCourseClassPerson.role = 'Teacher'`). "Docentes activos" (denominador del cumplimiento) = estado `Full` y con clase asignada en el año escolar actual; así se excluye al personal administrativo y de apoyo de `gibbonStaff`. Las planeaciones solo se atribuyen a quien es o fue docente de alguna clase. Si un docente activo no tiene clases asignadas este año, no aparecerá. El cruce con quienes planearon se hace por el texto "Apellido Nombre" (no se envían IDs); dos personas con el mismo nombre se confundirían.
 - Con ~90.000 eventos el navegador recibe unos pocos MB de datos; si la página tarda, avisa.
 - Acceso: limitar la acción "Graficas docentes" a directivos (Administración > Permisos de acción).
 
@@ -25,8 +25,13 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 SELECT YEAR(date) AS anio, COUNT(*) FROM gibbonPlannerEntry GROUP BY YEAR(date) ORDER BY 1;
 SELECT COUNT(*) AS sin_creador FROM gibbonPlannerEntry pe
  WHERE NOT EXISTS (SELECT 1 FROM gibbonPerson p WHERE p.gibbonPersonID = pe.gibbonPersonIDCreator);
-SELECT COUNT(DISTINCT gibbonPersonID) AS docentes_activos FROM gibbonStaff s
- INNER JOIN gibbonPerson p USING (gibbonPersonID) WHERE p.status = 'Full';
+SELECT COUNT(DISTINCT p.gibbonPersonID) AS docentes_activos
+ FROM gibbonPerson p
+ INNER JOIN gibbonCourseClassPerson ccp ON ccp.gibbonPersonID = p.gibbonPersonID AND ccp.role = 'Teacher'
+ INNER JOIN gibbonCourseClass cc ON cc.gibbonCourseClassID = ccp.gibbonCourseClassID
+ INNER JOIN gibbonCourse c ON c.gibbonCourseID = cc.gibbonCourseID
+ INNER JOIN gibbonSchoolYear y ON y.gibbonSchoolYearID = c.gibbonSchoolYearID AND y.status = 'Current'
+ WHERE p.status = 'Full';
 ```
 
 **Notas:** sin prueba contra la BD; se probó la página con datos inventados (sintaxis PHP y JS, escritorio y celular).

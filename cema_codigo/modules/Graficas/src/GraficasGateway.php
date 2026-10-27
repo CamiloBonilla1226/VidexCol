@@ -72,7 +72,9 @@ class GraficasGateway extends QueryableGateway
      * Base del dashboard "Gráficas de docentes": una fila por evento (planeación u observación).
      * Campos: tipo ('P' planeación / 'O' observación), idEvento (para contar sin duplicados),
      * fecha, docente ("Apellido Nombre") y materia. No devuelve IDs de persona ni contacto.
-     * - Planeaciones: se atribuyen a quien las creó (gibbonPlannerEntry.gibbonPersonIDCreator).
+     * - Planeaciones: se atribuyen a quien las creó (gibbonPlannerEntry.gibbonPersonIDCreator),
+     *   y solo si esa persona es o fue docente de alguna clase (gibbonCourseClassPerson.role
+     *   'Teacher' / 'Teacher - Left'); así no aparecen directivos u otro personal que crearon una planeación.
      *   Respaldo: si el creador ya no existe en gibbonPerson, se atribuyen a cada docente
      *   (role 'Teacher') de la clase; ese caso repite el idEvento y por eso se cuenta distinto.
      * - Observaciones: obsObservaciones.gibbonPersonID_create y fechaIncidente; no tienen materia.
@@ -99,6 +101,8 @@ class GraficasGateway extends QueryableGateway
                 INNER JOIN gibbonCourse ON gibbonCourse.gibbonCourseID = gibbonCourseClass.gibbonCourseID
                 INNER JOIN gibbonPerson AS per ON per.gibbonPersonID = pe.gibbonPersonIDCreator
                 WHERE pe.date IS NOT NULL" . $limites('pe.date', 'A') . "
+                AND EXISTS (SELECT 1 FROM gibbonCourseClassPerson AS doc
+                            WHERE doc.gibbonPersonID = pe.gibbonPersonIDCreator AND doc.role IN ('Teacher', 'Teacher - Left'))
                 UNION ALL
                 SELECT 'P', pe.gibbonPlannerEntryID, pe.date,
                        CONCAT(TRIM(per.surname), ' ', TRIM(per.preferredName)), gibbonCourse.name
@@ -121,15 +125,21 @@ class GraficasGateway extends QueryableGateway
     }
 
     /**
-     * Docentes activos (gibbonStaff con gibbonPerson.status = 'Full'): solo "Apellido Nombre".
-     * Es el denominador del indicador de cumplimiento de planeación.
+     * Docentes activos: personas con estado 'Full' que son docentes (role 'Teacher') en alguna clase
+     * del año escolar actual. No basta con estar en gibbonStaff: ahí también está el personal
+     * administrativo y de apoyo. Solo "Apellido Nombre". Es el denominador del indicador de cumplimiento.
      */
     public function queryDocentesActivos()
     {
         return $this->db()->select(
             "SELECT DISTINCT CONCAT(TRIM(gibbonPerson.surname), ' ', TRIM(gibbonPerson.preferredName)) AS docente
-             FROM gibbonStaff
-             INNER JOIN gibbonPerson ON gibbonPerson.gibbonPersonID = gibbonStaff.gibbonPersonID
+             FROM gibbonPerson
+             INNER JOIN gibbonCourseClassPerson ON gibbonCourseClassPerson.gibbonPersonID = gibbonPerson.gibbonPersonID
+                 AND gibbonCourseClassPerson.role = 'Teacher'
+             INNER JOIN gibbonCourseClass ON gibbonCourseClass.gibbonCourseClassID = gibbonCourseClassPerson.gibbonCourseClassID
+             INNER JOIN gibbonCourse ON gibbonCourse.gibbonCourseID = gibbonCourseClass.gibbonCourseID
+             INNER JOIN gibbonSchoolYear ON gibbonSchoolYear.gibbonSchoolYearID = gibbonCourse.gibbonSchoolYearID
+                 AND gibbonSchoolYear.status = 'Current'
              WHERE gibbonPerson.status = 'Full'
              ORDER BY docente"
         )->fetchAll(\PDO::FETCH_COLUMN);
