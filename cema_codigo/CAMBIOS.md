@@ -6,9 +6,9 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ## 2026-10-27 — Gráficas de docentes (módulo Graficas)
 
-**Qué se agregó:** dashboard "Gráficas de docentes" en `modules/Graficas/docentes.php` (la opción "Graficas docentes" que ya estaba en el menú del módulo Graficas; no hizo falta script SQL ni tocar el manifest). Mismo estilo que Gráficas de estudiantes: filtros (año, rango de fechas, docente con búsqueda, materia, tipo), cifras (planeaciones, observaciones, docentes con actividad) y 5 gráficas con pregunta, frase corta e ícono (i): planeaciones por mes (una columna por mes del año elegido; el mes más fuerte en azul), ranking de docentes por planeaciones (top 15), observaciones por docente (top 15), observaciones por año y cumplimiento de planeación (porcentaje grande con barra de progreso, "X de Y docentes" y quiénes aún no tienen planeación).
+**Qué se agregó:** dashboard "Gráficas de docentes" en `modules/Graficas/docentes.php` (la opción "Graficas docentes" que ya estaba en el menú del módulo Graficas; no hizo falta script SQL ni tocar el manifest). Mismo estilo que Gráficas de estudiantes. Solo planeaciones (las observaciones ya no se muestran). Filtros: año, rango de fechas, docente con búsqueda y materia. Cifras: planeaciones, docentes con planeaciones y promedio por docente. 3 gráficas con pregunta, frase corta e ícono (i): planeaciones por docente (todos los activos, los que no tienen ninguna en gris), cuántos docentes están al día (porcentaje con barra de progreso y quiénes faltan) y en qué meses se planea más (columnas por mes).
 
-**Datos:** `queryGraficasDocentes()` y `queryDocentesActivos()` en `modules/Graficas/src/GraficasGateway.php`. Una fila por evento; el navegador recibe listas de nombres/materias una sola vez y cada evento como `[tipo, fecha, docente, materia, id]` (sin IDs de persona). Constantes al inicio de la página: `$fechaMinima` (2020-01-01, descarta años mal digitados) y `$incluirFechasFuturas` (false: se excluye lo posterior a hoy).
+**Datos:** `queryGraficasDocentes()` y `queryDocentesActivos()` en `modules/Graficas/src/GraficasGateway.php`. La página pide solo planeaciones (`$incluirObservaciones = false`); el método sigue pudiendo traer observaciones si se vuelven a necesitar. El navegador recibe listas de nombres/materias una sola vez y cada planeación como `[fecha, docente, materia, id]` (sin IDs de persona). Constantes al inicio de la página: `$fechaMinima` (2020-01-01) y `$incluirFechasFuturas` (false: se excluye lo posterior a hoy).
 
 **Archivos (subir al servidor):**
 - `modules/Graficas/docentes.php`
@@ -16,7 +16,6 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 **Supuestos / no verificado (sin acceso a la BD):**
 - Planeaciones: se atribuyen a `gibbonPlannerEntry.gibbonPersonIDCreator` (columna confirmada en `gibbon.sql`). Respaldo: si ese creador ya no existe en `gibbonPerson`, se atribuyen a cada docente (`role = 'Teacher'`) de la clase y se cuentan una sola vez en los totales.
-- Observaciones: `obsObservaciones.id`, `fechaIncidente`, `gibbonPersonID_create` (confirmadas en el manifest del módulo Observador). No tienen materia: al elegir una materia, solo quedan planeaciones.
 - "Docentes activos" = todo `gibbonStaff` con `gibbonPerson.status = 'Full'`; si incluye personal administrativo, el porcentaje de cumplimiento baja. El cruce con quienes planearon se hace por el texto "Apellido Nombre" (no se envían IDs); dos personas con el mismo nombre se confundirían.
 - Con ~90.000 eventos el navegador recibe unos pocos MB de datos; si la página tarda, avisa.
 - Acceso: limitar la acción "Graficas docentes" a directivos (Administración > Permisos de acción).
@@ -24,7 +23,6 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 **Consultas para validar:**
 ```sql
 SELECT YEAR(date) AS anio, COUNT(*) FROM gibbonPlannerEntry GROUP BY YEAR(date) ORDER BY 1;
-SELECT YEAR(fechaIncidente) AS anio, COUNT(*) FROM obsObservaciones GROUP BY YEAR(fechaIncidente) ORDER BY 1;
 SELECT COUNT(*) AS sin_creador FROM gibbonPlannerEntry pe
  WHERE NOT EXISTS (SELECT 1 FROM gibbonPerson p WHERE p.gibbonPersonID = pe.gibbonPersonIDCreator);
 SELECT COUNT(DISTINCT gibbonPersonID) AS docentes_activos FROM gibbonStaff s

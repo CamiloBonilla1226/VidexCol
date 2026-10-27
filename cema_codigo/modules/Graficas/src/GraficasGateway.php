@@ -77,9 +77,9 @@ class GraficasGateway extends QueryableGateway
      *   (role 'Teacher') de la clase; ese caso repite el idEvento y por eso se cuenta distinto.
      * - Observaciones: obsObservaciones.gibbonPersonID_create y fechaIncidente; no tienen materia.
      * $fechaMinima descarta fechas mal digitadas (años 26, 206…); $fechaMaxima (o null) descarta
-     * eventos futuros.
+     * eventos futuros. Con $incluirObservaciones = false solo se traen planeaciones (más liviano).
      */
-    public function queryGraficasDocentes($fechaMinima, $fechaMaxima = null)
+    public function queryGraficasDocentes($fechaMinima, $fechaMaxima = null, $incluirObservaciones = true)
     {
         $params = [];
         $limites = function ($columna, $sufijo) use (&$params, $fechaMinima, $fechaMaxima) {
@@ -109,12 +109,12 @@ class GraficasGateway extends QueryableGateway
                 INNER JOIN gibbonPerson AS per ON per.gibbonPersonID = ccp.gibbonPersonID
                 WHERE pe.date IS NOT NULL" . $limites('pe.date', 'B') . "
                 AND NOT EXISTS (SELECT 1 FROM gibbonPerson AS creador WHERE creador.gibbonPersonID = pe.gibbonPersonIDCreator)
-                UNION ALL
+                " . ($incluirObservaciones ? "UNION ALL
                 SELECT 'O', o.id, o.fechaIncidente,
                        CONCAT(TRIM(per.surname), ' ', TRIM(per.preferredName)), 'Sin materia'
                 FROM obsObservaciones AS o
                 INNER JOIN gibbonPerson AS per ON per.gibbonPersonID = o.gibbonPersonID_create
-                WHERE o.fechaIncidente IS NOT NULL" . $limites('o.fechaIncidente', 'C') . "
+                WHERE o.fechaIncidente IS NOT NULL" . $limites('o.fechaIncidente', 'C') : '') . "
                 ORDER BY fecha";
 
         return $this->db()->select($sql, $params)->fetchAll();
