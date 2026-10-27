@@ -4,6 +4,35 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-10-26 — Informes Escolares: nuevo dashboard "Gráficas de estudiantes"
+
+**Qué se agregó:** página `graficasEstudiantes.php` con Google Charts (loader oficial, idioma `es`), 6 filtros (año escolar, grado, grupo dependiente del grado, género, rango de edad, rango de antigüedad), indicadores (total, niñas, niños, edad promedio) y 8 gráficas: género (dona), matrícula por grado (columnas + % de niñas), pirámide poblacional, extraedad por grado, estudiantes por grupo, localidades Top 10, antigüedad y evolución de la matrícula por año (ignora el filtro de año). Colores: la paleta azul que ya usan los reportes (#3575EF, #1E3A8A, #9DB8F5…). El servidor entrega los datos una sola vez y todo el filtrado se hace en el navegador. No se envía ningún nombre ni identificador; las localidades con menos de 5 estudiantes se agrupan en "Otras".
+
+**Datos:** nuevo método `queryGraficasEstudiantes()` en el gateway (una fila por estudiante y año escolar, años Past y Current; en el año actual solo status `Full`). El grado sale de `gibbonYearGroup`, el grupo con `TRIM`.
+
+**Archivos (subir al servidor):**
+- `modules/Informes Escolares/src/InformesEscolaresGateway.php`
+- `modules/Informes Escolares/graficasEstudiantes.php`
+
+**Pendiente en el servidor — registrar la acción:** el `manifest.php` de Informes Escolares no está en el repositorio, así que no se pudo editar. Agrega allí una acción nueva con los mismos permisos que los otros reportes (copia el bloque de `reportAttendances.php`), con nombre `Gráficas de estudiantes` y `URLList`/`entryURL` = `graficasEstudiantes.php`; luego Gibbon necesita que se vuelva a leer el manifest (Administración > Módulos > Actualizar) y dar permiso al rol en Permisos de acción.
+
+**No verificado (sin acceso a la BD):**
+- `gibbonPerson.nationality`: no aparece en `gibbon.sql` del repositorio. El gateway comprueba si la columna existe y, si no, devuelve "Sin dato" (la columna se cambia en `$columnaNacionalidad`, al inicio de la página). Ninguna de las 8 gráficas usa nacionalidad todavía.
+- `gibbonPerson.address1District`, `dob`, `gender` y `gibbonYearGroup.name/sequenceNumber`: sí están en `gibbon.sql`, pero conviene confirmarlas en la BD real.
+- Edad esperada por grado (1°=6 … 11°=16): es un supuesto mío, configurable en `$edadEsperadaPorGrado`. "En edad" = esperada o esperada+1; "Extraedad" = esperada+2 o más (`$margenExtraedad`). El número de grado se toma del primer número del nombre en `gibbonYearGroup` (si no tiene, de `sequenceNumber`).
+
+**Consultas para validar:**
+```sql
+SELECT column_name FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'gibbonPerson'
+  AND column_name IN ('nationality','address1District','dob','gender');
+SELECT gibbonYearGroupID, name, nameShort, sequenceNumber FROM gibbonYearGroup ORDER BY sequenceNumber;
+SELECT name, status, sequenceNumber, firstDay FROM gibbonSchoolYear ORDER BY sequenceNumber;
+```
+
+**Notas:** sin prueba contra la BD ni visual; solo se verificó la sintaxis (`php -l` y `node --check` del JavaScript).
+
+---
+
 ## 2026-10-22 — Informes Escolares: Ingreso de Notas, Notas por Curso, Asistencia, Planeación y Observaciones
 
 **Problemas y causas:**
