@@ -144,4 +144,56 @@ class GraficasGateway extends QueryableGateway
              ORDER BY docente"
         )->fetchAll(\PDO::FETCH_COLUMN);
     }
+
+    /**
+     * Base del dashboard "Gráficas de familias": una fila por vínculo estudiante-acudiente del año
+     * escolar (años Past y Current; en el actual solo estudiantes 'Full'). Los estudiantes sin
+     * acudiente salen con los campos del acudiente vacíos (LEFT JOIN).
+     * Devuelve IDs reales (idEstudiante, idFamilia, idAcudiente) SOLO para que la página los
+     * convierta en claves anónimas secuenciales; nunca deben enviarse al navegador. No devuelve
+     * nombres, correos, teléfonos ni direcciones: solo banderas 0/1 de si el dato existe.
+     * - hijos: estudiantes de esa familia matriculados en ese año escolar.
+     * - religion: la del estudiante (gibbonPerson.religion).
+     * - parentesco: gibbonFamilyRelationship.relationship (persona 1 = acudiente, persona 2 = estudiante).
+     */
+    public function queryGraficasFamilias()
+    {
+        return $this->db()->select(
+            "SELECT gibbonSchoolYear.name AS anio, gibbonSchoolYear.status AS estadoAnio,
+                    gibbonYearGroup.name AS grado, gibbonYearGroup.sequenceNumber AS ordenGrado,
+                    CASE student.gender WHEN 'F' THEN 'Niñas' WHEN 'M' THEN 'Niños' ELSE 'Sin dato' END AS genero,
+                    COALESCE(NULLIF(TRIM(student.religion), ''), 'Sin dato') AS religion,
+                    student.gibbonPersonID AS idEstudiante,
+                    gibbonFamilyChild.gibbonFamilyID AS idFamilia,
+                    adult.gibbonPersonID AS idAcudiente,
+                    (SELECT COUNT(DISTINCT hermano.gibbonPersonID)
+                     FROM gibbonFamilyChild AS hijo
+                     INNER JOIN gibbonStudentEnrolment AS hermano ON hermano.gibbonPersonID = hijo.gibbonPersonID
+                         AND hermano.gibbonSchoolYearID = gibbonStudentEnrolment.gibbonSchoolYearID
+                     INNER JOIN gibbonPerson AS personaHermano ON personaHermano.gibbonPersonID = hermano.gibbonPersonID
+                     WHERE hijo.gibbonFamilyID = gibbonFamilyChild.gibbonFamilyID
+                     AND (gibbonSchoolYear.status = 'Past' OR personaHermano.status = 'Full')) AS hijos,
+                    COALESCE(NULLIF(TRIM(gibbonFamilyRelationship.relationship), ''), 'Sin dato') AS parentesco,
+                    COALESCE(NULLIF(UPPER(TRIM(adult.profession)), ''), 'SIN DATO') AS profesion,
+                    CASE WHEN adult.gibbonPersonID IS NULL THEN NULL
+                         WHEN TRIM(COALESCE(adult.email, '')) <> '' OR TRIM(COALESCE(adult.emailAlternate, '')) <> '' THEN 1 ELSE 0 END AS tieneCorreo,
+                    CASE WHEN adult.gibbonPersonID IS NULL THEN NULL
+                         WHEN TRIM(COALESCE(adult.phone1, '')) <> '' THEN 1 ELSE 0 END AS tieneTelefono,
+                    CASE WHEN adult.gibbonPersonID IS NULL THEN NULL
+                         WHEN TRIM(COALESCE(adult.address1, '')) <> '' THEN 1 ELSE 0 END AS tieneDireccion
+             FROM gibbonStudentEnrolment
+             INNER JOIN gibbonPerson AS student ON student.gibbonPersonID = gibbonStudentEnrolment.gibbonPersonID
+             INNER JOIN gibbonYearGroup ON gibbonYearGroup.gibbonYearGroupID = gibbonStudentEnrolment.gibbonYearGroupID
+             INNER JOIN gibbonSchoolYear ON gibbonSchoolYear.gibbonSchoolYearID = gibbonStudentEnrolment.gibbonSchoolYearID
+             LEFT JOIN gibbonFamilyChild ON gibbonFamilyChild.gibbonPersonID = student.gibbonPersonID
+             LEFT JOIN gibbonFamilyAdult ON gibbonFamilyAdult.gibbonFamilyID = gibbonFamilyChild.gibbonFamilyID
+             LEFT JOIN gibbonPerson AS adult ON adult.gibbonPersonID = gibbonFamilyAdult.gibbonPersonID AND adult.status = 'Full'
+             LEFT JOIN gibbonFamilyRelationship ON gibbonFamilyRelationship.gibbonFamilyID = gibbonFamilyChild.gibbonFamilyID
+                 AND gibbonFamilyRelationship.gibbonPersonID1 = adult.gibbonPersonID
+                 AND gibbonFamilyRelationship.gibbonPersonID2 = student.gibbonPersonID
+             WHERE gibbonSchoolYear.status IN ('Past', 'Current')
+             AND (gibbonSchoolYear.status = 'Past' OR student.status = 'Full')
+             ORDER BY gibbonSchoolYear.sequenceNumber, gibbonYearGroup.sequenceNumber"
+        )->fetchAll();
+    }
 }
