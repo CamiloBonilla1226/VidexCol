@@ -21,6 +21,14 @@ use Modules\InformesEscolares\InformesEscolaresGateway;
 
 require_once __DIR__ . '/src/InformesEscolaresGateway.php';
 
+// SUPUESTO (mío, no del colegio): edad esperada por número de grado. Depende de la fecha de
+// corte del colegio (la edad se mide al primer día del año escolar), así que ajústala aquí.
+// "En edad" = esperada o esperada + 1; "Adelantado" = menor; "Extraedad" = esperada + MARGEN o más.
+$edadEsperadaPorGrado = [1 => 6, 2 => 7, 3 => 8, 4 => 9, 5 => 10, 6 => 11, 7 => 12, 8 => 13, 9 => 14, 10 => 15, 11 => 16];
+$margenExtraedad = 2;
+// Privacidad: categorías con menos estudiantes que esto se agrupan en "Otras".
+$minimoCategoria = 5;
+
 // Columna de gibbonPerson con la nacionalidad. No está confirmada en el esquema del
 // repositorio: si no existe en la BD, el gateway devuelve "Sin dato" en lugar de fallar.
 $columnaNacionalidad = 'nationality';
@@ -134,6 +142,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/grafica
 
         var DATOS = <?php echo json_encode($datos, $jsonFlags); ?>;
         var ANIO_ACTUAL = <?php echo json_encode($anioActual, $jsonFlags); ?>;
+        var EDAD_ESPERADA_POR_GRADO = <?php echo json_encode($edadEsperadaPorGrado, $jsonFlags); ?>;
+        var MARGEN_EXTRAEDAD = <?php echo (int) $margenExtraedad; ?>;
+        var MINIMO_CATEGORIA = <?php echo (int) $minimoCategoria; ?>;
 
         // Paleta del proyecto (la misma de los reportes de Informes Escolares).
         var COLOR = { primario: '#3575EF', oscuro: '#1E3A8A', medio: '#2B60CF', claro: '#9DB8F5', pale: '#DCE7FD', gris: '#9CA3AF', alerta: '#D97706' };
@@ -289,8 +300,222 @@ if (isActionAccessible($guid, $connection2, '/modules/Informes Escolares/grafica
             dashboard.draw(data);
         }
 
+        // ---- Gráficas -----------------------------------------------------------
+
+        var COLOR_GENERO = { 'Niñas': COLOR.primario, 'Niños': COLOR.oscuro, 'Sin dato': COLOR.gris };
+        var ALTO = 320;
+
+        function nuevo(tipo, id) { return new google.visualization[tipo](document.getElementById(id)); }
+
+        function opciones(extra) {
+            var o = {
+                height: ALTO,
+                fontSize: 12,
+                legend: { position: 'bottom' },
+                chartArea: { left: 56, right: 24, top: 16, bottom: 56 },
+                colors: [COLOR.primario, COLOR.oscuro, COLOR.claro, COLOR.gris]
+            };
+            Object.keys(extra || {}).forEach(function (k) { o[k] = extra[k]; });
+            return o;
+        }
+
+        function contarPor(vista, columna) {
+            return google.visualization.data.group(vista, [columna],
+                [{ column: columna, aggregation: google.visualization.data.count, type: 'number', label: 'Estudiantes' }]);
+        }
+
+        function contarValor(valor) {
+            return function (valores) {
+                var n = 0;
+                valores.forEach(function (v) { if (v === valor) { n++; } });
+                return n;
+            };
+        }
+
+        function numeroGrado(nombre, orden) {
+            var m = /\d+/.exec(nombre || '');
+            return m ? parseInt(m[0], 10) : orden;
+        }
+
+        function conEdad(filas) {
+            return filas.filter(function (i) { return data.getValue(i, C.EDAD) !== null; });
+        }
+
+        function graficaGenero(filas) {
+            var g = contarPor(vistaDe(filas), C.GENERO);
+            var slices = {};
+            for (var i = 0; i < g.getNumberOfRows(); i++) {
+                slices[i] = { color: COLOR_GENERO[g.getValue(i, 0)] || COLOR.claro };
+            }
+            nuevo('PieChart', 'g-genero').draw(g, opciones({ pieHole: 0.5, slices: slices, chartArea: { left: 16, right: 16, top: 16, bottom: 48 } }));
+        }
+
+        function graficaGrado(filas) {
+            var g = google.visualization.data.group(vistaDe(filas), [C.ORDEN, C.GRADO], [
+                { column: C.GENERO, aggregation: google.visualization.data.count, type: 'number', label: 'Total' },
+                { column: C.GENERO, aggregation: contarValor('Niñas'), type: 'number', label: 'Niñas' }
+            ]);
+            var t = new google.visualization.DataTable();
+            t.addColumn('string', 'Grado');
+            t.addColumn('number', 'Estudiantes');
+            t.addColumn('number', '% de niñas');
+            for (var i = 0; i < g.getNumberOfRows(); i++) {
+                var total = g.getValue(i, 2);
+                t.addRow([g.getValue(i, 1), total, total ? g.getValue(i, 3) / total : null]);
+            }
+            new google.visualization.NumberFormat({ pattern: '#.#%' }).format(t, 2);
+            nuevo('ComboChart', 'g-grado').draw(t, opciones({
+                seriesType: 'bars',
+                series: { 0: { color: COLOR.primario }, 1: { type: 'line', targetAxisIndex: 1, color: COLOR.oscuro, pointSize: 5 } },
+                vAxes: { 0: { minValue: 0, title: 'Estudiantes' }, 1: { minValue: 0, maxValue: 1, format: '#%', title: '% de niñas' } },
+                chartArea: { left: 56, right: 56, top: 16, bottom: 56 }
+            }));
+        }
+
+        function graficaPiramide(filas) {
+            var g = google.visualization.data.group(vistaDe(conEdad(filas)), [C.EDAD], [
+                { column: C.GENERO, aggregation: function (v) { return -contarValor('Niños')(v); }, type: 'number', label: 'Niños' },
+                { column: C.GENERO, aggregation: contarValor('Niñas'), type: 'number', label: 'Niñas' }
+            ]);
+            var t = new google.visualization.DataTable();
+            t.addColumn('string', 'Edad');
+            t.addColumn('number', 'Niños');
+            t.addColumn('number', 'Niñas');
+            // Las edades mayores arriba, como en una pirámide.
+            for (var i = g.getNumberOfRows() - 1; i >= 0; i--) {
+                t.addRow([String(g.getValue(i, 0)), g.getValue(i, 1), g.getValue(i, 2)]);
+            }
+            new google.visualization.NumberFormat({ pattern: '#,##0;#,##0' }).format(t, 1);
+            nuevo('BarChart', 'g-piramide').draw(t, opciones({
+                isStacked: true,
+                height: Math.max(ALTO, 24 * t.getNumberOfRows() + 80),
+                colors: [COLOR_GENERO['Niños'], COLOR_GENERO['Niñas']],
+                hAxis: { format: '#,##0;#,##0' },
+                vAxis: { title: 'Edad (años)' },
+                bar: { groupWidth: '85%' }
+            }));
+        }
+
+        function graficaExtraedad(filas) {
+            var vista = vistaDe(conEdad(filas));
+            vista.setColumns([C.ORDEN, C.GRADO, {
+                type: 'string', label: 'Categoría',
+                calc: function (dt, fila) {
+                    var esperada = EDAD_ESPERADA_POR_GRADO[numeroGrado(dt.getValue(fila, C.GRADO), dt.getValue(fila, C.ORDEN))];
+                    if (esperada === undefined) { return 'Sin referencia'; }
+                    var edad = dt.getValue(fila, C.EDAD);
+                    if (edad < esperada) { return 'Adelantado'; }
+                    return edad >= esperada + MARGEN_EXTRAEDAD ? 'Extraedad' : 'En edad';
+                }
+            }]);
+            var g = google.visualization.data.group(vista, [0, 1], [
+                { column: 2, aggregation: contarValor('En edad'), type: 'number', label: 'En edad' },
+                { column: 2, aggregation: contarValor('Adelantado'), type: 'number', label: 'Adelantado' },
+                { column: 2, aggregation: contarValor('Extraedad'), type: 'number', label: 'Extraedad' }
+            ]);
+            var t = new google.visualization.DataTable();
+            t.addColumn('string', 'Grado');
+            ['En edad', 'Adelantado', 'Extraedad'].forEach(function (n) { t.addColumn('number', n); });
+            for (var i = 0; i < g.getNumberOfRows(); i++) {
+                var suma = g.getValue(i, 2) + g.getValue(i, 3) + g.getValue(i, 4);
+                if (suma > 0) { t.addRow([g.getValue(i, 1), g.getValue(i, 2), g.getValue(i, 3), g.getValue(i, 4)]); }
+            }
+            var cont = document.getElementById('g-extraedad');
+            if (!t.getNumberOfRows()) { cont.textContent = 'Sin edad esperada definida para estos grados.'; return; }
+            nuevo('ColumnChart', 'g-extraedad').draw(t, opciones({
+                isStacked: 'percent',
+                colors: [COLOR.primario, COLOR.claro, COLOR.alerta],
+                vAxis: { format: '#%', minValue: 0 }
+            }));
+        }
+
+        // Tabla [etiqueta, valor, anotación(, estilo)] a partir de pares ya ordenados.
+        function tablaBarras(pares, titulo, estilos) {
+            var t = new google.visualization.DataTable();
+            t.addColumn('string', titulo);
+            t.addColumn('number', 'Estudiantes');
+            t.addColumn({ type: 'string', role: 'annotation' });
+            if (estilos) { t.addColumn({ type: 'string', role: 'style' }); }
+            pares.forEach(function (p, i) {
+                var fila = [p[0], p[1], String(p[1])];
+                if (estilos) { fila.push(estilos[i]); }
+                t.addRow(fila);
+            });
+            return t;
+        }
+
+        function graficaGrupo(filas) {
+            var g = contarPor(vistaDe(filas), C.GRUPO);
+            g.sort([{ column: 1, desc: true }]);
+            var pares = [];
+            for (var i = 0; i < g.getNumberOfRows(); i++) { pares.push([g.getValue(i, 0), g.getValue(i, 1)]); }
+            nuevo('BarChart', 'g-grupo').draw(tablaBarras(pares, 'Grupo'), opciones({
+                legend: { position: 'none' },
+                height: Math.max(ALTO, 26 * pares.length + 60),
+                colors: [COLOR.primario],
+                hAxis: { minValue: 0 },
+                chartArea: { left: 80, right: 32, top: 16, bottom: 40 }
+            }));
+        }
+
+        // Privacidad: las categorías con menos de MINIMO_CATEGORIA estudiantes (y todo lo que
+        // quede fuera del Top 10) se agrupan en "Otras" para no identificar a nadie.
+        function graficaLocalidad(filas) {
+            var g = contarPor(vistaDe(filas), C.LOCALIDAD);
+            g.sort([{ column: 1, desc: true }]);
+            var pares = [], otras = 0;
+            for (var i = 0; i < g.getNumberOfRows(); i++) {
+                var n = g.getValue(i, 1);
+                if (pares.length < 10 && n >= MINIMO_CATEGORIA) { pares.push([g.getValue(i, 0), n]); } else { otras += n; }
+            }
+            var estilos = pares.map(function () { return 'color: ' + COLOR.primario; });
+            if (otras > 0) { pares.push(['Otras', otras]); estilos.push('color: ' + COLOR.gris); }
+            nuevo('BarChart', 'g-localidad').draw(tablaBarras(pares, 'Localidad', estilos), opciones({
+                legend: { position: 'none' },
+                height: Math.max(ALTO, 28 * pares.length + 60),
+                hAxis: { minValue: 0 },
+                chartArea: { left: 150, right: 32, top: 16, bottom: 40 }
+            }));
+        }
+
+        function graficaAntiguedad(filas) {
+            var cuentas = { '1 año': 0, '2 años': 0, '3 o más años': 0 };
+            filas.forEach(function (i) {
+                var a = data.getValue(i, C.ANTIGUEDAD);
+                if (a === null || a < 1) { return; }
+                cuentas[a === 1 ? '1 año' : (a === 2 ? '2 años' : '3 o más años')]++;
+            });
+            var pares = Object.keys(cuentas).map(function (k) { return [k, cuentas[k]]; });
+            nuevo('ColumnChart', 'g-antiguedad').draw(tablaBarras(pares, 'Antigüedad'), opciones({
+                legend: { position: 'none' },
+                colors: [COLOR.primario],
+                bar: { groupWidth: '95%' },
+                vAxis: { minValue: 0 }
+            }));
+        }
+
+        function graficaEvolucion(filasEvolucion) {
+            var g = contarPor(vistaDe(filasEvolucion), C.ANIO);
+            var pares = [];
+            for (var i = 0; i < g.getNumberOfRows(); i++) { pares.push([g.getValue(i, 0), g.getValue(i, 1)]); }
+            nuevo('LineChart', 'g-evolucion').draw(tablaBarras(pares, 'Año'), opciones({
+                legend: { position: 'none' },
+                colors: [COLOR.primario],
+                pointSize: 6,
+                lineWidth: 3,
+                vAxis: { minValue: 0 }
+            }));
+        }
+
         function dibujarGraficas(filas, filasEvolucion) {
-            // Las gráficas se agregan en el siguiente commit.
+            graficaGenero(filas);
+            graficaGrado(filas);
+            graficaPiramide(filas);
+            graficaExtraedad(filas);
+            graficaGrupo(filas);
+            graficaLocalidad(filas);
+            graficaAntiguedad(filas);
+            graficaEvolucion(filasEvolucion);
         }
 
         google.charts.load('current', { packages: ['corechart', 'controls'], language: 'es' });
