@@ -4,6 +4,31 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-10-27 — Gráficas de estudiantes: se muda al módulo Graficas
+
+**Qué cambió:** el dashboard ahora vive completo en `modules/Graficas/estudiantes.php` (la opción "Graficas de estudiantes" del menú), con su propio gateway `modules/Graficas/src/GraficasGateway.php`. Se quitó de Informes Escolares: se borró `graficasEstudiantes.php`, el script `registrar_accion_graficas.sql` y el método `queryGraficasEstudiantes()` de `InformesEscolaresGateway.php`. El módulo Graficas queda versionado (se agregó a `modules/.gitignore`).
+
+**Archivos (subir al servidor):**
+- `modules/Graficas/estudiantes.php`
+- `modules/Graficas/src/GraficasGateway.php` (carpeta `src` nueva)
+- `modules/Informes Escolares/src/InformesEscolaresGateway.php`
+
+**Borrar del servidor:** `modules/Informes Escolares/graficasEstudiantes.php`.
+
+**Quitar la acción extra en la BD** (la que creó `registrar_accion_graficas.sql`):
+```sql
+DELETE p FROM gibbonPermission p
+INNER JOIN gibbonAction a ON a.gibbonActionID = p.gibbonActionID
+INNER JOIN gibbonModule m ON m.gibbonModuleID = a.gibbonModuleID
+WHERE m.name = 'Informes Escolares' AND a.URLList = 'graficasEstudiantes.php';
+
+DELETE a FROM gibbonAction a
+INNER JOIN gibbonModule m ON m.gibbonModuleID = a.gibbonModuleID
+WHERE m.name = 'Informes Escolares' AND a.URLList = 'graficasEstudiantes.php';
+```
+
+---
+
 ## 2026-10-26 — Informes Escolares: nuevo dashboard "Gráficas de estudiantes"
 
 **Qué se agregó:** página `graficasEstudiantes.php` (también servida desde `modules/Graficas/estudiantes.php`) con Google Charts (loader oficial, idioma `es`) y la paleta azul de los reportes. Filtros en una barra: año escolar y género con botones segmentados, grado en una lista; por defecto muestran todo el año actual. Franja con total, niñas, niños y edad promedio. 5 gráficas, cada una con una pregunta como título, una frase corta con el resultado y un ícono (i) arriba a la derecha que abre la explicación detallada (cómo se calcula, supuestos): estudiantes por grado, niñas y niños, extraedad por grado ("5 de 17"), estudiantes nuevos vs. antiguos (columnas) y evolución por año (ignora el filtro de año). Se corrigió que la última gráfica saliera en blanco: `getFilteredRows` falla con una lista de filtros vacía. Si una gráfica falla, las demás se siguen dibujando. Al navegador solo llegan año, grado, grupo, género, edad y antigüedad (sin nombres, identificadores ni localidad).

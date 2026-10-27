@@ -61,3 +61,5 @@
 # whitelist custom module
 !/Informes Escolares
 !/Informes Escolares/**
+!/Graficas
+!/Graficas/**

@@ -17,13 +17,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-use Modules\InformesEscolares\InformesEscolaresGateway;
+use Modules\Graficas\GraficasGateway;
 
-require_once __DIR__ . '/src/InformesEscolaresGateway.php';
+require_once __DIR__ . '/src/GraficasGateway.php';
 
 // SUPUESTO (mío, no del colegio): edad esperada por número de grado. Depende de la fecha de
 // corte del colegio (la edad se mide al primer día del año escolar), así que ajústala aquí.
-// "En edad" = esperada o esperada + 1; "Adelantado" = menor; "Extraedad" = esperada + MARGEN o más.
+// "Extraedad" = edad esperada + $margenExtraedad años o más.
 $edadEsperadaPorGrado = [1 => 6, 2 => 7, 3 => 8, 4 => 9, 5 => 10, 6 => 11, 7 => 12, 8 => 13, 9 => 14, 10 => 15, 11 => 16];
 $margenExtraedad = 2;
 
@@ -31,17 +31,13 @@ $margenExtraedad = 2;
 // repositorio: si no existe en la BD, el gateway devuelve "Sin dato" en lugar de fallar.
 $columnaNacionalidad = 'nationality';
 
-// Permiso que se valida. Otra página (modules/Graficas/estudiantes.php) puede definir
-// $accionGraficas antes de incluir este archivo para usar su propia acción.
-$accionGraficas = $accionGraficas ?? '/modules/Informes Escolares/graficasEstudiantes.php';
-
-if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
+if (isActionAccessible($guid, $connection2, '/modules/Graficas/estudiantes.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
 } else {
     $page->breadcrumbs->add('Gráficas de estudiantes');
 
-    $gateway = $container->get(InformesEscolaresGateway::class);
+    $gateway = $container->get(GraficasGateway::class);
     $filas = $gateway->queryGraficasEstudiantes($columnaNacionalidad);
 
     $anioActual = '';
