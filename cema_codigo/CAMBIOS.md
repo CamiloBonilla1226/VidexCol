@@ -4,6 +4,40 @@ Cada entrada indica qué se cambió, por qué y **qué archivos hay que subir al
 
 ---
 
+## 2026-10-27 — Gráficas de familias (módulo Graficas)
+
+**Qué se agregó:** dashboard "Gráficas de familias" en `modules/Graficas/familias.php` (la opción "Graficas familias" que ya estaba en el menú del módulo Graficas; no hizo falta script SQL ni tocar el manifest). Mismo estilo que estudiantes y docentes. Filtros: año escolar (por defecto el actual), grado, género del estudiante, religión y número de hijos en el colegio (1, 2, 3 o más). Cifras: estudiantes, familias, hijos por familia (promedio) y acudientes. 5 gráficas con pregunta, frase corta e ícono (i): hijos por familia, religión (dona), parentesco de los acudientes, ocupación de los acudientes (Top 10 + "Otras") y datos de contacto por grado.
+
+**Datos:** `queryGraficasFamilias()` en `modules/Graficas/src/GraficasGateway.php` (una fila por vínculo estudiante-acudiente del año; los estudiantes sin acudiente salen con LEFT JOIN). **Privacidad:** el servidor reemplaza los IDs por claves anónimas secuenciales (estudiante, familia, acudiente) y el navegador no recibe nombres, correos, teléfonos, direcciones ni IDs reales, solo banderas 0/1 de si el dato existe. Religión, parentesco y ocupación con menos de 5 personas se agrupan en "Otras" (constante `$minimoCategoria`). Se cuentan claves distintas, no filas.
+
+**Archivos (subir al servidor):**
+- `modules/Graficas/familias.php`
+- `modules/Graficas/src/GraficasGateway.php`
+
+**Diferencias con lo pedido:** se hizo en el módulo Graficas (no en Informes Escolares) y con los filtros propios del dashboard (no ControlWrapper), igual que estudiantes y docentes. No se incluye el filtro de grupo (se había quitado en estudiantes por poco útil). La gráfica de contacto es de columnas agrupadas (no apiladas al 100 %), porque correo, teléfono y dirección no son partes de un total.
+
+**Supuestos / no verificado (sin acceso a la BD):**
+- Columnas confirmadas en `gibbon.sql`: `gibbonPerson.religion`, `profession`, `email`, `emailAlternate`, `phone1`, `address1`; `gibbonFamilyChild`, `gibbonFamilyAdult`, `gibbonFamilyRelationship` (persona 1 = acudiente, persona 2 = estudiante, como lo usan Finance y Admisiones).
+- La religión es la del estudiante (`gibbonPerson.religion` del estudiante), no la del acudiente.
+- Solo se cuentan acudientes con estado `Full`. "Hijos en el colegio" = estudiantes de la familia matriculados ese año.
+- Si un estudiante está en varias familias (padres separados) cuenta en cada una.
+- Parentesco "Sin dato" = no hay fila en `gibbonFamilyRelationship` para ese acudiente y estudiante.
+- Acceso: limitar la acción "Graficas familias" a directivos y pastoral.
+
+**Consultas para validar:**
+```sql
+SELECT COUNT(*) AS estudiantes_sin_familia FROM gibbonStudentEnrolment e
+ INNER JOIN gibbonSchoolYear y ON y.gibbonSchoolYearID = e.gibbonSchoolYearID AND y.status = 'Current'
+ WHERE NOT EXISTS (SELECT 1 FROM gibbonFamilyChild fc WHERE fc.gibbonPersonID = e.gibbonPersonID);
+SELECT relationship, COUNT(*) FROM gibbonFamilyRelationship GROUP BY relationship ORDER BY 2 DESC;
+SELECT religion, COUNT(*) FROM gibbonPerson WHERE status = 'Full' GROUP BY religion ORDER BY 2 DESC;
+SELECT UPPER(TRIM(profession)) AS ocupacion, COUNT(*) FROM gibbonPerson WHERE profession <> '' GROUP BY 1 ORDER BY 2 DESC LIMIT 20;
+```
+
+**Notas:** sin prueba contra la BD; se probó la página con datos inventados (sintaxis PHP y JS, escritorio).
+
+---
+
 ## 2026-10-27 — Gráficas de docentes (módulo Graficas)
 
 **Qué se agregó:** dashboard "Gráficas de docentes" en `modules/Graficas/docentes.php` (la opción "Graficas docentes" que ya estaba en el menú del módulo Graficas; no hizo falta script SQL ni tocar el manifest). Mismo estilo que Gráficas de estudiantes. Solo planeaciones (las observaciones ya no se muestran). Filtros: año, rango de fechas, docente con búsqueda y materia. Cifras: planeaciones, docentes con planeaciones y promedio por docente. 3 gráficas con pregunta, frase corta e ícono (i): planeaciones por docente (todos los activos, los que no tienen ninguna en gris), cuántos docentes están al día (porcentaje con barra de progreso y quiénes faltan) y en qué meses se planea más (columnas por mes).
