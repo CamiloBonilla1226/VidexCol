@@ -61,6 +61,12 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             'antiguedad' => (int) $fila['antiguedad'],
         ];
     }
+    $edadesTexto = [];
+    foreach ($edadEsperadaPorGrado as $numGrado => $edad) {
+        $edadesTexto[] = $numGrado . '° = ' . $edad;
+    }
+    $edadesTexto = htmlspecialchars(implode(', ', $edadesTexto), ENT_QUOTES, 'UTF-8');
+    $margenTexto = (int) $margenExtraedad;
     $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR;
     $generado = date('d/m/Y H:i');
 
@@ -94,10 +100,19 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         .gr-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
         .gr-card { background: #fff; border: 1px solid #E3EAF8; border-radius: 10px; padding: 18px 20px 10px; min-width: 0; }
         .gr-card.gr-wide { grid-column: 1 / -1; }
-        .gr-card h3 { margin: 0 0 6px; font-size: 1.05em; font-weight: 700; color: #1E3A8A; }
+        .gr-card { position: relative; }
+        .gr-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+        .gr-card h3 { margin: 0; font-size: 1.05em; font-weight: 700; color: #1E3A8A; }
+        .gr-info { flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: -4px -6px 0 0; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #9CA3AF; cursor: pointer; transition: background .15s, color .15s; }
+        .gr-info:hover, .gr-info[aria-expanded="true"] { background: #EEF4FF; color: #3575EF; }
+        .gr-info:focus-visible { outline: 2px solid #3575EF; outline-offset: 1px; }
+        .gr-pop { position: absolute; top: 46px; right: 14px; z-index: 5; width: min(340px, calc(100% - 28px)); padding: 14px 16px; background: #fff; border: 1px solid #E3EAF8; border-radius: 10px; box-shadow: 0 12px 32px rgba(30,58,138,.16); font-size: .86em; line-height: 1.5; color: #374151; }
+        .gr-pop[hidden] { display: none; }
+        .gr-pop p { margin: 0 0 8px; }
+        .gr-pop p:last-child { margin-bottom: 0; }
+        .gr-pop strong { color: #1E3A8A; }
         .gr-lectura { margin: 0 0 6px; font-size: .95em; color: #1F2937; line-height: 1.45; }
         .gr-lectura strong { color: #1E3A8A; }
-        .gr-nota { margin: 4px 0 6px; font-size: .8em; color: #6b7280; }
         .gr-chart { width: 100%; }
         .gr-empty { display: none; border: 1px dashed #9DB8F5; border-radius: 10px; background: #F5F8FF; color: #1E3A8A; padding: 40px 16px; text-align: center; font-weight: 600; }
         .gr-foot { margin-top: 14px; font-size: .8em; color: #6b7280; }
@@ -129,11 +144,36 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         <div class="gr-empty" id="gr-empty">Sin datos para los filtros seleccionados</div>
 
         <div class="gr-grid" id="gr-graficas">
-            <div class="gr-card"><h3>¿Cuántos estudiantes hay en cada grado?</h3><p class="gr-lectura" id="l-grado"></p><div class="gr-chart" id="g-grado"></div></div>
-            <div class="gr-card"><h3>¿Cuántas niñas y cuántos niños?</h3><p class="gr-lectura" id="l-genero"></p><div class="gr-chart" id="g-genero"></div></div>
-            <div class="gr-card"><h3>¿Cuántos están por encima de la edad de su grado?</h3><p class="gr-lectura" id="l-extraedad"></p><p class="gr-nota" id="n-extraedad"></p><div class="gr-chart" id="g-extraedad"></div></div>
-            <div class="gr-card"><h3>¿Cuántos estudiantes son nuevos?</h3><p class="gr-lectura" id="l-antiguedad"></p><p class="gr-nota">Años que el estudiante lleva matriculado, contando el año que estás viendo. Se cuenta desde el primer año registrado en Gibbon.</p><div class="gr-chart" id="g-antiguedad"></div></div>
-            <div class="gr-card gr-wide"><h3>¿Cómo ha cambiado la matrícula con los años?</h3><p class="gr-lectura" id="l-evolucion"></p><div class="gr-chart" id="g-evolucion"></div></div>
+            <div class="gr-card">
+                <div class="gr-card-head"><h3>¿Cuántos estudiantes hay en cada grado?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-grado"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
+                <div class="gr-pop" id="i-grado" role="dialog" aria-label="¿Cuántos estudiantes hay en cada grado?" hidden><p>Número de estudiantes matriculados en cada grado en el año escolar elegido.</p><p>El grado se toma del curso de Gibbon (no del nombre del grupo), así se pueden comparar años aunque los grupos cambien de nombre.</p><p>Pasa el mouse sobre una barra para ver cuántas niñas y cuántos niños hay.</p></div>
+                <p class="gr-lectura" id="l-grado"></p>
+                <div class="gr-chart" id="g-grado"></div>
+            </div>
+            <div class="gr-card">
+                <div class="gr-card-head"><h3>¿Cuántas niñas y cuántos niños?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-genero"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
+                <div class="gr-pop" id="i-genero" role="dialog" aria-label="¿Cuántas niñas y cuántos niños?" hidden><p>Proporción de estudiantes según el género registrado en su ficha de Gibbon.</p><p><strong>Sin dato</strong> agrupa a quienes no tienen género registrado o tienen «Otro» / «Sin especificar».</p></div>
+                <p class="gr-lectura" id="l-genero"></p>
+                <div class="gr-chart" id="g-genero"></div>
+            </div>
+            <div class="gr-card">
+                <div class="gr-card-head"><h3>¿Cuántos están por encima de la edad de su grado?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-extraedad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
+                <div class="gr-pop" id="i-extraedad" role="dialog" aria-label="¿Cuántos están por encima de la edad de su grado?" hidden><p><strong>Cómo se calcula:</strong> con la fecha de nacimiento se saca la edad que el estudiante tenía el primer día del año escolar y se compara con la edad esperada para su grado.</p><p><strong>Edad esperada:</strong> <?php echo $edadesTexto; ?> años.</p><p>Si tiene <strong><?php echo $margenTexto; ?> años o más</strong> por encima de la esperada, cuenta como extraedad (mismo criterio del Ministerio de Educación). Ejemplo: en 1° se esperan 6 años; un estudiante de 8 años o más está en extraedad.</p><p>Los estudiantes sin fecha de nacimiento no se cuentan. Las edades esperadas son un supuesto y deben ajustarse a la fecha de corte del colegio.</p></div>
+                <p class="gr-lectura" id="l-extraedad"></p>
+                <div class="gr-chart" id="g-extraedad"></div>
+            </div>
+            <div class="gr-card">
+                <div class="gr-card-head"><h3>¿Cuántos estudiantes son nuevos?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-antiguedad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
+                <div class="gr-pop" id="i-antiguedad" role="dialog" aria-label="¿Cuántos estudiantes son nuevos?" hidden><p>Cuenta en cuántos años escolares distintos aparece matriculado cada estudiante, hasta el año elegido. <strong>Nuevos</strong> = es su primer año.</p><p>Solo se cuentan los años registrados en Gibbon: si el colegio empezó a usarlo hace poco, nadie puede tener más años que esos, y en el primer año todos salen como nuevos.</p></div>
+                <p class="gr-lectura" id="l-antiguedad"></p>
+                <div class="gr-chart" id="g-antiguedad"></div>
+            </div>
+            <div class="gr-card gr-wide">
+                <div class="gr-card-head"><h3>¿Cómo ha cambiado la matrícula con los años?</h3><button type="button" class="gr-info" aria-label="Qué muestra esta gráfica" aria-expanded="false" aria-controls="i-evolucion"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v6"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg></button></div>
+                <div class="gr-pop" id="i-evolucion" role="dialog" aria-label="¿Cómo ha cambiado la matrícula con los años?" hidden><p>Total de estudiantes matriculados en cada año escolar registrado. La barra azul fuerte es el año que estás viendo.</p><p>Respeta los filtros de grado y género, pero siempre muestra todos los años.</p><p>En los años pasados cuentan todos los que estuvieron matriculados; en el año actual, solo los estudiantes activos.</p></div>
+                <p class="gr-lectura" id="l-evolucion"></p>
+                <div class="gr-chart" id="g-evolucion"></div>
+            </div>
         </div>
 
         <div class="gr-foot">Fuente: matrícula registrada en Gibbon. Datos generados el <?php echo htmlspecialchars($generado, ENT_QUOTES, 'UTF-8'); ?>. En el año actual solo se cuentan estudiantes con estado «Full».</div>
@@ -366,8 +406,7 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             if (barras.length === 1) {
                 lectura('l-grado', ['En ', { b: mayor.etiqueta }, ' hay ', { b: num(mayor.valor) + ' estudiantes' }, '.']);
             } else {
-                lectura('l-grado', ['El grado con más estudiantes es ', { b: mayor.etiqueta + ' (' + num(mayor.valor) + ')' },
-                    ' y el que tiene menos es ', { b: menor.etiqueta + ' (' + num(menor.valor) + ')' }, '.']);
+                lectura('l-grado', ['Más en ', { b: mayor.etiqueta + ' (' + num(mayor.valor) + ')' }, ' · menos en ', { b: menor.etiqueta + ' (' + num(menor.valor) + ')' }]);
             }
             nuevo('ColumnChart', 'g-grado').draw(tablaBarras('Grado', barras), opciones({ vAxis: ejeConAire(barras), chartArea: { left: 8, right: 8, top: 24, bottom: 40 } }));
         }
@@ -385,9 +424,8 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
                 slices[t.getNumberOfRows()] = { color: COLOR_GENERO[k] || COLOR.claro };
                 t.addRow([k + ': ' + num(cuentas[k]), cuentas[k]]);
             });
-            var partes = ['Hay ', { b: num(cuentas['Niñas']) + ' niñas (' + pct(cuentas['Niñas'], total) + ')' },
-                          ' y ', { b: num(cuentas['Niños']) + ' niños (' + pct(cuentas['Niños'], total) + ')' }, '.'];
-            if (cuentas['Sin dato']) { partes.push(' A ' + num(cuentas['Sin dato']) + ' no se les registró el género.'); }
+            var partes = [{ b: pct(cuentas['Niñas'], total) + ' niñas' }, ' · ', { b: pct(cuentas['Niños'], total) + ' niños' }];
+            if (cuentas['Sin dato']) { partes.push(' · ' + num(cuentas['Sin dato']) + ' sin dato'); }
             lectura('l-genero', partes);
             nuevo('PieChart', 'g-genero').draw(t, opciones({
                 pieHole: 0.55, slices: slices, pieSliceText: 'percentage', pieSliceBorderColor: '#fff',
@@ -398,13 +436,6 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
         }
 
         function graficaExtraedad(filas) {
-            var grados = Object.keys(EDAD_ESPERADA_POR_GRADO).map(Number).sort(function (a, b) { return a - b; });
-            if (grados.length) {
-                var primero = grados[0], ultimo = grados[grados.length - 1];
-                $('n-extraedad').textContent = 'Edad esperada: ' + primero + '° → ' + EDAD_ESPERADA_POR_GRADO[primero] + ' años, ' +
-                    (primero + 1) + '° → ' + EDAD_ESPERADA_POR_GRADO[primero + 1] + ' años… hasta ' + ultimo + '° → ' + EDAD_ESPERADA_POR_GRADO[ultimo] +
-                    ' años. Se cuenta con extraedad a quien tiene ' + MARGEN_EXTRAEDAD + ' años o más por encima.';
-            }
             var vista = vistaDe(filas.filter(function (i) { return data.getValue(i, C.EDAD) !== null; }));
             vista.setColumns([C.ORDEN, C.GRADO, {
                 type: 'string', label: 'Categoría',
@@ -434,8 +465,8 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
                 $('g-extraedad').textContent = '';
                 return;
             }
-            var partes = [{ b: num(casos) + ' de ' + num(base) + ' estudiantes (' + pct(casos, base) + ')' }, ' tienen más edad de la esperada para su grado.'];
-            if (peor) { partes.push(' El grado con más casos es ', { b: peor.etiqueta }, '.'); }
+            var partes = [{ b: num(casos) + ' de ' + num(base) + ' (' + pct(casos, base) + ')' }, ' en extraedad'];
+            if (peor) { partes.push(' · más casos en ', { b: peor.etiqueta }); }
             lectura('l-extraedad', partes);
             nuevo('BarChart', 'g-extraedad').draw(tablaBarras('Grado', barras), opciones({
                 height: Math.max(ALTO, 30 * barras.length + 40),
@@ -462,14 +493,13 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
                 g.texto = num(g.valor) + ' (' + pct(g.valor, conDato) + ')';
                 g.ayuda = g.etiqueta + ': ' + num(g.valor) + ' estudiantes';
             });
-            lectura('l-antiguedad', [{ b: num(grupos[0].valor) + ' estudiantes (' + pct(grupos[0].valor, conDato) + ')' },
-                ' entraron este año; ', { b: num(grupos[1].valor + grupos[2].valor) }, ' ya venían de años anteriores.']);
-            nuevo('BarChart', 'g-antiguedad').draw(tablaBarras('Antigüedad', grupos), opciones({
-                height: 220,
-                bar: { groupWidth: '55%' },
-                hAxis: { textPosition: 'none', gridlines: { color: 'transparent' } },
-                vAxis: { gridlines: { color: 'transparent' }, textStyle: { color: '#1F2937', fontSize: 13 } },
-                chartArea: { left: 130, right: 90, top: 8, bottom: 8 }
+            lectura('l-antiguedad', [{ b: num(grupos[0].valor) + ' (' + pct(grupos[0].valor, conDato) + ')' }, ' entraron este año']);
+            nuevo('ColumnChart', 'g-antiguedad').draw(tablaBarras('Antigüedad', grupos), opciones({
+                height: 280,
+                bar: { groupWidth: '50%' },
+                vAxis: ejeConAire(grupos),
+                hAxis: { textStyle: { color: '#1F2937', fontSize: 13 } },
+                chartArea: { left: 8, right: 8, top: 28, bottom: 36 }
             }));
         }
 
@@ -486,8 +516,8 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
                 lectura('l-evolucion', ['Solo hay datos de un año escolar.']);
             } else {
                 var a = barras[0], b = barras[barras.length - 1], d = b.valor - a.valor;
-                lectura('l-evolucion', ['Entre ', { b: a.etiqueta }, ' y ', { b: b.etiqueta }, ' la matrícula pasó de ', { b: num(a.valor) },
-                    ' a ', { b: num(b.valor) }, ' estudiantes (' + (d > 0 ? 'subió ' + num(d) : d < 0 ? 'bajó ' + num(-d) : 'sin cambio') + '). La barra resaltada es el año que estás viendo.']);
+                lectura('l-evolucion', ['De ', { b: num(a.valor) }, ' en ' + a.etiqueta + ' a ', { b: num(b.valor) }, ' en ' + b.etiqueta,
+                    ' (' + (d > 0 ? '+' + num(d) : d < 0 ? '−' + num(-d) : 'sin cambio') + ')']);
             }
             nuevo('ColumnChart', 'g-evolucion').draw(tablaBarras('Año', barras), opciones({
                 height: 260,
@@ -521,7 +551,36 @@ if (isActionAccessible($guid, $connection2, $accionGraficas) == false) {
             dibujar('g-evolucion', function () { graficaEvolucion(filasFiltradas(false)); });
         }
 
+        function iniciarAyudas() {
+            var botones = Array.prototype.slice.call(document.querySelectorAll('#gr-wrap .gr-info'));
+            function cerrar(b) {
+                b.setAttribute('aria-expanded', 'false');
+                $(b.getAttribute('aria-controls')).hidden = true;
+            }
+            botones.forEach(function (b) {
+                b.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    var abierta = b.getAttribute('aria-expanded') === 'true';
+                    botones.forEach(cerrar);
+                    if (!abierta) {
+                        b.setAttribute('aria-expanded', 'true');
+                        $(b.getAttribute('aria-controls')).hidden = false;
+                    }
+                });
+            });
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest || !e.target.closest('.gr-pop')) { botones.forEach(cerrar); }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key !== 'Escape') { return; }
+                botones.forEach(function (b) {
+                    if (b.getAttribute('aria-expanded') === 'true') { cerrar(b); b.focus(); }
+                });
+            });
+        }
+
         function iniciar() {
+            iniciarAyudas();
             data = construirTabla();
             if (!data.getNumberOfRows()) {
                 mostrar('gr-graficas', false);
