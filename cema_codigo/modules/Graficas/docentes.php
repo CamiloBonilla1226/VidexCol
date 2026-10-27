@@ -42,20 +42,16 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
     $eventos = $gateway->queryGraficasDocentes($fechaMinima, $incluirFechasFuturas ? null : date('Y-m-d'), false);
     $activos = $gateway->queryDocentesActivos();
 
-    // Para que el navegador reciba poco: los nombres y materias van una sola vez en listas y
-    // cada planeación es [fecha AAAAMMDD, docente, materia, id].
+    // Para que el navegador reciba poco: los nombres van una sola vez en una lista y
+    // cada planeación es [fecha AAAAMMDD, docente, id].
     $docentes = [];
-    $materias = [];
     $filas = [];
     foreach ($eventos as $e) {
         $d = $e['docente'];
-        $m = $e['materia'];
         if (!isset($docentes[$d])) { $docentes[$d] = count($docentes); }
-        if (!isset($materias[$m])) { $materias[$m] = count($materias); }
-        $filas[] = [(int) str_replace('-', '', $e['fecha']), $docentes[$d], $materias[$m], (int) $e['idEvento']];
+        $filas[] = [(int) str_replace('-', '', $e['fecha']), $docentes[$d], (int) $e['idEvento']];
     }
     $listaDocentes = array_keys($docentes);
-    $listaMaterias = array_keys($materias);
     $jsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_PARTIAL_OUTPUT_ON_ERROR;
     $generado = date('d/m/Y H:i');
 
@@ -151,7 +147,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
                 <div class="gr-rango"><input type="date" class="gr-fecha" id="f-desde" aria-label="Desde"> <span>a</span> <input type="date" class="gr-fecha" id="f-hasta" aria-label="Hasta"></div>
             </div>
             <div class="gr-campo"><span>Docente</span><input type="search" class="gr-buscar" id="f-docente" list="dl-docentes" placeholder="Escribe para buscar" autocomplete="off"><datalist id="dl-docentes"></datalist></div>
-            <div class="gr-campo"><span>Materia</span><select class="gr-select" id="f-materia"><option value="">Todas las materias</option></select></div>
             <button type="button" class="gr-limpiar" id="f-limpiar">Quitar filtros</button>
         </div>
 
@@ -185,10 +180,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
     (function () {
         'use strict';
 
-        // Planeación = [fecha AAAAMMDD, índice de docente, índice de materia, id]
+        // Planeación = [fecha AAAAMMDD, índice de docente, id]
         var PLANEACIONES = <?php echo json_encode($filas, $jsonFlags); ?>;
         var DOCENTES = <?php echo json_encode($listaDocentes, $jsonFlags); ?>;
-        var MATERIAS = <?php echo json_encode($listaMaterias, $jsonFlags); ?>;
         var ACTIVOS = <?php echo json_encode($activos, $jsonFlags); ?>;
 
         // Paleta del proyecto (la misma de los reportes de Informes Escolares).
@@ -198,8 +192,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
         var MAX_DOCENTES = 30;   // máximo de barras en el listado por docente
         var ALTO = 320;
 
-        // Vacío = sin filtro. docente y materia guardan el índice dentro de DOCENTES / MATERIAS.
-        var estado = { anio: '', desde: 0, hasta: 0, docente: '', materia: '' };
+        // Vacío = sin filtro. docente guarda el índice dentro de DOCENTES.
+        var estado = { anio: '', desde: 0, hasta: 0, docente: '' };
         var anios = [], redimensionar = null;
 
         function $(id) { return document.getElementById(id); }
@@ -234,7 +228,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
         }
 
         // ---- Filtros ---------------------------------------------------------
-        // o indica qué filtros aplican: anio, rango, docente, materia.
+        // o indica qué filtros aplican: anio, rango, docente.
         function pasa(p, o) {
             if (o.anio && estado.anio !== '' && anioDe(p[0]) !== estado.anio) { return false; }
             if (o.rango) {
@@ -242,12 +236,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
                 if (estado.hasta && p[0] > estado.hasta) { return false; }
             }
             if (o.docente && estado.docente !== '' && p[1] !== estado.docente) { return false; }
-            if (o.materia && estado.materia !== '' && p[2] !== estado.materia) { return false; }
             return true;
         }
 
         function filtrar(o) { return PLANEACIONES.filter(function (p) { return pasa(p, o); }); }
-        var TODOS = { anio: true, rango: true, docente: true, materia: true };
+        var TODOS = { anio: true, rango: true, docente: true };
 
         // Cuenta planeaciones distintas por clave (una planeación de una clase con varios
         // docentes puede aparecer repetida y debe contarse una sola vez).
@@ -256,18 +249,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
             filas.forEach(function (p) {
                 var k = clave(p);
                 var set = vistos[k] || (vistos[k] = {});
-                if (set[p[3]]) { return; }
-                set[p[3]] = true;
+                if (set[p[2]]) { return; }
+                set[p[2]] = true;
                 cuentas[k] = (cuentas[k] || 0) + 1;
             });
             return cuentas;
-        }
-
-        function opcion(sel, valor, etiqueta) {
-            var o = document.createElement('option');
-            o.value = valor;
-            o.textContent = etiqueta;
-            sel.appendChild(o);
         }
 
         function iniciarFiltros() {
@@ -287,10 +273,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
 
             var lista = $('dl-docentes');
             DOCENTES.slice().sort().forEach(function (d) { var o = document.createElement('option'); o.value = d; lista.appendChild(o); });
-            var selMateria = $('f-materia');
-            MATERIAS.map(function (m, i) { return { m: m, i: i }; })
-                .sort(function (a, b) { return a.m.localeCompare(b.m, 'es'); })
-                .forEach(function (x) { opcion(selMateria, x.i, x.m); });
 
             $('f-desde').addEventListener('change', function () { estado.desde = aEntero(this.value); render(); });
             $('f-hasta').addEventListener('change', function () { estado.hasta = aEntero(this.value); render(); });
@@ -299,10 +281,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
                 var nuevo = i === -1 ? '' : i;
                 if (nuevo !== estado.docente) { estado.docente = nuevo; render(); }
             });
-            selMateria.addEventListener('change', function () { estado.materia = this.value === '' ? '' : Number(this.value); render(); });
             $('f-limpiar').addEventListener('click', function () {
-                estado.desde = 0; estado.hasta = 0; estado.docente = ''; estado.materia = '';
-                $('f-desde').value = ''; $('f-hasta').value = ''; $('f-docente').value = ''; selMateria.value = '';
+                estado.desde = 0; estado.hasta = 0; estado.docente = '';
+                $('f-desde').value = ''; $('f-hasta').value = ''; $('f-docente').value = '';
                 render();
             });
         }
@@ -311,8 +292,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
             Array.prototype.forEach.call($('f-anio').querySelectorAll('button'), function (b) {
                 b.setAttribute('aria-pressed', b.getAttribute('data-valor') === String(estado.anio) ? 'true' : 'false');
             });
-            $('f-materia').classList.toggle('gr-activo', estado.materia !== '');
-            var hay = estado.desde || estado.hasta || estado.docente !== '' || estado.materia !== '';
+            var hay = estado.desde || estado.hasta || estado.docente !== '';
             mostrar('f-limpiar', !!hay, 'inline-block');
         }
 
@@ -386,7 +366,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/docentes.php') ==
 
         // B. Cuántos docentes activos tienen al menos una planeación (ignora el filtro de docente).
         function graficaCumplimiento() {
-            var filas = filtrar({ anio: true, rango: true, materia: true });
+            var filas = filtrar({ anio: true, rango: true });
             var conPlaneacion = docentesConPlaneacion(filas);
             var total = ACTIVOS.length;
             var sin = ACTIVOS.filter(function (n) { return !conPlaneacion[n]; });
