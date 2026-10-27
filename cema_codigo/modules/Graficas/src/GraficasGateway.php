@@ -67,4 +67,71 @@ class GraficasGateway extends QueryableGateway
              ORDER BY gibbonSchoolYear.sequenceNumber, gibbonYearGroup.sequenceNumber, grupo"
         )->fetchAll();
     }
+
+    /**
+     * Base del dashboard "Gráficas de docentes": una fila por evento (planeación u observación).
+     * Campos: tipo ('P' planeación / 'O' observación), idEvento (para contar sin duplicados),
+     * fecha, docente ("Apellido Nombre") y materia. No devuelve IDs de persona ni contacto.
+     * - Planeaciones: se atribuyen a quien las creó (gibbonPlannerEntry.gibbonPersonIDCreator).
+     *   Respaldo: si el creador ya no existe en gibbonPerson, se atribuyen a cada docente
+     *   (role 'Teacher') de la clase; ese caso repite el idEvento y por eso se cuenta distinto.
+     * - Observaciones: obsObservaciones.gibbonPersonID_create y fechaIncidente; no tienen materia.
+     * $fechaMinima descarta fechas mal digitadas (años 26, 206…); $fechaMaxima (o null) descarta
+     * eventos futuros.
+     */
+    public function queryGraficasDocentes($fechaMinima, $fechaMaxima = null)
+    {
+        $params = [];
+        $limites = function ($columna, $sufijo) use (&$params, $fechaMinima, $fechaMaxima) {
+            $params['min' . $sufijo] = $fechaMinima;
+            $sql = " AND {$columna} >= :min{$sufijo}";
+            if ($fechaMaxima !== null) {
+                $params['max' . $sufijo] = $fechaMaxima;
+                $sql .= " AND {$columna} <= :max{$sufijo}";
+            }
+            return $sql;
+        };
+
+        $sql = "SELECT 'P' AS tipo, pe.gibbonPlannerEntryID AS idEvento, pe.date AS fecha,
+                       CONCAT(TRIM(per.surname), ' ', TRIM(per.preferredName)) AS docente, gibbonCourse.name AS materia
+                FROM gibbonPlannerEntry AS pe
+                INNER JOIN gibbonCourseClass ON gibbonCourseClass.gibbonCourseClassID = pe.gibbonCourseClassID
+                INNER JOIN gibbonCourse ON gibbonCourse.gibbonCourseID = gibbonCourseClass.gibbonCourseID
+                INNER JOIN gibbonPerson AS per ON per.gibbonPersonID = pe.gibbonPersonIDCreator
+                WHERE pe.date IS NOT NULL" . $limites('pe.date', 'A') . "
+                UNION ALL
+                SELECT 'P', pe.gibbonPlannerEntryID, pe.date,
+                       CONCAT(TRIM(per.surname), ' ', TRIM(per.preferredName)), gibbonCourse.name
+                FROM gibbonPlannerEntry AS pe
+                INNER JOIN gibbonCourseClass ON gibbonCourseClass.gibbonCourseClassID = pe.gibbonCourseClassID
+                INNER JOIN gibbonCourse ON gibbonCourse.gibbonCourseID = gibbonCourseClass.gibbonCourseID
+                INNER JOIN gibbonCourseClassPerson AS ccp ON ccp.gibbonCourseClassID = pe.gibbonCourseClassID AND ccp.role = 'Teacher'
+                INNER JOIN gibbonPerson AS per ON per.gibbonPersonID = ccp.gibbonPersonID
+                WHERE pe.date IS NOT NULL" . $limites('pe.date', 'B') . "
+                AND NOT EXISTS (SELECT 1 FROM gibbonPerson AS creador WHERE creador.gibbonPersonID = pe.gibbonPersonIDCreator)
+                UNION ALL
+                SELECT 'O', o.id, o.fechaIncidente,
+                       CONCAT(TRIM(per.surname), ' ', TRIM(per.preferredName)), 'Sin materia'
+                FROM obsObservaciones AS o
+                INNER JOIN gibbonPerson AS per ON per.gibbonPersonID = o.gibbonPersonID_create
+                WHERE o.fechaIncidente IS NOT NULL" . $limites('o.fechaIncidente', 'C') . "
+                ORDER BY fecha";
+
+        return $this->db()->select($sql, $params)->fetchAll();
+    }
+
+    /**
+     * Docentes activos (gibbonStaff con gibbonPerson.status = 'Full'): solo "Apellido Nombre".
+     * Es el denominador del indicador de cumplimiento de planeación.
+     */
+    public function queryDocentesActivos()
+    {
+        return $this->db()->select(
+            "SELECT DISTINCT CONCAT(TRIM(gibbonPerson.surname), ' ', TRIM(gibbonPerson.preferredName)) AS docente
+             FROM gibbonStaff
+             INNER JOIN gibbonPerson ON gibbonPerson.gibbonPersonID = gibbonStaff.gibbonPersonID
+             WHERE gibbonPerson.status = 'Full'
+             ORDER BY docente"
+        )->fetchAll(\PDO::FETCH_COLUMN);
+    }
 }
