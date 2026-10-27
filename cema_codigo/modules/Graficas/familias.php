@@ -39,6 +39,26 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
     $gateway = $container->get(GraficasGateway::class);
     $filas = $gateway->queryGraficasFamilias();
 
+    // Gibbon guarda el parentesco en inglés (Mother, Father…); aquí se muestra en español y se
+    // unifican los que ya vienen en español. Lo que no esté en la lista se deja como llegó.
+    $parentescos = [
+        'mother' => 'Mamá', 'madre' => 'Mamá', 'mama' => 'Mamá', 'mamá' => 'Mamá', 'mamà' => 'Mamá',
+        'father' => 'Papá', 'padre' => 'Papá', 'papa' => 'Papá', 'papá' => 'Papá', 'papà' => 'Papá',
+        'step-mother' => 'Madrastra', 'stepmother' => 'Madrastra', 'step mother' => 'Madrastra',
+        'step-father' => 'Padrastro', 'stepfather' => 'Padrastro', 'step father' => 'Padrastro',
+        'adoptive parent' => 'Padre o madre adoptivo', 'guardian' => 'Tutor', 'tutor' => 'Tutor',
+        'grandmother' => 'Abuela', 'abuela' => 'Abuela', 'grandfather' => 'Abuelo', 'abuelo' => 'Abuelo',
+        'aunt' => 'Tía', 'tía' => 'Tía', 'tia' => 'Tía', 'uncle' => 'Tío', 'tío' => 'Tío', 'tio' => 'Tío',
+        'sister' => 'Hermana', 'brother' => 'Hermano',
+        'nanny/helper' => 'Niñera o ayudante', 'nanny' => 'Niñera o ayudante', 'helper' => 'Niñera o ayudante',
+        'other' => 'Otro', 'otro' => 'Otro',
+    ];
+    $traducirParentesco = function ($valor) use ($parentescos) {
+        $texto = trim((string) $valor);
+        $clave = function_exists('mb_strtolower') ? mb_strtolower($texto, 'UTF-8') : strtolower($texto);
+        return $parentescos[$clave] ?? ($clave === 'sin dato' ? 'Sin dato' : $valor);
+    };
+
     // Diccionarios: cada texto viaja una sola vez; cada fila usa su posición.
     $diccionarios = ['anio' => [], 'grado' => [], 'genero' => [], 'religion' => [], 'parentesco' => [], 'profesion' => []];
     $indice = function ($campo, $valor) use (&$diccionarios) {
@@ -60,7 +80,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
         $ordenGrado[$f['grado']] = (int) $f['ordenGrado'];
         $datos[] = [
             $indice('anio', $f['anio']), $indice('grado', $f['grado']), $indice('genero', $f['genero']),
-            $indice('religion', $f['religion']), $indice('parentesco', $f['parentesco']), $indice('profesion', $f['profesion']),
+            $indice('religion', $f['religion']), $indice('parentesco', $traducirParentesco($f['parentesco'])), $indice('profesion', $f['profesion']),
             (int) $f['hijos'],
             $f['tieneCorreo'] === null ? -1 : (int) $f['tieneCorreo'],
             $f['tieneTelefono'] === null ? -1 : (int) $f['tieneTelefono'],
@@ -97,7 +117,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
         .gr-limpiar:hover { color: #1E3A8A; text-decoration: underline; }
 
         /* Cifras en una sola franja */
-        .gr-cifras { display: grid; grid-template-columns: repeat(4, 1fr); margin-bottom: 22px; border: 1px solid #E3EAF8; border-radius: 10px; background: #fff; }
+        .gr-cifras { display: grid; grid-template-columns: repeat(3, 1fr); margin-bottom: 22px; border: 1px solid #E3EAF8; border-radius: 10px; background: #fff; }
         .gr-cifra { padding: 14px 20px; border-left: 1px solid #E3EAF8; }
         .gr-cifra:first-child { border-left: 0; }
         .gr-cifra b { display: block; font-size: 2em; line-height: 1.1; font-weight: 700; color: #1E3A8A; font-variant-numeric: tabular-nums; }
@@ -155,14 +175,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
             <div class="gr-campo"><span>Grado</span><select class="gr-select" id="f-grado"><option value="">Todos los grados</option></select></div>
             <div class="gr-campo"><span>Género del estudiante</span><div class="gr-seg" id="f-genero"></div></div>
             <div class="gr-campo"><span>Religión</span><select class="gr-select" id="f-religion"><option value="">Todas</option></select></div>
-            <div class="gr-campo"><span>Hijos en el colegio</span><div class="gr-seg" id="f-hijos"></div></div>
             <button type="button" class="gr-limpiar" id="f-limpiar">Quitar filtros</button>
         </div>
 
         <div class="gr-cifras">
             <div class="gr-cifra"><b id="kpi-est">–</b><span>estudiantes</span></div>
             <div class="gr-cifra"><b id="kpi-fam">–</b><span>familias</span></div>
-            <div class="gr-cifra"><b id="kpi-prom">–</b><span>hijos por familia (promedio)</span></div>
             <div class="gr-cifra"><b id="kpi-acu">–</b><span>acudientes</span></div>
         </div>
 
@@ -226,8 +244,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
         var COLOR = { primario: '#3575EF', oscuro: '#1E3A8A', medio: '#2B60CF', claro: '#9DB8F5', pale: '#DCE7FD', gris: '#9CA3AF' };
         var ALTO = 320;
 
-        // Vacío = todos. Las listas (grado, religión) guardan la posición en LISTAS; hijos guarda 1, 2 o 3 (3 o más).
-        var estado = { anio: '', grado: '', genero: '', religion: '', hijos: '' };
+        // Vacío = todos. Las listas (grado, religión) guardan la posición en LISTAS.
+        var estado = { anio: '', grado: '', genero: '', religion: '' };
         var redimensionar = null;
 
         function $(id) { return document.getElementById(id); }
@@ -267,10 +285,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
             if (estado.grado !== '' && f[F.GRADO] !== estado.grado) { return false; }
             if (estado.genero !== '' && texto('genero', f[F.GENERO]) !== estado.genero) { return false; }
             if (estado.religion !== '' && f[F.RELIGION] !== estado.religion) { return false; }
-            if (estado.hijos !== '') {
-                var h = f[F.HIJOS];
-                if (estado.hijos === 3 ? h < 3 : h !== estado.hijos) { return false; }
-            }
             return true;
         }
 
@@ -298,7 +312,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
             estado.anio = actual !== -1 ? actual : anios.length - 1;
             segmentado('f-anio', anios.map(function (a, i) { return { valor: i, etiqueta: a }; }), 'anio');
             segmentado('f-genero', [{ valor: '', etiqueta: 'Todos' }, { valor: 'Niñas', etiqueta: 'Niñas' }, { valor: 'Niños', etiqueta: 'Niños' }], 'genero');
-            segmentado('f-hijos', [{ valor: '', etiqueta: 'Todos' }, { valor: 1, etiqueta: '1' }, { valor: 2, etiqueta: '2' }, { valor: 3, etiqueta: '3 o más' }], 'hijos');
 
             var selGrado = $('f-grado');
             LISTAS.grado.map(function (g, i) { return { g: g, i: i, o: ORDEN_GRADOS[i] }; })
@@ -313,21 +326,21 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
             selReligion.addEventListener('change', function () { estado.religion = this.value === '' ? '' : Number(this.value); render(); });
 
             $('f-limpiar').addEventListener('click', function () {
-                estado.grado = ''; estado.genero = ''; estado.religion = ''; estado.hijos = '';
+                estado.grado = ''; estado.genero = ''; estado.religion = '';
                 selGrado.value = ''; selReligion.value = '';
                 render();
             });
         }
 
         function marcarFiltros() {
-            [['f-anio', 'anio'], ['f-genero', 'genero'], ['f-hijos', 'hijos']].forEach(function (par) {
+            [['f-anio', 'anio'], ['f-genero', 'genero']].forEach(function (par) {
                 Array.prototype.forEach.call($(par[0]).querySelectorAll('button'), function (b) {
                     b.setAttribute('aria-pressed', b.getAttribute('data-valor') === String(estado[par[1]]) ? 'true' : 'false');
                 });
             });
             $('f-grado').classList.toggle('gr-activo', estado.grado !== '');
             $('f-religion').classList.toggle('gr-activo', estado.religion !== '');
-            mostrar('f-limpiar', !!(estado.grado !== '' || estado.genero || estado.religion !== '' || estado.hijos !== ''), 'inline-block');
+            mostrar('f-limpiar', !!(estado.grado !== '' || estado.genero || estado.religion !== ''), 'inline-block');
         }
 
         // ---- Conteos (siempre de claves distintas, no de filas) ----------------
@@ -525,15 +538,15 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
             nota.textContent = sinDato ? num(sinDato) + ' acudientes sin ocupación registrada (no se grafican).' : '';
             if (!barras.length) { aviso('g-ocupacion', 'l-ocupacion', 'No hay ocupaciones registradas con esos filtros.'); return; }
             lectura('l-ocupacion', ['La ocupación más frecuente es ', { b: barras[0].nombre.toLowerCase() + ' (' + num(barras[0].valor) + ')' }]);
+            function capital(t) { return t.charAt(0) + t.slice(1).toLowerCase(); }
             var filasTabla = barras.map(function (b) {
-                return { etiqueta: b.nombre, valor: b.valor, ayuda: b.nombre + ': ' + num(b.valor) + ' acudientes', color: b.otras ? COLOR.gris : COLOR.primario };
+                return { etiqueta: b.otras ? b.nombre : capital(b.nombre), valor: b.valor, ayuda: capital(b.nombre) + ': ' + num(b.valor) + ' acudientes', color: b.otras ? COLOR.gris : COLOR.primario };
             });
-            nuevo('BarChart', 'g-ocupacion').draw(tablaBarras('Ocupación', 'Acudientes', filasTabla), opciones({
-                height: Math.max(ALTO, 30 * filasTabla.length + 40),
-                hAxis: { textPosition: 'none', gridlines: { color: 'transparent' }, viewWindow: { min: 0, max: Math.max(1, maximo(barras) * 1.15) } },
-                vAxis: { gridlines: { color: 'transparent' }, textStyle: { color: '#1F2937' } },
-                chartArea: { left: 170, right: 50, top: 8, bottom: 8 },
-                bar: { groupWidth: '70%' }
+            nuevo('ColumnChart', 'g-ocupacion').draw(tablaBarras('Ocupación', 'Acudientes', filasTabla), opciones({
+                vAxis: ejeConAire(filasTabla),
+                hAxis: { slantedText: true, slantedTextAngle: 40, textStyle: { color: '#1F2937', fontSize: 12 } },
+                bar: { groupWidth: '70%' },
+                chartArea: { left: 48, right: 8, top: 28, bottom: 100 }
             }));
         }
 
@@ -544,11 +557,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Graficas/familias.php') ==
             var hijosPorFamilia = {};
             filas.forEach(function (f) { if (f[F.FAM] !== -1) { hijosPorFamilia[f[F.FAM]] = f[F.HIJOS]; } });
             var fams = Object.keys(hijosPorFamilia);
-            var suma = 0;
-            fams.forEach(function (k) { suma += hijosPorFamilia[k]; });
             $('kpi-est').textContent = num(est);
             $('kpi-fam').textContent = num(fams.length);
-            $('kpi-prom').textContent = fams.length ? (suma / fams.length).toFixed(1).replace('.', ',') : '–';
             $('kpi-acu').textContent = num(acu);
         }
 
