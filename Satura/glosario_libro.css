@@ -294,6 +294,10 @@
     box-shadow: 0 3px 8px rgba(63, 81, 165, .35);
 }
 
+.glosario .gl-nav-arriba {
+    margin: 14px auto 0;
+}
+
 .glosario .gl-nav button:hover:not(:disabled) {
     background: var(--gl-azul-oscuro);
 }

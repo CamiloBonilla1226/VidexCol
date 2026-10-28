@@ -37,6 +37,12 @@ foreach ($GLOSARIO as $glosarioNum => $glosarioDef) {
 
     <nav id="glLetras" class="gl-letras" aria-label="Filtrar por letra"></nav>
 
+    <div class="gl-nav gl-nav-arriba">
+        <button type="button" id="glBtnPrevArriba">‹ Anterior</button>
+        <span class="gl-estado" id="glEstadoArriba"></span>
+        <button type="button" id="glBtnNextArriba">Siguiente ›</button>
+    </div>
+
     <div class="gl-libro">
         <section class="gl-lomo" aria-live="polite">
             <div class="gl-pag izq" id="glPagIzq"></div>

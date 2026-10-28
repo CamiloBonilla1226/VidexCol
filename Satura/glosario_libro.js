@@ -9,7 +9,20 @@
     var $raiz = porId('glosario'), $izq = porId('glPagIzq'), $der = porId('glPagDer');
     var $buscar = porId('glBuscar'), $letras = porId('glLetras');
     var $prev = porId('glBtnPrev'), $next = porId('glBtnNext'), $estado = porId('glEstado');
+    // Navegación duplicada arriba del libro
+    var $prevArriba = porId('glBtnPrevArriba'), $nextArriba = porId('glBtnNextArriba'), $estadoArriba = porId('glEstadoArriba');
     if (!$raiz) return;
+
+    function navegacion(textoEstado, sinAnterior, sinSiguiente) {
+        $estado.textContent = textoEstado;
+        $prev.disabled = sinAnterior;
+        $next.disabled = sinSiguiente;
+        if ($estadoArriba) {
+            $estadoArriba.textContent = textoEstado;
+            $prevArriba.disabled = sinAnterior;
+            $nextArriba.disabled = sinSiguiente;
+        }
+    }
 
     var letra = null;      // null = todas
     var spread = 0;        // índice de la doble página actual
@@ -82,8 +95,7 @@
         if (!lista.length) {
             $izq.innerHTML = '<p class="gl-vacio">No se encontró ningún término con esa búsqueda.</p>';
             $der.innerHTML = '';
-            $estado.textContent = '—';
-            $prev.disabled = $next.disabled = true;
+            navegacion('—', true, true);
             return;
         }
 
@@ -103,11 +115,10 @@
               '<div class="gl-pie-num">' + (pagIzqNum + 1) + '</div>'
             : '';
 
-        $estado.textContent = esMovil()
+        navegacion(esMovil()
             ? 'Página ' + (spread + 1) + ' de ' + total
-            : 'Páginas ' + pagIzqNum + '–' + (pagIzqNum + 1) + ' de ' + (total * 2);
-        $prev.disabled = spread === 0;
-        $next.disabled = spread >= total - 1;
+            : 'Páginas ' + pagIzqNum + '–' + (pagIzqNum + 1) + ' de ' + (total * 2),
+            spread === 0, spread >= total - 1);
     }
 
     // Ir a una definición concreta (para enlaces #def-44)
@@ -149,6 +160,10 @@
     });
     $prev.addEventListener('click', function () { spread--; render(); irAlInicio(); });
     $next.addEventListener('click', function () { spread++; render(); irAlInicio(); });
+    if ($prevArriba) {
+        $prevArriba.addEventListener('click', function () { spread--; render(); });
+        $nextArriba.addEventListener('click', function () { spread++; render(); });
+    }
     document.addEventListener('keydown', function (e) {
         var t = e.target;
         if (t === $buscar || (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))) return;
