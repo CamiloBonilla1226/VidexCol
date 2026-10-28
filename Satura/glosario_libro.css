@@ -229,6 +229,7 @@
 }
 
 .glosario .gl-def .gl-term {
+    font-size: 22px !important;
     font-weight: 700;
     font-variant: small-caps;
     letter-spacing: .03em;
@@ -344,6 +345,10 @@
 
     .glosario .gl-def {
         font-size: 18px !important;
+    }
+
+    .glosario .gl-def .gl-term {
+        font-size: 20px !important;
     }
 
     .glosario .gl-nav .gl-estado {
