@@ -58,7 +58,8 @@
         var q = norm($buscar.value.trim());
         var disponibles = {};
         GLOSARIO.forEach(function (d) { if (coincide(d, q)) disponibles[letraDe(d[1])] = true; });
-        var todas = [];
+        // A–Z completo; las letras sin términos quedan deshabilitadas
+        var todas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
         GLOSARIO.forEach(function (d) { var l = letraDe(d[1]); if (todas.indexOf(l) < 0) todas.push(l); });
         todas.sort(function (a, b) { return a.localeCompare(b, 'es'); });
         $letras.innerHTML =
