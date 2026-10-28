@@ -116,6 +116,25 @@
     text-align: right;
 }
 
+.glosario-modal-enlace {
+    float: left;
+    margin-top: 11px;
+    color: #2563eb;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.glosario-modal-enlace:hover,
+.glosario-modal-enlace:focus {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.glosario-modal-enlace[hidden] {
+    display: none;
+}
+
 .glosario-modal-ok {
     background: #2563eb;
     color: #fff;

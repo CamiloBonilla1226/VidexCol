@@ -70,25 +70,30 @@
             '<div class="glosario-modal-header"><span class="glosario-modal-icono">i</span><h4 id="glosarioModalTitulo"></h4>' +
             '<button type="button" class="glosario-modal-close" aria-label="Cerrar">&#10005;</button></div>' +
             '<div class="glosario-modal-body"><p></p></div>' +
-            '<div class="glosario-modal-footer"><button type="button" class="glosario-modal-ok">Entendido</button></div></div>';
+            '<div class="glosario-modal-footer"><a class="glosario-modal-enlace" href="#" hidden>Ver en el glosario</a>' +
+            '<button type="button" class="glosario-modal-ok">Entendido</button></div></div>';
         document.body.appendChild(overlay);
         overlay.addEventListener('click', function (e) {
             if (e.target === overlay || e.target.className === 'glosario-modal-close' || e.target.className === 'glosario-modal-ok') cerrarModal();
         });
     }
 
-    function abrirModalTexto(titulo, texto) {
+    // enlace (opcional): URL de la definición en la sección Glosario
+    function abrirModalTexto(titulo, texto, enlace) {
         if (!texto) return;
         ocultar();
         crearModal();
         overlay.querySelector('h4').textContent = titulo;
         overlay.querySelector('p').textContent = texto;
+        var a = overlay.querySelector('.glosario-modal-enlace');
+        a.hidden = !enlace;
+        a.setAttribute('href', enlace || '#');
         overlay.classList.add('visible');
         overlay.querySelector('.glosario-modal-ok').focus();
     }
 
     function abrirModal(el) {
-        abrirModalTexto(el.getAttribute('data-glosario-titulo') || el.textContent.trim(), el.getAttribute('data-glosario-texto'));
+        abrirModalTexto(el.getAttribute('data-glosario-titulo') || el.textContent.trim(), el.getAttribute('data-glosario-texto'), el.getAttribute('data-glosario-enlace'));
     }
 
     // Para usar desde el código (por ejemplo, gráficas): Glosario.modal(titulo, texto)
