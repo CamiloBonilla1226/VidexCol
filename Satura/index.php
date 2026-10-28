@@ -1234,10 +1234,6 @@ if(isset($_GET["doc"]) && !empty( $_GET["doc"]) && is_logged_in())
 
         }*/
 
-        // Glosario: mismos perfiles que ven "Reportes" (menú dinámico, perfil distinto de 4)
-        if($_SESSION["perfil"] != 4){
-            ?><li><a href="index.php?doc=glosario_graficas" target="_self" title="Glosario de términos"><i class="fas fa-book-open"></i> Glosario</a></li><?php
-        }
         ?>
 
                  <li><a href="index.php?doc=mis_documentos" target="_self" title="Ver mis documentos"><i class="fas fa-cloud-download-alt"></i> Tutoriales / Videos</a></li>
