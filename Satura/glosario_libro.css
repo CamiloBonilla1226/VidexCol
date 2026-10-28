@@ -246,6 +246,9 @@
     background: #ffe27a;
     color: inherit;
     padding: 0 1px;
+    font: inherit !important;
+    letter-spacing: inherit;
+    vertical-align: baseline;
 }
 
 /* Letra capital en la primera definición de cada página */
