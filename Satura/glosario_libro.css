@@ -39,12 +39,6 @@
 }
 
 /* Los tamaños de texto llevan !important porque el CSS global de la app los sobrescribía */
-.glosario .gl-banner .gl-cruz {
-    color: var(--gl-amarillo);
-    font-size: 20px !important;
-    line-height: 1;
-}
-
 .glosario .gl-banner h1 {
     font-family: 'Cinzel', serif;
     font-weight: 700;

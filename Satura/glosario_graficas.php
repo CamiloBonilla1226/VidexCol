@@ -26,7 +26,6 @@ foreach ($GLOSARIO as $glosarioNum => $glosarioDef) {
 
 <div class="glosario" id="glosario">
     <header class="gl-banner">
-        <div class="gl-cruz">✠</div>
         <h1>GLOSARIO</h1>
         <p>Términos del sistema de gestión Satura Colombia</p>
     </header>
