@@ -1,0 +1,1840 @@
+{
+    "timestamp": "2026-04-08 19:24:12",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "47",
+        "funcion": "actualizar",
+        "nombre": "018000 website + canal de Videos y pr\u00e9dicas propio",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:24:17",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:24:27",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:24:34",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:26:49",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:27:05",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesiass",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:27:20",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:28:24",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesiass",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:29:32",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:29:53",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:30:20",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:30:31",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesiass",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:30:34",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:31:45",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:32:17",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:32:25",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:32:28",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:32:31",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 19:32:47",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesias",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:37:00",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesias",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:37:22",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesias",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:41:23",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesias",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:42:44",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesias",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:43:03",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesias",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 19:47:02",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "42",
+        "funcion": "actualizar",
+        "nombre": "01800 Servidor de Videos para Iglesias",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 20:27:36",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:30:52",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:30:59",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:31:40",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 20:31:54",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:32:02",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:32:03",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 20:32:20",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 20:32:41",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 20:32:43",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 20:33:43",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 20:33:59",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2",
+        "pagina": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 20:34:08",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:34:11",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:34:13",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:34:13",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:34:14",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:34:28",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "57",
+        "funcion": "actualizar",
+        "nombre": "Votemos por Colombia",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-04-08 20:37:17",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:41:22",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:42:47",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 20:42:58",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 21:59:23",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-08 21:59:32",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 22:02:32",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 22:04:41",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 22:04:54",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 22:05:00",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-08 22:05:02",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-09 22:59:29",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-09 22:59:36",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-10 11:13:52",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-10 11:13:58",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-10 11:57:34",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-10 12:01:13",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-10 12:01:16",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-04-10 12:01:23",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-10 12:01:25",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-10 12:49:03",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-10 12:50:36",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-04-10 12:58:13",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-05-30 07:30:46",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-05-30 07:32:39",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "fechaInicial",
+        "fechaFinal",
+        "estado",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "0",
+        "funcion": "insertar",
+        "nombre": "Licencias de Google + Dominio .edu.co",
+        "tipoCampana": "B"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-05-30 07:32:52",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-05-30 07:33:22",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2",
+        "nombre": "",
+        "tipoCampana": "",
+        "estado": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-06-11 07:16:54",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-06-11 07:17:35",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2",
+        "pagina": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-06-11 15:29:42",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-07-01 08:38:30",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-07-28 14:55:48",
+    "GET": {
+        "doc": "campanha"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-07-28 14:56:38",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-08-06 07:18:59",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-08-06 07:20:57",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "fechaInicial",
+        "fechaFinal",
+        "estado",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "0",
+        "funcion": "insertar",
+        "nombre": "website gratis",
+        "tipoCampana": "B"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-08-06 07:21:18",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-08-06 07:21:38",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2",
+        "pagina": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-08-06 07:22:23",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "61",
+        "funcion": "actualizar",
+        "nombre": "website gratis com 01800iglesia",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-08-06 07:22:39",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2",
+        "pagina": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-08-06 07:22:55",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "estado",
+        "fechaInicial",
+        "fechaFinal",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "57",
+        "funcion": "actualizar",
+        "nombre": "Votemos por Colombia",
+        "tipoCampana": "123"
+    }
+}
+
+Decision: {
+    "taken": "handleEdit or Delete (POST id and funcion present)",
+    "operation": "UPDATE"
+}
+
+{
+    "timestamp": "2026-08-06 07:23:14",
+    "GET": {
+        "doc": "campanha",
+        "opc": "2",
+        "pagina": "2"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleList (opc=2 and no POST id)"
+}
+
+{
+    "timestamp": "2026-10-13 07:28:15",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [],
+    "POST_data": {
+        "id": "MISSING",
+        "funcion": "MISSING",
+        "nombre": "MISSING",
+        "tipoCampana": "MISSING"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+
+{
+    "timestamp": "2026-10-13 07:30:57",
+    "GET": {
+        "doc": "campanha",
+        "opc": "1"
+    },
+    "POST_keys": [
+        "id",
+        "funcion",
+        "doc",
+        "opc",
+        "nombre",
+        "tipoCampana",
+        "fechaInicial",
+        "fechaFinal",
+        "estado",
+        "observaciones"
+    ],
+    "POST_data": {
+        "id": "0",
+        "funcion": "insertar",
+        "nombre": "pe + IA para dedicar m\u00e1s tiempo a ense\u00f1ar",
+        "tipoCampana": "p"
+    }
+}
+
+Decision: {
+    "taken": "handleCreate"
+}
+

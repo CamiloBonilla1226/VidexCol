@@ -1,0 +1,693 @@
+:root {
+    --c-bg: #f3f7fc;
+    --c-surface: #ffffff;
+    --c-surface-soft: #f8fbff;
+    --c-border: #d6e2f0;
+    --c-text: #0f172a;
+    --c-muted: #475569;
+    --c-primary: #0284c7;
+    --c-primary-strong: #075985;
+    --c-success: #0f766e;
+    --c-danger: #b91c1c;
+    --c-shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.06);
+    --c-shadow-md: 0 10px 30px rgba(15, 23, 42, 0.10);
+    --c-radius-sm: 10px;
+    --c-radius: 16px;
+}
+
+html,
+body.cotizacion-page {
+    color-scheme: light !important;
+}
+
+body.cotizacion-page {
+    background:
+        radial-gradient(circle at 14% 6%, rgba(14, 165, 233, 0.14), transparent 24%),
+        radial-gradient(circle at 86% 4%, rgba(250, 204, 21, 0.12), transparent 22%),
+        var(--c-bg) !important;
+    color: var(--c-text) !important;
+}
+
+body.cotizacion-page .main-content,
+body.cotizacion-page .container,
+body.cotizacion-page .well,
+body.cotizacion-page .tabcontent,
+body.cotizacion-page .tab-content,
+body.cotizacion-page .cotizacion-card,
+body.cotizacion-page .cotizacion-embed-card,
+body.cotizacion-page .table,
+body.cotizacion-page .pagination > li > a {
+    background: var(--c-surface) !important;
+    color: var(--c-text) !important;
+}
+
+.cotizacion-page .container.cotizacion-shell {
+    max-width: 1320px;
+    display: grid;
+    gap: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1.25rem;
+    width: 100%;
+}
+
+.cotizacion-page .cotizacion-panel-header {
+    position: sticky;
+    top: 0.75rem;
+    z-index: 10;
+    background: linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(237,246,255,0.96) 100%) !important;
+    border: 1px solid var(--c-border);
+    border-left: 6px solid var(--c-primary);
+    border-radius: var(--c-radius);
+    box-shadow: var(--c-shadow-sm);
+    padding: 1rem 1.2rem;
+    backdrop-filter: blur(8px);
+}
+
+.cotizacion-page .cotizacion-panel-header h2 {
+    margin: 0;
+    color: var(--c-text) !important;
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.cotizacion-page .cotizacion-panel-subtitle {
+    margin-top: 0.25rem;
+    color: var(--c-muted) !important;
+    font-size: 0.9rem;
+}
+
+.cotizacion-page .cotizacion-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.cotizacion-page .cotizacion-form-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.cotizacion-page .cotizacion-card,
+.cotizacion-page .form-group {
+    background: var(--c-surface) !important;
+    border: 1px solid var(--c-border);
+    border-radius: var(--c-radius);
+    box-shadow: var(--c-shadow-sm);
+    padding: 0.95rem;
+}
+
+.cotizacion-page .cotizacion-card {
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.cotizacion-page .cotizacion-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--c-shadow-md);
+    border-color: #b9d6ea;
+}
+
+.cotizacion-page .cotizacion-card h3 {
+    margin: 0 0 0.75rem;
+    color: var(--c-primary-strong) !important;
+    font-size: 0.92rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.cotizacion-page .cotizacion-grid-2,
+.cotizacion-page .cotizacion-grid-3 {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.cotizacion-page .cotizacion-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cotizacion-page .cotizacion-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.cotizacion-page .form-label,
+.cotizacion-page label {
+    display: block;
+    color: #334155 !important;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+}
+
+.cotizacion-page .form-control,
+.cotizacion-page select,
+.cotizacion-page textarea,
+.cotizacion-page input[type="text"],
+.cotizacion-page input[type="number"],
+.cotizacion-page input[type="date"],
+.cotizacion-page input[type="email"],
+.cotizacion-page input[type="password"] {
+    width: 100%;
+    min-height: 42px;
+    background: #ffffff !important;
+    color: var(--c-text) !important;
+    border: 1px solid #c7d6e6 !important;
+    border-radius: var(--c-radius-sm);
+    padding: 0.65rem 0.8rem;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.cotizacion-page textarea {
+    min-height: 130px;
+    resize: vertical;
+}
+
+.cotizacion-page .form-control:focus,
+.cotizacion-page select:focus,
+.cotizacion-page textarea:focus,
+.cotizacion-page input:focus {
+    outline: none;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.20);
+}
+
+.cotizacion-page .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    border: 0;
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 0.62rem 1rem;
+    box-shadow: var(--c-shadow-sm);
+}
+
+.cotizacion-page .btn-success { background: linear-gradient(180deg, #14b8a6 0%, var(--c-success) 100%); color: #fff; }
+.cotizacion-page .btn-info { background: linear-gradient(180deg, #0ea5e9 0%, var(--c-primary-strong) 100%); color: #fff; }
+.cotizacion-page .btn-danger { background: linear-gradient(180deg, #ef4444 0%, var(--c-danger) 100%); color: #fff; }
+.cotizacion-page .btn-default,
+.cotizacion-page .btn-secondary { background: #e2e8f0; color: #1e293b; }
+
+.cotizacion-page .cotizacion-table-wrap {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    border-radius: 14px;
+    box-shadow: var(--c-shadow-sm);
+}
+
+.cotizacion-page .table.cotizacion-table-modern {
+    width: max-content;
+    min-width: 1240px;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--c-border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff !important;
+    table-layout: auto;
+}
+
+.cotizacion-page .table.cotizacion-table-modern thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #eaf3ff !important;
+    color: var(--c-primary-strong) !important;
+    border-bottom: 1px solid #cfe0f3;
+    padding: 0.8rem 0.7rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cotizacion-page .table.cotizacion-table-modern tbody td {
+    padding: 0.78rem 0.7rem;
+    border-top: 1px solid #e3edf8;
+    color: var(--c-text) !important;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.cotizacion-page .table.cotizacion-table-modern th:nth-child(1),
+.cotizacion-page .table.cotizacion-table-modern td:nth-child(1) { min-width: 70px; width: 70px; text-align: center; }
+.cotizacion-page .table.cotizacion-table-modern th:nth-child(2),
+.cotizacion-page .table.cotizacion-table-modern td:nth-child(2) { min-width: 250px; }
+.cotizacion-page .table.cotizacion-table-modern th:nth-child(3),
+.cotizacion-page .table.cotizacion-table-modern td:nth-child(3) { min-width: 150px; }
+.cotizacion-page .table.cotizacion-table-modern th:nth-child(4),
+.cotizacion-page .table.cotizacion-table-modern td:nth-child(4) { min-width: 160px; }
+.cotizacion-page .table.cotizacion-table-modern th:nth-child(5),
+.cotizacion-page .table.cotizacion-table-modern td:nth-child(5) { min-width: 230px; }
+.cotizacion-page .table.cotizacion-table-modern th:nth-child(6),
+.cotizacion-page .table.cotizacion-table-modern td:nth-child(6) { min-width: 170px; }
+.cotizacion-page .table.cotizacion-table-modern th:nth-child(7),
+.cotizacion-page .table.cotizacion-table-modern td:nth-child(7) { min-width: 220px; }
+.cotizacion-page .table.cotizacion-table-modern th:nth-child(8),
+.cotizacion-page .table.cotizacion-table-modern td:nth-child(8),
+.cotizacion-page .table.cotizacion-table-modern th:nth-child(9),
+.cotizacion-page .table.cotizacion-table-modern td:nth-child(9) { min-width: 140px; text-align: right; }
+
+.cotizacion-page .table.cotizacion-table-modern tbody tr:nth-child(odd) { background: #fcfdff; }
+.cotizacion-page .table.cotizacion-table-modern tbody tr:nth-child(even) { background: #f6faff; }
+.cotizacion-page .table.cotizacion-table-modern tbody tr {
+    transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.cotizacion-page .table.cotizacion-table-modern tbody tr:hover {
+    background: #e8f3ff;
+    transform: translateY(-1px);
+    box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.02);
+}
+
+.cotizacion-page .table.cotizacion-table-modern td a { color: #0f172a; font-weight: 600; }
+
+.cotizacion-page .cotizacion-empty {
+    text-align: center;
+    padding: 1rem;
+    color: var(--c-muted) !important;
+    font-weight: 600;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.cotizacion-page .pagination {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+}
+
+.cotizacion-page .pagination > li > a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    min-height: 38px;
+    border: 1px solid #cddded;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1e293b !important;
+}
+
+.cotizacion-page .pagination > li.active > a {
+    background: var(--c-primary) !important;
+    color: #fff !important;
+    border-color: var(--c-primary);
+}
+
+.cotizacion-page .cotizacion-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.20), transparent 30%),
+        rgba(2, 6, 23, 0.55) !important;
+    backdrop-filter: blur(12px) saturate(1.1);
+    animation: cotizacionModalFade 160ms ease-out;
+}
+
+.cotizacion-page .cotizacion-modal.is-open { display: flex; }
+
+.cotizacion-page .cotizacion-modal__backdrop {
+    position: absolute;
+    inset: 0;
+}
+
+.cotizacion-page .cotizacion-modal__panel {
+    position: relative;
+    width: min(1120px, 100%);
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+    transform: translateY(0);
+}
+
+.cotizacion-page .cotizacion-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+    background: linear-gradient(135deg, #eff7ff 0%, #ffffff 100%);
+    border-bottom: 1px solid #d8e6f4;
+}
+
+.cotizacion-page .cotizacion-modal__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #0369a1;
+    margin-bottom: 0.2rem;
+}
+
+.cotizacion-page .cotizacion-modal__title { font-weight: 900; color: #0f172a; font-size: 1.1rem; }
+.cotizacion-page .cotizacion-modal__close {
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #0f172a;
+    cursor: pointer;
+    transition: transform 140ms ease, background-color 140ms ease;
+}
+
+.cotizacion-page .cotizacion-modal__close:hover { transform: scale(1.05); background: #bfdbfe; }
+
+.cotizacion-page .cotizacion-modal__body {
+    position: relative;
+    min-height: 420px;
+    background: #fff;
+}
+
+.cotizacion-page .cotizacion-modal__loading {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.88);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    box-shadow: var(--c-shadow-md);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 140ms ease;
+}
+
+.cotizacion-page .cotizacion-modal.is-loading .cotizacion-modal__loading {
+    opacity: 1;
+}
+
+.cotizacion-page .cotizacion-modal__body iframe {
+    width: 100%;
+    height: 100%;
+    min-height: 560px;
+    border: 0;
+    background: #fff;
+}
+
+@keyframes cotizacionModalFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.cotizacion-page .ui-autocomplete {
+    z-index: 1200;
+    max-height: 280px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: #fff !important;
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
+    box-shadow: var(--c-shadow-md);
+}
+
+.cotizacion-page .ui-autocomplete .ui-menu-item-wrapper { color: #0f172a !important; }
+
+@media (max-width: 1024px) {
+    .cotizacion-page .cotizacion-grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cotizacion-page .cotizacion-embed-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .cotizacion-page .container { padding-left: 0.75rem; padding-right: 0.75rem; }
+
+    .cotizacion-page .cotizacion-grid-2,
+    .cotizacion-page .cotizacion-grid-3 { grid-template-columns: 1fr; }
+
+    .cotizacion-page .cotizacion-table-wrap {
+        overflow-x: auto;
+        overflow-y: hidden;
+        box-shadow: none;
+        border-radius: 12px;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern {
+        min-width: 1240px;
+        border-radius: 12px;
+        box-shadow: none;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern thead {
+        display: table-header-group;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern tbody {
+        display: table-row-group;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern tbody tr {
+        background: #fff;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern tbody td {
+        display: table-cell;
+        padding: 0.62rem 0.55rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern th,
+    .cotizacion-page .table.cotizacion-table-modern td {
+        min-width: 110px;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern th:nth-child(1),
+    .cotizacion-page .table.cotizacion-table-modern td:nth-child(1) {
+        min-width: 60px;
+        width: 60px;
+        text-align: center;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern th:nth-child(2),
+    .cotizacion-page .table.cotizacion-table-modern td:nth-child(2) {
+        min-width: 240px;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern th:nth-child(3),
+    .cotizacion-page .table.cotizacion-table-modern th:nth-child(4),
+    .cotizacion-page .table.cotizacion-table-modern td:nth-child(3),
+    .cotizacion-page .table.cotizacion-table-modern td:nth-child(4) {
+        min-width: 145px;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern td a {
+        display: inline-block;
+        max-width: 100%;
+        word-break: break-word;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern .cotizacion-empty {
+        display: table-cell;
+        text-align: center !important;
+        border: 1px dashed #c7d6e6;
+        border-radius: 10px;
+        padding: 0.9rem;
+        background: #f8fbff !important;
+    }
+
+    .cotizacion-page .table.cotizacion-table-modern .cotizacion-empty::before {
+        content: "";
+        display: none;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    html,
+    body.cotizacion-page,
+    body.cotizacion-page * {
+        color-scheme: light !important;
+    }
+}
+
+/* ============================================================================
+   EMBEDDED SECTIONS STYLING - Seguimientos, Gastos, Facturación
+   ============================================================================ */
+
+.cotizacion-sections-container {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 2rem;
+    padding: 0;
+}
+
+.cotizacion-section {
+    background: var(--c-surface) !important;
+    border: 1px solid var(--c-border);
+    border-radius: var(--c-radius);
+    box-shadow: var(--c-shadow-sm);
+    overflow: hidden;
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.cotizacion-section:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--c-shadow-md);
+    border-color: #b9d6ea;
+}
+
+.cotizacion-section h3 {
+    margin: 0;
+    background: linear-gradient(135deg, #eaf3ff 0%, #f0f8ff 100%);
+    color: var(--c-primary-strong) !important;
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 1rem 1.2rem;
+    border-bottom: 2px solid #0284c7;
+    letter-spacing: 0.02em;
+}
+
+.cotizacion-section-content {
+    padding: 1rem 1.2rem;
+}
+
+/* Modernize tables within sections */
+.cotizacion-section-content table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+}
+
+.cotizacion-section-content table,
+.cotizacion-section-content table tr,
+.cotizacion-section-content table td,
+.cotizacion-section-content table th {
+    border-color: var(--c-border) !important;
+    color: var(--c-text) !important;
+}
+
+.cotizacion-section-content table tr[bgcolor="#EEEEEE"] {
+    background: #f6faff !important;
+}
+
+.cotizacion-section-content table td {
+    padding: 0.8rem 0.7rem !important;
+    border-bottom: 1px solid #e3edf8 !important;
+    font-size: 1.1rem;
+    color: #0f172a !important;
+    vertical-align: middle;
+}
+
+.cotizacion-section-content table td i {
+    color: #475569 !important;
+    font-size: 1rem;
+}
+
+.cotizacion-section-content table td a {
+    color: #0284c7 !important;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 150ms ease;
+}
+
+.cotizacion-section-content table td a:hover {
+    color: #075985 !important;
+    text-decoration: underline;
+}
+
+.cotizacion-section-content table img {
+    border-radius: 50%;
+    border: 1px solid #e3edf8;
+    display: block;
+    margin: 0.25rem 0;
+}
+
+/* Row hover effect */
+.cotizacion-section-content table tbody tr {
+    transition: background-color 120ms ease;
+    background: #fcfdff !important;
+}
+
+.cotizacion-section-content table tbody tr:nth-child(even) {
+    background: #f6faff !important;
+}
+
+.cotizacion-section-content table tbody tr:hover {
+    background: #e8f3ff !important;
+}
+
+/* Empty state message */
+.cotizacion-section-content table td[style*="text-align"],
+.cotizacion-section-content .cotizacion-empty-message {
+    text-align: center;
+    color: #6b7280 !important;
+    padding: 2rem 1rem !important;
+    font-style: italic;
+}
+
+/* Responsive adjustments for embedded sections */
+@media (max-width: 1024px) {
+    .cotizacion-sections-container {
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .cotizacion-section h3 {
+        font-size: 1rem;
+        padding: 0.85rem 1rem;
+    }
+
+    .cotizacion-section-content {
+        padding: 0.85rem 1rem;
+    }
+
+    .cotizacion-section-content table td {
+        padding: 0.65rem 0.6rem !important;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .cotizacion-sections-container {
+        gap: 0.75rem;
+        margin-top: 1.25rem;
+    }
+
+    .cotizacion-section {
+        border-radius: 12px;
+    }
+
+    .cotizacion-section h3 {
+        font-size: 1rem;
+        padding: 0.75rem 0.9rem;
+    }
+
+    .cotizacion-section-content {
+        padding: 0.75rem 0.9rem;
+    }
+
+    .cotizacion-section-content table {
+        overflow-x: auto !important;
+    }
+
+    .cotizacion-section-content table td {
+        padding: 0.6rem 0.5rem !important;
+        font-size: 1rem;
+    }
+
+    .cotizacion-section-content table td img {
+        width: 32px;
+        height: 32px;
+    }
+}
+

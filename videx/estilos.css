@@ -1,0 +1,1566 @@
+/* ============================================================
+   estilos.css — VIDEX Design System
+   Actualizado: 2026-04-07
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. CSS VARIABLES (paleta de colores and tipografia)
+   ------------------------------------------------------------ */
+:root {
+    /* Primarios - Azul moderno (mantener esencia, mejorar) */
+    --videx-primary-50:      #f0f4ff;
+    --videx-primary-100:     #e0e8ff;
+    --videx-primary-200:     #c7d9ff;
+    --videx-primary:         #2563eb;   /* Azul principal */
+    --videx-primary-dark:    #1d4ed8;
+    --videx-primary-light:   #dbeafe;
+    --videx-primary-700:     #1e40af;
+
+    /* Secundarios - Verde fuerte */
+    --videx-success-50:      #f0fdf4;
+    --videx-success:         #16a34a;   /* Verde principal */
+    --videx-success-light:   #dcfce7;
+    --videx-success-dark:    #15803d;
+
+    /* Danger - Rojo moderno */
+    --videx-danger-50:       #fef2f2;
+    --videx-danger:          #dc2626;   /* Rojo principal */
+    --videx-danger-light:    #fee2e2;
+    --videx-danger-dark:     #b91c1c;
+
+    /* Warning/Info - Ámbar */
+    --videx-warning:         #d97706;   /* Ámbar principal */
+    --videx-warning-light:   #fef3c7;
+    --videx-warning-dark:    #b45309;
+
+    /* Grises neutrales - mejor contraste */
+    --videx-gray-0:          #ffffff;
+    --videx-gray-50:         #f9fafb;
+    --videx-gray-100:        #f3f4f6;
+    --videx-gray-200:        #e5e7eb;
+    --videx-gray-300:        #d1d5db;   /* NEW - borders más visibles */
+    --videx-gray-400:        #9ca3af;
+    --videx-gray-500:        #6b7280;
+    --videx-gray-600:        #4b5563;
+    --videx-gray-700:        #374151;   /* NEW - text darker */
+    --videx-gray-800:        #1f2937;
+    --videx-gray-900:        #111827;   /* NEW - dark mode text */
+
+    /* Tipografia */
+    --videx-font:            'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --videx-font-mono:       'Fira Code', 'Monaco', monospace;
+
+    /* Espaciado (8px based scale) */
+    --space-0p5:             4px;
+    --space-1:               8px;
+    --space-2:               16px;
+    --space-3:               24px;
+    --space-4:               32px;
+    --space-5:               40px;
+    --space-6:               48px;
+
+    /* Border Radius - moderno */
+    --videx-radius-sm:       4px;
+    --videx-radius:          8px;    /* Default */
+    --videx-radius-md:       8px;
+    --videx-radius-lg:       12px;   /* NEW - elementos grandes */
+    --videx-radius-xl:       16px;   /* NEW - componentes principales */
+    --videx-radius-full:     9999px; /* NEW - pills/badges */
+
+    /* Shadows - sofisticadas */
+    --videx-shadow-xs:       0 1px 2px 0 rgba(0,0,0,0.05);
+    --videx-shadow-sm:       0 1px 3px 0 rgba(0,0,0,0.08);
+    --videx-shadow:          0 4px 12px 0 rgba(0,0,0,0.10);
+    --videx-shadow-md:       0 4px 12px 0 rgba(0,0,0,0.10);
+    --videx-shadow-lg:       0 10px 28px 0 rgba(0,0,0,0.12);
+    --videx-shadow-xl:       0 20px 40px 0 rgba(0,0,0,0.15);
+
+    /* Transiciones - velocidades estándar */
+    --videx-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --videx-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --videx-transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Light/Dark mode (light by default) */
+    --videx-bg:              #ffffff;
+    --videx-bg-secondary:    #f9fafb;
+    --videx-text:            #1f2937;
+    --videx-text-secondary:  #6b7280;
+    --videx-border:          #e5e7eb;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Dark mode colors */
+        --videx-bg:              #111827;
+        --videx-bg-secondary:    #1f2937;
+        --videx-text:            #f9fafb;
+        --videx-text-secondary:  #d1d5db;
+        --videx-border:          #4b5563;
+
+        /* Adjust gray scale for dark mode */
+        --videx-gray-50:         #f9fafb;   /* Light text foreground */
+        --videx-gray-100:        #f3f4f6;
+        --videx-gray-200:        #e5e7eb;
+        --videx-gray-600:        #d1d5db;   /* Dark mode text */
+        --videx-gray-800:        #374151;   /* Dark mode dimmed text */
+    }
+
+    body:not(.cotizacion-page) {
+        background: var(--videx-bg);
+        color: var(--videx-text);
+    }
+
+    body:not(.cotizacion-page) .container,
+    body:not(.cotizacion-page) .tabcontent {
+        background: transparent !important;
+    }
+
+    body:not(.cotizacion-page) input[type=text],
+    body:not(.cotizacion-page) input[type=date],
+    body:not(.cotizacion-page) input[type=number],
+    body:not(.cotizacion-page) input[type=password],
+    body:not(.cotizacion-page) input[type=email],
+    body:not(.cotizacion-page) select,
+    body:not(.cotizacion-page) textarea {
+        background: #ffffff !important;
+        color: #1f2937 !important;
+        border-color: #d1d5db !important;
+    }
+
+    body:not(.cotizacion-page) .videx-navbar {
+        background: var(--videx-bg-secondary);
+        border-bottom-color: var(--videx-border);
+    }
+
+    body:not(.cotizacion-page) .videx-navbar .nav-link {
+        color: var(--videx-text-secondary) !important;
+    }
+
+    body:not(.cotizacion-page) .videx-navbar .nav-link:hover {
+        color: var(--videx-primary) !important;
+    }
+
+    body:not(.cotizacion-page) label,
+    body:not(.cotizacion-page) th,
+    body:not(.cotizacion-page) td {
+        color: var(--videx-text);
+    }
+}
+
+
+/* -------- BASE SECTION --------*/
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: var(--videx-font);
+    font-size: 13px;
+    color: var(--videx-text);
+    background: var(--videx-bg-secondary);
+    margin: 0;
+    line-height: 1.5;
+    transition: background var(--videx-transition-base), color var(--videx-transition-base);
+}
+
+a {
+    color: var(--videx-primary);
+    text-decoration: none;
+    transition: color var(--videx-transition-fast);
+}
+a:hover {
+    color: var(--videx-primary-dark);
+    text-decoration: underline;
+}
+
+/* ------------------------------------------------------------
+   3. LAYOUT PRINCIPAL
+   ------------------------------------------------------------ */
+.videx-wrap {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.videx-wrap > .container,
+.videx-wrap > .container-fluid {
+    flex: 1;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Main Content Area */
+.main-content {
+    padding: 1rem;
+}
+
+/* ------------------------------------------------------------
+   4. FOOTER
+   ------------------------------------------------------------ */
+.videx-footer {
+    font-size: 11px;
+    color: var(--videx-text-secondary);
+    padding: 12px 16px;
+    background: var(--videx-bg);
+    border-top: 1px solid var(--videx-border);
+    transition: background var(--videx-transition-base), border-color var(--videx-transition-base);
+}
+.videx-footer a {
+    color: var(--videx-text-secondary);
+    transition: color var(--videx-transition-fast);
+}
+.videx-footer a:hover {
+    color: var(--videx-primary);
+}
+.videx-footer hr {
+    border-color: var(--videx-border);
+    margin: 0 0 6px;
+}
+
+/* ------------------------------------------------------------
+   5. CONTENEDORES Y TARJETAS
+   ------------------------------------------------------------ */
+body:not(.cotizacion-page) .container,
+body:not(.cotizacion-page) .card {
+    background: var(--videx-bg);
+    border-radius: var(--videx-radius-lg);
+    box-shadow: var(--videx-shadow-sm);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    border: 1px solid var(--videx-border);
+    transition: background var(--videx-transition-base), box-shadow var(--videx-transition-fast), border-color var(--videx-transition-base);
+}
+
+body:not(.cotizacion-page) .container:hover,
+body:not(.cotizacion-page) .card:hover {
+    box-shadow: var(--videx-shadow-md);
+}
+
+.card-header {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--videx-border);
+    margin: -20px -24px 20px -24px;
+    padding: 16px 24px;
+    background: var(--videx-bg-secondary);
+    border-radius: var(--videx-radius-lg) var(--videx-radius-lg) 0 0;
+}
+
+.card-body {
+    padding: 0;
+}
+
+.card-footer {
+    padding: 16px 0;
+    border-top: 1px solid var(--videx-border);
+    margin: 20px -24px -20px -24px;
+    padding: 16px 24px;
+    background: var(--videx-bg-secondary);
+    border-radius: 0 0 var(--videx-radius-lg) var(--videx-radius-lg);
+}
+
+/* ------------------------------------------------------------
+   6. TABLAS
+   ------------------------------------------------------------ */
+table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+    font-size: 13px;
+    border-collapse: collapse;
+}
+
+table.seguimientos,
+table.accesos,
+table.campanas,
+table.categorias,
+table.grupos,
+table.historico,
+table.usuarios_sms {
+    display: table;
+    overflow-x: auto;
+    white-space: normal;
+    width: 100%;
+}
+
+body:not(.cotizacion-page) table.table,
+body:not(.cotizacion-page) .table {
+    border-collapse: collapse;
+}
+
+body:not(.cotizacion-page) th {
+    background-color: var(--videx-primary);
+    color: #fff;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 14px;
+    font-family: var(--videx-font);
+    font-size: 13px;
+    border-bottom: 2px solid rgba(0,0,0,.1);
+    transition: background var(--videx-transition-fast);
+}
+
+body:not(.cotizacion-page) td {
+    vertical-align: top;
+    padding: 12px 14px;
+    font-family: var(--videx-font);
+    font-size: 13px;
+    border-bottom: 1px solid var(--videx-border);
+    color: var(--videx-text);
+}
+
+/* Table striped */
+body:not(.cotizacion-page) table.table-striped tbody tr:nth-child(odd),
+body:not(.cotizacion-page) .table-striped tbody tr:nth-child(odd) {
+    background-color: var(--videx-bg-secondary);
+}
+
+/* Table hover */
+body:not(.cotizacion-page) table.table-hover tbody tr:hover,
+body:not(.cotizacion-page) .table-hover tbody tr:hover {
+    background-color: var(--videx-primary-50);
+    cursor: pointer;
+}
+
+/* Table bordered */
+body:not(.cotizacion-page) table.table-bordered,
+body:not(.cotizacion-page) .table-bordered {
+    border: 1px solid var(--videx-border);
+}
+body:not(.cotizacion-page) table.table-bordered td,
+body:not(.cotizacion-page) table.table-bordered th,
+body:not(.cotizacion-page) .table-bordered td,
+body:not(.cotizacion-page) .table-bordered th {
+    border: 1px solid var(--videx-border);
+}
+
+body:not(.cotizacion-page) table.grupos td { padding-top: 12px; padding-bottom: 12px; }
+
+/* ------------------------------------------------------------
+   7. BOTONES
+   ------------------------------------------------------------ */
+.btn-videx,
+.btn,
+.btn-primary {
+    background: var(--videx-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--videx-radius-md);
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background var(--videx-transition-fast), box-shadow var(--videx-transition-fast);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+.btn-videx:hover,
+.btn:hover,
+.btn-primary:hover {
+    background: var(--videx-primary-dark);
+    color: #fff;
+    box-shadow: var(--videx-shadow-md);
+}
+
+.btn-success {
+    background: var(--videx-success);
+    color: #fff;
+}
+.btn-success:hover {
+    background: var(--videx-success-dark);
+    box-shadow: var(--videx-shadow-md);
+}
+
+.btn-danger {
+    background: var(--videx-danger);
+    color: #fff;
+}
+.btn-danger:hover {
+    background: var(--videx-danger-dark);
+    box-shadow: var(--videx-shadow-md);
+}
+
+.btn-secondary {
+    background: var(--videx-gray-600);
+    color: #fff;
+}
+.btn-secondary:hover {
+    background: var(--videx-gray-700);
+    box-shadow: var(--videx-shadow-md);
+}
+
+input[type=submit] {
+    background-color: var(--videx-success);
+    color: #fff;
+    border: none;
+    border-radius: var(--videx-radius-md);
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 4px;
+    transition: background var(--videx-transition-fast), box-shadow var(--videx-transition-fast);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+input[type=submit]:hover {
+    background-color: var(--videx-success-dark);
+    box-shadow: var(--videx-shadow-md);
+}
+
+input[type=button] {
+    background-color: var(--videx-success);
+    color: #fff;
+    border: none;
+    border-radius: var(--videx-radius-md);
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 4px;
+    transition: background var(--videx-transition-fast), box-shadow var(--videx-transition-fast);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+input[type=button]:hover {
+    background-color: var(--videx-success-dark);
+    box-shadow: var(--videx-shadow-md);
+}
+
+input[type=button].eliminar,
+input[type=button].cancelar {
+    background-color: var(--videx-danger);
+}
+input[type=button].eliminar:hover,
+input[type=button].cancelar:hover {
+    background-color: var(--videx-danger-dark);
+    box-shadow: var(--videx-shadow-md);
+}
+
+/* ------------------------------------------------------------
+   8. INPUTS Y FORMULARIOS
+   ------------------------------------------------------------ */
+label {
+    padding: 6px 0;
+    display: inline-block;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--videx-text);
+    margin-bottom: 6px;
+}
+
+input[type=text],
+input[type=date],
+input[type=number],
+input[type=password],
+input[type=email],
+select,
+textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--videx-border);
+    border-radius: var(--videx-radius-md);
+    font-size: 13px;
+    font-family: var(--videx-font);
+    background: var(--videx-bg);
+    color: var(--videx-text);
+    transition: border-color var(--videx-transition-fast), box-shadow var(--videx-transition-fast);
+    resize: vertical;
+    min-height: 44px;
+    line-height: 1.5;
+}
+
+select {
+    cursor: pointer;
+}
+
+input[type=text]:focus,
+input[type=date]:focus,
+input[type=number]:focus,
+input[type=password]:focus,
+input[type=email]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--videx-primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    background: var(--videx-bg);
+}
+
+input[type=checkbox] {
+    height: 18px;
+    width: 18px;
+    border: 1px solid var(--videx-border);
+    border-radius: var(--videx-radius-sm);
+    vertical-align: middle;
+    accent-color: var(--videx-primary);
+    cursor: pointer;
+}
+
+/* ------------------------------------------------------------
+   9. INPUT FILE CUSTOM
+   ------------------------------------------------------------ */
+.inputfile {
+    width: 0.1px; height: 0.1px;
+    opacity: 0; overflow: hidden;
+    position: absolute; z-index: -1;
+}
+.inputfile + label {
+    background: var(--videx-warning);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: var(--videx-radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-block;
+    transition: background var(--videx-transition-fast), box-shadow var(--videx-transition-fast);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    border: none;
+}
+.inputfile + label:hover {
+    background: var(--videx-warning-dark);
+    box-shadow: var(--videx-shadow-md);
+}
+
+/* ------------------------------------------------------------
+   10. PAGINACION CUSTOM
+   ------------------------------------------------------------ */
+a.paginacion {
+    display: inline-block;
+    margin: 2px 4px;
+    background: var(--videx-primary);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: var(--videx-radius-sm);
+    font-size: 12px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background var(--videx-transition-fast), box-shadow var(--videx-transition-fast);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+a.paginacion:hover {
+    background: var(--videx-primary-dark);
+    color: #fff;
+    box-shadow: var(--videx-shadow-sm);
+}
+
+a.paginacion_sel {
+    display: inline-block;
+    margin: 2px 4px;
+    background: var(--videx-success);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: var(--videx-radius-sm);
+    font-size: 12px;
+    cursor: default;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: var(--videx-shadow-sm);
+}
+
+/* ------------------------------------------------------------
+   11. LINKS DE ACCION EN TABLAS
+   ------------------------------------------------------------ */
+a.excel,
+a.opciones-tabla {
+    display: inline-block;
+    background: var(--videx-success);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: var(--videx-radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    margin: 4px;
+    text-decoration: none;
+    transition: background var(--videx-transition-fast), box-shadow var(--videx-transition-fast);
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+a.excel:hover,
+a.opciones-tabla:hover {
+    background: var(--videx-success-dark);
+    color: #fff;
+    box-shadow: var(--videx-shadow-md);
+}
+
+/* ------------------------------------------------------------
+   12. TABS CUSTOM
+   ------------------------------------------------------------ */
+.tablink {
+    background: var(--videx-gray-600);
+    color: #fff;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background var(--videx-transition-fast), color var(--videx-transition-fast);
+    border-bottom: 3px solid transparent;
+}
+.tablink:hover {
+    background: var(--videx-gray-700);
+}
+.tablink.active {
+    background: var(--videx-primary);
+    border-bottom-color: var(--videx-primary);
+    color: #fff;
+}
+
+.tabcontent {
+    padding: 20px;
+    display: none;
+    background: var(--videx-bg);
+    border: 1px solid var(--videx-border);
+    border-radius: 0 0 var(--videx-radius-lg) var(--videx-radius-lg);
+    animation: tabFadeIn var(--videx-transition-fast);
+}
+
+.tabcontent.active {
+    display: block;
+}
+
+@keyframes tabFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Form tabs variant */
+.form-tabs-header {
+    display: flex;
+    border-bottom: 2px solid var(--videx-border);
+    gap: 0;
+    margin-bottom: 0;
+}
+
+.form-tab-button {
+    background: transparent;
+    color: var(--videx-text-secondary);
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: color var(--videx-transition-fast), border-bottom-color var(--videx-transition-fast);
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+}
+.form-tab-button:hover {
+    color: var(--videx-primary);
+}
+.form-tab-button.active {
+    color: var(--videx-primary);
+    border-bottom-color: var(--videx-primary);
+}
+
+.form-tabs-content {
+    border: 1px solid var(--videx-border);
+    border-top: none;
+    border-radius: 0 0 var(--videx-radius-lg) var(--videx-radius-lg);
+}
+
+.form-tab-pane {
+    display: none;
+    padding: 20px;
+    background: var(--videx-bg);
+    animation: tabFadeIn var(--videx-transition-fast);
+}
+
+.form-tab-pane.active {
+    display: block;
+}
+
+/* ------------------------------------------------------------
+   13. GRILLA LEGACY (col-25 / col-50 / col-75)
+   ------------------------------------------------------------ */
+.col-25 { float: left; width: 25%; margin-top: 6px; text-align: left; }
+.col-50 { float: left; width: 50%; margin-top: 10px; text-align: left; }
+.col-75 { float: left; width: 75%; margin-top: 6px; }
+.row:after, .row-check:after, .row-tabla:after {
+    content: ""; display: table; clear: both;
+}
+
+/* ------------------------------------------------------------
+   14. AUTOCOMPLETE LOADING
+   ------------------------------------------------------------ */
+.ui-autocomplete-loading {
+    background: #fff url("images/ui-anim_basic_16x16.gif") right center no-repeat;
+}
+
+/* ------------------------------------------------------------
+   15. IMAGEN
+   ------------------------------------------------------------ */
+img {
+    max-width: 100%;
+    height: auto;
+    transition: transform var(--videx-transition-fast);
+}
+img.logo-header {
+    max-width: 400px;
+}
+img:hover {
+    transform: scale(1.01);
+}
+
+/* ------------------------------------------------------------
+   16. FOOTER (#footer)
+   ------------------------------------------------------------ */
+#footer {
+    font-size: 11px;
+    color: var(--videx-text-secondary);
+    font-weight: 500;
+    transition: color var(--videx-transition-base);
+}
+
+/* ------------------------------------------------------------
+   17. NAVBAR MODERNA - MEJORADA
+   ------------------------------------------------------------ */
+
+.videx-navbar {
+    background: var(--videx-bg);
+    border-bottom: 1px solid var(--videx-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    padding: 0;
+    min-height: 64px;
+    z-index: 1030;
+    transition: box-shadow var(--videx-transition-base), background var(--videx-transition-base);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 16px;
+}
+
+.videx-navbar.scrolled {
+    box-shadow: var(--videx-shadow-md);
+}
+
+/* Logo */
+.videx-logo {
+    transition: opacity var(--videx-transition-fast), transform var(--videx-transition-fast);
+    height: 40px;
+    width: auto;
+}
+.videx-logo:hover {
+    opacity: 0.85;
+    transform: scale(1.02);
+}
+
+/* Nav links */
+.videx-navbar .nav-link {
+    color: var(--videx-text-secondary) !important;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 8px 12px !important;
+    border-bottom: 2px solid transparent;
+    transition: color var(--videx-transition-fast), border-color var(--videx-transition-fast);
+    white-space: nowrap;
+    border-radius: var(--videx-radius-sm);
+}
+.videx-navbar .nav-link:hover {
+    color: var(--videx-primary) !important;
+    border-bottom-color: var(--videx-primary);
+}
+
+/* Dropdown */
+.videx-dropdown {
+    border: none !important;
+    border-radius: var(--videx-radius-lg) !important;
+    box-shadow: var(--videx-shadow-lg) !important;
+    padding: 8px 0 !important;
+    min-width: 210px;
+    background: var(--videx-bg-secondary) !important;
+    animation: videxDropIn var(--videx-transition-fast) ease;
+}
+
+@keyframes videxDropIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.videx-dropdown .dropdown-item {
+    font-size: 13px;
+    padding: 10px 16px;
+    color: var(--videx-text);
+    transition: background var(--videx-transition-fast), color var(--videx-transition-fast);
+    border-radius: 0;
+}
+.videx-dropdown .dropdown-item:hover {
+    background: var(--videx-primary-50);
+    color: var(--videx-primary);
+}
+.videx-dropdown .dropdown-divider {
+    margin: 6px 0;
+    background: var(--videx-border);
+}
+
+/* Pill de usuario */
+.videx-user-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--videx-primary-50);
+    color: var(--videx-primary-dark);
+    border-radius: var(--videx-radius-full);
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    max-width: 180px;
+    transition: background var(--videx-transition-fast), box-shadow var(--videx-transition-fast);
+}
+.videx-user-pill:hover {
+    background: var(--videx-primary-100);
+    box-shadow: var(--videx-shadow-sm);
+}
+
+.videx-user-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 120px;
+}
+
+/* Boton Salir */
+.videx-btn-salir {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--videx-danger-50);
+    color: var(--videx-danger) !important;
+    border-radius: var(--videx-radius-md);
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: background var(--videx-transition-fast), color var(--videx-transition-fast);
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+.videx-btn-salir:hover {
+    background: var(--videx-danger);
+    color: #fff !important;
+}
+
+/* Toggler (hamburguesa) */
+.videx-toggler {
+    border: 1px solid var(--videx-border) !important;
+    border-radius: var(--videx-radius-md) !important;
+    padding: 8px 10px !important;
+    transition: background var(--videx-transition-fast) !important;
+}
+.videx-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(37,99,235,.14) !important;
+    background: var(--videx-gray-100) !important;
+}
+
+/* Mobile styles */
+@media (max-width: 991px) {
+    .videx-navbar .nav-link {
+        padding: 10px 14px !important;
+        border-bottom: none;
+        border-left: 3px solid transparent;
+    }
+    .videx-navbar .nav-link:hover {
+        border-left-color: var(--videx-primary);
+        background: var(--videx-bg-secondary);
+        border-bottom: none;
+    }
+    #navbarMain {
+        border-top: 1px solid var(--videx-border);
+        padding: 8px 0;
+        max-height: 78vh;
+        overflow-y: auto;
+    }
+    .videx-dropdown {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        background: var(--videx-bg-secondary) !important;
+        border-left: 3px solid var(--videx-primary-light) !important;
+        margin: 0 10px !important;
+        padding: 4px 0 !important;
+        animation: none;
+    }
+    .videx-btn-salir { margin: 6px 10px; }
+    .videx-user-pill { margin: 4px 10px; }
+}
+
+/* Script: sombra al hacer scroll */
+/* (ver index.php — script inline al final del head) */
+
+/* ============================================================
+   NUEVOS COMPONENTES CSS PURO (Fase 1 - Modernización)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   19. FORMS SYSTEM (CSS PURO)
+   ------------------------------------------------------------ */
+.form {
+    display: block;
+    width: 100%;
+}
+
+.form-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--videx-text);
+    margin-bottom: 8px;
+    padding: 0;
+    transition: color var(--videx-transition-fast);
+}
+
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--videx-border);
+    border-radius: var(--videx-radius-md);
+    font-size: 13px;
+    font-family: var(--videx-font);
+    background: var(--videx-bg);
+    color: var(--videx-text);
+    transition: border-color var(--videx-transition-fast), box-shadow var(--videx-transition-fast), background var(--videx-transition-fast);
+    appearance: none;
+    min-height: 44px;
+}
+
+.form-control:hover {
+    border-color: var(--videx-gray-400);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--videx-primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    background: var(--videx-bg);
+}
+
+.form-control:disabled {
+    background: var(--videx-bg-secondary);
+    color: var(--videx-text-secondary);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Checkboxes y Radios */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 10px;
+}
+
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    border: 1px solid var(--videx-border);
+    border-radius: var(--videx-radius-sm);
+    vertical-align: middle;
+    accent-color: var(--videx-primary);
+    cursor: pointer;
+    transition: border-color var(--videx-transition-fast), box-shadow var(--videx-transition-fast);
+}
+
+.form-check-input:hover {
+    border-color: var(--videx-primary);
+}
+
+.form-check-input:focus {
+    outline: none;
+    border-color: var(--videx-primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
+.form-check-label {
+    font-size: 13px;
+    color: var(--videx-text);
+    cursor: pointer;
+    user-select: none;
+    transition: color var(--videx-transition-fast);
+}
+
+.form-check-label:hover {
+    color: var(--videx-primary);
+}
+
+/* Radio button style */
+input[type="radio"] {
+    border-radius: 50%;
+}
+
+/* Textarea específica */
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Select con icono */
+select.form-control {
+    padding-right: 32px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%234b5563'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 20px;
+    padding-right: 36px;
+}
+
+/* Help text */
+.form-text {
+    font-size: 12px;
+    color: var(--videx-text-secondary);
+    margin-top: 4px;
+    transition: color var(--videx-transition-fast);
+}
+
+.form-error {
+    font-size: 12px;
+    color: var(--videx-danger);
+    margin-top: 4px;
+}
+
+/* Placeholder styling */
+::placeholder {
+    color: var(--videx-gray-400);
+    opacity: 1;
+}
+
+/* Input groups */
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.input-group > .form-control {
+    flex: 1;
+}
+
+.input-group-text {
+    background: var(--videx-bg-secondary);
+    border: 1px solid var(--videx-border);
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--videx-text-secondary);
+    white-space: nowrap;
+    transition: background var(--videx-transition-fast), border-color var(--videx-transition-fast);
+}
+
+/* Fieldset */
+fieldset {
+    border: 1px solid var(--videx-border);
+    border-radius: var(--videx-radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    background: var(--videx-bg);
+    transition: border-color var(--videx-transition-fast), background var(--videx-transition-base);
+}
+
+fieldset > legend {
+    margin-left: -4px;
+    padding: 0 10px;
+    font-weight: 700;
+    color: var(--videx-text);
+    font-size: 13px;
+}
+
+/* ------------------------------------------------------------
+   20. GRID SYSTEM (CSS PURO - Mobile-First)
+   ------------------------------------------------------------ */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+}
+
+.grid-1 {
+    grid-template-columns: 1fr;
+}
+
+.grid-2 {
+    grid-template-columns: 1fr;
+}
+
+.grid-3 {
+    grid-template-columns: 1fr;
+}
+
+.grid-4 {
+    grid-template-columns: 1fr;
+}
+
+/* Breakpoint TABLET (600px+) */
+@media (min-width: 600px) {
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+}
+
+/* Breakpoint DESKTOP (720px+) */
+@media (min-width: 720px) {
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+}
+
+/* Layout etiqueta-input (label + input lado a lado en desktop) */
+.grid-cols-label-input {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+@media (min-width: 600px) {
+    .grid-cols-label-input {
+        grid-template-columns: 120px 1fr;
+        align-items: start;
+        gap: 16px;
+    }
+}
+
+/* ------------------------------------------------------------
+   21. CARDS (Contenedores con estilo)
+   ------------------------------------------------------------ */
+.card {
+    background: #fff;
+    border: 1px solid var(--videx-gray-200);
+    border-radius: var(--videx-radius);
+    box-shadow: var(--videx-shadow-sm);
+    overflow: hidden;
+}
+
+/* Cards ya están definidas arriba en sección 5, pero aquí personalizamos más */
+.card-header {
+    background: var(--videx-bg-secondary);
+    border-bottom: 1px solid var(--videx-border);
+    padding: 16px 20px;
+    font-weight: 700;
+    color: var(--videx-text);
+    font-size: 14px;
+    transition: background var(--videx-transition-base);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-footer {
+    background: var(--videx-bg-secondary);
+    border-top: 1px solid var(--videx-border);
+    padding: 14px 20px;
+    font-size: 12px;
+    color: var(--videx-text-secondary);
+    transition: background var(--videx-transition-base);
+}
+
+/* Variantes de card */
+.card.card-primary .card-header {
+    background: var(--videx-primary);
+    color: #fff;
+    border-color: var(--videx-primary-dark);
+    box-shadow: 0 2px 4px rgba(37,99,235,.15);
+}
+
+.card.card-success .card-header {
+    background: var(--videx-success);
+    color: #fff;
+}
+
+.card.card-danger .card-header {
+    background: var(--videx-danger);
+    color: #fff;
+}
+
+/* ------------------------------------------------------------
+   22. MODALES Y DIALOGS (CSS PURO)
+   ------------------------------------------------------------ */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    animation: fadeIn var(--videx-transition-fast) ease;
+    transition: background var(--videx-transition-base);
+}
+
+.modal.show {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 16px;
+    padding-top: 60px;
+}
+
+.modal-dialog {
+    background: var(--videx-bg);
+    border-radius: var(--videx-radius-lg);
+    box-shadow: var(--videx-shadow-xl);
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    animation: slideUp var(--videx-transition-base) ease;
+    transition: background var(--videx-transition-base);
+}
+
+.modal-dialog.modal-sm { max-width: 350px; }
+.modal-dialog.modal-lg { max-width: 700px; }
+
+.modal-dialog.modal-fullscreen {
+    max-width: 100%;
+    height: 100%;
+    border-radius: 0;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--videx-border);
+    background: var(--videx-bg);
+    transition: background var(--videx-transition-base), border-color var(--videx-transition-base);
+}
+
+.modal-header h5 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--videx-text);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    line-height: 1;
+    color: var(--videx-text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color var(--videx-transition-fast), background var(--videx-transition-fast);
+    border-radius: var(--videx-radius-sm);
+}
+
+.modal-close:hover {
+    color: var(--videx-text);
+    background: var(--videx-bg-secondary);
+}
+
+.modal-body {
+    padding: 24px;
+    flex: 1;
+    overflow-y: auto;
+    color: var(--videx-text);
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--videx-border);
+    background: var(--videx-bg-secondary);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    align-items: center;
+    transition: background var(--videx-transition-base), border-color var(--videx-transition-base);
+}
+
+.modal-footer .btn {
+    margin: 0;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Backdrop (opcional) */
+.modal-backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+}
+
+/* ------------------------------------------------------------
+   23. BOTONES MEJORADOS
+   ------------------------------------------------------------ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--videx-font);
+    cursor: pointer;
+    transition: all .15s;
+    text-decoration: none;
+    white-space: nowrap;
+    min-height: 44px;
+    user-select: none;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--videx-primary);
+    color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--videx-primary-dark);
+    box-shadow: 0 2px 8px rgba(37,99,235,.3);
+}
+
+.btn-success {
+    background: var(--videx-success);
+    color: #fff;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #15803d;
+    box-shadow: 0 2px 8px rgba(22,163,74,.3);
+}
+
+.btn-danger {
+    background: var(--videx-danger);
+    color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #b91c1c;
+    box-shadow: 0 2px 8px rgba(220,38,38,.3);
+}
+
+.btn-secondary {
+    background: var(--videx-gray-200);
+    color: var(--videx-gray-800);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--videx-gray-300);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--videx-gray-200);
+    color: var(--videx-gray-800);
+}
+
+.btn-outline:hover:not(:disabled) {
+    border-color: var(--videx-primary);
+    color: var(--videx-primary);
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: auto;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* Group de botones */
+.btn-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------
+   24. ACTION BAR (Botones al pie)
+   ------------------------------------------------------------ */
+.action-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--videx-gray-50);
+    border-top: 1px solid var(--videx-gray-200);
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.action-bar-primary {
+    background: var(--videx-primary);
+}
+
+/* En mobile, la action bar ocupa espacio abajo */
+body.has-action-bar {
+    padding-bottom: 62px;
+}
+
+/* En desktop, action bar es estática (no fixed) */
+@media (min-width: 720px) {
+    .action-bar {
+        position: static;
+        padding: 16px;
+        background: #fff;
+        gap: 12px;
+    }
+
+    body.has-action-bar {
+        padding-bottom: 0;
+    }
+}
+
+/* TABLA MEJORADA */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 0;
+}
+
+.table th {
+    background: var(--videx-primary);
+    color: #fff;
+    font-weight: 600;
+    padding: 12px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--videx-gray-200);
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background: var(--videx-gray-50);
+}
+
+.table-striped tbody tr:nth-child(odd) {
+    background: var(--videx-gray-50);
+}
+
+.table-hover tbody tr:hover {
+    background: #f0f4ff;
+}
+
+.table-bordered {
+    border: 1px solid var(--videx-gray-200);
+}
+
+.table-bordered td,
+.table-bordered th {
+    border: 1px solid var(--videx-gray-200);
+}
+
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 600px) {
+    .table-responsive {
+        width: 100%;
+    }
+
+    body:not(.cotizacion-page) .table {
+        font-size: 12px;
+    }
+
+    body:not(.cotizacion-page) .table th,
+    body:not(.cotizacion-page) .table td {
+        padding: 8px;
+    }
+}
+
+/* ============================================================
+   FIN NUEVOS COMPONENTES CSS PURO
+   ============================================================ */
+
+/* Script: sombra al hacer scroll */
+/* (ver index.php — script inline al final del head) */
+
+/* ------------------------------------------------------------
+   18. LOGIN PAGE
+   ------------------------------------------------------------ */
+.videx-login-bg { background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%); }
+
+.videx-login-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(37,99,235,.10);
+    border: 1px solid var(--videx-gray-200);
+}
+
+.videx-login-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--videx-primary);
+    line-height: 1;
+    letter-spacing: -2px;
+}
+
+.videx-login-sub {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--videx-gray-600);
+    margin-top: -6px;
+}
+
+/* ------------------------------------------------------------
+   18. RESPONSIVE
+   ------------------------------------------------------------ */
+@media (max-width: 600px) {
+    table.accesos, table.campanas, table.grupos,
+    table.usuarios_sms, table.historico {
+        display: block;
+        overflow-x: auto;
+        white-space: normal;
+        width: 99%;
+    }
+    .col-25, .col-75, .col-50 { width: 100%; margin-top: 0; text-align: left; }
+    input[type=button], input[type=submit] { width: 100%; margin-top: 8px; }
+    .videx-login-title { font-size: 2.5rem; }
+    .videx-login-sub   { font-size: 1.2rem; }
+}

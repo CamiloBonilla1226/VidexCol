@@ -1,0 +1,186 @@
+<?php
+// Emergency CSS update script
+// This file will copy the updated CSS content directly
+
+$newCssContent = <<<'EOFCSS'
+/**
+ * Campaign Module Styling - Enhanced
+ * WHITE MODAL - BLACK TEXTS - UPDATED 20:10
+ */
+
+/* MODAL STYLES - CRITICAL UPDATES */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: transparent;
+    padding: var(--space-4);
+    animation: fadeIn var(--transition-base);
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: #ffffff !important;
+    border: 2px solid var(--primary-300);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    animation: slideUp var(--transition-base);
+}
+
+.modal-body {
+    flex: 1;
+    padding: 32px 28px;
+    color: #000000 !important;
+    overflow-y: auto;
+    max-height: 65vh;
+    background: #ffffff !important;
+}
+
+.modal-body .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #000000 !important;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.modal-body .form-control {
+    width: 100%;
+    background: white !important;
+    border: 1.5px solid var(--primary-200);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #000000 !important;
+    transition: all var(--transition-fast);
+    box-sizing: border-box;
+    min-height: 44px;
+}
+
+.modal-body .form-control:disabled,
+.modal-body .form-control[disabled] {
+    background-color: #f3f4f6 !important;
+    color: #6b7280 !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    border-bottom: none;
+    position: relative;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.5px;
+    flex: 1;
+}
+
+.modal-header .close {
+    background: #000000;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    color: white;
+    cursor: pointer;
+    opacity: 1;
+    transition: all var(--transition-fast);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: var(--space-4);
+}
+
+.modal-header .close:hover {
+    background: #333333;
+    transform: rotate(90deg) scale(1.15);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px 28px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+.modal-footer .btn-secondary {
+    background: #6b7280;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.modal-footer .btn-danger {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.modal-footer .btn-primary {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* END MODAL STYLES */
+EOFCSS;
+
+// Try to write the file
+$targetFile = __DIR__ . '/campanha_emergency.css';
+$bytesWritten = file_put_contents($targetFile, $newCssContent);
+
+if ($bytesWritten !== false) {
+    echo "✓ Emergency CSS created: campanha_emergency.css\n";
+    echo "Size: " . number_format($bytesWritten) . " bytes\n";
+    echo "\nYou can now use this CSS file in your HTML instead of campanha.css\n";
+    echo "Or you can manually replace campanha.css with its contents\n";
+} else {
+    echo "✗ Failed to create emergency CSS\n";
+}
+?>

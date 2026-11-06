@@ -1,0 +1,625 @@
+/* ============================================================
+   USUARIO MODULE - FORM STYLING
+   Modern responsive design for user management forms
+   ============================================================ */
+
+/* ---- TAB NAVIGATION ---- */
+.nav-tabs {
+    border-bottom: 2px solid #e5e7eb;
+    gap: 0;
+    margin-bottom: 24px;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #6b7280;
+    font-weight: 500;
+    transition: all 150ms ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.nav-tabs .nav-link.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    background: transparent;
+}
+
+.nav-tabs .nav-link i {
+    font-size: 16px;
+}
+
+/* ---- TAB CONTENT ---- */
+.tab-content {
+    background: transparent;
+    padding: 0;
+}
+
+.tab-pane {
+    display: none;
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+.tab-pane.active {
+    display: block;
+    opacity: 1;
+}
+
+/* ---- FORM GROUPS ---- */
+.form-group {
+    margin-bottom: 20px;
+    display: block;
+}
+
+.form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #000000 !important;
+    margin-bottom: 8px;
+}
+
+.form-label strong {
+    font-weight: 700;
+}
+
+/* ---- FORM CONTROLS ---- */
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #000000 !important;
+    background: white !important;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    transition: all 150ms ease;
+}
+
+.form-control::placeholder {
+    color: #9ca3af !important;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background: white !important;
+    color: #000000 !important;
+}
+
+.form-control:disabled {
+    background: #f3f4f6 !important;
+    color: #000000 !important;
+    cursor: not-allowed;
+}
+
+.form-control[type="file"] {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #000000 !important;
+}
+
+textarea.form-control {
+    color: #000000 !important;
+    background: white !important;
+}
+
+select.form-control {
+    color: #000000 !important;
+    background: white !important;
+}
+
+select.form-control option {
+    color: #000000 !important;
+    background: white !important;
+}
+
+/* ---- ALERTS ---- */
+.alert {
+    padding: 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    border: 1px solid;
+}
+
+.alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #a7f3d0;
+}
+
+.alert-danger {
+    background: #fee2e2;
+    color: #7f1d1d;
+    border-color: #fecaca;
+}
+
+.alert-warning {
+    background: #fef3c7;
+    color: #78350f;
+    border-color: #fde68a;
+}
+
+.alert-info {
+    background: #dbeafe;
+    color: #0c2d6b;
+    border-color: #bfdbfe;
+}
+
+.alert-dismissible .btn-close {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+}
+
+/* ---- CHECKBOXES & RADIOS ---- */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin: 12px 0;
+    padding: 8px 0;
+    font-size: 13px;
+}
+
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    margin-top: 0;
+    cursor: pointer;
+    accent-color: #2563eb;
+    flex-shrink: 0;
+}
+
+.form-check-label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+    color: #000000 !important;
+}
+
+/* Texto siempre negro en todo el módulo de usuario */
+.usuario-form-container,
+.usuario-form-container p,
+.usuario-form-container span,
+.usuario-form-container div,
+.usuario-form-container li,
+.usuario-form-container td,
+.usuario-form-container th,
+.usuario-form-container legend,
+.usuario-form-container small,
+.usuario-form-container h1,
+.usuario-form-container h2,
+.usuario-form-container h3,
+.usuario-form-container h4,
+.usuario-form-container h5,
+.usuario-form-container h6,
+.usuario-form-container .text-muted,
+.usuario-form-container .alert p,
+.usuario-form-container .nav-link,
+.usuario-form-container .tab-pane,
+.usuario-form-container .documents-list td,
+.usuario-form-container .documents-list th,
+.usuario-form-container .permissions-grid legend {
+    color: #000000 !important;
+}
+
+/* ---- FILE UPLOAD ZONE ---- */
+.file-upload-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    background: #f9fafb;
+    transition: all 150ms ease;
+}
+
+.file-upload-zone:hover {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.file-upload-zone.dragover {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.1);
+}
+
+.file-upload-zone i {
+    font-size: 32px;
+    color: #2563eb;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.file-upload-zone p {
+    margin: 0;
+    color: #6b7280;
+}
+
+/* ---- FILE PREVIEW ---- */
+.file-preview {
+    margin-top: 16px;
+}
+
+.file-preview-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f3f4f6;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.file-preview-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.file-preview-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-preview-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1f2937;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-preview-size {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+/* ---- PERMISSIONS GRID ---- */
+.permissions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.permissions-grid fieldset {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 16px;
+    background: #f9fafb;
+}
+
+.permissions-grid legend {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    padding: 0 8px;
+    margin-bottom: 12px;
+}
+
+.permissions-grid .form-check {
+    margin-bottom: 8px;
+}
+
+/* ---- DOCUMENTS LIST ---- */
+.documents-list {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.documents-list h6 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 16px;
+}
+
+.documents-list table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.documents-list thead {
+    background: #f3f4f6;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.documents-list th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 700;
+    color: #374151;
+}
+
+.documents-list td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #4b5563;
+}
+
+.documents-list tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* ---- PASSWORD STRENGTH METER ---- */
+.password-strength-meter {
+    margin-top: 8px;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    background: #ef4444;
+    transition: all 200ms ease;
+}
+
+.password-strength-bar.strength-1 {
+    background: #ef4444;
+    width: 25%;
+}
+
+.password-strength-bar.strength-2 {
+    background: #f97316;
+    width: 50%;
+}
+
+.password-strength-bar.strength-3 {
+    background: #eab308;
+    width: 75%;
+}
+
+.password-strength-bar.strength-4 {
+    background: #16a34a;
+    width: 100%;
+}
+
+.password-strength-text {
+    font-size: 11px;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.password-strength-text.weak {
+    color: #dc2626;
+}
+
+.password-strength-text.fair {
+    color: #f97316;
+}
+
+.password-strength-text.good {
+    color: #eab308;
+}
+
+.password-strength-text.strong {
+    color: #16a34a;
+}
+
+/* ---- BUTTONS ---- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 150ms ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-success {
+    background: #10b981;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #059669;
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+/* ---- CONDITIONAL FIELDS ---- */
+.conditional-field {
+    max-height: 1000px;
+    opacity: 1;
+    overflow: hidden;
+    transition: all 300ms ease;
+}
+
+.conditional-field.hidden {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+}
+
+/* ---- RESPONSE MESSAGES ---- */
+.success-message {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    border-left: 4px solid #10b981;
+}
+
+.error-message {
+    background: #fee2e2;
+    color: #7f1d1d;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    border-left: 4px solid #ef4444;
+}
+
+/* ---- HELP TEXT ---- */
+.form-text {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.text-muted {
+    color: #9ca3af;
+}
+
+/* ---- BADGES ---- */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.bg-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.bg-success {
+    background: #10b981;
+    color: white;
+}
+
+.bg-danger {
+    background: #ef4444;
+    color: white;
+}
+
+/* ---- RESPONSIVE DESIGN ---- */
+@media (max-width: 768px) {
+    .permissions-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .nav-tabs {
+        gap: 0;
+        flex-wrap: wrap;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .nav-tabs .nav-link i {
+        display: none;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        font-size: 12px;
+    }
+
+    .form-control {
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 8px 8px;
+        font-size: 11px;
+    }
+
+    .documents-list table {
+        font-size: 12px;
+    }
+
+    .documents-list th,
+    .documents-list td {
+        padding: 8px;
+    }
+}
+

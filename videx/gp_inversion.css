@@ -1,0 +1,309 @@
+/* ============================================================
+   PROYECTO DE INVERSION - estilos propios del modulo.
+   Extiende gp.css (mismo sistema de diseno: Inter, azul #2563eb,
+   bordes #e2e8f0, sin sombras fuertes), fiel al diseno aprobado en Stitch
+   ("VidEx Proyecto de Inversion" - Executive Precision).
+   ============================================================ */
+
+.gp-inv-sub { color: #94a3b8; font-size: 12px; }
+
+.gp-inv-header-acciones { display: flex; align-items: center; gap: 12px; }
+.gp-inv-header-acciones .gp-icon-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; border: 1px solid #fecaca; padding: 6px 10px; }
+
+/* ---- Badges / botones extra que no existian en gp.css ---- */
+.gp-badge-azul { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.gp-badge-azul, .gp-badge-gris, .gp-badge-verde, .gp-badge-rojo {
+    display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+}
+
+.gp-btn-rojo {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #dc2626; color: #fff; border: 1px solid transparent;
+    padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none;
+}
+.gp-btn-rojo:hover { background: #b91c1c; color: #fff; }
+
+/* ---- Filtro de linea de tiempo ---- */
+.gp-inv-filtro {
+    display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px;
+}
+.gp-inv-filtro .gp-field { margin-bottom: 0; }
+.gp-inv-filtro .gp-btn-secondary { margin-left: auto; }
+
+/* ---- Tarjetas KPI ---- */
+.gp-inv-kpis {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 20px;
+}
+.gp-inv-kpi {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px;
+}
+.gp-inv-kpi-label {
+    display: flex; align-items: center; gap: 6px; color: #64748b; font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .02em; margin-bottom: 8px;
+}
+.gp-inv-kpi-valor { font-size: 22px; font-weight: 800; color: #0f172a; font-feature-settings: "tnum" 1; }
+.gp-inv-kpi-pos { color: #16a34a; }
+.gp-inv-kpi-neg { color: #dc2626; }
+
+/* ---- Consolidacion multibanco: barra de proporcion ---- */
+.gp-inv-barra { background: #f1f5f9; border-radius: 4px; height: 8px; width: 100%; overflow: hidden; }
+.gp-inv-barra-rel { background: #2563eb; height: 100%; border-radius: 4px; }
+
+/* ---- Graficos ---- */
+.gp-inv-graficos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+.gp-inv-chart { min-height: 220px; }
+@media (max-width: 900px) { .gp-inv-graficos { grid-template-columns: 1fr; } }
+
+/* ---- Tablas ingresos/egresos lado a lado ---- */
+.gp-inv-tablas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 1100px) { .gp-inv-tablas { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   DRAWER LATERAL (slide-over derecho) - Nuevo/Editar Ingreso/Egreso
+   ============================================================ */
+.gp-inv-drawer-overlay {
+    position: fixed; inset: 0; background: rgba(15, 23, 42, .4);
+    display: none; align-items: stretch; justify-content: flex-end; z-index: 1000;
+}
+.gp-inv-drawer-overlay.gp-open { display: flex; }
+
+.gp-inv-drawer {
+    width: 100%; max-width: 520px; background: #fff; height: 100%;
+    display: flex; flex-direction: column; border-left: 1px solid #cbd5e1;
+    box-shadow: -8px 0 24px rgba(15, 23, 42, .12);
+    animation: gpInvDrawerIn .18s ease-out;
+}
+@keyframes gpInvDrawerIn { from { transform: translateX(24px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.gp-inv-drawer-header {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    padding: 18px 22px; border-bottom: 1px solid #f1f5f9;
+}
+.gp-inv-drawer-header h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: #0f172a; }
+.gp-inv-drawer-sub { margin: 0; font-size: 12px; color: #64748b; }
+.gp-inv-drawer-header button {
+    background: none; border: none; font-size: 20px; line-height: 1; color: #94a3b8; cursor: pointer;
+    padding: 4px 8px; border-radius: 6px;
+}
+.gp-inv-drawer-header button:hover { background: #f1f5f9; color: #0f172a; }
+
+.gp-inv-drawer-body { flex: 1 1 auto; overflow-y: auto; padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; }
+.gp-inv-drawer-body .gp-field { margin-bottom: 0; }
+.gp-inv-drawer-body label { display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px; }
+
+.gp-inv-drawer-footer {
+    padding: 14px 22px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 10px;
+}
+
+.gp-inv-input-moneda { display: flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; }
+.gp-inv-input-moneda span { background: #f8fafc; color: #64748b; font-size: 12px; font-weight: 600; padding: 0 10px; }
+.gp-inv-input-moneda input { border: none; flex: 1; padding: 8px 10px; font-size: 13px; }
+.gp-inv-input-moneda input:focus { outline: none; }
+
+/* ---- Radio cards (clasificacion de egreso) ---- */
+.gp-inv-radio-cards { display: flex; flex-direction: column; gap: 8px; }
+.gp-inv-radio-card {
+    display: flex; flex-direction: column; gap: 2px; border: 1px solid #e2e8f0; border-radius: 6px;
+    padding: 10px 12px; cursor: pointer; position: relative;
+}
+.gp-inv-radio-card input { position: absolute; top: 12px; right: 12px; }
+.gp-inv-radio-card strong { font-size: 13px; color: #0f172a; }
+.gp-inv-radio-card span { font-size: 11.5px; color: #64748b; }
+.gp-inv-radio-card:has(input:checked) { border-color: #2563eb; background: #eff6ff; }
+.gp-inv-radio-card:has(input[value="gasto_operativo"]:checked) { border-color: #dc2626; background: #fef2f2; }
+
+/* ---- Dropzone de anexos ---- */
+.gp-inv-dropzone {
+    border: 1px dashed #cbd5e1; border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; background: #f8fafc;
+}
+.gp-inv-dropzone label { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12px; font-weight: 600; color: #334155; cursor: pointer; margin: 0; }
+.gp-inv-dropzone input[type="file"] { font-size: 11.5px; max-width: 220px; }
+.gp-inv-anexo-existente { font-size: 12px; margin: 4px 0; }
+.gp-inv-anexo-existente a { color: #2563eb; text-decoration: none; }
+
+.gp-modal-confirmar-rojo { background: #dc2626 !important; }
+.gp-modal-confirmar-rojo:hover { background: #b91c1c !important; }
+
+/* ============================================================
+   BOTONES DEL PIE DE LOS PANELES LATERALES (detalle / nuevo / editar)
+   Antes no tenian estilo propio: gp.css solo estiliza .gp-modal-confirmar y
+   .gp-modal-cancelar dentro de .gp-modal-footer, no dentro del drawer.
+   ============================================================ */
+.gp-inv-drawer-footer { align-items: center; background: #fff; }
+.gp-inv-drawer-footer button {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    min-height: 40px; padding: 0 18px; border-radius: 8px; border: 1px solid transparent;
+    font-size: 13.5px; font-weight: 600; line-height: 1; cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.gp-inv-drawer-footer button i { font-size: 14px; }
+.gp-inv-drawer-footer button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.gp-inv-drawer-footer button:disabled { opacity: .6; cursor: not-allowed; }
+
+/* secundario: Cerrar / Cancelar */
+.gp-inv-drawer-footer button.gp-modal-cancelar { background: #fff; color: #334155; border-color: #d1d5db; }
+.gp-inv-drawer-footer button.gp-modal-cancelar:hover:not(:disabled) { background: #f8fafc; border-color: #94a3b8; color: #0f172a; }
+
+/* primario: Editar / Guardar ingreso (azul); Guardar egreso usa .gp-modal-confirmar-rojo */
+.gp-inv-drawer-footer button.gp-modal-confirmar { background: #2563eb; color: #fff; box-shadow: 0 1px 2px rgba(37, 99, 235, .35); }
+.gp-inv-drawer-footer button.gp-modal-confirmar:hover:not(:disabled) { background: #1d4ed8; box-shadow: 0 2px 6px rgba(37, 99, 235, .35); }
+.gp-inv-drawer-footer button.gp-modal-confirmar-rojo { box-shadow: 0 1px 2px rgba(220, 38, 38, .35); }
+.gp-inv-drawer-footer button.gp-modal-confirmar-rojo:hover:not(:disabled) { box-shadow: 0 2px 6px rgba(220, 38, 38, .35); }
+
+/* peligro secundario: Eliminar, separado a la izquierda del resto */
+.gp-inv-drawer-footer button.gp-inv-btn-peligro { margin-right: auto; background: #fff; color: #dc2626; border-color: #fecaca; }
+.gp-inv-drawer-footer button.gp-inv-btn-peligro:hover:not(:disabled) { background: #fef2f2; border-color: #dc2626; color: #b91c1c; }
+
+/* estado "Guardando..." */
+.gp-inv-drawer-footer button.gp-cargando::before {
+    content: ''; width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .45); border-top-color: #fff;
+    animation: gpInvGiro .7s linear infinite;
+}
+.gp-inv-drawer-footer button.gp-cargando > i { display: none; }
+@keyframes gpInvGiro { to { transform: rotate(360deg); } }
+@media (max-width: 480px) {
+    .gp-inv-drawer-footer { flex-wrap: wrap; }
+    .gp-inv-drawer-footer button { flex: 1 1 auto; }
+    .gp-inv-drawer-footer button.gp-inv-btn-peligro { margin-right: 0; flex-basis: 100%; }
+}
+
+/* ============================================================
+   DETALLE DE MOVIMIENTO + ANEXOS + VISOR (estilo Google Drive)
+   ============================================================ */
+.gp-inv-fila { cursor: pointer; }
+.gp-inv-fila:hover td { background: #f8fafc; }
+.gp-inv-fila:focus { outline: 2px solid #2563eb; outline-offset: -2px; }
+
+.gp-inv-det-valor { font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
+.gp-inv-det-lista { display: grid; grid-template-columns: 150px 1fr; gap: 10px 14px; margin: 0; }
+.gp-inv-det-lista dt { font-size: 12px; font-weight: 600; color: #64748b; }
+.gp-inv-det-lista dd { margin: 0; font-size: 13.5px; color: #0f172a; word-break: break-word; white-space: pre-wrap; }
+.gp-inv-det-anexos { border-top: 1px solid #f1f5f9; padding-top: 14px; }
+.gp-inv-det-anexos h4 { margin: 0 0 10px; font-size: 13px; font-weight: 700; color: #0f172a; }
+
+.gp-inv-anexo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.gp-inv-anexo-card {
+    border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff;
+    display: flex; flex-direction: column; transition: box-shadow .15s, border-color .15s;
+}
+.gp-inv-anexo-card:hover { border-color: #93c5fd; box-shadow: 0 2px 8px rgba(37, 99, 235, .12); }
+.gp-inv-anexo-card .gp-inv-mini { width: 100%; height: 96px; border-radius: 0; }
+.gp-inv-anexo-nombre {
+    background: none; border: none; border-top: 1px solid #f1f5f9; text-align: left; padding: 8px 10px; cursor: pointer;
+    display: flex; flex-direction: column; gap: 2px; min-width: 0;
+}
+.gp-inv-anexo-nombre strong { font-size: 12px; color: #0f172a; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-inv-anexo-nombre span { font-size: 11px; color: #64748b; }
+
+/* miniaturas: foto real para imagenes, icono de color para el resto */
+.gp-inv-mini {
+    border: none; padding: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    background: #f1f5f9; font-size: 34px; overflow: hidden;
+}
+.gp-inv-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gp-inv-mini-pdf { background: #fef2f2; color: #dc2626; }
+.gp-inv-mini-zip { background: #fffbeb; color: #d97706; }
+.gp-inv-mini-excel { background: #f0fdf4; color: #16a34a; }
+.gp-inv-mini-csv { background: #f0fdf4; color: #15803d; }
+.gp-inv-mini-otro { background: #f1f5f9; color: #64748b; }
+
+/* anexos ya cargados dentro del drawer de edicion */
+.gp-inv-anexo-lista { display: flex; flex-direction: column; gap: 8px; }
+.gp-inv-anexo-fila { display: flex; align-items: center; gap: 10px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px; background: #fff; }
+.gp-inv-anexo-mini { width: 52px; height: 52px; border-radius: 6px; flex: none; font-size: 24px; }
+.gp-inv-anexo-info { flex: 1; min-width: 0; background: none; border: none; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 2px; padding: 0; }
+.gp-inv-anexo-info strong { font-size: 12.5px; color: #0f172a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-inv-anexo-info span { font-size: 11px; color: #64748b; }
+
+/* ---- Visor a pantalla completa ---- */
+body.gp-inv-visor-abierto { overflow: hidden; }
+.gp-inv-visor { position: fixed; inset: 0; z-index: 1200; background: rgba(15, 23, 42, .96); display: flex; flex-direction: column; }
+.gp-inv-visor[hidden] { display: none; }
+.gp-inv-visor-top { display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: #fff; }
+.gp-inv-visor-titulo { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+.gp-inv-visor-titulo i { font-size: 20px; opacity: .85; }
+.gp-inv-visor-titulo span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-inv-visor-titulo small { opacity: .6; font-weight: 400; white-space: nowrap; }
+.gp-inv-visor-acciones { display: flex; gap: 4px; }
+.gp-inv-visor-btn {
+    width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent; color: #fff; font-size: 18px;
+    display: inline-flex; align-items: center; justify-content: center; cursor: pointer; text-decoration: none;
+}
+.gp-inv-visor-btn:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+.gp-inv-visor-btn:focus-visible, .gp-inv-visor-nav:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
+.gp-inv-visor-escenario { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 0 70px 56px; position: relative; overflow: auto; }
+.gp-inv-visor-img { max-width: 100%; max-height: 100%; object-fit: contain; cursor: zoom-in; border-radius: 4px; background: #fff; }
+.gp-inv-visor-img.gp-zoom { max-width: none; max-height: none; cursor: zoom-out; }
+.gp-inv-visor-pdf { width: min(1000px, 100%); height: 100%; border: none; background: #fff; border-radius: 4px; }
+.gp-inv-visor-ayuda { position: absolute; bottom: 14px; left: 76px; text-align: left; font-size: 12px; color: #cbd5e1; }
+.gp-inv-visor-ayuda a { color: #93c5fd; }
+.gp-inv-visor-card {
+    background: #fff; border-radius: 12px; padding: 36px 48px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 420px;
+}
+.gp-inv-visor-card > i { font-size: 56px; color: #64748b; }
+.gp-inv-visor-card strong { font-size: 15px; color: #0f172a; word-break: break-word; }
+.gp-inv-visor-card span { font-size: 12.5px; color: #64748b; }
+.gp-inv-visor-nav {
+    position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; border: none;
+    background: rgba(255, 255, 255, .12); color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.gp-inv-visor-nav:hover { background: rgba(255, 255, 255, .26); }
+.gp-inv-visor-prev { left: 12px; } .gp-inv-visor-next { right: 12px; }
+.gp-inv-visor-contador { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); color: #fff; background: rgba(0, 0, 0, .45); border-radius: 99px; padding: 3px 12px; font-size: 12px; }
+.gp-inv-visor-contador:empty { display: none; }
+@media (max-width: 700px) {
+    .gp-inv-visor-escenario { padding: 0 8px 56px; }
+    .gp-inv-visor-nav { width: 40px; height: 40px; }
+    .gp-inv-det-lista { grid-template-columns: 1fr; gap: 2px; }
+    .gp-inv-det-lista dd { margin-bottom: 10px; }
+}
+
+/* ============================================================
+   INFORME EJECUTIVO (pagina standalone de impresion, A4)
+   ============================================================ */
+.gp-inv-informe-body { background: #eef1f5; font-family: 'Inter', sans-serif; margin: 0; color: #0f172a; }
+
+.gp-inv-informe-toolbar {
+    position: sticky; top: 0; z-index: 10; background: #0f172a; color: #fff;
+    display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; font-size: 13px;
+}
+.gp-inv-informe-toolbar .gp-btn-primary, .gp-inv-informe-toolbar .gp-btn-secondary { margin-left: 8px; }
+
+.gp-inv-informe-hoja {
+    max-width: 850px; margin: 24px auto 60px; background: #fff; border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, .08); padding: 48px 56px;
+}
+.gp-inv-informe-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #64748b; }
+.gp-inv-informe-logo { font-weight: 800; font-size: 16px; color: #2563eb; }
+.gp-inv-informe-hoja h1 { font-size: 22px; font-weight: 800; margin: 16px 0 2px; }
+.gp-inv-informe-hoja h2 { font-size: 15px; font-weight: 600; color: #334155; margin: 0 0 4px; }
+.gp-inv-informe-periodo { font-size: 12.5px; color: #64748b; margin: 0 0 12px; }
+.gp-inv-informe-hoja hr { border: none; border-top: 1px solid #e2e8f0; margin: 0 0 20px; }
+.gp-inv-informe-hoja h3 { font-size: 13.5px; font-weight: 700; margin: 26px 0 10px; color: #0f172a; }
+
+.gp-inv-kpis-print { grid-template-columns: repeat(5, 1fr); }
+.gp-inv-kpis-print .gp-inv-kpi { padding: 10px 12px; }
+.gp-inv-kpis-print .gp-inv-kpi-valor { font-size: 16px; }
+
+.gp-inv-graficos-print { grid-template-columns: 1fr 1fr; }
+.gp-inv-informe-recuadro { border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; }
+.gp-inv-informe-recuadro h3 { margin: 0 0 8px; font-size: 12.5px; }
+
+.gp-inv-informe-tabla { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 4px; }
+.gp-inv-informe-tabla th {
+    background: #f8fafc; text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .02em;
+    color: #64748b; padding: 6px 8px; border-bottom: 1px solid #e2e8f0;
+}
+.gp-inv-informe-tabla td { padding: 6px 8px; border-bottom: 1px solid #f1f5f9; }
+.gp-inv-informe-tabla-densa { font-size: 11.5px; }
+
+.gp-inv-informe-footer { margin-top: 30px; text-align: center; font-size: 10.5px; color: #94a3b8; }
+
+@media print {
+    .gp-inv-informe-toolbar { display: none; }
+    .gp-inv-informe-body { background: #fff; }
+    .gp-inv-informe-hoja { box-shadow: none; margin: 0; max-width: 100%; padding: 10mm 14mm; }
+    @page { size: A4; margin: 12mm; }
+}

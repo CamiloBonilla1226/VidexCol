@@ -1,0 +1,296 @@
+/*
+ * videx-compat.css
+ * Capa de compatibilidad Bootstrap 3/4 → Bootstrap 5
+ * Permite que los 287 archivos PHP existentes funcionen sin modificaciones.
+ */
+
+/* ============================================================
+   1. NAVBAR
+   ============================================================ */
+.videx-navbar {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    padding: 0 1rem;
+}
+.videx-navbar .navbar-brand img { transition: opacity .2s; }
+.videx-navbar .navbar-brand img:hover { opacity: .8; }
+.videx-navbar .nav-link {
+    color: #374151 !important;
+    font-weight: 500;
+    padding: 0.75rem 0.7rem !important;
+    transition: color .15s;
+}
+.videx-navbar .nav-link:hover { color: var(--videx-primary) !important; }
+.videx-navbar .dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,.10);
+    border-radius: 8px;
+    padding: 6px 0;
+    font-size: 13px;
+}
+.videx-navbar .dropdown-item {
+    padding: 6px 16px;
+    color: #374151;
+    transition: background .12s;
+}
+.videx-navbar .dropdown-item:hover {
+    background: #f3f4f6;
+    color: var(--videx-primary);
+}
+.videx-navbar .nav-link.text-danger:hover { color: #b91c1c !important; }
+
+/* ============================================================
+   2. PANEL (Bootstrap 3) → equivalente a .card de Bootstrap 5
+   ============================================================ */
+body:not(.cotizacion-page) .panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+body:not(.cotizacion-page) .panel-heading {
+    padding: 10px 15px;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 8px 8px 0 0;
+    font-weight: 600;
+    font-size: 13px;
+    background: #f9fafb;
+}
+body:not(.cotizacion-page) .panel-body { padding: 15px; }
+body:not(.cotizacion-page) .panel-default .panel-heading { background: #f9fafb; color: #374151; }
+body:not(.cotizacion-page) .panel-success { border-color: #16a34a; }
+body:not(.cotizacion-page) .panel-success .panel-heading { background: #dcfce7; color: #15803d; border-color: #16a34a; }
+body:not(.cotizacion-page) .panel-info    { border-color: #2563eb; }
+body:not(.cotizacion-page) .panel-info .panel-heading    { background: #dbeafe; color: #1d4ed8; border-color: #2563eb; }
+body:not(.cotizacion-page) .panel-danger  { border-color: #dc2626; }
+body:not(.cotizacion-page) .panel-danger .panel-heading  { background: #fee2e2; color: #b91c1c; border-color: #dc2626; }
+body:not(.cotizacion-page) .panel-warning { border-color: #d97706; }
+body:not(.cotizacion-page) .panel-warning .panel-heading { background: #fef3c7; color: #b45309; border-color: #d97706; }
+
+/* ============================================================
+   3. PROGRESS BAR (Bootstrap 3 color classes)
+   ============================================================ */
+body:not(.cotizacion-page) .progress-bar-success  { background-color: #16a34a !important; }
+body:not(.cotizacion-page) .progress-bar-warning  { background-color: #f59e0b !important; }
+body:not(.cotizacion-page) .progress-bar-danger   { background-color: #dc2626 !important; }
+body:not(.cotizacion-page) .progress-bar-info     { background-color: #2563eb !important; }
+
+/* ============================================================
+   4. WELL (Bootstrap 3)
+   ============================================================ */
+body:not(.cotizacion-page) .well {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 12px;
+}
+
+/* ============================================================
+   5. FORM UTILITIES (Bootstrap 3/4 → CSS Puro)
+   DEPRECATED: Usar .form, .form-group, .form-label, .form-control
+   ============================================================ */
+
+/* Compatibilidad: mapear .form-group a las nuevas clases */
+body:not(.cotizacion-page) .form-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+body:not(.cotizacion-page) .control-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--videx-gray-800);
+    margin-bottom: 6px;
+    padding: 0;
+}
+
+body:not(.cotizacion-page) .form-horizontal {
+    display: block;
+}
+
+/* En desktop, etiqueta y input lado a lado */
+body:not(.cotizacion-page) .form-horizontal .form-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+@media (min-width: 600px) {
+    body:not(.cotizacion-page) .form-horizontal .form-group {
+        grid-template-columns: 140px 1fr;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    body:not(.cotizacion-page) .form-horizontal .control-label {
+        text-align: left;
+        margin-bottom: 0;
+    }
+}
+
+body:not(.cotizacion-page) .help-block {
+    font-size: 12px;
+    color: var(--videx-gray-400);
+    margin-top: 4px;
+    display: block;
+}
+
+body:not(.cotizacion-page) .input-group-addon {
+    padding: 10px 12px;
+    background: var(--videx-gray-100);
+    border: 1px solid var(--videx-gray-200);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--videx-gray-600);
+}
+
+/* .col-sm-* legacy support (mapear a grid) */
+body:not(.cotizacion-page) .col-sm-1,  body:not(.cotizacion-page) .col-sm-2,  body:not(.cotizacion-page) .col-sm-3,  body:not(.cotizacion-page) .col-sm-4,
+body:not(.cotizacion-page) .col-sm-5,  body:not(.cotizacion-page) .col-sm-6,  body:not(.cotizacion-page) .col-sm-7,  body:not(.cotizacion-page) .col-sm-8,
+body:not(.cotizacion-page) .col-sm-9,  body:not(.cotizacion-page) .col-sm-10, body:not(.cotizacion-page) .col-sm-11, body:not(.cotizacion-page) .col-sm-12 {
+    display: grid;
+}
+
+/* ============================================================
+   6. BOTONES (Bootstrap 3)
+   ============================================================ */
+body:not(.cotizacion-page) .btn-default { background: #f3f4f6; border: 1px solid #d1d5db; color: #374151; }
+body:not(.cotizacion-page) .btn-default:hover { background: #e5e7eb; }
+
+/* ============================================================
+   6b. GRID LAYOUT (Bootstrap 3/4 .row/.col-* → CSS Grid)
+   DEPRECATED: Usar .grid, .grid-2, .grid-3
+   ============================================================ */
+
+body:not(.cotizacion-page) .row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* Mapeo de .col-sm-* a grid columns */
+
+/* 1 columna */
+body:not(.cotizacion-page) .col-sm-12 {
+    grid-column: 1;
+}
+
+/* 2 columnas */
+body:not(.cotizacion-page) .col-sm-6 {
+    grid-column: 1;
+}
+
+@media (min-width: 600px) {
+    body:not(.cotizacion-page) .col-sm-6 {
+        grid-column: span 1;
+    }
+
+    /* 2 cols en grid */
+    body:not(.cotizacion-page) .row > .col-sm-6 {
+        display: inline-grid;
+        width: calc(50% - 8px);
+        vertical-align: top;
+    }
+
+    body:not(.cotizacion-page) .row > .col-sm-6:nth-child(even) {
+        margin-left: 16px;
+    }
+}
+
+/* 1/3 columnas */
+body:not(.cotizacion-page) .col-sm-4 {
+    grid-column: 1;
+}
+
+@media (min-width: 600px) {
+    body:not(.cotizacion-page) .col-sm-4 {
+        width: calc(50% - 8px);
+        display: inline-grid;
+        vertical-align: top;
+    }
+
+    body:not(.cotizacion-page) .col-sm-4:nth-child(even) {
+        margin-left: 16px;
+    }
+}
+
+/* 2/3 columnas */
+body:not(.cotizacion-page) .col-sm-8 {
+    grid-column: 1;
+}
+
+@media (min-width: 600px) {
+    body:not(.cotizacion-page) .col-sm-8 {
+        width: 100%;
+    }
+}
+
+/* 1/4 columnas */
+body:not(.cotizacion-page) .col-sm-3 {
+    grid-column: 1;
+}
+
+/* 3/4 columnas */
+body:not(.cotizacion-page) .col-sm-9 {
+    grid-column: 1;
+}
+
+/* Otros anchos */
+body:not(.cotizacion-page) .col-sm-1,  body:not(.cotizacion-page) .col-sm-2,  body:not(.cotizacion-page) .col-sm-5,  body:not(.cotizacion-page) .col-sm-7,
+body:not(.cotizacion-page) .col-sm-10, body:not(.cotizacion-page) .col-sm-11 {
+    grid-column: 1;
+}
+
+body:not(.cotizacion-page) .row::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+/* ============================================================
+   7. TIPOGRAFIA / UTILITIES (Bootstrap 3)
+   ============================================================ */
+.text-left   { text-align: left !important; }
+.text-right  { text-align: right !important; }
+.pull-left   { float: left !important; }
+.pull-right  { float: right !important; }
+.hidden      { display: none !important; }
+.show        { display: block !important; }
+.page-header { border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 16px; }
+
+/* ============================================================
+   8. TABLA (Bootstrap 3 .table-bordered comportamiento)
+   ============================================================ */
+.table th {
+    background-color: var(--videx-primary);
+    color: #fff;
+    font-weight: 600;
+}
+.table-condensed td, .table-condensed th { padding: 4px 8px; }
+
+/* ============================================================
+   9. ALERT (Bootstrap 3 extras)
+   ============================================================ */
+.alert { border-radius: 6px; font-size: 13px; }
+
+/* ============================================================
+   10. PAGINACION
+   ============================================================ */
+.pagination .page-item.active .page-link { background: var(--videx-primary); border-color: var(--videx-primary); }
+.pagination .page-link { color: var(--videx-primary); }
+
+/* ============================================================
+   11. MODAL (ajuste visual)
+   ============================================================ */
+.modal-header { background: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+.modal-footer { border-top: 1px solid #e5e7eb; }
+.modal-content { border-radius: 10px; border: none; box-shadow: 0 8px 32px rgba(0,0,0,.15); }

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glosario Satura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Paleta tomada del sistema Satura */
+    --azul:#3f51a5;          /* barra de menú */
+    --azul-oscuro:#2e3d85;
+    --morado:#764ba2;        /* final del degradado del banner */
+    --lila:#667eea;          /* inicio del degradado del banner */
+    --amarillo:#f2b61c;      /* franja "FUNDACIÓN" */
+    --verde:#4caf50;
+    --gris:#eeeeee;          /* fondo de la tarjeta de bienvenida */
+    --papel:#ffffff;
+    --tinta:#2d2d33;
+    --tinta-suave:#6a6a75;
+    --borde:#d6d9ea;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--gris);
+    color:var(--tinta);
+    font-family:'EB Garamond', Georgia, serif;
+    font-size:19px;
+    line-height:1.5;
+  }
+
+  /* ---------- Banner superior (igual al estilo del sistema) ---------- */
+  .banner{
+    background:linear-gradient(135deg,var(--lila),var(--morado));
+    color:#fff;
+    text-align:center;
+    padding:22px 16px 26px;
+    box-shadow:0 4px 14px rgba(70,60,140,.35);
+  }
+  .banner .cruz{color:var(--amarillo);font-size:26px;line-height:1}
+  .banner h1{
+    font-family:'Cinzel',serif;font-weight:700;letter-spacing:.2em;
+    margin:4px 0 2px;font-size:2rem;
+  }
+  .banner p{margin:0;font-style:italic;opacity:.92}
+
+  /* ---------- Herramientas ---------- */
+  .herramientas{
+    max-width:1100px;margin:18px auto 0;padding:0 16px;
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+  }
+  .buscador{
+    flex:1 1 280px;font:inherit;
+    background:#fff;border:1px solid var(--borde);border-radius:999px;
+    padding:9px 18px;color:var(--tinta);
+  }
+  .buscador:focus{outline:2px solid var(--azul);outline-offset:1px}
+  .modo{display:flex}
+  .modo button{
+    font-family:'Cinzel',serif;font-size:.78rem;letter-spacing:.08em;
+    background:#fff;color:var(--azul);
+    border:1px solid var(--azul);padding:9px 16px;cursor:pointer;
+  }
+  .modo button:first-child{border-radius:999px 0 0 999px}
+  .modo button:last-child{border-radius:0 999px 999px 0;border-left:0}
+  .modo button[aria-pressed="true"]{background:var(--azul);color:#fff}
+
+  /* ---------- Letras ---------- */
+  .letras{
+    max-width:1100px;margin:12px auto 0;padding:0 16px;
+    display:none;flex-wrap:wrap;gap:6px;justify-content:center;
+  }
+  .letras.visible{display:flex}
+  .letras button{
+    font-family:'Cinzel',serif;font-size:.82rem;
+    min-width:32px;height:32px;padding:0 8px;
+    background:#fff;color:var(--azul);
+    border:1px solid var(--borde);border-radius:6px;cursor:pointer;
+  }
+  .letras button:hover{border-color:var(--azul)}
+  .letras button.activa{background:var(--amarillo);border-color:var(--amarillo);color:#2d2d33;font-weight:700}
+  .letras button:disabled{opacity:.35;cursor:default}
+
+  /* ---------- Libro abierto ---------- */
+  .libro{
+    max-width:1100px;margin:18px auto 0;padding:0 16px;
+  }
+  .lomo{
+    display:grid;grid-template-columns:1fr 1fr;
+    background:var(--papel);
+    border:1px solid var(--borde);
+    border-top:6px solid var(--azul);
+    border-radius:6px;
+    box-shadow:0 10px 30px rgba(40,40,100,.18);
+    position:relative;
+    min-height:560px;
+  }
+  /* sombra del centro, como el pliegue de un libro */
+  .lomo::after{
+    content:"";position:absolute;top:0;bottom:0;left:50%;width:44px;transform:translateX(-50%);
+    background:linear-gradient(to right,rgba(0,0,0,0),rgba(60,60,120,.14) 50%,rgba(0,0,0,0));
+    pointer-events:none;
+  }
+  .pag{
+    padding:30px 40px 44px;
+    position:relative;
+    margin:12px;
+    border:3px double rgba(63,81,165,.35);
+  }
+  .pag.izq{text-align:justify;hyphens:auto}
+  .pag.der{text-align:justify;hyphens:auto}
+  .pag .cab{
+    font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.22em;
+    color:var(--tinta-suave);text-align:center;margin:-8px 0 16px;
+    text-transform:uppercase;
+  }
+  .pag .pie-num{
+    position:absolute;bottom:10px;left:0;right:0;text-align:center;
+    font-family:'Cinzel',serif;font-size:.8rem;color:var(--azul);
+  }
+
+  .def{margin:0 0 .85em;padding:2px 6px;border-radius:4px;transition:background .4s}
+  .def.resaltada{background:rgba(242,182,28,.35)}
+  .def .num{
+    font-family:'Cinzel',serif;font-size:.68em;font-weight:700;
+    color:var(--morado);vertical-align:super;margin-right:4px;text-decoration:none;
+  }
+  .def .term{font-weight:700;font-variant:small-caps;letter-spacing:.03em;color:var(--azul-oscuro)}
+  .def .term::after{content:" — ";font-weight:400;color:var(--tinta)}
+  .def mark{background:#ffe27a;color:inherit;padding:0 1px}
+
+  /* Letra capital en el primer versículo de cada página */
+  .def.capital .term::first-letter{
+    font-family:'Cinzel',serif;color:var(--morado);
+    font-size:2.5em;float:left;line-height:.88;padding:4px 8px 0 0;
+  }
+
+  .vacio{grid-column:1/-1;align-self:center;text-align:center;font-style:italic;color:var(--tinta-suave);padding:60px 0}
+
+  /* ---------- Navegación de páginas ---------- */
+  .nav{
+    max-width:1100px;margin:16px auto 28px;padding:0 16px;
+    display:flex;align-items:center;justify-content:center;gap:18px;
+  }
+  .nav button{
+    font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:.08em;
+    background:var(--azul);color:#fff;border:0;border-radius:999px;
+    padding:10px 22px;cursor:pointer;
+    box-shadow:0 3px 8px rgba(63,81,165,.35);
+  }
+  .nav button:hover:not(:disabled){background:var(--azul-oscuro)}
+  .nav button:disabled{background:#b8bdd9;box-shadow:none;cursor:default}
+  .nav .estado{min-width:200px;text-align:center;color:var(--tinta-suave);font-style:italic}
+
+  .pie{text-align:center;padding:0 16px 30px;font-size:.85rem;color:var(--tinta-suave);font-style:italic}
+
+  /* ---------- Móvil: una sola página ---------- */
+  @media (max-width:820px){
+    body{font-size:17px}
+    .lomo{grid-template-columns:1fr;min-height:0}
+    .lomo::after{display:none}
+    .pag{padding:26px 20px 40px}
+    .pag.der:empty{display:none}
+    .banner h1{font-size:1.5rem}
+    .nav .estado{min-width:0;font-size:.85rem}
+    .nav button{padding:9px 14px}
+  }
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <div class="cruz">✠</div>
+  <h1>GLOSARIO</h1>
+  <p>Términos del sistema de gestión Satura Colombia</p>
+</header>
+
+<div class="herramientas">
+  <input id="buscar" class="buscador" type="search" placeholder="Buscar un término o una definición…" aria-label="Buscar en el glosario">
+</div>
+
+<nav id="letras" class="letras" aria-label="Filtrar por letra"></nav>
+
+<main class="libro">
+  <section class="lomo" id="lomo" aria-live="polite">
+    <div class="pag izq" id="pagIzq"></div>
+    <div class="pag der" id="pagDer"></div>
+  </section>
+</main>
+
+<div class="nav">
+  <button type="button" id="btnPrev">‹ Anterior</button>
+  <span class="estado" id="estado"></span>
+  <button type="button" id="btnNext">Siguiente ›</button>
+</div>
+
+<div class="pie">Fundación Satura Colombia · Saturar a Colombia de Cristo · Usa las flechas ← → del teclado para pasar de página</div>
+
+<script>
+/* ============================================================
+   DATOS — el número es fijo (igual que en GLOSARIO.md).
+   En PHP:  const GLOSARIO = <?= json_encode($glosario, JSON_UNESCAPED_UNICODE) ?>;
+   ============================================================ */
+const GLOSARIO = [
+ [1,"Generación 1","Es una iglesia de pequeño grupo que ha sido resultado de un plantador que ha pasado por el ciclo generacional de una IPG de generación."],
+ [2,"Crear grupo","Registro en el sistema de gestión un nuevo grupo o iglesia de pequeño grupo."],
+ [3,"Ciclo generacional","Es un proceso natural e intencional que sigue una iglesia de pequeño grupo."],
+ [4,"Testimonio de 15 segundos","Es una herramienta evangelística que nos ayuda a encontrar personas de paz."],
+ [5,"Funciones de la iglesia","Usar todas estas funciones porque son claras y fundamentales en la iglesia, porque son muy prácticas."],
+ [6,"Fecha de inicio","Fecha asignada a la creación de un nuevo grupo IPG."],
+ [7,"Coaching","Herramienta clara y estratégica para llegar a un objetivo."],
+ [8,"Función de adorar","Funciones de la iglesia que también podemos registrar en actividad de coach."],
+ [9,"Generación 0","Se inició con el líder principal (pastor) y sus líderes."],
+ [10,"Plantador","Es la base principal, quien toma el taller para dar inicio al proceso de plantación dentro de la comunidad."],
+ [11,"Taller de plantación de iglesias","Se abre el proceso para la plantación de iglesias de pequeños grupos dentro de la comunidad."],
+ [12,"Persona de paz","Es una persona que escucha, comprende y responde al evangelio de manera positiva. Es la persona con la cual se inicia un IPG."],
+ [13,"Discipular","Es un proceso que inicia con una persona de paz, a través de los estudios del ciclo generacional, y se lleva a cabo por un plantador; estos estudios corresponden al manual de Capacitar y Multiplicar."],
+ [14,"Establecer","Cuarta parte del ciclo generacional. Esta se define con un grupo que se ha establecido como iglesia, en donde se enfatiza las funciones de la iglesia saludable."],
+ [15,"Tarea de implementación","Sistema de aprendizaje interactivo para adultos que consiste en capacitar lo aprendido en el proceso de capacitación con la ayuda del facilitador."],
+ [16,"Líder local","Persona que ejerce influencia en la iglesia local y su comunidad para que conozcan el amor y salvación de Jesús."],
+ [17,"Facilitador","Persona que facilita, crea puentes y capacita a través de talleres de formación y entrenamientos para la plantación y crecimiento y multiplicación de iglesias."],
+ [18,"Función de bautizar","Es una de las nuevas funciones de la iglesia saludable y creo que es la más importante, porque es la evidencia del compromiso con Cristo."],
+ [19,"Cuerpo de Cristo","Unidad, compañerismo, trabajo en equipo, uno solo."],
+ [20,"Iglesia hija","Es el fruto de la dedicación y el tiempo dedicado para hacer discípulos en la generación 0."],
+ [21,"Oración 5*5","Es una herramienta de oración que nos permite orar por los círculos de influencia, que tiene como objetivo enfocar las oraciones de forma específica: 5 personas, 5 minutos, 5 días, 5 semanas, 5 peticiones."],
+ [22,"Los tres círculos","Es una herramienta de evangelismo (persona/persona) que nos permite presentar el plan de salvación a nuevas personas y, de forma práctica y sencilla, nos lleva a encontrar a hijos de paz."],
+ [23,"Nuevo reporte","Es la nueva información de un grupo existente que se encuentra registrado dentro del sistema de gestión y en el cual se le hace seguimiento de diferentes actividades: coaching, celebraciones, bautismos, etc."],
+ [24,"Iglesia saludable","Una iglesia saludable es una iglesia madura que asume la responsabilidad de sumarse al plan de Dios, a su venida y a la manifestación de su reino por medio de nueve funciones."],
+ [25,"Función de discipular","Esta función es la que define la meta del proceso generacional; busca lograr un compromiso real del creyente de conocer a Jesús, entender el evangelio y alcanzar a otros."],
+ [26,"Funciones de compañerismo","Es la función que evidencia que somos discípulos del Señor, al buscar por medio de las relaciones cercanas la manifestación del amor genuino."],
+ [27,"Generación 5","Paso de un discípulo a ser un plantador o multiplicador."],
+ [28,"OBL","Actividad realizada satisfactoria."],
+ [29,"Generación 3","Proceso que marca un plantador para una multiplicación."],
+ [30,"Grupo madre","La iglesia principal."],
+ [31,"Generación 4","Continuación, discipulado de la generación 3."],
+ [32,"Tarea de nuevo contenido","Es el contenido, temas y contexto."],
+ [33,"Encontrar","Proceso para encontrar el hijo de paz, a través de la siembra abundante del evangelio y la oración extraordinaria y ferviente."],
+ [34,"Función de estudiar la Palabra","Es función de la iglesia saludable en donde se realiza un devocional para escudriñar la Palabra de Dios en el grupo."],
+ [35,"Función de la Cena del Señor","Es una función de la iglesia donde se realiza la Cena del Señor, para conmemorar la muerte y resurrección, que Jesús está vivo."],
+ [36,"Tarea de integración","Una tarea de aprendizaje que se realiza para aplicar la información aprendida y colocarla en práctica."],
+ [37,"Capacitar y Multiplicar","Estrategia usada por la Fundación Satura con el objetivo de movilizar la iglesia para alcanzar nuevas almas para Cristo."],
+ [38,"La Gran Comisión","Es la tarea que Jesús designó a todos los cristianos en el mundo con el objetivo de alcanzar las almas para su reino."],
+ [39,"Sistema de gestión Satura Colombia","Es una plataforma digital donde se carga la información de las actividades que realiza la Fundación Satura Colombia, la cual tiene como objetivo saturar a Colombia de Cristo."],
+ [40,"Multiplicar","Es una estrategia facilitada por la organización Satura Colombia, con el objetivo de que cada creyente se motive a ganar almas para Cristo."],
+ [41,"Función de entrenar","Es una tarea que realiza el facilitador usando las habilidades enseñadas en S.C. y cumpliendo con el acto generacional."],
+ [42,"Caminata de oración","Herramienta de oración que consiste en preparar el terreno en el cual se desea realizar siembra abundante del evangelio."],
+ [43,"Función de evangelismo","Función de la iglesia saludable. Consiste en predicar la Palabra y así encontrar personas, hijos de paz."],
+ [44,"IPG (Iglesia pequeña o grupo)","Es un grupo de creyentes maduros que no solo crece en números para ellos mismos, sino que tiene la capacidad de multiplicarse en otros grupos, en diferentes espacios, territorios, culturas y lenguas."],
+ [45,"Generación 2","Es el grupo de creyentes que ha sido alcanzado por la generación 1. Este grupo ya ha sido formado a través del ciclo generacional y ahora se está preparando para alcanzar otro grupo de creyentes, al cual llamaremos generación 3."],
+ [46,"Líderes biocupacionales","Son las personas que, a través de su profesión, lleva la Palabra de Dios a diferentes grupos de la sociedad y también tienen la capacidad de ejercer un liderazgo representativo dentro de la comunidad eclesial y ejercer al mismo tiempo ejercer un rol social."],
+ [47,"Oración extraordinaria y ferviente","Principio de plantación y multiplicación de iglesias que consiste en orar ferviente/por las personas del círculo de influencia o por los lugares en los que se ve llevar a cabo la siembra abundante del evangelio con herramientas propias de oración."],
+ [48,"Satura Kids","Taller de plantación y multiplicación de iglesias con enfoque en los niños. Capacita a los maestros y padres de familia para el discipulado de los niños, y la multiplicación se logra a través de ellos."],
+ [49,"Gran celebración","Es un encuentro especial en el que se reúnen las iglesias de pequeños grupos para celebrar lo que Dios está haciendo en las vidas de las personas. Se sugiere compartir alimentos en la celebración."],
+ [50,"Siembra abundante del evangelio","Principio de plantación y multiplicación de iglesias, que consiste en evangelizar abundantemente a través de diferentes métodos."],
+ [51,"Taller","Actividad pedagógica que se realiza para capacitar un grupo a través de la interactividad de los participantes y los facilitadores, siguiendo las 4 tareas de aprendizaje. Esta estrategia es usada en Satura Colombia para todos los procesos."],
+ [52,"Iglesia local","Es una comunidad de fe que, dentro de un contexto en específico, cumple la misión de Dios y que con la Fundación Satura Colombia busca inspirar, movilizar y conectar con el fin de dar a conocer el evangelio de Jesús."],
+ [53,"Equipar líderes locales","Es uno de los principios en la plantación de iglesias, que consiste en brindar herramientas a los líderes locales para alcanzar nuevos creyentes y desarrollar sus dones en una comunidad."],
+ [54,"Fecha de reporte","Fecha que se debe colocar en el sistema de gestión de Satura Colombia para indicar el momento que se hace el registro."],
+ [55,"Multiplicación de discípulos","Resultado de la ejecución del ciclo generacional en el que los discípulos forman más discípulos."],
+ [56,"Tarea inductiva","Tarea de aprendizaje con la que se inicia un taller y que busca identificar los conceptos previos de los participantes de los temas a tratar."],
+ [57,"Crear un grupo IPG","Es un medio donde se ponen datos o información de una iglesia local que ha iniciado el proceso de plantación con la fundación; este se registra en el sistema de gestión."],
+ [58,"Autoridad de la Palabra de Dios","Es un principio fundamental en la plantación y multiplicación de iglesias, basado en la Palabra de Dios, y hace parte del ciclo generacional."],
+ [59,"Mapa de conexiones","Es una herramienta evangelística que nos permite ver los contactos (amigos, vecinos, etc.) donde puedo orar por ellos, evangelizando a posteridad, iniciar un IPG para discipularlos."],
+ [60,"Bautismo","Es una de las 9 funciones de la iglesia saludable; es el resultado final de discipular e inicio a la apertura de un IPG, y también es un mandato del Señor."]
+];
+
+const $ = id => document.getElementById(id);
+const $izq=$('pagIzq'), $der=$('pagDer'), $buscar=$('buscar'), $letras=$('letras');
+const $prev=$('btnPrev'), $next=$('btnNext'), $estado=$('estado');
+
+const modo = 'alfa';   // siempre orden alfabético (A–Z)
+let letra = null;      // null = todas
+let spread = 0;        // índice de la doble página actual
+
+const esc  = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const letraDe = t => norm(t.trim())[0].toUpperCase();
+
+/* Cuántas definiciones caben por "doble página" según el tamaño de pantalla */
+const porPagina = () => 5;
+const esMovil   = () => window.matchMedia('(max-width:820px)').matches;
+const porSpread = () => esMovil() ? porPagina() : porPagina() * 2;
+
+function resaltar(texto, q){
+  if(!q) return esc(texto);
+  const i = norm(texto).indexOf(q);
+  if(i < 0) return esc(texto);
+  return esc(texto.slice(0,i)) + '<mark>' + esc(texto.slice(i,i+q.length)) + '</mark>' + esc(texto.slice(i+q.length));
+}
+
+function itemHTML(d, q, capital){
+  const [n, term, def] = d;
+  return `<p class="def${capital?' capital':''}" id="def-${n}">
+    <a class="num" href="#def-${n}" title="Enlace a la definición ${n}">${n}</a>
+    <span class="term">${resaltar(term,q)}</span>${resaltar(def,q)}
+  </p>`;
+}
+
+/* Lista filtrada y ordenada según búsqueda, letra y modo */
+function obtenerLista(){
+  const q = norm($buscar.value.trim());
+  let l = GLOSARIO.filter(d => !q || norm(d[1]).includes(q) || norm(d[2]).includes(q));
+  if(modo === 'alfa' && letra) l = l.filter(d => letraDe(d[1]) === letra);
+  l.sort(modo === 'numero'
+    ? (a,b)=>a[0]-b[0]
+    : (a,b)=>norm(a[1]).localeCompare(norm(b[1]),'es'));
+  return {lista:l, q};
+}
+
+function pintarLetras(){
+  const q = norm($buscar.value.trim());
+  const base = GLOSARIO.filter(d => !q || norm(d[1]).includes(q) || norm(d[2]).includes(q));
+  const disponibles = new Set(base.map(d => letraDe(d[1])));
+  const todas = [...new Set(GLOSARIO.map(d => letraDe(d[1])))].sort((a,b)=>a.localeCompare(b,'es'));
+  $letras.innerHTML =
+    `<button type="button" data-l="" class="${letra?'':'activa'}">Todas</button>` +
+    todas.map(l => `<button type="button" data-l="${l}" class="${letra===l?'activa':''}" ${disponibles.has(l)?'':'disabled'}>${l}</button>`).join('');
+  $letras.classList.add('visible');
+}
+
+function render(){
+  const {lista, q} = obtenerLista();
+  const por = porSpread();
+  const total = Math.max(1, Math.ceil(lista.length / por));
+  spread = Math.min(Math.max(spread, 0), total - 1);
+
+  pintarLetras();
+
+  if(!lista.length){
+    $izq.innerHTML = '<p class="vacio">No se encontró ningún término con esa búsqueda.</p>';
+    $der.innerHTML = '';
+    $estado.textContent = '—';
+    $prev.disabled = $next.disabled = true;
+    return;
+  }
+
+  const trozo = lista.slice(spread*por, spread*por + por);
+  const mitad = esMovil() ? trozo.length : Math.ceil(trozo.length / 2);
+  const izq = trozo.slice(0, mitad), der = trozo.slice(mitad);
+
+  const rotulo = modo === 'numero' ? 'Definiciones' : (letra ? 'Letra ' + letra : 'Orden alfabético');
+  const pagIzqNum = esMovil() ? spread + 1 : spread*2 + 1;
+
+  $izq.innerHTML = `<div class="cab">${rotulo}</div>` + izq.map((d,i)=>itemHTML(d,q,i===0)).join('') +
+                   `<div class="pie-num">${pagIzqNum}</div>`;
+  $der.innerHTML = der.length
+      ? `<div class="cab">${rotulo}</div>` + der.map((d,i)=>itemHTML(d,q,i===0)).join('') + `<div class="pie-num">${pagIzqNum+1}</div>`
+      : '';
+
+  $estado.textContent = esMovil()
+      ? `Página ${spread+1} de ${total}`
+      : `Páginas ${pagIzqNum}–${pagIzqNum+1} de ${total*2}`;
+  $prev.disabled = spread === 0;
+  $next.disabled = spread >= total - 1;
+}
+
+/* Ir a una definición concreta (para enlaces #def-44) */
+function irADefinicion(n){
+  $buscar.value = ''; letra = null;
+  const {lista} = obtenerLista();
+  const idx = lista.findIndex(d => d[0] === n);
+  if(idx < 0) return;
+  spread = Math.floor(idx / porSpread());
+  render();
+  const el = document.getElementById('def-' + n);
+  if(el){ el.classList.add('resaltada'); el.scrollIntoView({block:'center'}); setTimeout(()=>el.classList.remove('resaltada'), 2500); }
+}
+
+$buscar.addEventListener('input', () => { spread = 0; render(); });
+$letras.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b || b.disabled) return;
+  letra = b.dataset.l || null; spread = 0; render();
+});
+$prev.onclick = () => { spread--; render(); window.scrollTo({top:0,behavior:'smooth'}); };
+$next.onclick = () => { spread++; render(); window.scrollTo({top:0,behavior:'smooth'}); };
+document.addEventListener('keydown', e => {
+  if(e.target === $buscar) return;
+  if(e.key === 'ArrowLeft' && !$prev.disabled) $prev.click();
+  if(e.key === 'ArrowRight' && !$next.disabled) $next.click();
+});
+window.addEventListener('resize', render);
+window.addEventListener('hashchange', () => {
+  const m = location.hash.match(/^#def-(\d+)$/); if(m) irADefinicion(+m[1]);
+});
+
+render();
+const m = location.hash.match(/^#def-(\d+)$/);
+if(m) irADefinicion(+m[1]);
+</script>
+</body>
+</html>

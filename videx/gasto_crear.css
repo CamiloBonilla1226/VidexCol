@@ -1,0 +1,205 @@
+:root {
+    --gc-bg: #f3f7fc;
+    --gc-surface: #ffffff;
+    --gc-surface-soft: #f8fbff;
+    --gc-border: #d6e2f0;
+    --gc-text: #0f172a;
+    --gc-muted: #4b5d75;
+    --gc-primary: #0284c7;
+    --gc-success: #0f766e;
+    --gc-shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.06);
+    --gc-shadow-md: 0 14px 30px rgba(15, 23, 42, 0.10);
+    --gc-radius: 16px;
+    --gc-radius-sm: 10px;
+}
+
+html,
+body.gasto-crear-page {
+    color-scheme: light !important;
+}
+
+body.gasto-crear-page {
+    background:
+        radial-gradient(circle at 12% 6%, rgba(14, 165, 233, 0.12), transparent 24%),
+        radial-gradient(circle at 88% 2%, rgba(16, 185, 129, 0.10), transparent 22%),
+        var(--gc-bg) !important;
+    color: var(--gc-text) !important;
+}
+
+.gasto-crear-shell {
+    max-width: 920px;
+    margin: 1rem auto 1.5rem;
+    display: grid;
+    gap: 1rem;
+}
+
+.gasto-crear-header {
+    background: linear-gradient(135deg, rgba(255,255,255,0.96) 0%, rgba(237,246,255,0.96) 100%);
+    border: 1px solid var(--gc-border);
+    border-left: 6px solid var(--gc-primary);
+    border-radius: var(--gc-radius);
+    box-shadow: var(--gc-shadow-sm);
+    padding: 1rem 1.2rem;
+}
+
+.gasto-crear-header h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--gc-text);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.gasto-crear-header p {
+    margin: 0.35rem 0 0;
+    color: var(--gc-muted);
+}
+
+.gasto-crear-form {
+    display: grid;
+    gap: 1rem;
+}
+
+.gasto-crear-card {
+    background: var(--gc-surface);
+    border: 1px solid var(--gc-border);
+    border-radius: var(--gc-radius);
+    box-shadow: var(--gc-shadow-sm);
+    padding: 1rem;
+}
+
+.gasto-crear-card h3 {
+    margin: 0 0 0.85rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #075985;
+    font-weight: 800;
+}
+
+.gasto-crear-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.gasto-crear-page .form-group {
+    margin: 0;
+}
+
+.gasto-crear-page .form-label,
+.gasto-crear-page label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #334155;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.gasto-crear-page .form-control,
+.gasto-crear-page select,
+.gasto-crear-page textarea,
+.gasto-crear-page input[type="text"],
+.gasto-crear-page input[type="number"],
+.gasto-crear-page input[type="date"],
+.gasto-crear-page input[type="file"] {
+    width: 100%;
+    min-height: 42px;
+    background: #fff !important;
+    border: 1px solid #c7d6e6 !important;
+    border-radius: var(--gc-radius-sm);
+    color: var(--gc-text) !important;
+    padding: 0.62rem 0.8rem;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.gasto-crear-page textarea {
+    min-height: 140px;
+    resize: vertical;
+}
+
+.gasto-crear-page .form-control:focus,
+.gasto-crear-page textarea:focus,
+.gasto-crear-page select:focus,
+.gasto-crear-page input:focus {
+    outline: none;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2);
+}
+
+.gasto-crear-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: flex-end;
+}
+
+.gasto-crear-page .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: 0;
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 0.62rem 1rem;
+    box-shadow: var(--gc-shadow-sm);
+    text-decoration: none;
+}
+
+.gasto-crear-page .btn-success {
+    background: linear-gradient(180deg, #14b8a6 0%, var(--gc-success) 100%);
+    color: #fff;
+}
+
+.gasto-crear-page .btn-default {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.gasto-crear-page .alert {
+    margin: 0;
+    border-radius: 12px;
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #991b1b;
+    box-shadow: var(--gc-shadow-sm);
+}
+
+@media (max-width: 920px) {
+    .gasto-crear-shell {
+        margin-left: 0.75rem;
+        margin-right: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .gasto-crear-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gasto-crear-header,
+    .gasto-crear-card {
+        padding: 0.9rem;
+    }
+
+    .gasto-crear-actions {
+        justify-content: stretch;
+    }
+
+    .gasto-crear-actions .btn,
+    .gasto-crear-actions input[type="submit"] {
+        width: 100%;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    html,
+    body.gasto-crear-page,
+    body.gasto-crear-page * {
+        color-scheme: light !important;
+    }
+}

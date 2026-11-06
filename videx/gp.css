@@ -1,0 +1,1091 @@
+/* ============================================================
+   GESTION PROYECTOS - MODULE STYLING
+   Reescrito para ser fiel al diseno de Stitch tras la auditoria visual
+   del 2026-08-31 (ver videx_verificaciones/20260831_auditoria_visual/).
+   ============================================================ */
+
+.gp-wrap {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+    font-size: 14px;
+    color: #1e293b;
+}
+
+.gp-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748b;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.gp-breadcrumb a {
+    color: #64748b;
+    text-decoration: none;
+}
+
+.gp-breadcrumb a:hover {
+    color: #2563eb;
+}
+
+.gp-breadcrumb .gp-actual {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* ---- Encabezado de pagina: SUELTO sobre el fondo, sin tarjeta ---- */
+.gp-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.gp-page-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+}
+
+.gp-page-header-sub {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+}
+
+.gp-page-header-sub b {
+    color: #334155;
+    font-weight: 600;
+}
+
+.gp-badge-estado {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 700;
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.gp-badge-estado-inactivo {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ---- Tarjeta que contiene SOLO la barra de pestanas ---- */
+.gp-tabs-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+    padding: 0 24px;
+    margin-bottom: 24px;
+}
+
+.gp-tabs-card .nav-tabs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 28px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.gp-tabs-card .nav-tabs .nav-item {
+    margin: 0;
+    list-style: none;
+}
+
+.gp-tabs-card .nav-link {
+    display: inline-block;
+    padding: 16px 0;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 14px;
+    background: none;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.gp-tabs-card .nav-link:hover {
+    color: #2563eb;
+}
+
+.gp-tabs-card .nav-link.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    background: none;
+}
+
+/* ---- Badges de tipo (Hosting/VPS, FTP/SSH/cPanel...) ---- */
+.gp-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.gp-badge-tipo-hosting {
+    background: #dbeafe;
+    color: #2563eb;
+    border-color: #bfdbfe;
+}
+
+.gp-badge-tipo-vps {
+    background: #ede9fe;
+    color: #7c3aed;
+    border-color: #ddd6fe;
+}
+
+.gp-badge-gris {
+    background: #f8fafc;
+    color: #334155;
+    border-color: #e2e8f0;
+}
+
+.gp-badge-verde {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #bbf7d0;
+}
+
+.gp-badge-rojo {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.gp-badge-contador {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+/* ---- Avatar de inicial (listado de proveedores) ---- */
+.gp-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-right: 10px;
+    flex: none;
+}
+
+/* ---- Toolbar (buscador + boton agregar) de la pagina de listado ---- */
+.gp-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.gp-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 40px;
+    min-width: 280px;
+}
+
+.gp-search i {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.gp-search input {
+    /*
+     * estilos.css define un input[type=text] global con su propio borde,
+     * padding, min-height:44px y border-radius: sin este reset, ese input
+     * queda con su propia caja bordeada DENTRO de .gp-search (que ya tiene
+     * su propio borde), y como su min-height (44px) es mayor que la altura
+     * fija de .gp-search (40px), sobresale del contenedor.
+     */
+    flex: 1;
+    width: auto !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    font-size: 14px;
+    color: #1e293b !important;
+    line-height: normal !important;
+}
+
+.gp-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+
+.gp-btn-primary:hover {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.gp-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: #334155;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.gp-btn-secondary:hover {
+    background: #f8fafc;
+}
+
+/* ---- Tarjeta unificada: cabecera (icono+titulo+boton) + tabla + pie ---- */
+.gp-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+    overflow: hidden;
+}
+
+.gp-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.gp-card-header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.gp-card-header-title i {
+    color: #94a3b8;
+}
+
+.gp-card-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #eef1f5;
+    background: #fbfcfd;
+    color: #64748b;
+    font-size: 12.5px;
+}
+
+/* ---- Tablas ---- */
+.gp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+}
+
+.gp-table thead th {
+    background: #f8fafc;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    color: #64748b !important;
+    text-align: left;
+    padding: 12px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.gp-table thead th.gp-th-derecha {
+    text-align: right;
+}
+
+.gp-table tbody td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #eef1f5;
+    color: #334155 !important;
+    vertical-align: middle;
+}
+
+.gp-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.gp-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.gp-table tbody tr.gp-row-link {
+    cursor: pointer;
+}
+
+.gp-mono {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    color: #475569;
+}
+
+.gp-table-empty {
+    padding: 48px 20px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.gp-table-empty i {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.gp-col-accion {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.gp-icon-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 15px;
+}
+
+.gp-icon-btn:hover {
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+.gp-icon-btn.gp-icon-danger:hover {
+    color: #dc2626;
+    background: #fef2f2;
+}
+
+/* ---- Paginacion (listado de proveedores) ---- */
+.gp-paginacion {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.gp-paginacion-paginas {
+    display: flex;
+    gap: 6px;
+}
+
+.gp-paginacion-paginas a,
+.gp-paginacion-paginas span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    color: #475569;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.gp-paginacion-paginas a:hover {
+    background: #f8fafc;
+}
+
+.gp-paginacion-paginas .gp-pagina-activa {
+    background: #eff6ff;
+    border-color: #2563eb;
+    color: #2563eb;
+    font-weight: 700;
+}
+
+/* ---- Contrasena enmascarada ---- */
+.gp-pass-field {
+    position: relative;
+}
+
+.gp-pass-field input[readonly] {
+    padding-right: 40px;
+    background: #f8fafc;
+    letter-spacing: 2px;
+}
+
+.gp-pass-field .gp-btn-revelar {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.gp-pass-hint {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 6px 0 0;
+}
+
+.gp-pass-mask {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gp-pass-dots {
+    font-family: monospace;
+    letter-spacing: 2px;
+    color: #94a3b8;
+}
+
+.gp-pass-value {
+    font-family: monospace;
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* ---- Formularios de detalle ---- */
+.gp-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 32px;
+    padding: 28px;
+}
+
+.gp-form-grid.gp-form-grid-1col {
+    grid-template-columns: 1fr;
+}
+
+.gp-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569 !important;
+    margin-bottom: 6px;
+}
+
+.gp-field .form-control {
+    font-size: 14px;
+    height: 42px;
+    border-radius: 8px;
+}
+
+.gp-field-readonly {
+    padding: 9px 0;
+    color: #1e293b;
+    font-size: 14px;
+    min-height: 22px;
+}
+
+.gp-form-actions {
+    padding: 18px 28px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.gp-solo-consulta-aviso {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+/* ---- Modal de reautenticacion ---- */
+.gp-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .5);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.gp-modal-overlay.gp-open {
+    display: flex;
+}
+
+.gp-modal-box {
+    background: #fff;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, .25);
+    overflow: hidden;
+}
+
+.gp-modal-body {
+    padding: 28px 24px 22px;
+    text-align: center;
+}
+
+.gp-modal-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin: 0 auto 14px;
+}
+
+.gp-modal-body h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 6px;
+}
+
+.gp-modal-body p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0 0 16px;
+}
+
+.gp-modal-body input {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.gp-modal-error {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 8px;
+    display: none;
+}
+
+.gp-modal-error.gp-show {
+    display: block;
+}
+
+.gp-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px;
+    border-top: 1px solid #eef1f5;
+}
+
+.gp-modal-footer button {
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    padding: 9px 18px;
+}
+
+.gp-modal-footer button.gp-modal-confirmar {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+}
+
+.gp-modal-footer button.gp-modal-confirmar:hover {
+    background: #1d4ed8;
+}
+
+.gp-modal-footer button.gp-modal-cancelar {
+    color: #334155;
+    background: #fff;
+    border: 1px solid #d1d5db;
+}
+
+.gp-modal-footer button.gp-modal-cancelar:hover {
+    background: #f8fafc;
+}
+
+/* ---- Modal generico de agregar/editar (credencial/dominio/proyecto) ---- */
+.gp-modal-form-box {
+    background: #fff;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, .25);
+    overflow: hidden;
+}
+
+.gp-modal-form-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #eef1f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gp-modal-form-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+}
+
+.gp-modal-form-header button {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.gp-modal-form-body {
+    padding: 20px 22px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.gp-modal-form-body .gp-field-full {
+    grid-column: 1 / -1;
+}
+
+.gp-modal-form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px;
+    border-top: 1px solid #eef1f5;
+}
+
+.gp-modal-form-footer button {
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+    padding: 9px 18px;
+}
+
+.gp-modal-form-footer button.gp-modal-confirmar {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+}
+
+.gp-modal-form-footer button.gp-modal-confirmar:hover {
+    background: #1d4ed8;
+}
+
+.gp-modal-form-footer button.gp-modal-cancelar {
+    color: #334155;
+    background: #fff;
+    border: 1px solid #d1d5db;
+}
+
+@media (max-width: 767px) {
+    .gp-form-grid,
+    .gp-modal-form-body {
+        grid-template-columns: 1fr;
+    }
+
+    .gp-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gp-search {
+        min-width: 0;
+    }
+
+    .gp-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .gp-tabs-card .nav-tabs {
+        overflow-x: auto;
+        gap: 20px;
+    }
+}
+
+/* ================================================================
+   DASHBOARD: tarjetas de KPI (resumen numerico arriba del detalle)
+   ================================================================ */
+.gp-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.gp-kpi-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+}
+
+.gp-kpi-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    margin: 0 0 6px;
+}
+
+.gp-kpi-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1;
+}
+
+.gp-kpi-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+/* ================================================================
+   DASHBOARD: acordeon (reemplaza las pestanas en las paginas de
+   detalle de Proveedor y Servicio)
+   ================================================================ */
+.gp-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.gp-accordion-item {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.gp-accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.gp-accordion-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.gp-accordion-header-title i {
+    color: #2563eb;
+}
+
+.gp-accordion-header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.gp-accordion-chevron {
+    color: #94a3b8;
+    transition: transform .15s ease;
+    font-size: 16px;
+}
+
+.gp-accordion-item.gp-open .gp-accordion-chevron {
+    transform: rotate(180deg);
+}
+
+.gp-accordion-body {
+    display: none;
+    border-top: 1px solid #e2e8f0;
+    padding: 20px;
+}
+
+.gp-accordion-item.gp-open .gp-accordion-body {
+    display: block;
+}
+
+.gp-accordion-body .gp-table {
+    margin: -20px;
+    width: calc(100% + 40px);
+}
+
+.gp-accordion-body .gp-card-footer {
+    margin: 0 -20px -20px;
+}
+
+.gp-accordion-body .gp-table-empty {
+    margin: -20px;
+}
+
+/* ================================================================
+   DASHBOARD: mini-tarjetas dentro de un acordeon (Servicios dentro
+   de Proveedor, Proyectos dentro de Servicio)
+   ================================================================ */
+.gp-mini-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+.gp-mini-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #f8fafc;
+}
+
+.gp-mini-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.gp-mini-card-nombre {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.gp-mini-card-sub {
+    font-size: 12.5px;
+    color: #64748b;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+}
+
+.gp-mini-card-stats {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 8px;
+}
+
+.gp-mini-card-stats span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.gp-mini-card-stats i {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.gp-mini-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+}
+
+/* ================================================================
+   DASHBOARD: grilla de tarjetas de Proveedor (listado principal)
+   ================================================================ */
+.gp-provider-grid {
+    display: grid;
+    /* minmax(0, 1fr): con 1fr a secas la columna no baja del ancho de su contenido
+       (ej. una URL larga sin espacios) y el grid se sale de la pantalla. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 100%;
+}
+
+.gp-provider-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+    min-width: 0;
+}
+
+.gp-provider-card-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.gp-provider-card-top > div {
+    min-width: 0;
+}
+
+.gp-provider-card-top .gp-avatar {
+    flex-shrink: 0;
+}
+
+.gp-provider-card-host {
+    font-size: 12.5px;
+    color: #64748b;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    margin: 2px 0 0;
+    /* Las URLs largas (con query string) se parten en vez de ensanchar la tarjeta. */
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.gp-provider-metricas {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #f1f5f9;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 12px 0;
+}
+
+.gp-provider-metrica {
+    text-align: center;
+    flex: 1;
+}
+
+.gp-provider-metrica-valor {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.gp-provider-metrica-label {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    margin-top: 2px;
+}
+
+.gp-provider-card .gp-btn-primary {
+    justify-content: center;
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .gp-kpi-grid, .gp-provider-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .gp-mini-card-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ---- Boton / accion destructiva (eliminar proveedor) ---- */
+.gp-btn-peligro {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 14px;
+    cursor: pointer;
+}
+
+.gp-btn-peligro:hover {
+    background: #fef2f2;
+}
+
+.gp-modal-footer button.gp-btn-peligro-solido,
+.gp-modal-form-footer button.gp-btn-peligro-solido {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
+    padding: 9px 18px;
+    cursor: pointer;
+}
+
+.gp-modal-form-footer button.gp-btn-peligro-solido:hover:not(:disabled) {
+    background: #b91c1c;
+}
+
+.gp-modal-form-footer button.gp-btn-peligro-solido:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}

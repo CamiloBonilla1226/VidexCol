@@ -1,0 +1,132 @@
+/* ========================================
+   USUARIO - CONTENIMIENTO TOTAL
+   Fuerza que TODO esté visiblemente dentro de main-content
+   ======================================== */
+
+/* Permitir scroll vertical pero no horizontal */
+.main-content {
+  width: calc(100vw - 70px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* Form y contenedor toman 100% */
+.form {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 32px !important;
+  box-sizing: border-box !important;
+}
+
+/* Todos los containers dentro del form */
+.form .container,
+.form .row,
+.form .col-sm-1, .form .col-sm-2, .form .col-sm-3, .form .col-sm-4,
+.form .col-sm-5, .form .col-sm-6, .form .col-sm-7, .form .col-sm-8,
+.form .col-sm-9, .form .col-sm-10, .form .col-sm-11, .form .col-sm-12,
+.form .col-md-1, .form .col-md-2, .form .col-md-3, .form .col-md-4,
+.form .col-md-5, .form .col-md-6, .form .col-md-7, .form .col-md-8,
+.form .col-md-9, .form .col-md-10, .form .col-md-11, .form .col-md-12,
+.form .col-lg-1, .form .col-lg-2, .form .col-lg-3, .form .col-lg-4,
+.form .col-lg-5, .form .col-lg-6, .form .col-lg-7, .form .col-lg-8,
+.form .col-lg-9, .form .col-lg-10, .form .col-lg-11, .form .col-lg-12 {
+  width: 100% !important;
+  max-width: 100% !important;
+  float: none !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Inputs y controles */
+input, select, textarea {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Tabs */
+.nav.nav-tabs {
+  width: 100% !important;
+  overflow-x: auto !important;
+}
+
+.tab-pane {
+  width: 100% !important;
+}
+
+/* Centros (buttons) */
+center {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 20px 0 !important;
+  padding: 0 !important;
+}
+
+center .btn,
+center a {
+  flex: 0 1 auto;
+  min-width: 100px;
+}
+
+/* Footer */
+footer.videx-footer {
+  width: 100% !important;
+  margin-top: 32px !important;
+  padding: 24px 32px !important;
+  box-sizing: border-box !important;
+}
+
+/* BR tags no ocupen espacio */
+br {
+  display: none !important;
+}
+
+/* Asegurar que no haya overflow en ninguna dirección */
+.form > *,
+.form div,
+.form span,
+.form p {
+  overflow: visible !important;
+}
+
+/* Override de Bootstrap para .well */
+.well {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 16px 0 !important;
+  padding: 16px !important;
+}
+
+/* Asegurar que todo sea visible */
+* {
+  box-sizing: border-box !important;
+}
+
+/* Contenedor del tab-content */
+.tab-content {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Form groups siempre 100% */
+.form-group {
+  width: 100% !important;
+  display: block !important;
+  margin-bottom: 20px !important;
+}
+
+/* Ocultar scrollbar horizontal del body si existe */
+body {
+  overflow-x: hidden !important;
+}
+
+/* Asegurar padding interno */
+.form {
+  min-height: auto;
+}
