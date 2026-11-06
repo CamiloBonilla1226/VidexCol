@@ -139,34 +139,62 @@ if ($esExcel) {
 }
 
 // ================================================================ datos para graficas
-$chartMes = [['Mes', 'Ingresos', 'Costos (directos + auditoría + globales)', 'Resultado']];
+$chartMes = [['Mes', 'Ingresos', 'Costos', 'Resultado']];
+$mejorMes = $peorMes = null;
 foreach ($serie as $mes => $m) {
-    $chartMes[] = [$mes, round($m['ingresos']), round($m['directos'] + $m['auditoria'] + $m['globales']), round($m['resultado'])];
+    $chartMes[] = [gf_mes_corto($mes), round($m['ingresos']), round($m['directos'] + $m['auditoria'] + $m['globales']), round($m['resultado'])];
+    if ($mejorMes === null || $m['resultado'] > $serie[$mejorMes]['resultado']) { $mejorMes = $mes; }
+    if ($peorMes === null || $m['resultado'] < $serie[$peorMes]['resultado']) { $peorMes = $mes; }
 }
-$top = array_slice($proy, 0, 12);
+$datoMes = $mejorMes === null ? '' : 'Mejor mes: ' . gf_mes_corto($mejorMes) . ' (' . gf_money_corto($serie[$mejorMes]['resultado']) . '). Peor: '
+    . gf_mes_corto($peorMes) . ' (' . gf_money_corto($serie[$peorMes]['resultado']) . ').';
+
+$costos = [
+    ['l' => 'Gastos directos', 'v' => round($res['directos']), 'c' => '#eb6834'],
+    ['l' => 'Auditoría', 'v' => round($res['auditoria']), 'c' => '#6250d6'],
+    ['l' => 'Gastos globales', 'v' => round($res['globales']), 'c' => '#e87ba4'],
+];
+$totCostos = 0;
+foreach ($costos as $c) { $totCostos += $c['v']; }
+$chartCostos = [];
+$mayorCosto = null;
+foreach ($costos as $c) {
+    if ($c['v'] <= 0) { continue; }
+    $c['txt'] = gf_money_corto($c['v']) . ' · ' . number_format($c['v'] / $totCostos * 100, 0) . ' %';
+    $chartCostos[] = $c;
+    if ($mayorCosto === null || $c['v'] > $mayorCosto['v']) { $mayorCosto = $c; }
+}
+$datoCostos = $mayorCosto ? 'Costo total ' . gf_money_corto($totCostos) . '. El mayor: ' . strtolower($mayorCosto['l']) . ' (' . $mayorCosto['txt'] . ').' : '';
+
+$top = array_slice($proy, 0, 10);
 $chartTop = [['Proyecto', 'Ingresos', 'Gastos directos']];
 foreach ($top as $p) {
-    $chartTop[] = ['#' . $p['id'] . ' ' . gf_resumir($p['cliente'], 22), round($p['cobrado_p']), round($p['gasto_p'])];
+    $chartTop[] = ['#' . $p['id'] . ' ' . gf_resumir($p['cliente'], 18), round($p['cobrado_p']), round($p['gasto_p'])];
 }
-$chartCostos = [['Concepto', 'Valor']];
-if ($res['directos'] > 0) { $chartCostos[] = ['Gastos directos', round($res['directos'])]; }
-if ($res['auditoria'] > 0) { $chartCostos[] = ['Auditoría', round($res['auditoria'])]; }
-if ($res['globales'] > 0) { $chartCostos[] = ['Gastos globales', round($res['globales'])]; }
+$datoTop = $top ? 'Más rentable: #' . $top[0]['id'] . ' ' . gf_resumir($top[0]['cliente'], 28) . ' (' . gf_money_corto($top[0]['ganancia_p']) . ').' : '';
+
 $chartGlob = [['Tipo', 'Total']];
-foreach (array_slice($glob['porTipo'], 0, 10) as $t) {
+$totGlob = 0;
+$filasGlob = [];
+foreach ($glob['porTipo'] as $t) {
     if ($ambito === 'negocio' && $t['dueno']) { continue; }
     if ($ambito === 'personal' && !$t['dueno']) { continue; }
-    $chartGlob[] = [gf_resumir($t['tipo'], 32), round($t['total'])];
+    $filasGlob[] = $t;
+    $totGlob += $t['total'];
 }
+foreach (array_slice($filasGlob, 0, 8) as $t) { $chartGlob[] = [gf_resumir($t['tipo'], 24), round($t['total'])]; }
+$datoGlob = $filasGlob ? 'Mayor gasto: ' . gf_resumir($filasGlob[0]['tipo'], 30) . ' (' . number_format($totGlob > 0 ? $filasGlob[0]['total'] / $totGlob * 100 : 0, 0) . ' % del total).' : '';
+
+$datosJs = ['mes' => $chartMes, 'costos' => $chartCostos, 'top' => $chartTop, 'glob' => $chartGlob];
 $js = JSON_UNESCAPED_UNICODE;
+gf_estilos();
 ?>
-<?php gf_estilos(); ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <div class="gf-wrap">
     <div class="gf-hero">
         <h1>Rentabilidad por proyecto</h1>
-        <p>Cuánto se cobró, cuánto costó y cuánto quedó &mdash; <?= gf_h($etiquetaPeriodo); ?> &middot; <?= gf_h(gf_nombre_ambito($ambito)); ?></p>
+        <p><?= gf_h($etiquetaPeriodo); ?> &middot; <?= gf_h(gf_nombre_ambito($ambito)); ?></p>
     </div>
 
     <?php if ($svc->getLastError() !== '') { ?>
@@ -174,103 +202,119 @@ $js = JSON_UNESCAPED_UNICODE;
             <?php if ((int) ($_SESSION['superusuario'] ?? 0) === 1) { echo gf_h($svc->getLastError()); } ?></div>
     <?php } ?>
     <?php if ($svc->esRestringido()) { ?>
-        <div class="gf-aviso">Su usuario tiene clientes asignados: solo se muestran esos clientes y no se muestran gastos globales.</div>
+        <div class="gf-aviso">Solo se muestran sus clientes asignados; no se incluyen gastos globales.</div>
     <?php } ?>
 
     <form method="get" action="index.php" class="gf-card gf-noprint">
         <input type="hidden" name="doc" value="graphs_rentabilidad" />
-        <div class="gf-filtros">
-            <div class="gf-field"><label>Año</label>
-                <select name="anio" id="gf-anio">
-                    <option value="" <?= $anioSel === '' ? 'selected' : ''; ?>>Personalizado</option>
-                    <option value="todos" <?= $anioSel === 'todos' ? 'selected' : ''; ?>>Todos los años</option>
-                    <?php foreach (gf_anios() as $y) { ?><option value="<?= $y; ?>" <?= $anioSel === $y ? 'selected' : ''; ?>><?= $y; ?></option><?php } ?>
-                </select></div>
-            <div class="gf-field"><label>Fecha inicial</label><input type="date" name="fechaInicial" id="gf-fi" value="<?= gf_h($desde); ?>"></div>
-            <div class="gf-field"><label>Fecha final</label><input type="date" name="fechaFinal" id="gf-ff" value="<?= gf_h($hasta); ?>"></div>
-            <div class="gf-field"><label>Ámbito</label>
-                <select name="ambito">
-                    <?php foreach (['negocio', 'personal', 'todo'] as $a) { ?><option value="<?= $a; ?>" <?= $ambito === $a ? 'selected' : ''; ?>><?= gf_h(gf_nombre_ambito($a)); ?></option><?php } ?>
-                </select></div>
-            <div class="gf-field"><label>Estado de la cotización</label>
-                <select name="estado"><option value="">Todos</option>
-                    <?php foreach ($estadosDisponibles as $id => $nom) { ?><option value="<?= (int) $id; ?>" <?= (string) $id === $estadoSel ? 'selected' : ''; ?>><?= gf_h($nom); ?></option><?php } ?>
-                </select></div>
-            <div class="gf-field"><label>Buscar (cliente / proyecto)</label><input type="text" name="q" value="<?= gf_h($busqueda); ?>" placeholder="Nombre o #cotización"></div>
-        </div>
-        <div class="gf-acciones">
-            <button type="submit" class="gf-btn gf-btn-primary"><i class="bi bi-funnel"></i> Aplicar</button>
-            <a class="gf-btn gf-btn-ghost" href="index.php?doc=graphs_rentabilidad">Limpiar</a>
-        </div>
+        <details class="gf-filtros-wrap" open>
+            <summary>Filtros</summary>
+            <div class="gf-filtros">
+                <div class="gf-field"><label>Año</label>
+                    <select name="anio" id="gf-anio">
+                        <option value="" <?= $anioSel === '' ? 'selected' : ''; ?>>Personalizado</option>
+                        <option value="todos" <?= $anioSel === 'todos' ? 'selected' : ''; ?>>Todos</option>
+                        <?php foreach (gf_anios() as $y) { ?><option value="<?= $y; ?>" <?= $anioSel === $y ? 'selected' : ''; ?>><?= $y; ?></option><?php } ?>
+                    </select></div>
+                <div class="gf-field"><label>Desde</label><input type="date" name="fechaInicial" id="gf-fi" value="<?= gf_h($desde); ?>"></div>
+                <div class="gf-field"><label>Hasta</label><input type="date" name="fechaFinal" id="gf-ff" value="<?= gf_h($hasta); ?>"></div>
+                <div class="gf-field"><label>Ámbito</label>
+                    <select name="ambito">
+                        <?php foreach (['negocio', 'personal', 'todo'] as $a) { ?><option value="<?= $a; ?>" <?= $ambito === $a ? 'selected' : ''; ?>><?= gf_h(gf_nombre_ambito($a)); ?></option><?php } ?>
+                    </select></div>
+                <div class="gf-field"><label>Estado</label>
+                    <select name="estado"><option value="">Todos</option>
+                        <?php foreach ($estadosDisponibles as $id => $nom) { ?><option value="<?= (int) $id; ?>" <?= (string) $id === $estadoSel ? 'selected' : ''; ?>><?= gf_h($nom); ?></option><?php } ?>
+                    </select></div>
+                <div class="gf-field"><label>Buscar</label><input type="text" name="q" value="<?= gf_h($busqueda); ?>" placeholder="Cliente o #cotización"></div>
+            </div>
+            <div class="gf-acciones">
+                <button type="submit" class="gf-btn gf-btn-primary">Aplicar</button>
+                <a class="gf-btn gf-btn-ghost" href="index.php?doc=graphs_rentabilidad">Limpiar</a>
+            </div>
+        </details>
         <?php gf_barra_exportar($paramsExport); ?>
     </form>
-    <script>
-    (function () {
-        var a = document.getElementById('gf-anio'), fi = document.getElementById('gf-fi'), ff = document.getElementById('gf-ff');
-        a.addEventListener('change', function () { if (a.value !== '') { fi.value = ''; ff.value = ''; } });
-        [fi, ff].forEach(function (e) { e.addEventListener('change', function () { a.value = ''; }); });
-    })();
-    </script>
 
     <!-- KPIs -->
     <div class="gf-kpis">
-        <div class="gf-kpi verde"><div class="t">Ingresos cobrados</div><div class="v"><?= gf_money($res['ingresos']); ?></div><div class="s"><?= (int) $res['n_proyectos']; ?> proyectos con movimiento</div></div>
-        <div class="gf-kpi naranja"><div class="t">Gastos directos</div><div class="v"><?= gf_money($res['directos']); ?></div><div class="s">Ligados a cada proyecto</div></div>
-        <div class="gf-kpi morado"><div class="t">Auditoría</div><div class="v"><?= gf_money($res['auditoria']); ?></div><div class="s">Pagos a personas (por cliente)</div></div>
-        <div class="gf-kpi azul"><div class="t">Contribución</div><div class="v <?= gf_clase_valor($res['contribucion']); ?>"><?= gf_money($res['contribucion']); ?></div><div class="s">Margen <?= gf_pct($res['margen_contribucion']); ?></div></div>
-        <div class="gf-kpi rojo"><div class="t">Gastos globales</div><div class="v"><?= gf_money($res['globales']); ?></div><div class="s"><?= $res['globales_restringido'] ? 'No disponibles para su usuario' : 'Indirectos de la empresa'; ?></div></div>
-        <div class="gf-kpi <?= $res['resultado'] >= 0 ? 'verde' : 'rojo'; ?>"><div class="t">Resultado final</div><div class="v <?= gf_clase_valor($res['resultado']); ?>"><?= gf_money($res['resultado']); ?></div><div class="s">Margen <?= gf_pct($res['margen_resultado']); ?></div></div>
-        <div class="gf-kpi gris"><div class="t">Pendiente por cobrar</div><div class="v"><?= gf_money($res['pendiente']); ?></div><div class="s">Cotizaciones aprobadas con saldo</div></div>
+        <div class="gf-kpi azul"><div class="t">Ingresos cobrados</div><div class="v"><?= gf_money($res['ingresos']); ?></div><div class="s"><?= (int) $res['n_proyectos']; ?> proyectos</div></div>
+        <div class="gf-kpi naranja"><div class="t">Gastos directos</div><div class="v"><?= gf_money($res['directos']); ?></div><div class="s">de los proyectos</div></div>
+        <div class="gf-kpi morado"><div class="t">Auditoría</div><div class="v"><?= gf_money($res['auditoria']); ?></div><div class="s">pagos a personas</div></div>
+        <div class="gf-kpi verde"><div class="t">Contribución</div><div class="v <?= gf_clase_valor($res['contribucion']); ?>"><?= gf_money($res['contribucion']); ?></div><div class="s">margen <?= gf_pct($res['margen_contribucion']); ?></div></div>
+        <div class="gf-kpi magenta"><div class="t">Gastos globales</div><div class="v"><?= gf_money($res['globales']); ?></div><div class="s"><?= $res['globales_restringido'] ? 'no disponibles' : 'indirectos'; ?></div></div>
+        <div class="gf-kpi azul"><div class="t">Resultado final</div><div class="v <?= gf_clase_valor($res['resultado']); ?>"><?= gf_money($res['resultado']); ?></div><div class="s">margen <?= gf_pct($res['margen_resultado']); ?></div></div>
+        <div class="gf-kpi ambar"><div class="t">Por cobrar</div><div class="v"><?= gf_money($res['pendiente']); ?></div><div class="s">cartera aprobada</div></div>
     </div>
 
     <div class="gf-grid2">
-        <div class="gf-card">
-            <h2>Estado de resultados <small><?= gf_h($etiquetaPeriodo); ?></small></h2>
-            <table class="gf-resultado" style="width:100%">
-                <tr><td>Ingresos cobrados (abonos)</td><td class="n" style="text-align:right"><?= gf_money($res['ingresos']); ?></td></tr>
-                <tr><td>(−) Gastos directos de los proyectos</td><td style="text-align:right"><?= gf_money($res['directos']); ?></td></tr>
-                <tr><td>(−) Auditoría (costo de personas)</td><td style="text-align:right"><?= gf_money($res['auditoria']); ?></td></tr>
-                <tr class="total"><td>= Contribución de los proyectos</td><td style="text-align:right" class="<?= gf_clase_valor($res['contribucion']); ?>"><?= gf_money($res['contribucion']); ?></td></tr>
-                <tr><td>(−) Gastos globales / indirectos</td><td style="text-align:right"><?= gf_money($res['globales']); ?></td></tr>
-                <tr class="total"><td>= RESULTADO FINAL</td><td style="text-align:right" class="<?= gf_clase_valor($res['resultado']); ?>"><?= gf_money($res['resultado']); ?></td></tr>
+        <section class="gf-card">
+            <h2>Estado de resultados</h2>
+            <table class="gf-resultado">
+                <tr><td>Ingresos cobrados</td><td><?= gf_money($res['ingresos']); ?></td></tr>
+                <tr><td>− Gastos directos</td><td><?= gf_money($res['directos']); ?></td></tr>
+                <tr><td>− Auditoría</td><td><?= gf_money($res['auditoria']); ?></td></tr>
+                <tr class="total"><td>Contribución</td><td class="<?= gf_clase_valor($res['contribucion']); ?>"><?= gf_money($res['contribucion']); ?></td></tr>
+                <tr><td>− Gastos globales</td><td><?= gf_money($res['globales']); ?></td></tr>
+                <tr class="total"><td>Resultado final</td><td class="<?= gf_clase_valor($res['resultado']); ?>"><?= gf_money($res['resultado']); ?></td></tr>
             </table>
-            <p class="gf-nota" style="margin-top:10px">Los gastos globales no se reparten entre proyectos: no existe en la base un dato que los ligue a uno solo. Se restan una vez, sobre el total.</p>
-        </div>
-        <div class="gf-card">
-            <h2>Fuera del negocio <small>no entra en la rentabilidad</small></h2>
+            <p class="gf-nota" style="margin:10px 0 0">Los gastos globales no se reparten por proyecto: se restan una sola vez.</p>
+        </section>
+        <section class="gf-card">
+            <h2>Fuera del negocio</h2>
             <?php if ($ambito === 'negocio' && $resPersonal !== null) { ?>
-                <table class="gf-resultado" style="width:100%">
-                    <tr><td>Gastos del dueño (globales: diezmos, EPS, tarjetas, etc.)</td><td style="text-align:right"><?= gf_money($res['globales_dueno']); ?></td></tr>
-                    <tr><td>Proyectos personales: aportes recibidos</td><td style="text-align:right"><?= gf_money($resPersonal['ingresos']); ?></td></tr>
-                    <tr><td>Proyectos personales: gastos (casa, carro, impuestos...)</td><td style="text-align:right"><?= gf_money($resPersonal['directos']); ?></td></tr>
-                    <tr class="total"><td>Saldo de lo personal (aportes − gastos)</td><td style="text-align:right" class="<?= gf_clase_valor($resPersonal['ingresos'] - $resPersonal['directos']); ?>"><?= gf_money($resPersonal['ingresos'] - $resPersonal['directos']); ?></td></tr>
+                <table class="gf-resultado">
+                    <tr><td>Gastos del dueño (globales)</td><td><?= gf_money($res['globales_dueno']); ?></td></tr>
+                    <tr><td>Personal: aportes recibidos</td><td><?= gf_money($resPersonal['ingresos']); ?></td></tr>
+                    <tr><td>Personal: gastos (casa, carro…)</td><td><?= gf_money($resPersonal['directos']); ?></td></tr>
+                    <tr class="total"><td>Saldo personal</td><td class="<?= gf_clase_valor($resPersonal['ingresos'] - $resPersonal['directos']); ?>"><?= gf_money($resPersonal['ingresos'] - $resPersonal['directos']); ?></td></tr>
                 </table>
-                <p class="gf-nota" style="margin-top:10px">Se separa con <code>cliente.interno = 1</code> y las listas de excepciones de <code>graphs_finanzas_service.php</code>. Cambie el ámbito arriba para verlo en detalle.</p>
+                <p class="gf-nota" style="margin:10px 0 0">No entra en la rentabilidad del negocio.</p>
             <?php } else { ?>
-                <p class="gf-nota">Está viendo un ámbito distinto de «Solo negocio». Para ver este resumen vuelva a «Solo negocio».</p>
+                <p class="gf-nota">Disponible en el ámbito «Solo negocio».</p>
             <?php } ?>
-        </div>
+        </section>
     </div>
 
     <!-- Graficas -->
     <div class="gf-grid2">
-        <div class="gf-card"><h2>Evolución mensual</h2><div id="gf-ch-mes" class="gf-chart"></div></div>
-        <div class="gf-card"><h2>Composición de los costos</h2><div id="gf-ch-costos" class="gf-chart"></div></div>
+        <?php gf_grafica('gf-ch-mes', 'Evolución mensual', [
+            'que' => 'Lo que entró, lo que costó y lo que quedó, mes a mes.',
+            'leer' => 'Barras azules = ingresos; naranjas = costos. La línea verde es el resultado: sobre cero hubo ganancia.',
+            'ojo' => 'Los costos suman directos, auditoría y gastos globales.',
+            'dato' => $datoMes,
+        ], 280); ?>
+        <?php gf_grafica('gf-ch-costos', 'En qué se van los costos', [
+            'que' => 'Reparto del costo total del período.',
+            'leer' => 'Cada porción es un tipo de costo; la leyenda indica monto y porcentaje.',
+            'ojo' => 'Auditoría se carga al cliente y los globales a toda la empresa.',
+            'dato' => $datoCostos,
+        ], 280); ?>
     </div>
     <div class="gf-grid2">
-        <div class="gf-card"><h2>Proyectos con mayor ganancia <small>ingresos vs gastos directos</small></h2><div id="gf-ch-top" class="gf-chart" style="min-height:420px"></div></div>
-        <div class="gf-card"><h2>Gastos globales por tipo <small>top 10</small></h2><div id="gf-ch-glob" class="gf-chart" style="min-height:420px"></div></div>
+        <?php gf_grafica('gf-ch-top', 'Proyectos con más ganancia', [
+            'que' => 'Los 10 proyectos que más dejaron en el período.',
+            'leer' => 'Compare la barra azul (cobrado) con la naranja (gasto directo): entre más distancia, mejor.',
+            'ojo' => 'No descuenta auditoría ni gastos globales.',
+            'dato' => $datoTop,
+        ], 340); ?>
+        <?php gf_grafica('gf-ch-glob', 'Gastos globales por tipo', [
+            'que' => 'Gastos de la empresa que no pertenecen a un solo proyecto.',
+            'leer' => 'Barra más larga = tipo de gasto más pesado. Se muestran los 8 mayores.',
+            'ojo' => 'Con «Solo negocio» se excluyen los gastos del dueño.',
+            'dato' => $datoGlob,
+        ], 340); ?>
     </div>
 
     <!-- Tabla de proyectos -->
-    <div class="gf-card">
-        <h2>Detalle por proyecto <small><?= count($proy); ?> cotizaciones &middot; clic en el encabezado para ordenar</small></h2>
+    <section class="gf-card">
+        <h2>Detalle por proyecto <small><?= count($proy); ?> · clic en un encabezado para ordenar</small></h2>
         <div class="gf-tablewrap">
-        <table class="gf-table">
+        <table class="gf-table gf-t-proy">
             <thead><tr>
                 <th class="sortable">#</th><th class="sortable">Cliente</th><th>Proyecto</th><th class="sortable">Estado</th><th class="sortable">Fecha</th>
                 <th class="sortable n">Cotizado</th><th class="sortable n">A cobrar</th>
-                <th class="sortable n">Cobrado período</th><th class="sortable n">Gasto directo período</th><th class="sortable n">Ganancia período</th><th class="sortable n">Margen</th>
+                <th class="sortable n">Cobrado</th><th class="sortable n">Gasto</th><th class="sortable n">Ganancia</th><th class="sortable n">Margen</th>
                 <th class="sortable n">Cobrado total</th><th class="sortable n">Gasto total</th><th class="sortable n">Ganancia total</th><th class="sortable n">Pendiente</th><th>Alerta</th>
             </tr></thead>
             <tbody>
@@ -279,7 +323,7 @@ $js = JSON_UNESCAPED_UNICODE;
                     <td data-v="<?= $p['id']; ?>"><a href="index.php?doc=cotizacion&opc=2&id=<?= $p['id']; ?>" target="_blank">#<?= $p['id']; ?></a></td>
                     <td><?php if ($p['cliente_existe']) { ?><a href="<?= gf_h(gf_url_ficha($p['idCliente'], $ambito, $qPeriodo)); ?>"><?= gf_h($p['cliente']); ?></a><?php } else { echo gf_h($p['cliente']); } ?>
                         <?php if ($p['personal']) { ?><span class="gf-tag morado">Personal</span><?php } ?></td>
-                    <td title="<?= gf_h($p['descripcion']); ?>"><?= gf_h(gf_resumir($p['descripcion'], 70)); ?></td>
+                    <td title="<?= gf_h($p['descripcion']); ?>"><?= gf_h(gf_resumir($p['descripcion'], 60)); ?></td>
                     <td><span class="gf-tag azul"><?= gf_h($p['estado_nombre']); ?></span></td>
                     <td data-v="<?= gf_h($p['fecha']); ?>"><?= gf_fecha($p['fecha']); ?></td>
                     <td class="n" data-v="<?= round($p['cotizado']); ?>"><?= gf_money($p['cotizado']); ?></td>
@@ -295,10 +339,10 @@ $js = JSON_UNESCAPED_UNICODE;
                     <td><?php if ($p['revisar'] !== '') { ?><span class="gf-tag rojo"><?= gf_h($p['revisar']); ?></span><?php } ?></td>
                 </tr>
             <?php } ?>
-            <?php if (!$proy) { ?><tr><td colspan="16" style="text-align:center;color:#64748b;padding:24px">No hay proyectos con movimiento para estos filtros.</td></tr><?php } ?>
+            <?php if (!$proy) { ?><tr><td colspan="16" class="gf-vacio">No hay proyectos con movimiento para estos filtros.</td></tr><?php } ?>
             </tbody>
             <tfoot><tr>
-                <td colspan="5">TOTAL</td>
+                <td colspan="5">Total</td>
                 <td class="n"><?= gf_money($tot['cotizado']); ?></td><td class="n"><?= gf_money($tot['a_cobrar']); ?></td>
                 <td class="n"><?= gf_money($tot['cobrado_p']); ?></td><td class="n"><?= gf_money($tot['gasto_p']); ?></td>
                 <td class="n <?= gf_clase_valor($tot['ganancia_p']); ?>"><?= gf_money($tot['ganancia_p']); ?></td><td></td>
@@ -308,12 +352,12 @@ $js = JSON_UNESCAPED_UNICODE;
             </tr></tfoot>
         </table>
         </div>
-        <p class="gf-nota" style="margin-top:8px">«Período» = movimientos con fecha dentro del rango elegido. «Total» = histórico completo de esa cotización. Pendiente = A cobrar − cobrado total, solo en estados «Aprobada y con pagos» y «Pendiente de pago».</p>
-    </div>
+        <p class="gf-nota" style="margin:8px 0 0">Cobrado, gasto y ganancia = movimientos del período. «Total» = histórico de la cotización.</p>
+    </section>
 
     <!-- Por cliente -->
-    <div class="gf-card">
-        <h2>Resultado por cliente <small>incluye el costo de auditoría del período</small></h2>
+    <section class="gf-card">
+        <h2>Resultado por cliente <small>incluye auditoría</small></h2>
         <div class="gf-tablewrap">
         <table class="gf-table">
             <thead><tr><th class="sortable">Cliente</th><th class="sortable n">Proyectos</th><th class="sortable n">Ingresos</th><th class="sortable n">Directos</th><th class="sortable n">Auditoría</th><th class="sortable n">Contribución</th><th class="sortable n">Margen</th><th class="sortable n">Pendiente</th></tr></thead>
@@ -330,43 +374,44 @@ $js = JSON_UNESCAPED_UNICODE;
                     <td class="n" data-v="<?= round($c['pendiente']); ?>"><?= $c['pendiente'] > 0 ? gf_money($c['pendiente']) : '—'; ?></td>
                 </tr>
             <?php } ?>
-            <?php if (!$porCliente) { ?><tr><td colspan="8" style="text-align:center;color:#64748b;padding:24px">Sin datos.</td></tr><?php } ?>
+            <?php if (!$porCliente) { ?><tr><td colspan="8" class="gf-vacio">Sin datos.</td></tr><?php } ?>
             </tbody>
         </table>
         </div>
-    </div>
+    </section>
 
     <!-- Globales -->
-    <div class="gf-card">
-        <h2>Gastos globales (indirectos) por tipo <small><?= gf_h($etiquetaPeriodo); ?></small></h2>
+    <section class="gf-card">
+        <h2>Gastos globales por tipo</h2>
         <?php if (!empty($glob['restringido'])) { ?>
             <p class="gf-nota">No disponible para su usuario.</p>
         <?php } else { ?>
         <div class="gf-tablewrap">
         <table class="gf-table">
-            <thead><tr><th class="sortable">Tipo de gasto</th><th class="sortable n">Registros</th><th class="sortable n">Total</th><th>Clasificación</th></tr></thead>
+            <thead><tr><th class="sortable">Tipo</th><th class="sortable n">Registros</th><th class="sortable n">Total</th><th>Clasificación</th></tr></thead>
             <tbody>
             <?php foreach ($glob['porTipo'] as $t) { ?>
                 <tr>
                     <td><?= gf_h($t['tipo']); ?></td><td class="n"><?= $t['n']; ?></td>
                     <td class="n" data-v="<?= round($t['total']); ?>"><?= gf_money($t['total']); ?></td>
-                    <td><?= $t['dueno'] ? '<span class="gf-tag morado">Gasto del dueño</span>' : '<span class="gf-tag verde">Negocio</span>'; ?></td>
+                    <td><?= $t['dueno'] ? '<span class="gf-tag morado">Del dueño</span>' : '<span class="gf-tag verde">Negocio</span>'; ?></td>
                 </tr>
             <?php } ?>
-            <?php if (!$glob['porTipo']) { ?><tr><td colspan="4" style="text-align:center;color:#64748b;padding:24px">Sin gastos globales en el período.</td></tr><?php } ?>
+            <?php if (!$glob['porTipo']) { ?><tr><td colspan="4" class="gf-vacio">Sin gastos globales en el período.</td></tr><?php } ?>
             </tbody>
-            <tfoot><tr><td>TOTAL NEGOCIO</td><td></td><td class="n"><?= gf_money($res['globales_negocio']); ?></td><td></td></tr>
-                   <tr><td>TOTAL GASTOS DEL DUEÑO</td><td></td><td class="n"><?= gf_money($res['globales_dueno']); ?></td><td></td></tr></tfoot>
+            <tfoot>
+                <tr><td>Total negocio</td><td></td><td class="n"><?= gf_money($res['globales_negocio']); ?></td><td></td></tr>
+                <tr><td>Total del dueño</td><td></td><td class="n"><?= gf_money($res['globales_dueno']); ?></td><td></td></tr>
+            </tfoot>
         </table>
         </div>
-        <p class="gf-nota" style="margin-top:8px">La clasificación «Gasto del dueño» es provisional (por el nombre del tipo). Se ajusta en <code>GF_TIPOS_GASTO_DUENO</code>, en <code>graphs_finanzas_service.php</code>.</p>
+        <p class="gf-nota" style="margin:8px 0 0">La clasificación «Del dueño» es provisional (según el nombre del tipo).</p>
         <?php } ?>
-    </div>
+    </section>
 
-    <!-- Datos a revisar -->
     <?php if ($revisar) { ?>
-    <div class="gf-card">
-        <h2>Datos a revisar <small><?= count($revisar); ?> alertas</small></h2>
+    <section class="gf-card">
+        <h2>Datos a revisar <small><?= count($revisar); ?></small></h2>
         <div class="gf-tablewrap">
         <table class="gf-table">
             <thead><tr><th>#</th><th>Cliente</th><th>Estado</th><th class="n">Cobrado total</th><th class="n">Gasto total</th><th>Alerta</th></tr></thead>
@@ -379,53 +424,72 @@ $js = JSON_UNESCAPED_UNICODE;
             </tbody>
         </table>
         </div>
-    </div>
+    </section>
     <?php } ?>
 
-    <!-- Metodologia -->
-    <div class="gf-card">
-        <h2>Cómo se calcula</h2>
-        <ul class="gf-nota" style="margin:0;padding-left:18px">
-            <li><b>Ingresos</b>: suma de la tabla <code>abonos</code> por cotización (no se usa <code>valorRecibido</code>, que no coincide con los abonos).</li>
-            <li><b>Gastos directos</b>: tabla <code>gastos</code> con cotización asignada. <b>Globales</b>: <code>gastos</code> sin cotización (<code>idCotizacion = 0</code>).</li>
-            <li><b>Auditoría</b>: tabla <code>gastosauditoria</code>, imputada al cliente (no existe vínculo con una cotización concreta) y restada de la contribución.</li>
-            <li><b>Negocio / personal</b>: <code>cliente.interno</code>. Los clientes con cotizaciones cuyo cliente fue eliminado se muestran como «Cliente eliminado».</li>
-            <li>Los movimientos se asignan al período por la fecha del abono o del gasto (<code>fechaCreacion</code>).</li>
+    <details class="gf-det">
+        <summary>Cómo se calcula</summary>
+        <ul class="gf-nota">
+            <li><b>Ingresos:</b> abonos por cotización (no <code>valorRecibido</code>).</li>
+            <li><b>Directos:</b> gastos con cotización. <b>Globales:</b> gastos sin cotización.</li>
+            <li><b>Auditoría:</b> pagos a personas, cargados al cliente.</li>
+            <li><b>Negocio / personal:</b> según <code>cliente.interno</code> y las excepciones del servicio.</li>
+            <li>El período se toma por la fecha de cada abono o gasto.</li>
         </ul>
-    </div>
+    </details>
 </div>
 
+<?php gf_script_base(); ?>
 <script>
+var gfD = <?= json_encode($datosJs, $js); ?>;
 google.charts.load('current', {packages: ['corechart']});
 google.charts.setOnLoadCallback(gfDibujar);
-var gfMes = <?= json_encode($chartMes, $js); ?>;
-var gfTop = <?= json_encode($chartTop, $js); ?>;
-var gfCostos = <?= json_encode($chartCostos, $js); ?>;
-var gfGlob = <?= json_encode($chartGlob, $js); ?>;
 function gfDibujar() {
-    var fmt = new google.visualization.NumberFormat({prefix: '$', groupingSymbol: '.', decimalSymbol: ',', fractionDigits: 0});
-    function vacio(id) { document.getElementById(id).innerHTML = '<p class="gf-nota" style="padding:30px;text-align:center">Sin datos para graficar.</p>'; }
-    if (gfMes.length > 1) {
-        var d = google.visualization.arrayToDataTable(gfMes); fmt.format(d, 1); fmt.format(d, 2); fmt.format(d, 3);
-        new google.visualization.ComboChart(document.getElementById('gf-ch-mes')).draw(d, {
-            seriesType: 'bars', series: {2: {type: 'line', pointSize: 5}}, colors: ['#16a34a', '#ea580c', '#1d4ed8'],
-            legend: {position: 'bottom'}, vAxis: {format: 'short'}, chartArea: {width: '82%'}
-        });
-    } else { vacio('gf-ch-mes'); }
-    if (gfCostos.length > 1) {
-        var d2 = google.visualization.arrayToDataTable(gfCostos); fmt.format(d2, 1);
-        new google.visualization.PieChart(document.getElementById('gf-ch-costos')).draw(d2, {pieHole: 0.45, colors: ['#ea580c', '#7c3aed', '#dc2626'], legend: {position: 'bottom'}, chartArea: {width: '90%'}});
-    } else { vacio('gf-ch-costos'); }
-    if (gfTop.length > 1) {
-        var d3 = google.visualization.arrayToDataTable(gfTop); fmt.format(d3, 1); fmt.format(d3, 2);
-        new google.visualization.BarChart(document.getElementById('gf-ch-top')).draw(d3, {colors: ['#16a34a', '#ea580c'], legend: {position: 'bottom'}, hAxis: {format: 'short'}, chartArea: {left: 170, width: '65%'}});
-    } else { vacio('gf-ch-top'); }
-    if (gfGlob.length > 1) {
-        var d4 = google.visualization.arrayToDataTable(gfGlob); fmt.format(d4, 1);
-        new google.visualization.BarChart(document.getElementById('gf-ch-glob')).draw(d4, {colors: ['#dc2626'], legend: {position: 'none'}, hAxis: {format: 'short'}, chartArea: {left: 200, width: '60%'}});
-    } else { vacio('gf-ch-glob'); }
+    var G = GF, C = G.C, d;
+    // Evolucion mensual
+    if (gfD.mes.length > 1) {
+        d = google.visualization.arrayToDataTable(gfD.mes); G.formatear(d, [1, 2, 3]);
+        G.leyenda('gf-ch-mes', [{color: C.azul, label: 'Ingresos'}, {color: C.naranja, label: 'Costos'}, {color: C.aqua, label: 'Resultado'}]);
+        new google.visualization.ComboChart(document.getElementById('gf-ch-mes')).draw(d, G.base({
+            seriesType: 'bars', series: {2: {type: 'line', pointSize: 4, lineWidth: 2}}, colors: [C.azul, C.naranja, C.aqua], bar: {groupWidth: '60%'}
+        }));
+    } else { G.vacio('gf-ch-mes'); }
+    // Composicion de costos
+    if (gfD.costos.length) {
+        d = new google.visualization.DataTable(); d.addColumn('string', 'Concepto'); d.addColumn('number', 'Valor');
+        gfD.costos.forEach(function (c) { d.addRow([c.l, c.v]); }); G.formatear(d, [1]);
+        G.leyenda('gf-ch-costos', gfD.costos.map(function (c) { return {color: c.c, label: c.l, valor: c.txt}; }));
+        new google.visualization.PieChart(document.getElementById('gf-ch-costos')).draw(d, G.base({
+            pieHole: 0.62, pieSliceText: 'none', pieSliceBorderColor: '#fff', chartArea: {left: 0, top: 4, right: 0, bottom: 4, width: '100%', height: '92%'},
+            colors: gfD.costos.map(function (c) { return c.c; })
+        }));
+    } else { G.vacio('gf-ch-costos'); }
+    // Proyectos con mas ganancia
+    if (gfD.top.length > 1) {
+        d = google.visualization.arrayToDataTable(gfD.top); G.formatear(d, [1, 2]);
+        G.leyenda('gf-ch-top', [{color: C.azul, label: 'Cobrado'}, {color: C.naranja, label: 'Gasto directo'}]);
+        new google.visualization.BarChart(document.getElementById('gf-ch-top')).draw(d, G.base({
+            colors: [C.azul, C.naranja], bar: {groupWidth: '70%'}, chartArea: {left: 130, top: 4, right: 8, bottom: 22, width: '100%', height: '88%'},
+            hAxis: {format: 'short', gridlines: {color: C.grid}}, vAxis: {gridlines: {color: 'transparent'}, format: ''}
+        }));
+    } else { G.vacio('gf-ch-top'); }
+    // Gastos globales por tipo
+    if (gfD.glob.length > 1) {
+        d = google.visualization.arrayToDataTable(gfD.glob); G.formatear(d, [1]);
+        new google.visualization.BarChart(document.getElementById('gf-ch-glob')).draw(d, G.base({
+            colors: [C.magenta], bar: {groupWidth: '65%'}, chartArea: {left: 150, top: 4, right: 8, bottom: 22, width: '100%', height: '88%'},
+            hAxis: {format: 'short', gridlines: {color: C.grid}}, vAxis: {gridlines: {color: 'transparent'}, format: ''}
+        }));
+    } else { G.vacio('gf-ch-glob'); }
 }
-window.addEventListener('resize', function () { if (window.google && google.visualization) { gfDibujar(); } });
-window.addEventListener('beforeprint', function () { if (window.google && google.visualization) { gfDibujar(); } });
+(function () {
+    var a = document.getElementById('gf-anio'), fi = document.getElementById('gf-fi'), ff = document.getElementById('gf-ff');
+    if (!a) { return; }
+    a.addEventListener('change', function () { if (a.value !== '') { fi.value = ''; ff.value = ''; } });
+    [fi, ff].forEach(function (e) { e.addEventListener('change', function () { a.value = ''; }); });
+    var t;
+    function redibujar() { clearTimeout(t); t = setTimeout(function () { if (window.google && google.visualization) { gfDibujar(); } }, 150); }
+    window.addEventListener('resize', redibujar);
+    window.addEventListener('beforeprint', redibujar);
+})();
 </script>
-<?php gf_script_tablas(); ?>

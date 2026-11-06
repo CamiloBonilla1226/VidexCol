@@ -99,8 +99,12 @@ if ($idFicha > 0) {
     }
 
     // ------------------------------------------------------------ Ficha en pantalla
-    $chartMedio = [['Medio', 'Contactos']];
-    foreach ($porMedio as $m => $v) { $chartMedio[] = [$m, $v['total']]; }
+    $coloresMedio = gf_colores_medio(array_keys($porMedio));
+    $datosMedio = [];
+    foreach ($porMedio as $m => $v) {
+        $datosMedio[] = ['l' => $m, 'v' => $v['total'], 'c' => $coloresMedio[$m], 'txt' => $v['periodo'] . ' en el período · ' . $v['total'] . ' en total'];
+    }
+    $datoMedio = $porMedio ? 'Último contacto: ' . gf_fecha($ultimo['fecha']) . ' por ' . $ultimo['medio'] . ' (' . $ultimo['usuario'] . ').' : '';
     $js = JSON_UNESCAPED_UNICODE;
     gf_estilos();
     ?>
@@ -108,91 +112,76 @@ if ($idFicha > 0) {
 <div class="gf-wrap">
     <div class="gf-hero">
         <h1><?= gf_h($cli['nombre']); ?></h1>
-        <p>Ficha 360 &middot; <?= gf_h($etiquetaPeriodo); ?>
-            <?php if (!empty($cli['personal'])) { ?> &middot; <span class="gf-tag morado">Personal / familiar</span><?php } ?>
+        <p>Ficha del cliente &middot; <?= gf_h($etiquetaPeriodo); ?>
+            <?php if (!empty($cli['personal'])) { ?> &middot; <span class="gf-tag morado">Personal</span><?php } ?>
             <?php if ($cli['tipo_nombre'] !== '' && $cli['tipo_nombre'] !== null) { ?> &middot; <?= gf_h($cli['tipo_nombre']); ?><?php } ?></p>
     </div>
 
     <form method="get" action="index.php" class="gf-card gf-noprint">
         <input type="hidden" name="doc" value="graphs_cartera" /><input type="hidden" name="cliente" value="<?= $idFicha; ?>" />
-        <div class="gf-filtros">
-            <div class="gf-field"><label>Año</label>
-                <select name="anio" id="gf-anio"><option value="" <?= $anioSel === '' ? 'selected' : ''; ?>>Personalizado</option>
-                    <option value="todos" <?= $anioSel === 'todos' ? 'selected' : ''; ?>>Todos los años</option>
-                    <?php foreach (gf_anios() as $y) { ?><option value="<?= $y; ?>" <?= $anioSel === $y ? 'selected' : ''; ?>><?= $y; ?></option><?php } ?>
-                </select></div>
-            <div class="gf-field"><label>Fecha inicial</label><input type="date" name="fechaInicial" id="gf-fi" value="<?= gf_h($desde); ?>"></div>
-            <div class="gf-field"><label>Fecha final</label><input type="date" name="fechaFinal" id="gf-ff" value="<?= gf_h($hasta); ?>"></div>
-        </div>
-        <div class="gf-acciones">
-            <button type="submit" class="gf-btn gf-btn-primary"><i class="bi bi-funnel"></i> Aplicar</button>
-            <a class="gf-btn gf-btn-ghost" href="index.php?<?= gf_h(http_build_query(array_merge(['doc' => 'graphs_cartera', 'ambito' => $ambito], $qPeriodo))); ?>"><i class="bi bi-arrow-left"></i> Volver a la cartera</a>
-        </div>
+        <input type="hidden" name="ambito" value="<?= gf_h($ambito); ?>" />
+        <details class="gf-filtros-wrap" open>
+            <summary>Período</summary>
+            <div class="gf-filtros">
+                <div class="gf-field"><label>Año</label>
+                    <select name="anio" id="gf-anio"><option value="" <?= $anioSel === '' ? 'selected' : ''; ?>>Personalizado</option>
+                        <option value="todos" <?= $anioSel === 'todos' ? 'selected' : ''; ?>>Todos</option>
+                        <?php foreach (gf_anios() as $y) { ?><option value="<?= $y; ?>" <?= $anioSel === $y ? 'selected' : ''; ?>><?= $y; ?></option><?php } ?>
+                    </select></div>
+                <div class="gf-field"><label>Desde</label><input type="date" name="fechaInicial" id="gf-fi" value="<?= gf_h($desde); ?>"></div>
+                <div class="gf-field"><label>Hasta</label><input type="date" name="fechaFinal" id="gf-ff" value="<?= gf_h($hasta); ?>"></div>
+            </div>
+            <div class="gf-acciones">
+                <button type="submit" class="gf-btn gf-btn-primary">Aplicar</button>
+                <a class="gf-btn gf-btn-ghost" href="index.php?<?= gf_h(http_build_query(array_merge(['doc' => 'graphs_cartera', 'ambito' => $ambito], $qPeriodo))); ?>">← Cartera</a>
+            </div>
+        </details>
         <?php gf_barra_exportar($paramsExport); ?>
     </form>
-    <script>
-    (function () {
-        var a = document.getElementById('gf-anio'), fi = document.getElementById('gf-fi'), ff = document.getElementById('gf-ff');
-        a.addEventListener('change', function () { if (a.value !== '') { fi.value = ''; ff.value = ''; } });
-        [fi, ff].forEach(function (e) { e.addEventListener('change', function () { a.value = ''; }); });
-    })();
-    </script>
 
     <div class="gf-kpis">
-        <div class="gf-kpi verde"><div class="t">Cobrado en el período</div><div class="v"><?= gf_money($sumCobP); ?></div><div class="s">Histórico: <?= gf_money($sumCobT); ?></div></div>
-        <div class="gf-kpi naranja"><div class="t">Gastos directos</div><div class="v"><?= gf_money($sumGasP); ?></div><div class="s">Histórico: <?= gf_money($sumGasT); ?></div></div>
-        <div class="gf-kpi morado"><div class="t">Auditoría</div><div class="v"><?= gf_money($ficha['aud_periodo']); ?></div><div class="s">Histórico: <?= gf_money($ficha['aud_total']); ?></div></div>
-        <div class="gf-kpi azul"><div class="t">Ganancia del período</div><div class="v <?= gf_clase_valor($gananciaP); ?>"><?= gf_money($gananciaP); ?></div><div class="s">Histórico: <?= gf_money($gananciaT); ?></div></div>
-        <div class="gf-kpi rojo"><div class="t">Pendiente por cobrar</div><div class="v"><?= gf_money($pend); ?></div><div class="s">de <?= count($cots); ?> cotizaciones</div></div>
-        <div class="gf-kpi <?= $sem === 'verde' ? 'verde' : ($sem === 'amarillo' ? 'naranja' : 'rojo'); ?>"><div class="t">Último contacto</div>
+        <div class="gf-kpi azul"><div class="t">Cobrado</div><div class="v"><?= gf_money($sumCobP); ?></div><div class="s">histórico <?= gf_money_corto($sumCobT); ?></div></div>
+        <div class="gf-kpi naranja"><div class="t">Gastos directos</div><div class="v"><?= gf_money($sumGasP); ?></div><div class="s">histórico <?= gf_money_corto($sumGasT); ?></div></div>
+        <div class="gf-kpi morado"><div class="t">Auditoría</div><div class="v"><?= gf_money($ficha['aud_periodo']); ?></div><div class="s">histórico <?= gf_money_corto($ficha['aud_total']); ?></div></div>
+        <div class="gf-kpi verde"><div class="t">Ganancia</div><div class="v <?= gf_clase_valor($gananciaP); ?>"><?= gf_money($gananciaP); ?></div><div class="s">histórico <?= gf_money_corto($gananciaT); ?></div></div>
+        <div class="gf-kpi ambar"><div class="t">Por cobrar</div><div class="v"><?= gf_money($pend); ?></div><div class="s"><?= count($cots); ?> cotizaciones</div></div>
+        <div class="gf-kpi gris"><div class="t">Último contacto</div>
             <div class="v" style="font-size:18px"><?= $ultimo ? gf_fecha($ultimo['fecha']) : 'Sin registro'; ?></div>
-            <div class="s"><?= $dias === null ? 'Nunca se ha registrado una comunicación' : ($dias . ' días · ' . gf_h($ultimo['medio']) . ' · ' . gf_h($ultimo['usuario'])); ?></div></div>
-        <div class="gf-kpi gris"><div class="t">Contactos en el período</div><div class="v"><?= $nPeriodo; ?></div><div class="s">Total histórico: <?= count($seg); ?></div></div>
+            <div class="s"><?= $dias === null ? 'nunca registrado' : ('hace ' . $dias . ' días · ' . gf_h($ultimo['medio'])); ?></div></div>
+        <div class="gf-kpi gris"><div class="t">Contactos</div><div class="v"><?= $nPeriodo; ?></div><div class="s">en el período · <?= count($seg); ?> en total</div></div>
     </div>
 
     <div class="gf-grid2">
-        <div class="gf-card">
+        <section class="gf-card">
             <h2>Datos del cliente</h2>
             <dl class="gf-kv">
                 <dt>NIT</dt><dd><?= gf_h($cli['nit']); ?></dd>
                 <dt>Representante</dt><dd><?= gf_h($cli['representante_legal']); ?></dd>
                 <dt>Correo</dt><dd><?= gf_h($cli['email']); ?></dd>
-                <dt>Teléfono / celular</dt><dd><?= gf_h(trim($cli['telefono'] . ' / ' . $cli['celular'], ' /')); ?></dd>
-                <dt>Comercial asignado</dt><dd><?= gf_h($cli['comercial']); ?></dd>
+                <dt>Teléfono</dt><dd><?= gf_h(trim($cli['telefono'] . ' / ' . $cli['celular'], ' /')); ?></dd>
+                <dt>Comercial</dt><dd><?= gf_h($cli['comercial']); ?></dd>
                 <dt>Total cotizado</dt><dd><?= gf_money($cotizado); ?></dd>
+                <?php if ($ficha['contacto']) { $ct = $ficha['contacto']; ?>
+                    <dt>Contacto</dt><dd><?= gf_h($ct['nombre']); ?><?php $tel = trim($ct['telefono'] . ' / ' . $ct['celular'], ' /'); if ($tel !== '') { echo ' · ' . gf_h($tel); } ?><?php if ($ct['email'] !== '') { echo '<br>' . gf_h($ct['email']); } ?></dd>
+                <?php } ?>
             </dl>
-            <?php if ($ficha['contacto']) { $ct = $ficha['contacto']; ?>
-                <h2 style="margin-top:16px">Contacto principal <small>de la cotización más reciente</small></h2>
-                <dl class="gf-kv">
-                    <dt>Nombre</dt><dd><?= gf_h($ct['nombre']); ?></dd>
-                    <dt>Teléfono / celular</dt><dd><?= gf_h(trim($ct['telefono'] . ' / ' . $ct['celular'], ' /')); ?></dd>
-                    <dt>Correo</dt><dd><?= gf_h($ct['email']); ?></dd>
-                </dl>
-            <?php } ?>
-        </div>
-        <div class="gf-card">
-            <h2>Comunicación por medio</h2>
-            <div class="gf-grid2">
-                <div class="gf-tablewrap">
-                    <table class="gf-table"><thead><tr><th>Medio</th><th class="n">Período</th><th class="n">Total</th><th>Último</th></tr></thead><tbody>
-                    <?php foreach ($porMedio as $m => $v) { ?>
-                        <tr><td><?= gf_h($m); ?></td><td class="n"><?= $v['periodo']; ?></td><td class="n"><?= $v['total']; ?></td><td><?= gf_fecha($v['ultimo']); ?></td></tr>
-                    <?php } if (!$porMedio) { ?><tr><td colspan="4" style="color:#64748b">Sin comunicaciones registradas.</td></tr><?php } ?>
-                    </tbody></table>
-                </div>
-                <div id="gf-ch-medio" class="gf-chart" style="min-height:220px"></div>
-            </div>
-        </div>
+        </section>
+        <?php gf_grafica('gf-ch-medio', 'Comunicación por medio', [
+            'que' => 'Por dónde se ha hablado con este cliente.',
+            'leer' => 'Cada porción es un medio. La leyenda indica cuántos contactos hubo en el período y en total.',
+            'ojo' => 'Solo cuenta lo que el equipo registró como seguimiento.',
+            'dato' => $datoMedio,
+        ], 220); ?>
     </div>
 
-    <div class="gf-card">
-        <h2>Cotizaciones y proyectos <small><?= count($cots); ?></small></h2>
+    <section class="gf-card">
+        <h2>Cotizaciones <small><?= count($cots); ?></small></h2>
         <div class="gf-tablewrap"><table class="gf-table">
-            <thead><tr><th class="sortable">#</th><th>Proyecto</th><th class="sortable">Estado</th><th class="sortable">Fecha</th><th class="sortable n">A cobrar</th><th class="sortable n">Cobrado total</th><th class="sortable n">Gasto directo total</th><th class="sortable n">Ganancia</th><th class="sortable n">Pendiente</th><th>Alerta</th></tr></thead>
+            <thead><tr><th class="sortable">#</th><th>Proyecto</th><th class="sortable">Estado</th><th class="sortable">Fecha</th><th class="sortable n">A cobrar</th><th class="sortable n">Cobrado</th><th class="sortable n">Gasto</th><th class="sortable n">Ganancia</th><th class="sortable n">Pendiente</th><th>Alerta</th></tr></thead>
             <tbody>
             <?php foreach ($cots as $c) { ?>
                 <tr><td data-v="<?= $c['id']; ?>"><a href="index.php?doc=cotizacion&opc=2&id=<?= $c['id']; ?>" target="_blank">#<?= $c['id']; ?></a></td>
-                    <td title="<?= gf_h($c['descripcion']); ?>"><?= gf_h(gf_resumir($c['descripcion'], 90)); ?></td>
+                    <td title="<?= gf_h($c['descripcion']); ?>"><?= gf_h(gf_resumir($c['descripcion'], 80)); ?></td>
                     <td><span class="gf-tag azul"><?= gf_h($c['estado_nombre']); ?></span></td>
                     <td data-v="<?= gf_h($c['fecha']); ?>"><?= gf_fecha($c['fecha']); ?></td>
                     <td class="n" data-v="<?= round($c['a_cobrar']); ?>"><?= gf_money($c['a_cobrar']); ?></td>
@@ -201,58 +190,74 @@ if ($idFicha > 0) {
                     <td class="n <?= gf_clase_valor($c['ganancia_t']); ?>" data-v="<?= round($c['ganancia_t']); ?>"><strong><?= gf_money($c['ganancia_t']); ?></strong></td>
                     <td class="n" data-v="<?= round($c['pendiente']); ?>"><?= $c['pendiente'] > 0 ? '<strong>' . gf_money($c['pendiente']) . '</strong>' : '—'; ?></td>
                     <td><?php if ($c['revisar'] !== '') { ?><span class="gf-tag rojo"><?= gf_h($c['revisar']); ?></span><?php } ?></td></tr>
-            <?php } if (!$cots) { ?><tr><td colspan="10" style="color:#64748b;text-align:center;padding:20px">Este cliente no tiene cotizaciones.</td></tr><?php } ?>
+            <?php } if (!$cots) { ?><tr><td colspan="10" class="gf-vacio">Este cliente no tiene cotizaciones.</td></tr><?php } ?>
             </tbody>
         </table></div>
-    </div>
+    </section>
 
-    <div class="gf-card">
-        <h2>Historial de comunicación <small><?= count($seg); ?> registros &middot; del más reciente al más antiguo</small></h2>
+    <section class="gf-card">
+        <h2>Historial de comunicación <small><?= count($seg); ?></small></h2>
         <div class="gf-timeline">
         <?php foreach (array_slice($seg, 0, 300) as $s) { ?>
             <div class="gf-tl-item">
-                <div class="h"><strong><?= gf_h(gf_fecha_hora($s['fecha'])); ?></strong> &middot; <span class="gf-tag azul"><?= gf_h($s['medio']); ?></span>
-                    &middot; por <strong><?= gf_h($s['usuario']); ?></strong>
-                    <?php if ($s['idCotizacion'] > 0) { ?> &middot; cotización <a href="index.php?doc=cotizacion&opc=2&id=<?= $s['idCotizacion']; ?>" target="_blank">#<?= $s['idCotizacion']; ?></a><?php } ?>
-                    <?php if ($s['contacto'] !== '') { ?> &middot; contacto: <?= gf_h($s['contacto']); ?><?php } ?></div>
+                <div class="h"><strong><?= gf_h(gf_fecha_hora($s['fecha'])); ?></strong> &middot; <?= gf_h($s['medio']); ?> &middot; <?= gf_h($s['usuario']); ?>
+                    <?php if ($s['idCotizacion'] > 0) { ?> &middot; <a href="index.php?doc=cotizacion&opc=2&id=<?= $s['idCotizacion']; ?>" target="_blank">#<?= $s['idCotizacion']; ?></a><?php } ?>
+                    <?php if ($s['contacto'] !== '') { ?> &middot; <?= gf_h($s['contacto']); ?><?php } ?></div>
                 <div class="b"><?= gf_h($s['observacion']); ?></div>
             </div>
-        <?php } if (!$seg) { ?><p class="gf-nota">Este cliente no tiene comunicaciones registradas.</p><?php } ?>
-        <?php if (count($seg) > 300) { ?><p class="gf-nota">Se muestran los 300 más recientes; el Excel incluye todos.</p><?php } ?>
+        <?php } if (!$seg) { ?><p class="gf-nota">Sin comunicaciones registradas.</p><?php } ?>
+        <?php if (count($seg) > 300) { ?><p class="gf-nota">Se muestran las 300 más recientes; el Excel incluye todas.</p><?php } ?>
         </div>
-    </div>
+    </section>
 
     <div class="gf-grid2">
-        <div class="gf-card"><h2>Abonos recientes <small>últimos 100</small></h2>
+        <section class="gf-card"><h2>Abonos recientes</h2>
             <div class="gf-tablewrap"><table class="gf-table"><thead><tr><th>Fecha</th><th>Cot.</th><th>Tipo</th><th class="n">Valor</th></tr></thead><tbody>
             <?php foreach ($ficha['abonos'] as $a) { ?><tr><td><?= gf_fecha($a['fecha']); ?></td><td>#<?= (int) $a['idCotizacion']; ?></td><td><?= gf_h($a['tipo']); ?></td><td class="n"><?= gf_money($a['valor']); ?></td></tr>
-            <?php } if (!$ficha['abonos']) { ?><tr><td colspan="4" style="color:#64748b">Sin abonos.</td></tr><?php } ?></tbody></table></div></div>
-        <div class="gf-card"><h2>Gastos directos recientes <small>últimos 100</small></h2>
+            <?php } if (!$ficha['abonos']) { ?><tr><td colspan="4" class="gf-vacio">Sin abonos.</td></tr><?php } ?></tbody></table></div></section>
+        <section class="gf-card"><h2>Gastos directos recientes</h2>
             <div class="gf-tablewrap"><table class="gf-table"><thead><tr><th>Fecha</th><th>Cot.</th><th>Tipo</th><th>Detalle</th><th class="n">Valor</th></tr></thead><tbody>
-            <?php foreach ($ficha['gastos'] as $g) { ?><tr><td><?= gf_fecha($g['fecha']); ?></td><td>#<?= (int) $g['idCotizacion']; ?></td><td><?= gf_h($g['tipo']); ?></td><td><?= gf_h(gf_resumir($g['observacion'], 60)); ?></td><td class="n"><?= gf_money($g['valor']); ?></td></tr>
-            <?php } if (!$ficha['gastos']) { ?><tr><td colspan="5" style="color:#64748b">Sin gastos directos.</td></tr><?php } ?></tbody></table></div></div>
+            <?php foreach ($ficha['gastos'] as $g) { ?><tr><td><?= gf_fecha($g['fecha']); ?></td><td>#<?= (int) $g['idCotizacion']; ?></td><td><?= gf_h($g['tipo']); ?></td><td><?= gf_h(gf_resumir($g['observacion'], 50)); ?></td><td class="n"><?= gf_money($g['valor']); ?></td></tr>
+            <?php } if (!$ficha['gastos']) { ?><tr><td colspan="5" class="gf-vacio">Sin gastos directos.</td></tr><?php } ?></tbody></table></div></section>
     </div>
 
     <?php if ($ficha['auditoria']) { ?>
-    <div class="gf-card"><h2>Auditoría: pagos a personas <small>histórico</small></h2>
+    <section class="gf-card"><h2>Auditoría: pagos a personas</h2>
         <div class="gf-tablewrap"><table class="gf-table"><thead><tr><th>Persona</th><th>Tipo</th><th class="n">Registros</th><th class="n">Total</th><th>Último pago</th></tr></thead><tbody>
         <?php foreach ($ficha['auditoria'] as $a) { ?><tr><td><?= gf_h($a['persona']); ?></td><td><?= gf_h($a['tipo']); ?></td><td class="n"><?= (int) $a['n']; ?></td><td class="n"><?= gf_money($a['total']); ?></td><td><?= gf_fecha($a['ultimo']); ?></td></tr><?php } ?>
-        </tbody></table></div></div>
+        </tbody></table></div></section>
     <?php } ?>
 </div>
 
+<?php gf_script_base(); ?>
 <script>
+var gfD = <?= json_encode($datosMedio, $js); ?>;
 google.charts.load('current', {packages: ['corechart']});
-google.charts.setOnLoadCallback(function () {
-    var datos = <?= json_encode($chartMedio, $js); ?>;
-    var el = document.getElementById('gf-ch-medio');
-    if (datos.length > 1) {
-        new google.visualization.PieChart(el).draw(google.visualization.arrayToDataTable(datos), {pieHole: 0.4, legend: {position: 'bottom'}, chartArea: {width: '90%'}});
-    } else { el.innerHTML = '<p class="gf-nota" style="padding:20px;text-align:center">Sin datos.</p>'; }
-});
+google.charts.setOnLoadCallback(gfDibujar);
+function gfDibujar() {
+    var G = GF;
+    if (!gfD.length) { G.vacio('gf-ch-medio'); return; }
+    var d = new google.visualization.DataTable(); d.addColumn('string', 'Medio'); d.addColumn('number', 'Contactos');
+    gfD.forEach(function (m) { d.addRow([m.l, m.v]); });
+    G.leyenda('gf-ch-medio', gfD.map(function (m) { return {color: m.c, label: m.l, valor: m.txt}; }));
+    new google.visualization.PieChart(document.getElementById('gf-ch-medio')).draw(d, G.base({
+        pieHole: 0.62, pieSliceText: 'none', pieSliceBorderColor: '#fff', chartArea: {left: 0, top: 4, right: 0, bottom: 4, width: '100%', height: '92%'},
+        colors: gfD.map(function (m) { return m.c; })
+    }));
+}
+(function () {
+    var a = document.getElementById('gf-anio'), fi = document.getElementById('gf-fi'), ff = document.getElementById('gf-ff');
+    if (a) {
+        a.addEventListener('change', function () { if (a.value !== '') { fi.value = ''; ff.value = ''; } });
+        [fi, ff].forEach(function (e) { e.addEventListener('change', function () { a.value = ''; }); });
+    }
+    var t;
+    function redibujar() { clearTimeout(t); t = setTimeout(function () { if (window.google && google.visualization) { gfDibujar(); } }, 150); }
+    window.addEventListener('resize', redibujar);
+    window.addEventListener('beforeprint', redibujar);
+})();
 </script>
 <?php
-    gf_script_tablas();
     return;
 }
 
@@ -355,19 +360,47 @@ if ($esExcel) {
     return;
 }
 
-$chartSem = [['Semáforo', 'Clientes'], ['Al día (≤30 días)', $k['verde']], ['Atención (31–90)', $k['amarillo']], ['Abandonado (>90 o sin registro)', $k['rojo']]];
-$chartMedios = [['Medio', 'Contactos']];
-foreach ($medios as $m => $n) { $chartMedios[] = [$m, $n]; }
-$chartMes = [array_merge(['Mes'], $mediosMes)];
-foreach ($porMes as $mes => $v) {
-    $fila = [$mes];
-    foreach ($mediosMes as $m) { $fila[] = isset($v[$m]) ? $v[$m] : 0; }
-    $chartMes[] = $fila;
+// ------------------------------------------------------------ Datos para graficas
+$coloresMedio = gf_colores_medio(array_unique(array_merge(array_keys($medios), $mediosMes)));
+
+$chartSem = [
+    ['l' => 'Al día (≤30 días)', 'v' => $k['verde'], 'c' => '#0ca30c'],
+    ['l' => 'Atención (31–90)', 'v' => $k['amarillo'], 'c' => '#fab219'],
+    ['l' => 'Sin contacto (>90 o sin registro)', 'v' => $k['rojo'], 'c' => '#d03b3b'],
+];
+$totSem = $k['verde'] + $k['amarillo'] + $k['rojo'];
+foreach ($chartSem as &$cs) { $cs['txt'] = $cs['v'] . ($totSem > 0 ? ' · ' . number_format($cs['v'] / $totSem * 100, 0) . ' %' : ''); }
+unset($cs);
+$datoSem = $totSem > 0 ? $k['rojo'] . ' de ' . $totSem . ' clientes llevan más de 90 días sin contacto (' . number_format($k['rojo'] / $totSem * 100, 0) . ' %).' : '';
+
+$chartMedios = [];
+$totMedios = array_sum($medios);
+foreach ($medios as $m => $n) {
+    $chartMedios[] = ['l' => $m, 'v' => $n, 'c' => $coloresMedio[$m], 'txt' => $n . ($totMedios > 0 ? ' · ' . number_format($n / $totMedios * 100, 0) . ' %' : '')];
 }
+$datoMedios = $chartMedios ? 'Más usado: ' . $chartMedios[0]['l'] . ' (' . $chartMedios[0]['txt'] . ').' : '';
+
+$chartMes = [array_merge(['Mes'], $mediosMes)];
+$mesTop = null;
+$mesTopN = 0;
+foreach ($porMes as $mes => $v) {
+    $fila = [gf_mes_corto($mes)];
+    $sumaMes = 0;
+    foreach ($mediosMes as $m) { $n = isset($v[$m]) ? $v[$m] : 0; $fila[] = $n; $sumaMes += $n; }
+    $chartMes[] = $fila;
+    if ($sumaMes > $mesTopN) { $mesTopN = $sumaMes; $mesTop = $mes; }
+}
+$coloresMes = [];
+foreach ($mediosMes as $m) { $coloresMes[] = $coloresMedio[$m]; }
+$datoMes = $mesTop !== null ? 'Mes más activo: ' . gf_mes_corto($mesTop) . ' (' . $mesTopN . ' contactos).' : '';
+
 $chartDeuda = [['Cliente', 'Pendiente']];
 $deudores = array_filter($filas, function ($f) { return $f['pendiente'] > 0; });
 usort($deudores, function ($a, $b) { return $b['pendiente'] <=> $a['pendiente']; });
-foreach (array_slice($deudores, 0, 10) as $f) { $chartDeuda[] = [gf_resumir($f['nombre'], 26), round($f['pendiente'])]; }
+foreach (array_slice($deudores, 0, 8) as $f) { $chartDeuda[] = [gf_resumir($f['nombre'], 22), round($f['pendiente'])]; }
+$datoDeuda = $deudores ? 'Mayor saldo: ' . gf_resumir($deudores[0]['nombre'], 28) . ' (' . gf_money_corto($deudores[0]['pendiente']) . ').' : '';
+
+$datosJs = ['sem' => $chartSem, 'medios' => $chartMedios, 'mes' => $chartMes, 'coloresMes' => $coloresMes, 'deuda' => $chartDeuda];
 $js = JSON_UNESCAPED_UNICODE;
 gf_estilos();
 ?>
@@ -375,89 +408,103 @@ gf_estilos();
 
 <div class="gf-wrap">
     <div class="gf-hero">
-        <h1>Cartera y seguimiento de clientes</h1>
-        <p>Dinero y última comunicación de cada cliente &mdash; <?= gf_h($etiquetaPeriodo); ?> &middot; <?= gf_h(gf_nombre_ambito($ambito)); ?></p>
+        <h1>Cartera y seguimiento</h1>
+        <p><?= gf_h($etiquetaPeriodo); ?> &middot; <?= gf_h(gf_nombre_ambito($ambito)); ?></p>
     </div>
 
     <?php if ($svc->getLastError() !== '') { ?>
         <div class="gf-error"><strong>No se pudo cargar parte de la información.</strong>
             <?php if ((int) ($_SESSION['superusuario'] ?? 0) === 1) { echo gf_h($svc->getLastError()); } ?></div>
     <?php } ?>
-    <?php if ($svc->esRestringido()) { ?><div class="gf-aviso">Su usuario tiene clientes asignados: solo se muestran esos clientes.</div><?php } ?>
+    <?php if ($svc->esRestringido()) { ?><div class="gf-aviso">Solo se muestran sus clientes asignados.</div><?php } ?>
 
     <form method="get" action="index.php" class="gf-card gf-noprint">
         <input type="hidden" name="doc" value="graphs_cartera" />
-        <div class="gf-filtros">
-            <div class="gf-field"><label>Año</label>
-                <select name="anio" id="gf-anio"><option value="" <?= $anioSel === '' ? 'selected' : ''; ?>>Personalizado</option>
-                    <option value="todos" <?= $anioSel === 'todos' ? 'selected' : ''; ?>>Todos los años</option>
-                    <?php foreach (gf_anios() as $y) { ?><option value="<?= $y; ?>" <?= $anioSel === $y ? 'selected' : ''; ?>><?= $y; ?></option><?php } ?>
-                </select></div>
-            <div class="gf-field"><label>Fecha inicial</label><input type="date" name="fechaInicial" id="gf-fi" value="<?= gf_h($desde); ?>"></div>
-            <div class="gf-field"><label>Fecha final</label><input type="date" name="fechaFinal" id="gf-ff" value="<?= gf_h($hasta); ?>"></div>
-            <div class="gf-field"><label>Ámbito</label>
-                <select name="ambito"><?php foreach (['negocio', 'personal', 'todo'] as $a) { ?><option value="<?= $a; ?>" <?= $ambito === $a ? 'selected' : ''; ?>><?= gf_h(gf_nombre_ambito($a)); ?></option><?php } ?></select></div>
-            <div class="gf-field"><label>Comunicación</label>
-                <select name="com">
-                    <option value="" <?= $com === '' ? 'selected' : ''; ?>>Todos</option>
-                    <option value="alerta" <?= $com === 'alerta' ? 'selected' : ''; ?>>⚠ Deben y sin contacto &gt;90 días</option>
-                    <option value="verde" <?= $com === 'verde' ? 'selected' : ''; ?>>Al día (≤30 días)</option>
-                    <option value="amarillo" <?= $com === 'amarillo' ? 'selected' : ''; ?>>Atención (31–90 días)</option>
-                    <option value="rojo" <?= $com === 'rojo' ? 'selected' : ''; ?>>Abandonados (&gt;90 o sin registro)</option>
-                </select></div>
-            <div class="gf-field"><label>Tipo de cliente</label>
-                <select name="tipo"><option value="">Todos</option><?php foreach ($tipos as $t) { ?><option <?= $tipoSel === $t ? 'selected' : ''; ?>><?= gf_h($t); ?></option><?php } ?></select></div>
-            <div class="gf-field"><label>Comercial</label>
-                <select name="comercial"><option value="">Todos</option><?php foreach ($comerciales as $t) { ?><option <?= $comSel === $t ? 'selected' : ''; ?>><?= gf_h($t); ?></option><?php } ?></select></div>
-            <div class="gf-field"><label>Ordenar por</label>
-                <select name="orden">
-                    <?php foreach (['prioridad' => 'Prioridad (deuda + abandono)', 'pendiente' => 'Mayor pendiente', 'dias' => 'Más días sin contacto', 'ganancia' => 'Mayor ganancia', 'cobrado' => 'Mayor cobrado', 'nombre' => 'Nombre'] as $v => $t) { ?>
-                        <option value="<?= $v; ?>" <?= $orden === $v ? 'selected' : ''; ?>><?= $t; ?></option><?php } ?>
-                </select></div>
-            <div class="gf-field"><label>Buscar</label><input type="text" name="q" value="<?= gf_h($busqueda); ?>" placeholder="Nombre, NIT o representante"></div>
-            <div class="gf-field"><label>&nbsp;</label><label style="text-transform:none;font-size:13px;font-weight:600"><input type="checkbox" name="pend" value="1" <?= $soloPend ? 'checked' : ''; ?> style="width:auto"> Solo con pendiente</label></div>
-        </div>
-        <div class="gf-acciones">
-            <button type="submit" class="gf-btn gf-btn-primary"><i class="bi bi-funnel"></i> Aplicar</button>
-            <a class="gf-btn gf-btn-ghost" href="index.php?doc=graphs_cartera">Limpiar</a>
-        </div>
+        <details class="gf-filtros-wrap" open>
+            <summary>Filtros</summary>
+            <div class="gf-filtros">
+                <div class="gf-field"><label>Año</label>
+                    <select name="anio" id="gf-anio"><option value="" <?= $anioSel === '' ? 'selected' : ''; ?>>Personalizado</option>
+                        <option value="todos" <?= $anioSel === 'todos' ? 'selected' : ''; ?>>Todos</option>
+                        <?php foreach (gf_anios() as $y) { ?><option value="<?= $y; ?>" <?= $anioSel === $y ? 'selected' : ''; ?>><?= $y; ?></option><?php } ?>
+                    </select></div>
+                <div class="gf-field"><label>Desde</label><input type="date" name="fechaInicial" id="gf-fi" value="<?= gf_h($desde); ?>"></div>
+                <div class="gf-field"><label>Hasta</label><input type="date" name="fechaFinal" id="gf-ff" value="<?= gf_h($hasta); ?>"></div>
+                <div class="gf-field"><label>Ámbito</label>
+                    <select name="ambito"><?php foreach (['negocio', 'personal', 'todo'] as $a) { ?><option value="<?= $a; ?>" <?= $ambito === $a ? 'selected' : ''; ?>><?= gf_h(gf_nombre_ambito($a)); ?></option><?php } ?></select></div>
+                <div class="gf-field"><label>Comunicación</label>
+                    <select name="com">
+                        <option value="" <?= $com === '' ? 'selected' : ''; ?>>Todos</option>
+                        <option value="alerta" <?= $com === 'alerta' ? 'selected' : ''; ?>>Deben y sin contacto &gt;90 días</option>
+                        <option value="verde" <?= $com === 'verde' ? 'selected' : ''; ?>>Al día (≤30)</option>
+                        <option value="amarillo" <?= $com === 'amarillo' ? 'selected' : ''; ?>>Atención (31–90)</option>
+                        <option value="rojo" <?= $com === 'rojo' ? 'selected' : ''; ?>>Sin contacto (&gt;90)</option>
+                    </select></div>
+                <div class="gf-field"><label>Tipo de cliente</label>
+                    <select name="tipo"><option value="">Todos</option><?php foreach ($tipos as $t) { ?><option <?= $tipoSel === $t ? 'selected' : ''; ?>><?= gf_h($t); ?></option><?php } ?></select></div>
+                <div class="gf-field"><label>Comercial</label>
+                    <select name="comercial"><option value="">Todos</option><?php foreach ($comerciales as $t) { ?><option <?= $comSel === $t ? 'selected' : ''; ?>><?= gf_h($t); ?></option><?php } ?></select></div>
+                <div class="gf-field"><label>Ordenar por</label>
+                    <select name="orden">
+                        <?php foreach (['prioridad' => 'Prioridad', 'pendiente' => 'Mayor pendiente', 'dias' => 'Más días sin contacto', 'ganancia' => 'Mayor ganancia', 'cobrado' => 'Mayor cobrado', 'nombre' => 'Nombre'] as $v => $t) { ?>
+                            <option value="<?= $v; ?>" <?= $orden === $v ? 'selected' : ''; ?>><?= $t; ?></option><?php } ?>
+                    </select></div>
+                <div class="gf-field"><label>Buscar</label><input type="text" name="q" value="<?= gf_h($busqueda); ?>" placeholder="Nombre, NIT o representante"></div>
+                <div class="gf-field"><label>&nbsp;</label><label style="font-size:13px;font-weight:500;color:var(--gf-text)"><input type="checkbox" name="pend" value="1" <?= $soloPend ? 'checked' : ''; ?>> Solo con pendiente</label></div>
+            </div>
+            <div class="gf-acciones">
+                <button type="submit" class="gf-btn gf-btn-primary">Aplicar</button>
+                <a class="gf-btn gf-btn-ghost" href="index.php?doc=graphs_cartera">Limpiar</a>
+            </div>
+        </details>
         <?php gf_barra_exportar($paramsExport); ?>
     </form>
-    <script>
-    (function () {
-        var a = document.getElementById('gf-anio'), fi = document.getElementById('gf-fi'), ff = document.getElementById('gf-ff');
-        a.addEventListener('change', function () { if (a.value !== '') { fi.value = ''; ff.value = ''; } });
-        [fi, ff].forEach(function (e) { e.addEventListener('change', function () { a.value = ''; }); });
-    })();
-    </script>
 
     <div class="gf-kpis">
-        <div class="gf-kpi azul"><div class="t">Clientes</div><div class="v"><?= $k['clientes']; ?></div><div class="s">con cotizaciones, auditoría o comunicación</div></div>
-        <div class="gf-kpi verde"><div class="t">Cobrado en el período</div><div class="v"><?= gf_money($k['cobrado']); ?></div><div class="s">Ganancia: <span class="<?= gf_clase_valor($k['ganancia']); ?>"><?= gf_money($k['ganancia']); ?></span></div></div>
-        <div class="gf-kpi rojo"><div class="t">Pendiente por cobrar</div><div class="v"><?= gf_money($k['pend_v']); ?></div><div class="s"><?= $k['pend_n']; ?> clientes con saldo</div></div>
-        <div class="gf-kpi rojo"><div class="t">⚠ Deben y sin contacto &gt;90 días</div><div class="v"><?= $k['alertas']; ?></div><div class="s"><?= gf_money($k['alerta_v']); ?> en riesgo</div></div>
-        <div class="gf-kpi verde"><div class="t">Al día (≤30 días)</div><div class="v"><?= $k['verde']; ?></div><div class="s">Atención (31–90): <?= $k['amarillo']; ?></div></div>
-        <div class="gf-kpi naranja"><div class="t">Abandonados</div><div class="v"><?= $k['rojo']; ?></div><div class="s">&gt;90 días o sin registro</div></div>
-        <div class="gf-kpi gris"><div class="t">Contactos en el período</div><div class="v"><?= $k['contactos']; ?></div>
-            <div class="s"><?php $i = 0; foreach ($medios as $m => $n) { if ($i++ >= 3) { break; } echo gf_h($m) . ': ' . $n . ' &middot; '; } ?></div></div>
+        <div class="gf-kpi azul"><div class="t">Clientes</div><div class="v"><?= $k['clientes']; ?></div><div class="s">con actividad</div></div>
+        <div class="gf-kpi azul"><div class="t">Cobrado</div><div class="v"><?= gf_money($k['cobrado']); ?></div><div class="s">ganancia <span class="<?= gf_clase_valor($k['ganancia']); ?>"><?= gf_money_corto($k['ganancia']); ?></span></div></div>
+        <div class="gf-kpi ambar"><div class="t">Por cobrar</div><div class="v"><?= gf_money($k['pend_v']); ?></div><div class="s"><?= $k['pend_n']; ?> clientes con saldo</div></div>
+        <div class="gf-kpi rojo"><div class="t">En riesgo</div><div class="v"><?= $k['alertas']; ?></div><div class="s">deben y &gt;90 días sin contacto · <?= gf_money_corto($k['alerta_v']); ?></div></div>
+        <div class="gf-kpi verde"><div class="t">Al día</div><div class="v"><?= $k['verde']; ?></div><div class="s">contacto en 30 días</div></div>
+        <div class="gf-kpi gris"><div class="t">Contactos</div><div class="v"><?= $k['contactos']; ?></div><div class="s">en el período</div></div>
     </div>
 
     <div class="gf-grid3">
-        <div class="gf-card"><h2>Semáforo de comunicación</h2><div id="gf-ch-sem" class="gf-chart" style="min-height:260px"></div></div>
-        <div class="gf-card"><h2>Contactos por medio</h2><div id="gf-ch-medios" class="gf-chart" style="min-height:260px"></div></div>
-        <div class="gf-card"><h2>Mayor cartera pendiente <small>top 10</small></h2><div id="gf-ch-deuda" class="gf-chart" style="min-height:260px"></div></div>
+        <?php gf_grafica('gf-ch-sem', 'Estado de la comunicación', [
+            'que' => 'Cuántos clientes tienen contacto reciente.',
+            'leer' => 'Verde: contacto en los últimos 30 días. Amarillo: entre 31 y 90. Rojo: más de 90 o sin registro.',
+            'ojo' => 'Solo cuenta lo que el equipo registró como seguimiento.',
+            'dato' => $datoSem,
+        ], 230); ?>
+        <?php gf_grafica('gf-ch-medios', 'Contactos por medio', [
+            'que' => 'Canales usados con los clientes en el período.',
+            'leer' => 'Cada porción es un medio; la leyenda indica cuántos contactos y qué porcentaje.',
+            'ojo' => 'E-mail y SMS se registran juntos en un solo medio.',
+            'dato' => $datoMedios,
+        ], 230); ?>
+        <?php gf_grafica('gf-ch-deuda', 'Mayor saldo por cobrar', [
+            'que' => 'Los clientes que más dinero deben.',
+            'leer' => 'Barra más larga = más saldo. Se muestran los 8 mayores.',
+            'ojo' => 'Saldo = a cobrar − abonos, en cotizaciones aprobadas.',
+            'dato' => $datoDeuda,
+        ], 230); ?>
     </div>
-    <div class="gf-card"><h2>Contactos por mes y medio</h2><div id="gf-ch-mes" class="gf-chart" style="min-height:300px"></div></div>
+    <?php gf_grafica('gf-ch-mes', 'Contactos por mes', [
+        'que' => 'Cuánto se habló con los clientes cada mes.',
+        'leer' => 'Cada color es un medio; la altura total es el número de contactos del mes.',
+        'ojo' => 'Una llamada o mensaje sin registrar no aparece.',
+        'dato' => $datoMes,
+    ], 260); ?>
 
-    <div class="gf-card">
-        <h2>Clientes <small><?= count($filas); ?> &middot; clic en el encabezado para ordenar &middot; clic en el nombre para abrir la ficha 360</small></h2>
+    <section class="gf-card">
+        <h2>Clientes <small><?= count($filas); ?> · clic en el nombre abre la ficha</small></h2>
         <div class="gf-tablewrap">
-        <table class="gf-table">
+        <table class="gf-table gf-t-cart">
             <thead><tr>
                 <th class="sortable">Cliente</th><th class="sortable">Tipo</th><th class="sortable">Comercial</th><th class="sortable n">Cot.</th>
-                <th class="sortable n">Cobrado período</th><th class="sortable n">Ganancia período</th><th class="sortable n">Pendiente</th>
+                <th class="sortable n">Cobrado</th><th class="sortable n">Ganancia</th><th class="sortable n">Pendiente</th>
                 <th class="sortable">Último contacto</th><th class="sortable">Medio</th><th class="sortable">Quién</th><th>Qué se habló</th>
-                <th class="sortable n">Días</th><th class="sortable n">Contactos período</th>
+                <th class="sortable n">Días</th><th class="sortable n">Contactos</th>
             </tr></thead>
             <tbody>
             <?php foreach ($filas as $f) { $u = $f['ultimo']; ?>
@@ -465,57 +512,80 @@ gf_estilos();
                     <td><a href="index.php?<?= gf_h(http_build_query(array_merge(['doc' => 'graphs_cartera', 'cliente' => $f['id'], 'ambito' => $ambito], $qPeriodo))); ?>"><strong><?= gf_h($f['nombre']); ?></strong></a>
                         <?php if ($f['personal']) { ?><span class="gf-tag morado">Personal</span><?php } ?>
                         <?php if (!$f['existe']) { ?><span class="gf-tag rojo">Eliminado</span><?php } ?>
-                        <?php if ($f['alerta']) { ?><span class="gf-tag rojo" title="Tiene saldo pendiente y más de 90 días sin contacto">⚠ Cobrar</span><?php } ?></td>
+                        <?php if ($f['alerta']) { ?><span class="gf-tag rojo" title="Tiene saldo pendiente y más de 90 días sin contacto">Cobrar</span><?php } ?></td>
                     <td><?= gf_h($f['tipo']); ?></td><td><?= gf_h($f['comercial']); ?></td>
                     <td class="n"><?= $f['n_cot']; ?></td>
                     <td class="n" data-v="<?= round($f['cobrado_p']); ?>"><?= gf_money($f['cobrado_p']); ?></td>
                     <td class="n <?= gf_clase_valor($f['ganancia_p']); ?>" data-v="<?= round($f['ganancia_p']); ?>"><?= gf_money($f['ganancia_p']); ?></td>
                     <td class="n" data-v="<?= round($f['pendiente']); ?>"><?= $f['pendiente'] > 0 ? '<strong>' . gf_money($f['pendiente']) . '</strong>' : '—'; ?></td>
-                    <td data-v="<?= $u ? gf_h($u['fecha']) : ''; ?>"><?= $u ? gf_fecha($u['fecha']) : '<em>Sin registro</em>'; ?></td>
-                    <td><?= $u ? '<span class="gf-tag azul">' . gf_h($u['medio']) . '</span>' : ''; ?></td>
+                    <td data-v="<?= $u ? gf_h($u['fecha']) : ''; ?>"><?= $u ? gf_fecha($u['fecha']) : '<span class="gf-nota">Sin registro</span>'; ?></td>
+                    <td><?= $u ? gf_h($u['medio']) : ''; ?></td>
                     <td><?= $u ? gf_h($u['usuario']) : ''; ?></td>
-                    <td title="<?= $u ? gf_h($u['observacion']) : ''; ?>"><?= $u ? gf_h(gf_resumir($u['observacion'], 90)) : ''; ?></td>
+                    <td title="<?= $u ? gf_h($u['observacion']) : ''; ?>"><?= $u ? gf_h(gf_resumir($u['observacion'], 70)) : ''; ?></td>
                     <td class="n" data-v="<?= $f['dias'] === null ? 99999 : $f['dias']; ?>"><span class="gf-dot <?= $f['semaforo']; ?>"></span><?= $f['dias'] === null ? '—' : $f['dias']; ?></td>
                     <td class="n"><?= $f['n_contactos_p']; ?></td>
                 </tr>
             <?php } ?>
-            <?php if (!$filas) { ?><tr><td colspan="13" style="text-align:center;color:#64748b;padding:24px">No hay clientes para estos filtros.</td></tr><?php } ?>
+            <?php if (!$filas) { ?><tr><td colspan="13" class="gf-vacio">No hay clientes para estos filtros.</td></tr><?php } ?>
             </tbody>
         </table>
         </div>
-        <p class="gf-nota" style="margin-top:8px">«Último contacto» sale de los seguimientos registrados (<code>seguimiento</code>): fecha, medio, usuario de VidEx y lo anotado. Semáforo: verde ≤30 días, amarillo 31–90, rojo &gt;90 o sin registro. Solo cuenta lo que el equipo anotó: una llamada o un WhatsApp sin registrar no aparece. «Pendiente» = A cobrar − abonos en cotizaciones aprobadas con saldo.</p>
-    </div>
+    </section>
+
+    <details class="gf-det">
+        <summary>Cómo se calcula</summary>
+        <ul class="gf-nota">
+            <li><b>Último contacto:</b> el seguimiento más reciente registrado (fecha, medio, usuario y nota).</li>
+            <li><b>Semáforo:</b> verde ≤30 días, amarillo 31–90, rojo &gt;90 o sin registro.</li>
+            <li><b>Pendiente:</b> a cobrar − abonos, en cotizaciones aprobadas con saldo.</li>
+            <li><b>Ganancia:</b> cobrado − gastos directos − auditoría, en el período.</li>
+        </ul>
+    </details>
 </div>
 
+<?php gf_script_base(); ?>
 <script>
+var gfD = <?= json_encode($datosJs, $js); ?>;
 google.charts.load('current', {packages: ['corechart']});
 google.charts.setOnLoadCallback(gfDibujar);
-var gfSem = <?= json_encode($chartSem, $js); ?>;
-var gfMedios = <?= json_encode($chartMedios, $js); ?>;
-var gfDeuda = <?= json_encode($chartDeuda, $js); ?>;
-var gfMes = <?= json_encode($chartMes, $js); ?>;
 function gfDibujar() {
-    function vacio(id) { document.getElementById(id).innerHTML = '<p class="gf-nota" style="padding:30px;text-align:center">Sin datos para graficar.</p>'; }
-    var fmt = new google.visualization.NumberFormat({prefix: '$', groupingSymbol: '.', decimalSymbol: ',', fractionDigits: 0});
-    if (gfSem[1][1] + gfSem[2][1] + gfSem[3][1] > 0) {
-        new google.visualization.PieChart(document.getElementById('gf-ch-sem')).draw(google.visualization.arrayToDataTable(gfSem),
-            {pieHole: 0.45, colors: ['#16a34a', '#eab308', '#dc2626'], legend: {position: 'bottom'}, chartArea: {width: '90%'}});
-    } else { vacio('gf-ch-sem'); }
-    if (gfMedios.length > 1) {
-        new google.visualization.PieChart(document.getElementById('gf-ch-medios')).draw(google.visualization.arrayToDataTable(gfMedios),
-            {legend: {position: 'bottom'}, chartArea: {width: '90%'}});
-    } else { vacio('gf-ch-medios'); }
-    if (gfDeuda.length > 1) {
-        var d = google.visualization.arrayToDataTable(gfDeuda); fmt.format(d, 1);
-        new google.visualization.BarChart(document.getElementById('gf-ch-deuda')).draw(d,
-            {colors: ['#dc2626'], legend: {position: 'none'}, hAxis: {format: 'short'}, chartArea: {left: 130, width: '60%'}});
-    } else { vacio('gf-ch-deuda'); }
-    if (gfMes.length > 1 && gfMes[0].length > 1) {
-        new google.visualization.ColumnChart(document.getElementById('gf-ch-mes')).draw(google.visualization.arrayToDataTable(gfMes),
-            {isStacked: true, legend: {position: 'bottom'}, chartArea: {width: '88%'}});
-    } else { vacio('gf-ch-mes'); }
+    var G = GF, C = G.C, d;
+    function dona(id, items) {
+        d = new google.visualization.DataTable(); d.addColumn('string', 'Concepto'); d.addColumn('number', 'Valor');
+        items.forEach(function (i) { d.addRow([i.l, i.v]); });
+        G.leyenda(id, items.map(function (i) { return {color: i.c, label: i.l, valor: i.txt}; }));
+        new google.visualization.PieChart(document.getElementById(id)).draw(d, G.base({
+            pieHole: 0.62, pieSliceText: 'none', pieSliceBorderColor: '#fff', chartArea: {left: 0, top: 4, right: 0, bottom: 4, width: '100%', height: '92%'},
+            colors: items.map(function (i) { return i.c; })
+        }));
+    }
+    var haySem = gfD.sem.some(function (i) { return i.v > 0; });
+    if (haySem) { dona('gf-ch-sem', gfD.sem.filter(function (i) { return i.v > 0; })); } else { G.vacio('gf-ch-sem'); }
+    if (gfD.medios.length) { dona('gf-ch-medios', gfD.medios); } else { G.vacio('gf-ch-medios'); }
+    if (gfD.deuda.length > 1) {
+        d = google.visualization.arrayToDataTable(gfD.deuda); G.formatear(d, [1]);
+        new google.visualization.BarChart(document.getElementById('gf-ch-deuda')).draw(d, G.base({
+            colors: [C.ambar], bar: {groupWidth: '65%'}, chartArea: {left: 120, top: 4, right: 8, bottom: 22, width: '100%', height: '86%'},
+            hAxis: {format: 'short', gridlines: {color: C.grid}}, vAxis: {gridlines: {color: 'transparent'}, format: ''}
+        }));
+    } else { G.vacio('gf-ch-deuda'); }
+    if (gfD.mes.length > 1 && gfD.mes[0].length > 1) {
+        d = google.visualization.arrayToDataTable(gfD.mes);
+        G.leyenda('gf-ch-mes', gfD.mes[0].slice(1).map(function (n, i) { return {color: gfD.coloresMes[i], label: n}; }));
+        new google.visualization.ColumnChart(document.getElementById('gf-ch-mes')).draw(d, G.base({
+            isStacked: true, colors: gfD.coloresMes, bar: {groupWidth: '60%'}, vAxis: {format: '#'}
+        }));
+    } else { G.vacio('gf-ch-mes'); }
 }
-window.addEventListener('resize', function () { if (window.google && google.visualization) { gfDibujar(); } });
-window.addEventListener('beforeprint', function () { if (window.google && google.visualization) { gfDibujar(); } });
+(function () {
+    var a = document.getElementById('gf-anio'), fi = document.getElementById('gf-fi'), ff = document.getElementById('gf-ff');
+    if (a) {
+        a.addEventListener('change', function () { if (a.value !== '') { fi.value = ''; ff.value = ''; } });
+        [fi, ff].forEach(function (e) { e.addEventListener('change', function () { a.value = ''; }); });
+    }
+    var t;
+    function redibujar() { clearTimeout(t); t = setTimeout(function () { if (window.google && google.visualization) { gfDibujar(); } }, 150); }
+    window.addEventListener('resize', redibujar);
+    window.addEventListener('beforeprint', redibujar);
+})();
 </script>
-<?php gf_script_tablas(); ?>
